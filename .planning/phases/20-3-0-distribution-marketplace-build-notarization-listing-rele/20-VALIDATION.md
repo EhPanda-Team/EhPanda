@@ -13,10 +13,10 @@ created: "2026-11-09"
 > Per-phase validation contract for feedback sampling during execution. Source: 20-RESEARCH.md "Validation
 > Architecture". `nyquist_compliant` is set by plan 20-14 Task 2 once every automated row is green.
 >
-> Waves amended 2026-11-09 (CONTEXT D-23, product lead msg 2783 answering OQ-G): 20-07, 20-09 and 20-12 start in
+> Waves amended 2026-11-09 (CONTEXT D-23, product lead decision answering OQ-G): 20-07, 20-09 and 20-12 start in
 > wave 1, so the phase runs in 8 waves; 20-08 is wave 5, 20-10 and 20-11 wave 6, 20-13 wave 7, 20-14 wave 8.
 >
-> Waves amended again 2026-11-09 (CONTEXT D-26, owner msg 2802): the PAL submission comes after the Classic release,
+> Waves amended again 2026-11-09 (CONTEXT D-26, owner decision): the PAL submission comes after the Classic release,
 > so 20-08 moves last (wave 8, after 20-10, 20-11 and 20-14). 20-10 and 20-11 are now wave 5, 20-13 wave 6 and
 > 20-14 wave 7.
 
@@ -78,8 +78,8 @@ created: "2026-11-09"
 | 20-10-02 | 10 | 5 | MKT-18-01, CAP-17-05 | T-20-27 | store renders tied to approved references; delivery check | unit + render | `test_store_screenshots.py`; `store_screenshots.py check` | ❌ W0 | ➖ superseded |
 | 20-10-03 | 10 | 5 | MKT-18-01, DIST-18-02 | T-20-28 | approved, pushed, listed, uploaded | checkpoint | `curl` URLs; actions-tool tests with assets | — | ⬜ pending |
 | 20-11-01 | 11 | 5 | REL-18-01 | — | OQ-F decided | checkpoint (decision) | — | — | ✅ green |
-| 20-11-02 | 11 | 5 | REL-18-01 | T-20-29, T-20-30 | release requires the gate's `success` on its commit (superseded: gate off for 3.0, owner msg 3757; `test_workflows.py` asserts it is off) | unit (fake gh) + workflow | `test_require_snapshot_gate.py`; `test_workflows.py`; actionlint | ❌ W0 | ➖ superseded |
-| 20-11-03 | 11 | 5 | REL-18-01 | — | live read of real verdicts | script | `grep` results | — | ⏸ deferred (owner msg 3742) |
+| 20-11-02 | 11 | 5 | REL-18-01 | T-20-29, T-20-30 | release requires the gate's `success` on its commit (superseded: gate off for 3.0, owner decision; `test_workflows.py` asserts it is off) | unit (fake gh) + workflow | `test_require_snapshot_gate.py`; `test_workflows.py`; actionlint | ❌ W0 | ➖ superseded |
+| 20-11-03 | 11 | 5 | REL-18-01 | — | live read of real verdicts | script | `grep` results | — | ⏸ deferred (owner decision) |
 | 20-12-01 | 12 | 1 | ANALYTICS-02 | T-20-31 | rules check per proposed signal; no code | document | `grep` flows; no AppPackage diff | — | ✅ green |
 | 20-12-02 | 12 | 1 | ANALYTICS-02 | T-20-31 | sign-off before code | checkpoint (decision) | — | — | ✅ green |
 | 20-13-01 | 13 | 6 | ANALYTICS-02 | T-20-32, T-20-33 | type-closed, level-gated, no content | unit | `-only-testing:AnalyticsClientTests` | ✅ | ✅ green |
@@ -97,11 +97,11 @@ on 10 workflows, and `verify-release.py` 0 findings for the default and the mark
 
 Rows still not green, so `nyquist_compliant` stays false:
 
-- **20-10-02** is superseded (accepted, owner msg 3742): 20-10 closed on the owner's existing screenshot set (msgs 3167, 3168), so
+- **20-10-02** is superseded (accepted, owner decision): 20-10 closed on the owner's existing screenshot set, so
   `store_screenshots.py` and its tests were never written.
 - **20-10-03**: the upload and the PAL copy approval moved to 20-08.
-- **20-11-03** is deferred (accepted, owner msg 3742): every live read exits 1 until Phase 19's passing gate run exists
-  (`20-11-GATE.md`); it is no longer on the before-release-day list: the release workflows do not read the gate for 3.0 (owner msg 3757), so it stays deferred.
+- **20-11-03** is deferred (accepted, owner decision): every live read exits 1 until Phase 19's passing gate run exists
+  (`20-11-GATE.md`); it is no longer on the before-release-day list: the release workflows do not read the gate for 3.0 (owner decision), so it stays deferred.
 - **20-06-xx, 20-07-02, 20-08-xx**: those plans are not executed; 20-08 is last (D-26).
 
 ---
@@ -142,5 +142,5 @@ Each is written first in its own task (TDD), so no separate Wave 0 plan is neede
 - [x] Feedback latency < 360 s
 - [ ] `nyquist_compliant: true` set in frontmatter (not yet: the rows above)
 
-**Approval:** pending (20-14 gate green on 2026-11-11; `nyquist_compliant` stays false until the rows above are green or the owner accepts them as superseded or deferred; owner msg 3742 accepted 20-10-02 as
+**Approval:** pending (20-14 gate green on 2026-11-11; `nyquist_compliant` stays false until the rows above are green or the owner accepts them as superseded or deferred; owner decision accepted 20-10-02 as
 superseded and 20-11-03 as deferred, so `nyquist_compliant` can be set once 20-06, 20-07 and 20-08 are green)

@@ -59,7 +59,7 @@ public struct FavoritesReducer: Sendable {
         public var downloadBadges = [String: DownloadBadge]()
         /// The categories whose last load succeeded with nothing in them: nothing saved there yet, which
         /// Favorites shows as its own empty state. A keyword search or a date-seek with no hits is "no
-        /// results" instead and stays `.failed(.notFound)` (owner msg 2896).
+        /// results" instead and stays `.failed(.notFound)` (owner decision).
         public var emptyFavoritesIndices = Set<Int>()
 
         var galleries: [Gallery]? {

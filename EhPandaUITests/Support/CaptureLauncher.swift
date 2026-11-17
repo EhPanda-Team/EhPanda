@@ -52,7 +52,7 @@ struct CaptureCoordinate: Equatable, Sendable {
         case ipad
 
         /// The orientation every marketing capture on the family shows: iPhone screenshots are
-        /// portrait and iPad ones landscape (owner msg 5073).
+        /// portrait and iPad ones landscape (owner decision).
         var orientation: Orientation {
             switch self {
             case .iphone:
@@ -289,7 +289,7 @@ struct CaptureFixtureSelection: Decodable, Sendable {
         let status: String
         /// How many pages an incomplete download holds; `nil` for a complete one.
         let completedPages: Int?
-        /// Whether a complete download's folder holds no page file, only its record (owner msg 5113).
+        /// Whether a complete download's folder holds no page file, only its record (owner decision).
         let mockPages: Bool?
         /// Whether the gallery may also be visible on another screen of the set.
         let allowedRepeat: Bool?

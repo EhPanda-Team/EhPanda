@@ -255,4 +255,4 @@ Kana and Hangul terms match as substrings, so four entries also caught everyday 
 (inside `ガイジン`), ko `죽어라` (the idiom for "with all one's might"), ko `뒤져라` ("search it") and ko `자살해`
 (plot talk such as "the hero took his own life"; the imperative `자살해라` stays). `theBundledListLeavesOrdinaryCommentsAlone`
 gained these four sentences. CommentFilterTests pass on the phone simulator. The rest of the list was read and kept:
-the filter only warns (owner msg 1765), so a rare remaining false positive costs one extra tap.
+the filter only warns (owner decision), so a rare remaining false positive costs one extra tap.

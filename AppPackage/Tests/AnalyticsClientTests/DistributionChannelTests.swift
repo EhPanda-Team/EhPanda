@@ -2,7 +2,7 @@ import AppModels
 import Foundation
 import Testing
 
-// D-06c as amended by Phase 20 D-12 (owner msg 2552): the install signal reports the distribution
+// D-06c as amended by Phase 20 D-12 (owner decision): the install signal reports the distribution
 // channel stamped into the app's Info.plist, as is, from a closed allow-list. Anything else is
 // `source`, so no stamped value can widen what reaches an analytics payload (T-18-21).
 @Suite
@@ -49,7 +49,7 @@ struct DistributionChannelTests {
     // MARK: Anything else is `source`
 
     // Exact comparison: no case folding, trimming or prefixes, and none of the values MarketplaceKit
-    // used to report (owner msg 2552).
+    // used to report (owner decision).
     @Test(arguments: [
         "", "Beta", "GitHub", "AltStore", "SideStore", "altstorepal", "ALTSTOREPAL", " beta", "beta ", "beta\n",
         "beta.1", "Source", "other", "appStore", "testFlight", "web", "unknown", "marketplace:com.example.store"

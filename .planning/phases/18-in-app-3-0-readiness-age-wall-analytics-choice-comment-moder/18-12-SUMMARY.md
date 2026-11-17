@@ -8,7 +8,7 @@ requires: ["18-01", "18-02", "18-03", "18-04", "18-05", "18-06", "18-07", "18-08
 provides:
   - "The Analytics section of `README.md` and the five `READMEs/` translations: the three levels (Minimal, Basic, Full) verbatim from the copy files, the choice on first launch and in Settings → General → Analytics, and what each level sends as built"
   - "`18-copy-check.py --readmes`, with ten self-test cases"
-  - "Comment blocking by the poster's E-Hentai member ID (owner msg 1918): `GalleryComment.authorMemberID` from the comment's forum contact link, `[BlockedCommentUser]` under `@Shared(.blockedCommentUsers)`, and the name a blocked poster was last seen under kept for the Blocked Users list"
+  - "Comment blocking by the poster's E-Hentai member ID (owner decision): `GalleryComment.authorMemberID` from the comment's forum contact link, `[BlockedCommentUser]` under `@Shared(.blockedCommentUsers)`, and the name a blocked poster was last seen under kept for the Blocked Users list"
   - "The Phase 18 gate record: four green test runs, lint, both copy checks, the Release scan and the no-network-before-Continue observation"
 affects: [18-verify, 19]
 
@@ -61,10 +61,10 @@ key-files:
     - EhPandaUITests/Support/UITestConstants.swift
 
 key-decisions:
-  - "Lead decision (owner msg 1918): comment blocking matches the poster's E-Hentai member ID, the digits after `showuser=` in the forum contact link that the site prints after every comment author's name. It never matches the display name, which can change"
-  - "Lead decision (owner msg 1918): the block list moved to a new key, `blockedCommentUsers`, holding `[BlockedCommentUser]` (member ID plus the name last seen). There is no migration from `blockedCommentAuthors`: that key was added in 18-04 (`fb26b0e3c`), and `git tag --contains` shows no release tag holds it"
-  - "Lead decision (owner msg 1918): a comment without a member ID offers no Block and is never collapsed, because there is nothing stable to match. Report stays"
-  - "Lead decision (owner msg 1918): when a blocked ID appears under a new name, the block stays and the Detail fetch stores the new name, so the Blocked Users list shows the name the site shows now. The write happens only when a name changed"
+  - "Lead decision: comment blocking matches the poster's E-Hentai member ID, the digits after `showuser=` in the forum contact link that the site prints after every comment author's name. It never matches the display name, which can change"
+  - "Lead decision: the block list moved to a new key, `blockedCommentUsers`, holding `[BlockedCommentUser]` (member ID plus the name last seen). There is no migration from `blockedCommentAuthors`: that key was added in 18-04 (`fb26b0e3c`), and `git tag --contains` shows no release tag holds it"
+  - "Lead decision: a comment without a member ID offers no Block and is never collapsed, because there is nothing stable to match. Report stays"
+  - "Lead decision: when a blocked ID appears under a new name, the block stays and the Detail fetch stores the new name, so the Blocked Users list shows the name the site shows now. The write happens only when a name changed"
   - "`BlockedCommentUser` decodes strictly, like `GalleryHistoryEntry`: an entry whose member ID is empty or not all digits, or whose schema is newer, fails the whole list's decode, so Sharing resets the list to `[]`. `block(memberID:name:)` refuses the same IDs, so the app never writes a list it cannot read back"
   - "`CommentModerationMenu.items` takes a `CommentBlockStatus` (`.blocked`, `.notBlocked`, `.noMemberID`) instead of `isBlocked` plus a sixth `hasMemberID` flag. The flag broke SwiftLint's five-parameter limit, and the enum rules out the impossible blocked-without-ID state"
   - "The Blocked Users list sorts by name with `localizedStandardCompare`, then by member ID, so two posters under one name keep a stable order"
@@ -94,7 +94,7 @@ coverage:
         status: pass
     human_judgment: false
   - id: T3
-    description: "Live report page (checkpoint, verified by an agent per owner rule msg 1652)"
+    description: "Live report page (checkpoint, verified by an agent per owner rule)"
     verification:
       - kind: manual_agent
         ref: "Debug build on the phone, signed in through the app's login: Report → Open Report Page loads the signed-in report form; after Log Out the same sheet loads the site's guest page (deviation 9). Nothing selected or submitted"
@@ -109,9 +109,8 @@ status: complete
 # Phase 18 Plan 12: README Analytics, phase gate and member-ID blocking Summary
 
 **The six README Analytics sections now describe the three analytics levels as the app offers and sends them. Comment
-blocking now matches the poster's E-Hentai member ID instead of the display name (owner msg 1918). Phase 18 passes
-its full gate on both devices and in Release. The live report-page check passed, verified by an agent per owner rule
-msg 1652.**
+blocking now matches the poster's E-Hentai member ID instead of the display name (owner decision). Phase 18 passes
+its full gate on both devices and in Release. The live report-page check passed, verified by an agent per owner rule.**
 
 ## Accomplishments
 
@@ -126,7 +125,7 @@ msg 1652.**
     stay.
   - `18-copy-check.py --readmes` checks the three levels verbatim and in order. It fails on retired descriptions,
     on None as a level and on the old opt-out sentences.
-- **Member-ID blocking (owner msg 1918, `f08a6a781`):**
+- **Member-ID blocking (owner decision, `f08a6a781`):**
   - The parser reads the member ID from the comment's contact link,
     `https://forums.e-hentai.org/index.php?showuser=<digits>`. It accepts digits only, on an `e-hentai.org` host,
     from the author line only. A link inside the comment text never counts. With no such link the ID is `nil`.
@@ -178,7 +177,7 @@ The credentialed check of `App.installed` at Minimal was not run. The Release bu
 app ID, so it would have posted a real, non-test install signal into the owner's analytics. That request is covered
 by the `InstallSignalSender` unit tests (body, hash, disposition, retry).
 
-### Earlier gate attempts (before owner msg 1918)
+### Earlier gate attempts (before an owner decision)
 
 The gate first ran on `0062fa2e1`. That attempt is superseded, because the member-ID change touched the parser,
 storage and the comment UI:
@@ -195,7 +194,7 @@ It also found the stale Reduce Motion inventory (`3be402c1e`) and the strip-drag
 
 ## Deviations from Plan
 
-1. **[Owner change, msg 1918] Member-ID blocking.** This change came in the middle of the gate and is outside the
+1. **[Owner change] Member-ID blocking.** This change came in the middle of the gate and is outside the
    plan's file list: the parser, models, moderation feature, settings screen, UI test support, and their tests
    (`f08a6a781`). The decisions are recorded above.
 2. **[Rule 1] Reduce Motion inventory (`3be402c1e`).** 18-11 gated three comment moderation animations on Reduce
@@ -211,7 +210,7 @@ It also found the stale Reduce Motion inventory (`3be402c1e`) and the strip-drag
 6. **`18-copy-check.py --readmes`** also fails each file's old opt-out sentences, beyond the plan's list. It has ten
    self-test cases.
 7. **`XCTUnwrap UIWindowScene` on the pad.** `ReaderListPositionTests` sometimes finds no window scene in the pad
-   clone's first moments. It failed once before msg 1918 and once after (`testAPageAcrossTheTopKeepsItsHeightUntilItsTopIsOnScreen`,
+   clone's first moments. It failed once and once after (`testAPageAcrossTheTopKeepsItsHeightUntilItsTopIsOnScreen`,
    0.27 s, in a run with 1742 passed). A rerun of the full plan was green each time. This is environmental; no code
    changed for it.
 8. **Clones, not the devices themselves.** The test plans and the network observation ran on clones of `$PHONE`
@@ -235,7 +234,7 @@ It also found the stale Reduce Motion inventory (`3be402c1e`) and the strip-drag
 
 ## Checkpoint: live report page (Task 3), PASSED
 
-Verified by an agent per owner rule msg 1652 (agents test what they can themselves), 2026-11-05 17:51Z. No account
+Verified by an agent per owner rule (agents test what they can themselves), 2026-11-05 17:51Z. No account
 details are recorded here or in any screenshot.
 
 Setup: a Debug build of `0c753baf8` (planning docs only since the gated `f08a6a781`), installed as

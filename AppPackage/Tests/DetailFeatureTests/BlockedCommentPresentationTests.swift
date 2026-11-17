@@ -74,7 +74,7 @@ struct BlockedCommentPresentationTests {
         #expect(revealedCard == [.unblock, .hide])
     }
 
-    /// Lead decision (owner msg 1918): a comment with no member ID has nothing stable to block by, so Block is left
+    /// Lead decision: a comment with no member ID has nothing stable to block by, so Block is left
     /// out, Report kept; it is never blocked, so no Unblock or Hide either.
     @Test(arguments: [CommentModerationSurface.list, .card])
     func aCommentWithNoMemberIDOffersNoBlock(surface: CommentModerationSurface) {

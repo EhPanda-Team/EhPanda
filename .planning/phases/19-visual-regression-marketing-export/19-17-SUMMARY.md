@@ -6,7 +6,7 @@ tags: [readme, preview-review, validator, phase-gate, release-isolation]
 
 requires:
   - phase: 19-13
-    provides: "the approval and baseline (deferred, owner msg 3428)"
+    provides: "the approval and baseline (deferred, owner decision)"
   - phase: 19-16
     provides: "the live-check deployment and its pending-after-merge items"
 provides:
@@ -29,9 +29,9 @@ key-files:
     - .planning/phases/19-visual-regression-marketing-export/19-VALIDATION.md
 
 key-decisions:
-  - "Task 3 (controlled regression on the hosted runner) is deferred (owner msg 3428); it is in STATE.md Deferred Items."
-  - "Task 4: Required check: not required (owner msg 3431), for now. The gate runs on every PR but is not required to merge into `main`."
-  - "UITests first runs had 2 Repetition nodes per device (flaky first runs). Root cause: the \"Show All\" tap reached the app at about 1/3 of the intended point, below the app and the test (simulator or XCTest touch injection). Owner msgs 3539 and 3554: environmental, gate on a clean rerun, accepted with the retries noted. `nyquist_compliant` is true under that rule. No code, test or plan change."
+  - "Task 3 (controlled regression on the hosted runner) is deferred (owner decision); it is in STATE.md Deferred Items."
+  - "Task 4: Required check: not required (owner decision), for now. The gate runs on every PR but is not required to merge into `main`."
+  - "UITests first runs had 2 Repetition nodes per device (flaky first runs). Root cause: the \"Show All\" tap reached the app at about 1/3 of the intended point, below the app and the test (simulator or XCTest touch injection). Owner decision: environmental, gate on a clean rerun, accepted with the retries noted. `nyquist_compliant` is true under that rule. No code, test or plan change."
 
 requirements-completed: []
 status: complete-with-deferred-parts
@@ -41,8 +41,8 @@ status: complete-with-deferred-parts
 
 **Tasks 1, 2 and 5 are done; Task 3 is deferred; Task 4 is answered. Every gate step passed except the "0 Repetition
 nodes" bar on the first run: two accessibility-audit UI tests (one per device) failed their first run and passed on
-retry. The clean rerun (owner msg 3539) was phone 0 Repetition nodes, iPad 0 failures with 4 Repetition nodes from two
-other tests; accepted with the retries noted (owner msg 3554).**
+retry. The clean rerun (owner decision) was phone 0 Repetition nodes, iPad 0 failures with 4 Repetition nodes from two
+other tests; accepted with the retries noted (owner decision).**
 
 ## Accomplishments
 
@@ -55,8 +55,8 @@ other tests; accepted with the retries noted (owner msg 3554).**
   `test_preview.py` 8 tests green. **Open:** the real render of the first preview in `DownloadsView+Subviews.swift` in two
   locales needs a running Xcode with the preview tools enabled; Xcode was not opened (brief). It is listed in
   `19-VALIDATION.md` Manual-Only.
-- **Task 3:** deferred, owner msg 3428. `19-17-REGRESSION.md` is not written.
-- **Task 4:** Required check: not required (owner msg 3431), for now. The line is worded to match the task's verify
+- **Task 3:** deferred, owner decision. `19-17-REGRESSION.md` is not written.
+- **Task 4:** Required check: not required (owner decision), for now. The line is worded to match the task's verify
   regex, which is unchanged.
 - **Task 5:** results in `19-VALIDATION.md` "Phase gate results". Summary:
 
@@ -83,8 +83,8 @@ other tests; accepted with the retries noted (owner msg 3554).**
   about 1/3 of the intended point: (125, 131) against a target centred at (374.7, 395), a factor equal to the
   phone's display scale; 3 failures in about 30 early tries, 0 in about 310 later ones). The share-sheet failure on
   the iPad is the simulator's system flow, not the extension. Details and evidence: `19-VALIDATION.md` "Phase gate
-  results", notes 2 to 4. Owner msg 3539: environmental, gate on a clean rerun. Owner msg 3554: accepted with the
+  results", notes 2 to 4. Owner decision: environmental, gate on a clean rerun. Owner decision: accepted with the
   retries noted. `nyquist_compliant` is set to true on that rule; no code, test or plan was changed.
 - Deferred and owed: Task 3, the real preview render, and the hosted rows of 19-10, 19-12 and 19-13.
 - Phase 19 was not marked complete at the end of this plan. It is marked complete, with the deferred items above, in the
-  close-out records (ROADMAP.md, STATE.md; security accepted-deferred by owner msg 3573).
+  close-out records (ROADMAP.md, STATE.md; security accepted-deferred by an owner decision).

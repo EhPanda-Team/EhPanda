@@ -1,6 +1,6 @@
 # Phase 18: discussion prep (draft, not CONTEXT.md)
 
-> **Status (2026-11-05):** kept as the phase record. The owner answered the gray areas in msgs 1753, 1765, 1767 and 1780 and split the phase into Phases 18, 19 and 20. Where an answer differs from this prep, [18-CONTEXT.md](18-CONTEXT.md) (and 19-CONTEXT.md, 20-CONTEXT.md) win. Only L10 below was edited, as the owner asked.
+> **Status (2026-11-05):** kept as the phase record. The owner answered the gray areas and split the phase into Phases 18, 19 and 20. Where an answer differs from this prep, [18-CONTEXT.md](18-CONTEXT.md) (and 19-CONTEXT.md, 20-CONTEXT.md) win. Only L10 below was edited, as the owner asked.
 
 **Prepared:** 2026-11-05, at `aaa514d46` (branch `feature/gsd-phase-17`). Uncommitted draft.
 **Workflow:** `discuss-phase` steps done through `analyze_phase`: init, anti-pattern check (no `.continue-here.md`),
@@ -24,32 +24,32 @@ before planning.
 
 | # | Decision | Source |
 |---|---|---|
-| L1 | Phase 18 is the last 3.0 phase. Snapshot tests (17-08 to 17-13, 17-14 T1/T3, 17-15, 17-20), the 384 export (17-07, 17-21) and the AltStore promotional images (17-22) move here. They are not deferred past 3.0. | Owner msg 1305; ROADMAP scope 1 |
-| L2 | Phase 18 takes all the work needed for AltStore PAL and other potential marketplaces. | Owner msg 1287; ROADMAP scope 2 |
-| L3 | Analytics also tracks the marketplace or install source. The analytics revision is the **last** plan. | Owner msg 1289; ANALYTICS-02; Step 12 |
-| L4 | Comment report, block user, contact details and a posting filter ship to **all users in every build**, not just the marketplace build. | Owner msg 1294, research msg 1299; UGC-18-01 |
+| L1 | Phase 18 is the last 3.0 phase. Snapshot tests (17-08 to 17-13, 17-14 T1/T3, 17-15, 17-20), the 384 export (17-07, 17-21) and the AltStore promotional images (17-22) move here. They are not deferred past 3.0. | Owner decision; ROADMAP scope 1 |
+| L2 | Phase 18 takes all the work needed for AltStore PAL and other potential marketplaces. | Owner decision; ROADMAP scope 2 |
+| L3 | Analytics also tracks the marketplace or install source. The analytics revision is the **last** plan. | Owner decision; ANALYTICS-02; Step 12 |
+| L4 | Comment report, block user, contact details and a posting filter ship to **all users in every build**, not just the marketplace build. | Owner decision; UGC-18-01 |
 | L5 | The age wall and analytics consent are standard in **every build**. | STATE Deferred Items (2026-11-02); AGE-18-01, CONSENT-18-01 |
 | L6 | Apple-service actions (App IDs, app record, certificates, API keys, marketplace registration, trader status) happen in the collaborator's App Store Connect account, by the collaborator or with the owner's explicit OK at the time. Agents never create them on their own. | ROADMAP scope 5; DIST-18-03 |
-| L7 | The privacy policy and support pages are website work owned by another team member. This phase records the URLs it needs and waits for them. The website's adult-mode declaration uses the age-wall wording. | ROADMAP scope 6; DIST-18-02; team spec msg 1240 |
+| L7 | The privacy policy and support pages are website work owned by another team member. This phase records the URLs it needs and waits for them. The website's adult-mode declaration uses the age-wall wording. | ROADMAP scope 6; DIST-18-02; team decision |
 | L8 | No "Apple-approved" wording anywhere. | DIST-18-02 |
 
 ### Age wall (AGE-18-01)
 
 | # | Decision | Source |
 |---|---|---|
-| L9 | Shown on first launch, before any content is shown or any network request is made. | Owner msgs 1231, 1235, 1239; AGE-18-01 |
-| L10 | The user confirms that they are an adult **and** that they may legally view explicit content under every law that applies to them. Not just "18 or older". *Updated 2026-11-05 (owner msg 1753):* the on-screen text is the owner-approved website sentence (msgs 1454, 1457), unchanged, with **no list of examples**; the earlier examples (where they are, where they live, their citizenship) describe the intent only. | Owner msgs 1235, 1239, 1753; team spec msgs 1232, 1236, 1240 |
+| L9 | Shown on first launch, before any content is shown or any network request is made. | Owner decision; AGE-18-01 |
+| L10 | The user confirms that they are an adult **and** that they may legally view explicit content under every law that applies to them. Not just "18 or older". *Updated 2026-11-05 (owner decision):* the on-screen text is the owner-approved website sentence, unchanged, with **no list of examples**; the earlier examples (where they are, where they live, their citizenship) describe the intent only. | Owner decision; team decision |
 | L11 | No skip. Answering no keeps the user on that screen. Nothing else in the app works until they confirm. | Same |
 | L12 | The answer is stored on the device. | Same |
-| L13 | Reference: the reference app's onboarding named in STATE.md Deferred Items, and the notarization rule on an honest age rating and declared age. | Team msg 1211; STATE Deferred Items |
+| L13 | Reference: the reference app's onboarding named in STATE.md Deferred Items, and the notarization rule on an honest age rating and declared age. | Team decision; STATE Deferred Items |
 
 ### Analytics consent (CONSENT-18-01)
 
 | # | Decision | Source |
 |---|---|---|
-| L14 | No analytics are collected until the user chooses. The SDK is **not started** before consent. | Owner msg 1231; CONSENT-18-01; criterion 3 |
+| L14 | No analytics are collected until the user chooses. The SDK is **not started** before consent. | Owner decision; CONSENT-18-01; criterion 3 |
 | L15 | A first-launch screen offers a few levels of sharing. One of them is **none**. The choice can be changed in Settings. | Same |
-| L16 | This replaces Phase 14's "on by default, switch off in Settings" (ANALYTICS-01 D-01 reversal). Guideline 5.1.1 applies even to anonymous data. | CONSENT-18-01; team msg 1211 |
+| L16 | This replaces Phase 14's "on by default, switch off in Settings" (ANALYTICS-01 D-01 reversal). Guideline 5.1.1 applies even to anonymous data. | CONSENT-18-01; team decision |
 | L17 | ANALYTICS-01's rules stay: type-closed vocabulary, no bare `String`, buckets, never-send list, credential-less builds no-op, reducer-only emission. | ANALYTICS-02; 14-CONTEXT D-06 to D-14 |
 
 ### Comment moderation (UGC-18-01)
@@ -85,15 +85,15 @@ before planning.
 | L34 | Toplists fixtures carry at least six galleries per period (full 2×3 grid). | Step 5; 17-VERIFICATION deferred row 7 |
 | L35 | AltStore promotional images are App Store-style designs made by a **separate designer agent**, who picks screens, matrix, copy and dimensions. The capture agent doesn't design and doesn't use `impeccable` for this. | 17-CONTEXT D-23, D-24; CAP-17-05 |
 | L36 | Marketing gallery content is real. No duplicate gallery on one screen. Final owner identifiers, then regeneration. | 17-CONTEXT D-02, D-04, D-05 |
-| L37 | The 384 tooling, handoff validator and 384 regeneration are in 3.0 scope, even though the website now consumes only the 192 iPhone coordinates. | Owner msg 1305; CAP-17-04 amendment; MKT-18-01 |
+| L37 | The 384 tooling, handoff validator and 384 regeneration are in 3.0 scope, even though the website now consumes only the 192 iPhone coordinates. | Owner decision; CAP-17-04 amendment; MKT-18-01 |
 
 ### Reader rework (Step 4b) and Phase 17 carry-overs
 
 | # | Decision | Source |
 |---|---|---|
-| L38 | Replace the reader's separate copies of "the current page" with one source of truth for the page shown and the number displayed. One task, not more patches. | Owner msg 1630, product lead msg 1631; Step 4b |
+| L38 | Replace the reader's separate copies of "the current page" with one source of truth for the page shown and the number displayed. One task, not more patches. | Owner decision, product lead decision; Step 4b |
 | L39 | Add the missing UI tests: Reload All Images then a page turn; a reading-direction change during Auto-Play; an LTR/RTL switch (closes Phase 17 Nyquist gaps G1/G2). | Step 4b; 17-VALIDATION G1/G2; 17-VERIFICATION R5-1 |
-| L40 | IN-02 (`captureSystemOverlay` token in `verify-release.py` `FORBIDDEN_CONTENT` plus a `test_release.py` case) and IN-03 (RootView's `import AppComponents` into its `#if DEBUG` block) close before the final Release scan. | Owner msg 1627; Step 7 |
+| L40 | IN-02 (`captureSystemOverlay` token in `verify-release.py` `FORBIDDEN_CONTENT` plus a `test_release.py` case) and IN-03 (RootView's `import AppComponents` into its `#if DEBUG` block) close before the final Release scan. | Owner decision; Step 7 |
 | L41 | The release gate repeats the Release isolation scan on the final 3.0 build. | REL-18-01; Step 7 |
 | L42 | Rewrite `Scripts/visual/README.md`: the index is now `website-capture-20261104.json` (11 fixture versions), and the runners are owned by Phase 18. | ROADMAP scope 8 |
 
@@ -103,7 +103,7 @@ before planning.
 |---|---|---|
 | L43 | On owner hardware: the iPad Gallery Detail stall on a **Release** build, and continued background downloads on an **iPhone**. | DEV-18-01; Step 11 |
 | L44 | Persisted `@Shared` models stay at v1 and are edited in place (no migration before 3.0 ships). SwiftLint-as-error, no suppressions without permission. Every `.xcstrings` key is filled for all six locales. | PROJECT Constraints; AGENTS.md |
-| L45 | Agent-run UAT is allowed where no hardware or owner judgment is needed. | Owner rule msg 1652 (Phase 17 UAT) |
+| L45 | Agent-run UAT is allowed where no hardware or owner judgment is needed. | Owner rule (Phase 17 UAT) |
 | L46 | Closing gates need zero failures and zero repetition nodes. | PROJECT Key Decisions (Phase 16) |
 
 ---
@@ -283,7 +283,7 @@ tag of its own.
 **GA-8. What counts as "all-ages" and "non-explicit", and is the final gallery selection already made?**
 
 The website already has two owner-approved content sets, `nonexplicit` (labelled 全年齡 / all-ages in Chinese)
-and `explicit`, with owner-chosen centers and Frontpage versions (msg 1581).
+and `explicit`, with owner-chosen centers and Frontpage versions.
 
 - Q1 (PAL 4+ listing screenshots and the Classic "non-explicit" screenshots):
   - **A. Use the designer's promotional images built only from the approved `nonexplicit` set, after an owner
@@ -293,7 +293,7 @@ and `explicit`, with owner-chosen centers and Frontpage versions (msg 1581).
   - C. Use raw `nonexplicit` captures for Classic and designer images only for PAL. Less design work, but two
     different listings.
 - Q2 (final gallery selection for the 384 regeneration, Step 8 checkpoint):
-  - **A. Reuse the approved website selections (msg 1581) for the iPhone half, and have the owner pick only
+  - **A. Reuse the approved website selections for the iPhone half, and have the owner pick only
     what the iPad half needs in addition.** Shortest checkpoint; the iPhone half is already approved.
   - B. A fresh full selection for all 384. More choice, and it redoes approved work.
 - **Recommended:** Q1 A, Q2 A.

@@ -46,7 +46,7 @@ key-decisions:
   - "`entitlements` replaces the list without `application-identifier` and `com.apple.developer.team-identifier`, which AltStore says not to list (Research §4). 20-05 can therefore pass `codesign`'s keys unchanged."
   - "`marketplaceID` must be digits. It is set only when the source has the key with an empty value or has no key, and a different value is an error."
   - "The template has no `versions` key, like the SideStore template. `marketplaceID` follows `bundleIdentifier`. Otherwise the field order is the SideStore template's."
-  - "The PAL source's public address is https://ehpanda.app/AltStorePAL.json, which forwards to `AltStorePAL.json` on `main` the way /AltStore.json does (owner msg 2822; Leto adds it, and it goes live with the site at 3.0). It is recorded here, not in the JSON, because the Classic and SideStore sources carry no `sourceURL` either."
+  - "The PAL source's public address is https://ehpanda.app/AltStorePAL.json, which forwards to `AltStorePAL.json` on `main` the way /AltStore.json does (owner decision; Leto adds it, and it goes live with the site at 3.0). It is recorded here, not in the JSON, because the Classic and SideStore sources carry no `sourceURL` either."
 
 patterns-established:
   - "`check_source(..., pal=True)` for the PAL source; `check_pal_version` for its entries"
@@ -174,13 +174,13 @@ None. No build or simulator was needed.
 
 - **D-25 copy.** The template carries the Classic subtitle and description, as the plan's D-16 truth asks. That
   includes the source subtitle "Over a million adult comics and doujinshi". D-25 gives the PAL listing its own
-  subtitle and description (copywriter msg 2785, pending the owner's approval at 20-10). 20-10 must replace both, in
+  subtitle and description (copywriter, pending the owner's approval at 20-10). 20-10 must replace both, in
   the template and in `test_the_pal_template_has_the_classic_metadata`, before 20-08 publishes anything.
 - **20-10's screenshot paths are stale.** 20-10 Task 3 still plans to push to `pal/iphone/` and `pal/ipad/` in
   `ehpanda-assets`. The screenshots live under `app-marketplace/` (`c38806448`), so those paths should move there.
   20-10 was left unchanged here. This plan's template has no screenshots, and its checks use the generic
   `ASSETS_URL` root, so nothing in 20-03 points at `pal/`.
-- **Source address.** https://ehpanda.app/AltStorePAL.json (owner msg 2822) is not live until the site launches with
+- **Source address.** https://ehpanda.app/AltStorePAL.json (owner decision) is not live until the site launches with
   3.0 (D-26). Its redirect is checked at 20-07 Task 2.
 - DIST-18-02 stays Pending: the listing half is 20-10.
 

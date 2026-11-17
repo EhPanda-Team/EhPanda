@@ -5,7 +5,7 @@ import DownloadClient
 import Foundation
 import Testing
 
-/// B1 (product lead, EhPanda msg 2903): a whole-gallery repair stopped before its run ever scanned
+/// B1 (product lead decision): a whole-gallery repair stopped before its run ever scanned
 /// the folder reads Paused 0 of N with Resume, not "Downloaded N of N".
 ///
 /// Two stops have no run evidence of their own: a pause during the payload fetch, before the run's

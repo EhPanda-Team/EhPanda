@@ -75,7 +75,7 @@ coverage:
     requirement: REL-18-01
     verification:
       - kind: integration
-        ref: "Task 3 verify: seven 200s; 20-02-RECORD.md cites owner msgs 2787 and 2794"
+        ref: "Task 3 verify: seven 200s; 20-02-RECORD.md cites an owner decision"
         status: pass
     human_judgment: true
     rationale: "Creating the repository needed the owner's OK and his sign-in; the orchestrator did it"
@@ -114,7 +114,7 @@ and `EhPanda-Team/ehpanda-assets` serves the seven screenshots.**
    comment lines), `e20e38e48` (feat, GREEN)
 2. **Task 2: Bump the build number**: `2138e6c39` (fix: bump-version.sh, deviation 1), `59ef936bf` (chore: the bump
    and 20-02-RECORD.md)
-3. **Task 3: ehpanda-assets**: done by the orchestrator (owner msgs 2787, 2794). The record and this SUMMARY are in
+3. **Task 3: ehpanda-assets**: done by the orchestrator (owner decision). The record and this SUMMARY are in
    the plan-metadata commit.
 
 ## Verification evidence
@@ -141,7 +141,7 @@ and `EhPanda-Team/ehpanda-assets` serves the seven screenshots.**
 
 ## Decisions Made
 
-See `key-decisions`. Task 3's consent came from the owner (msgs 2787, 2794).
+See `key-decisions`. Task 3's consent came from the owner.
 
 ## Deviations from Plan
 

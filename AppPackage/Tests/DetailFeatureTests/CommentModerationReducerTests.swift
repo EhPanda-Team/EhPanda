@@ -429,7 +429,7 @@ extension CommentModerationReducerTests {
     }
 }
 
-// MARK: Matching by member ID (owner msg 1918)
+// MARK: Matching by member ID (owner decision)
 
 extension CommentModerationReducerTests {
     // A blocked poster who changed their name stays blocked: the comment matches by member ID.

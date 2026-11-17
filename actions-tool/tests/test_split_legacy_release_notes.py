@@ -1,6 +1,6 @@
 """Tests for split_legacy_release_notes.py against every version AltStore.json listed before the split.
 
-`fixtures/legacy-release-notes.json` holds each version's notes as they were (owner msg 2561)."""
+`fixtures/legacy-release-notes.json` holds each version's notes as they were (owner decision)."""
 
 import json
 import pathlib
@@ -49,7 +49,7 @@ class LegacyNotesTests(unittest.TestCase):
                     self.assertTrue(all(split_notes.language_of(line) == "en" for line in split_notes.source_lines(notes)))
                     continue
                 mixed += 1
-                # Every text lists every item, one per line, in order, with no number (owner msg 2591).
+                # Every text lists every item, one per line, in order, with no number (owner decision).
                 count = len(split_notes.parse(notes))
                 for language, text in texts.items():
                     self.assertEqual(len(text.split("\n")), count, language)
@@ -115,7 +115,7 @@ class AltStoreJsonTests(unittest.TestCase):
                 else:
                     self.assertEqual(version["localizedDescription"], texts["en"])
                     self.assertEqual(version["localizedDescriptions"], texts)
-                # No line of any version's notes starts with a number (owner msg 2591).
+                # No line of any version's notes starts with a number (owner decision).
                 for text in [version["localizedDescription"], *version.get("localizedDescriptions", {}).values()]:
                     self.assertFalse(any(split_notes.ITEM.match(line) for line in text.split("\n")), text)
 

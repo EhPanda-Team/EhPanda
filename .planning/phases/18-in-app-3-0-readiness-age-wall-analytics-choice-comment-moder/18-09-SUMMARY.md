@@ -8,7 +8,7 @@ requires: ["18-01", "18-02", "18-03", "18-08"]
 provides:
   - "AppComponents: `CheckboxToggleStyle`, `ChoiceCard` (with the Recommended capsule), `FirstLaunchContinueButton`"
   - "`FirstLaunchGateView` with `AgeWallView` and `AnalyticsChoiceView`, rendered by `RootView` instead of the app until both answers exist"
-  - "`FirstLaunchTitle` and `TitleWidowGuard`: the first-launch titles keep a single word off their last line (lead msg 1900)"
+  - "`FirstLaunchTitle` and `TitleWidowGuard`: the first-launch titles keep a single word off their last line (lead decision)"
   - "`FirstLaunchUITests` (7 cases) and `FirstLaunchTitleLayoutUITests` (6 languages × 2 sizes, 24 kept screenshots per device)"
 affects: [18-10, 18-12]
 
@@ -43,9 +43,9 @@ key-files:
     - .planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/mockups/18-analytics-ax5.png
 
 key-decisions:
-  - "Widow guard (lead msg 1900): at render time, in languages that separate words with spaces, the title's last two words are joined with a no-break space when the pair, measured in bold `.title1` at the current Dynamic Type size, fits the title's width (read with `onGeometryChange`). Otherwise the title is left as is. Catalog strings, visible words and the VoiceOver label are unchanged; there is no `\\n`, scaling, line limit or fixed width"
-  - "Accepted exception (owner msg 1903, card 1901): on the iPhone at AX5 the en analytics title ends on \"shares\" and the de age-wall title on \"Erwachsene\". In both, the last two words are wider than the screen, so no layout can join them"
-  - "D-17b (owner msg 1903, designer msg 1905): Continue stays pinned in the bottom bar at every text size. At accessibility sizes the age-wall footnote leaves the bar and becomes the last scroll item, 16pt under the checkbox card. The last scroll item ends 24pt above the bar"
+  - "Widow guard (lead decision): at render time, in languages that separate words with spaces, the title's last two words are joined with a no-break space when the pair, measured in bold `.title1` at the current Dynamic Type size, fits the title's width (read with `onGeometryChange`). Otherwise the title is left as is. Catalog strings, visible words and the VoiceOver label are unchanged; there is no `\\n`, scaling, line limit or fixed width"
+  - "Accepted exception (owner decision): on the iPhone at AX5 the en analytics title ends on \"shares\" and the de age-wall title on \"Erwachsene\". In both, the last two words are wider than the screen, so no layout can join them"
+  - "D-17b (owner decision, designer): Continue stays pinned in the bottom bar at every text size. At accessibility sizes the age-wall footnote leaves the bar and becomes the last scroll item, 16pt under the checkbox card. The last scroll item ends 24pt above the bar"
   - "The Privacy Policy link uses `.tint(.primary)`: UI-SPEC C-3 draws it in the primary colour, not the accent"
   - "`RootView` keeps 18-01's IN-03 `#if DEBUG` import of AppComponents. The gate views import AppComponents themselves, so RootView needs nothing new in Release"
 
@@ -79,7 +79,7 @@ coverage:
         ref: "FirstLaunchTitleLayoutUITests on phone and pad: 6/6 passed on each, 24 screenshots exported per device"
         status: pass
       - kind: visual
-        ref: "48-row table below: 46 pass, 2 accepted by the owner (msg 1903)"
+        ref: "48-row table below: 46 pass, 2 accepted by the owner"
         status: pass
     human_judgment: true
 
@@ -116,8 +116,8 @@ the owner accepted.**
   - The cards are Minimal, Basic and Full, with none selected. Basic alone shows Recommended.
   - Continue stays dimmed until a level is picked.
 - **Transitions:** the step slides, or crossfades under Reduce Motion. VoiceOver focus moves to each title.
-- **Titles:** `FirstLaunchTitle` (bold `.title`, centred, wrapping freely) carries `TitleWidowGuard` (lead msg
-  1900).
+- **Titles:** `FirstLaunchTitle` (bold `.title`, centred, wrapping freely) carries `TitleWidowGuard` (lead
+ decision).
 - **D-17b:** `FirstLaunchPage` pins Continue in the `.safeAreaBar` at every size.
 
 ## Task Commits
@@ -176,10 +176,10 @@ phone it runs past the first screen.
 | 1 | phone | en | default | age wall | EhPanda is for adults (one line) | — | pass |
 | 2 | phone | en | default | analytics | EhPanda shares | 3 | pass |
 | 3 | phone | en | AX5 | age wall | for adults | — | pass |
-| 4 | phone | en | AX5 | analytics | shares | free | accepted, owner msg 1903 |
+| 4 | phone | en | AX5 | analytics | shares | free | accepted, owner decision |
 | 5 | phone | de | default | age wall | für Erwachsene | — | pass (widow guard) |
 | 6 | phone | de | default | analytics | Wähle, was EhPanda teilt (one line) | 4 | pass |
-| 7 | phone | de | AX5 | age wall | Erwachsene | — | accepted, owner msg 1903 |
+| 7 | phone | de | AX5 | age wall | Erwachsene | — | accepted, owner decision |
 | 8 | phone | de | AX5 | analytics | EhPanda teilt | free | pass |
 | 9 | phone | ko | default | age wall | EhPanda는 성인용 앱입니다 (one line) | — | pass |
 | 10 | phone | ko | default | analytics | 정보를 선택하세요 | 2 | pass |
@@ -223,7 +223,7 @@ phone it runs past the first screen.
 | 48 | pad | zh-Hant | AX5 | analytics | 要分享的內容 | 4 | pass |
 
 Result: 46 pass and 2 accepted (rows 4 and 7). On the phone at default size:
-- The en intro is three lines, as designer msg 1899 expects.
+- The en intro is three lines, as designer expects.
 - The de intro is four lines, which the plan allows.
 - The Privacy Policy link shows above the cards without scrolling in every locale.
 
@@ -235,14 +235,14 @@ shots differed only in the link colour, which `4b14ee9e1` fixed after that run.
 
 ## Deviations from Plan
 
-1. **Widow guard instead of plain `Text` titles (lead msg 1900).** The plan's must-have says the titles are plain
+1. **Widow guard instead of plain `Text` titles (lead decision).** The plan's must-have says the titles are plain
    `Text`. They are now `FirstLaunchTitle`: `Text(verbatim:)` of the localized string, with the last two words joined
    by U+00A0 when they fit. It still has no `\n`, scaling, line limit or fixed width. It lives in
    `FirstLaunchGateView.swift`, with `TitleWidowGuardTests` in `FirstLaunchGateTests.swift`. The language lookup
    moved from `AnalyticsChoiceView` into a shared `FirstLaunchLanguage.code`.
-2. **Two phone-AX5 rows accepted rather than passing (owner msg 1903, card 1901).** See rows 4 and 7.
+2. **Two phone-AX5 rows accepted rather than passing (owner decision).** See rows 4 and 7.
 3. **D-17b came in during execution.** The plan built 18-UI-SPEC's earlier rule, where the bar is removed at AX sizes
-   and Continue joins the scroll content. Owner msg 1903 and designer msg 1905 changed it:
+   and Continue joins the scroll content. Owner decision and designer changed it:
    - The spec, `18-CONTEXT.md` (D-17b) and mockups 16 to 18 were committed as `e04301589` at the lead's direction.
      These files are outside `files_modified`.
    - `9fcc89618` implements the change.
@@ -269,7 +269,7 @@ shots differed only in the link colour, which `4b14ee9e1` fixed after that run.
 
 - 18-10 can reuse `FirstLaunchTitle` or `TitleWidowGuard` for any long title it must check under C-3.
 - 18-12's closing gate should rerun `FirstLaunchUITests` and `FirstLaunchTitleLayoutUITests` on both devices. Its
-  table should carry rows 4 and 7 as accepted (owner msg 1903).
+  table should carry rows 4 and 7 as accepted (owner decision).
 
 ## Next
 

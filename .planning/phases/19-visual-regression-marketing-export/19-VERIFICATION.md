@@ -9,18 +9,18 @@ behavior_unverified_items:
   - truth: "The full-matrix gate runs on every PR and release, with its runtime reported, and a shard crash is retried once without cancelling others (SC 4)"
     test: "Dispatch or push snapshot-gate.yml on the hosted runner and read the run summary (19-10 Task 4; STATE Deferred Items)"
     expected: "aggregate passes; triage names only injected shards and their retries pass; all four failure-class counts are 0; wall time is reported"
-    why_human: "The workflow, run-shard.sh, triage, retry and aggregate are present, wired and covered by Python tests, but no hosted run has passed. Runs 1 to 3 failed and were fixed; run 4 was never read. Owner msgs 3425, 3428."
+    why_human: "The workflow, run-shard.sh, triage, retry and aggregate are present, wired and covered by Python tests, but no hosted run has passed. Runs 1 to 3 failed and were fixed; run 4 was never read. Owner decision."
   - truth: "A controlled one-point regression makes the gate fail with exactly the affected coordinates, then pass again (SC 2, D-18)"
     test: "Push the shifted-token commit and the restoring commit to ci/snapshot-gate against the approved baseline (19-17 Task 3)"
     expected: "Red run: only picture changes, only the affected keys; green run: all counts 0; both run IDs in 19-17-REGRESSION.md"
-    why_human: "Needs the hosted runner and an approved baseline, neither of which exists. Only the local 1-point shift (19-01 tracer) was proven. Deferred, owner msg 3428."
+    why_human: "Needs the hosted runner and an approved baseline, neither of which exists. Only the local 1-point shift (19-01 tracer) was proven. Deferred, owner decision."
 human_verification:
   - test: "Hosted candidate run, public snapshot repository, agent pre-check, the owner's one approval, pinned baseline, green compare run (19-12, 19-13)"
-    expected: "snapshot repository created; Baseline/fingerprints.json and manifest.json committed; approval recorded with its message number; a compare run is green"
-    why_human: "Owner judgement and hosted pushes. Deferred before release day, owner msgs 3425, 3428. SC 3 cannot be marked met until then."
+    expected: "snapshot repository created; Baseline/fingerprints.json and manifest.json committed; approval recorded; a compare run is green"
+    why_human: "Owner judgement and hosted pushes. Deferred before release day, owner decision. SC 3 cannot be marked met until then."
   - test: "Green snapshot-gate run before release day (19-10 Task 4)"
     expected: "A successful aggregate check on the shipped commit; deploy.yml and deploy-beta.yml need it and are blocked until it exists (compare mode fails with 'no approved baseline yet' today)"
-    why_human: "Hosted run. Deferred, owner msgs 3425, 3428."
+    why_human: "Hosted run. Deferred, owner decision."
   - test: "Real preview render of DownloadsView+Subviews.swift in two locales, validated with validate-preview.py"
     expected: "Metadata accepted by the validator; destination matches the request; no errors"
     why_human: "Needs a running Xcode with the preview tools. Manual-Only by decision."
@@ -30,7 +30,7 @@ human_verification:
 deferred:
   - truth: "SC 3: one owner-approved baseline covers the complete set"
     addressed_in: "STATE.md Deferred Items (19-13), not a later roadmap phase"
-    evidence: "Owner msg 3428; owed before release day. Recorded in STATE, ROADMAP 19-12/19-13 unchecked, README 'Status' paragraphs, 19-VALIDATION.md rows."
+    evidence: "Owner decision; owed before release day. Recorded in STATE, ROADMAP 19-12/19-13 unchecked, README 'Status' paragraphs, 19-VALIDATION.md rows."
 ---
 
 # Phase 19: Visual Regression & Daily Live-Parsing Check Verification Report
@@ -46,9 +46,9 @@ All checks were read-only. Run: `python3 -m unittest` for `Scripts/visual` (384 
 
 | Decision | Recorded in | Status |
 |---|---|---|
-| Hosted gate pass deferred to before release day; 19-10, 19-12, 19-13 and 19-17 hosted parts deferred (owner msgs 3425, 3428) | STATE.md Deferred Items (four rows); ROADMAP plan lines for 19-10, 19-12, 19-13, 19-17; README "Status" paragraphs; 19-VALIDATION.md rows ⏸ | RECORDED. The claim that release workflows refuse to ship is true in code: `deploy.yml` and `deploy-beta.yml` run `snapshot-gate.yml` in compare mode and the `Deploy` job `needs` it; with no `fingerprints.json` the compare run fails at once. |
-| Required check on `main`: not required for now (owner msg 3431) | 19-VALIDATION.md rows 19-17-04 and Manual-Only; STATE.md; ROADMAP 19-17 line | RECORDED |
-| UITests first-run flakes environmental, accepted with retries noted (owner msgs 3539, 3554) | 19-VALIDATION.md "Phase gate results" notes 1 to 4 | RECORDED, with evidence per flaky test, clean phone rerun, 4 iPad Repetition nodes disclosed |
+| Hosted gate pass deferred to before release day; 19-10, 19-12, 19-13 and 19-17 hosted parts deferred (owner decision) | STATE.md Deferred Items (four rows); ROADMAP plan lines for 19-10, 19-12, 19-13, 19-17; README "Status" paragraphs; 19-VALIDATION.md rows ⏸ | RECORDED. The claim that release workflows refuse to ship is true in code: `deploy.yml` and `deploy-beta.yml` run `snapshot-gate.yml` in compare mode and the `Deploy` job `needs` it; with no `fingerprints.json` the compare run fails at once. |
+| Required check on `main`: not required for now (owner decision) | 19-VALIDATION.md rows 19-17-04 and Manual-Only; STATE.md; ROADMAP 19-17 line | RECORDED |
+| UITests first-run flakes environmental, accepted with retries noted (owner decision) | 19-VALIDATION.md "Phase gate results" notes 1 to 4 | RECORDED, with evidence per flaky test, clean phone rerun, 4 iPad Repetition nodes disclosed |
 | Preview render needing Xcode is Manual-Only | 19-VALIDATION.md Manual-Only; 19-17-SUMMARY | RECORDED |
 
 ## Goal Achievement
@@ -58,11 +58,11 @@ All checks were read-only. Run: `python3 -m unittest` for `Scripts/visual` (384 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
 | 1 | Matrix covers every screen and state, Phase 18 and 18.1 included, across 6 locales, 3 text sizes, portrait and landscape, iPhone and iPad, light and dark; each coordinate captured, failed or justified not applicable | ✓ VERIFIED | `scenarios.json` schema 2: 137 unique scenario IDs, every ID has a literal in the four `ScenarioCatalog+*.swift` files (script check, 0 missing); `snapshot_matrix.py --totals`: 19,728 coordinates = 19,368 expected + 360 not applicable, five by-design rules with reasons (72 each), four D-05 `notCaptured` surfaces with reasons; no rule removes a whole scenario. `SnapshotMatrix.xctestplan` has 18 configurations. Factories use real views and reducers; only `VisualSnapshotTests` links `VisualSnapshotSupport`. Whole-matrix capture on the hosted runner has not happened (see 4). |
-| 2 | Comparison is strict and never records; screen-grouped baseline/actual/diff report is filterable; a controlled regression proves detection | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Strict compare: `HostedWindowCapture` records only in explicit candidate mode (`.recorded` status), compare never writes the reference directory (unit tests). `snapshot_aggregate.py` (missing result never passes) and `snapshot_report.py` (offline, filters) pass their tests. The controlled red-then-green regression is deferred (owner msg 3428); only the local 1-point shift (19-01) was shown. |
-| 3 | One owner-approved baseline covers the complete set | ⚠️ DEFERRED (human) | No `Baseline/` directory, no `fingerprints.json`, `manifest.json`, `19-12-CANDIDATE.md`, `19-13-APPROVAL.md`, and `snapshot_publish.py` does not exist. Decided and recorded (owner msgs 3425, 3428). Not a defect, but the criterion is not met today. |
+| 2 | Comparison is strict and never records; screen-grouped baseline/actual/diff report is filterable; a controlled regression proves detection | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Strict compare: `HostedWindowCapture` records only in explicit candidate mode (`.recorded` status), compare never writes the reference directory (unit tests). `snapshot_aggregate.py` (missing result never passes) and `snapshot_report.py` (offline, filters) pass their tests. The controlled red-then-green regression is deferred (owner decision); only the local 1-point shift (19-01) was shown. |
+| 3 | One owner-approved baseline covers the complete set | ⚠️ DEFERRED (human) | No `Baseline/` directory, no `fingerprints.json`, `manifest.json`, `19-12-CANDIDATE.md`, `19-13-APPROVAL.md`, and `snapshot_publish.py` does not exist. Decided and recorded (owner decision). Not a defect, but the criterion is not met today. |
 | 4 | Complete matrix gates every PR and release in CI, runtime reported; native visual policy tests run in it | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | `snapshot-gate.yml`: triggers `pull_request`, dispatch, `workflow_call`, push `ci/snapshot-gate`; `checks`, `build`, 27-shard matrix (`fail-fast: false`, `continue-on-error`), `triage`, `retry`, `native-policy` (iPhone and iPad), `aggregate` failing on any class or a non-success policy job. Wired into `deploy.yml`, `deploy-beta.yml` (`needs`) and `dependencies.yml` (`gh workflow run`, `actions: write`). Runtime is estimated in README (about 2,013 shard-minutes, 8.7 to 9 h at 5 at a time) from run 42577585956; no passing run exists. |
 | 5 | Preview review documented and validated (17-15) | ✓ VERIFIED | `preview-review.md`, `validate-preview.py`, `test_preview.py` present; suite OK. The real render is a recorded Manual-Only human item. |
-| 6 | Daily live check: app's parsers on the listed live pages, GET only, one self-closing issue per failure, no page content in issues or logs, sign-in pages skipped until a secret exists, runner-IP result recorded | ✓ VERIFIED | `LiveCheckTests` is the only target without the network guard (`Package.swift`, `test_network_guard.py` OK). `test_request_allowlist.py` OK; grep for POST and write request types in `LiveCheckTests` prints nothing. `report_issues.py` builds text from constant templates (16 tests against the recording fake `gh`). `live-check.yml`: daily 04:17 UTC, dispatch, `ci/live-check`; permissions `contents: read, issues: write, actions: read`; uploads only `results.json`; review fix IN-05 keeps the token out of `xcodebuild` and the checkout. `19-03-PROBE.md` `Verdict: reachable`; `19-15-RUNNER.md` `Choice: hosted (owner msg 2441)`; `19-16-DEPLOY.md` records hosted run 42443815779 with "log checked: no content". Post-merge items are human items above. |
+| 6 | Daily live check: app's parsers on the listed live pages, GET only, one self-closing issue per failure, no page content in issues or logs, sign-in pages skipped until a secret exists, runner-IP result recorded | ✓ VERIFIED | `LiveCheckTests` is the only target without the network guard (`Package.swift`, `test_network_guard.py` OK). `test_request_allowlist.py` OK; grep for POST and write request types in `LiveCheckTests` prints nothing. `report_issues.py` builds text from constant templates (16 tests against the recording fake `gh`). `live-check.yml`: daily 04:17 UTC, dispatch, `ci/live-check`; permissions `contents: read, issues: write, actions: read`; uploads only `results.json`; review fix IN-05 keeps the token out of `xcodebuild` and the checkout. `19-03-PROBE.md` `Verdict: reachable`; `19-15-RUNNER.md` `Choice: hosted (owner decision)`; `19-16-DEPLOY.md` records hosted run 42443815779 with "log checked: no content". Post-merge items are human items above. |
 | 7 | `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's runner | ✓ VERIFIED | Contains `website-capture-20261104.json`; 0 matches for "Visual capture" or `run-regression.py`; describes Path B, 18 configurations, 27 shards (explains the re-plan from 20), triage, retry, aggregate, 5-job limit, baseline, candidates and approval, live check; states plainly what is not done. No home paths, addresses or names found. |
 | 8 | Release builds contain no capture code, fixtures, test assets or SnapshotTesting linkage | ✓ VERIFIED | `VisualSnapshotSupport` (which imports SnapshotTesting) is linked only by the `VisualSnapshotTests` target in the project file and by the test module in `Package.swift`; no import in `AppPackage/Sources` outside it or in `App/` and `ShareExtension/`. `verify-release.py` forbids `SnapshotTesting`, `EHPANDA_`, `XCUI`, capture symbols, including IN-02's `captureSystemOverlay`. The recorded Release build scan PASS (0 findings) is in 19-VALIDATION.md; it was not re-run here (no xcodebuild). |
 
@@ -72,10 +72,10 @@ All checks were read-only. Run: `python3 -m unittest` for `Scripts/visual` (384 
 
 | # | Item | Addressed In | Evidence |
 |---|------|-------------|----------|
-| 1 | Green hosted gate run | STATE.md Deferred Items | Owner msgs 3425, 3426 |
-| 2 | 19-12 candidate run and public snapshot repository | STATE.md Deferred Items | Owner msg 3428 |
-| 3 | 19-13 approval, pinned baseline, green compare | STATE.md Deferred Items | Owner msg 3428 |
-| 4 | 19-17 hosted controlled regression | STATE.md Deferred Items | Owner msg 3428 |
+| 1 | Green hosted gate run | STATE.md Deferred Items | Owner decision |
+| 2 | 19-12 candidate run and public snapshot repository | STATE.md Deferred Items | Owner decision |
+| 3 | 19-13 approval, pinned baseline, green compare | STATE.md Deferred Items | Owner decision |
+| 4 | 19-17 hosted controlled regression | STATE.md Deferred Items | Owner decision |
 
 These are not in a later roadmap phase, so they stay visible as human items and keep the phase from `passed`.
 
@@ -92,7 +92,7 @@ These are not in a later roadmap phase, so they stay visible as human items and 
 | `EhPandaUITests/NativeVisualPolicyUITests.swift`, `Support/LiveTextSize.swift` | 19-11 policy tests | ✓ VERIFIED | Present; run in `native-policy` job |
 | `Scripts/visual/preview-review.md`, `validate-preview.py` | preview review | ✓ VERIFIED | Present; tests OK |
 | `Scripts/live-check/*`, `.github/workflows/live-check.yml`, `AppPackage/Tests/LiveCheckTests/*` | daily check | ✓ VERIFIED | Present; tests OK |
-| `Baseline/fingerprints.json`, `Baseline/manifest.json`, `Scripts/visual/snapshot_publish.py`, `Scripts/visual/snapshot-repo-README.md`, `19-12-CANDIDATE.md`, `19-13-APPROVAL.md`, `19-17-REGRESSION.md` | 19-12, 19-13, 19-17 Task 3 outputs | ⏸ DEFERRED | Absent by decision (owner msg 3428) |
+| `Baseline/fingerprints.json`, `Baseline/manifest.json`, `Scripts/visual/snapshot_publish.py`, `Scripts/visual/snapshot-repo-README.md`, `19-12-CANDIDATE.md`, `19-13-APPROVAL.md`, `19-17-REGRESSION.md` | 19-12, 19-13, 19-17 Task 3 outputs | ⏸ DEFERRED | Absent by decision (owner decision) |
 
 ### Key Link Verification
 
@@ -148,7 +148,7 @@ Review fixes checked in code: WR-01 job-level `concurrency` (`deploy-release`, `
 - ROADMAP Phase 19 "Plans: 14/17 plans executed" while 15 plan lines are checked (19-12 and 19-13 open); STATE.md progress counts (318/321) likewise lag.
 - `19-VALIDATION.md`: frontmatter `status: draft`, `wave_0_complete: false`, and the sign-off boxes "Wave 0 covers all MISSING references", "Feedback latency < 360 s", "`nyquist_compliant: true` set" are unchecked and "Approval: pending" while `nyquist_compliant: true` is set; the compliance flag holds only under the accepted flake rule.
 - STATE.md Deferred Items row for 19-10 mentions a `deploy-pal.yml` gate from 20-11; that workflow does not exist yet (Phase 20). The README says Phase 20's release workflows require the `aggregate` check, while `deploy.yml` and `deploy-beta.yml` already do. Neither misstates the phase result.
-- 19-17 Task 4's verify regex (`Required check: (required|not required) (owner msg N)`) does not match the recorded wording "not required for now (owner msg 3431)"; the decision itself is recorded.
+- 19-17 Task 4's verify regex (`Required check: (required|not required) (owner msg N)`) does not match the recorded wording "not required for now (owner decision)"; the decision itself is recorded.
 - The report frontmatter carries no `covered_files` or `covered_digest`: `node` is not installed on this host, so the fingerprint command could not run and the values were not hand-written. The `verification.status` self-check was skipped for the same reason; status was set by the Step 9 decision tree.
 
 ### Documentation drift: resolved at close (2026-11-11)
@@ -159,17 +159,17 @@ The drift items above were reconciled in the close-out records; the findings tex
 - `19-VALIDATION.md`: `status: validated`, `wave_0_complete: true` (executed rows), sign-off checked, seven deferred rows
   kept as deferred.
 - The STATE.md Deferred Items row and `19-10-SUMMARY.md` now say `deploy-pal.yml` arrives in Phase 20.
-- The required-check answer is worded "Required check: not required (owner msg 3431), for now", which the 19-17 Task 4
+- The required-check answer is worded "Required check: not required (owner decision), for now", which the 19-17 Task 4
   verify regex matches; the regex is unchanged.
-- The security audit's four open threats are accepted-deferred by the owner (msg 3573), see `19-SECURITY.md`.
+- The security audit's four open threats are accepted-deferred by the owner, see `19-SECURITY.md`.
 - `covered_files` and `covered_digest` are still absent (no `node` on the host).
 - Phase 19 is marked complete with deferred items in ROADMAP.md and STATE.md; this report's `status: human_needed` is
   unchanged, and human items 1 to 3 stay owed (STATE.md Deferred Items).
 
 ### Human Verification Required
 
-1. **Green hosted gate** (19-10 Task 4): run `snapshot-gate.yml` on the hosted runner; expect `aggregate` green, retries only on injected shards. Owed before release day (owner msgs 3425, 3428).
-2. **Candidate run, snapshot repository, owner approval, pinned baseline, green compare run** (19-12, 19-13): owner judgement and pushes. Owner msg 3428.
+1. **Green hosted gate** (19-10 Task 4): run `snapshot-gate.yml` on the hosted runner; expect `aggregate` green, retries only on injected shards. Owed before release day (owner decision).
+2. **Candidate run, snapshot repository, owner approval, pinned baseline, green compare run** (19-12, 19-13): owner judgement and pushes. Owner decision.
 3. **Controlled regression, red then green** (19-17 Task 3): needs 1 and 2 first.
 4. **Real preview render** of the first `DownloadsView+Subviews.swift` preview in two locales through `validate-preview.py`: needs Xcode.
 5. **After merge**: first scheduled live-check run from `main`, previous-results path on runs two and three, first real issue and label, the 60-day inactivity rule.

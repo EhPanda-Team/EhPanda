@@ -24,7 +24,7 @@ CI workflows:
 | Workflow | Runs | When |
 |---|---|---|
 | `test.yml` | `FeatureTests` without command-line exclusions | push, dispatch |
-| `snapshot-gate.yml` | the screenshot check, below | pull requests, manual dispatches and dependency updates (`dependencies.yml`); the release workflows do not call it for 3.0 (owner msg 3757) |
+| `snapshot-gate.yml` | the screenshot check, below | pull requests, manual dispatches and dependency updates (`dependencies.yml`); the release workflows do not call it for 3.0 (owner decision) |
 | `live-check.yml` | the daily live check | daily, dispatch, push to `ci/live-check` |
 
 Phase 17's manually dispatched capture workflow and its per-coordinate regression flow are gone: the snapshot matrix
@@ -63,7 +63,7 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
 # Snapshot gate
 
 `.github/workflows/snapshot-gate.yml` is the full screenshot check. One build-for-testing job feeds the shards of
-`snapshot-shards.json`: planned as 20 shards (owner msg 2263), re-planned from the hosted runs' measured costs
+`snapshot-shards.json`: planned as 20 shards (owner decision), re-planned from the hosted runs' measured costs
 (run 42577585956) to 27 of up to 84 estimated minutes, and cut again after run 43298876957, where the runner cut 13 of
 those 27 jobs at random times ("The operation was canceled", 18 to 93 minutes in; 3 of their 13 retries went the same
 way): a cut shard is run again from its start, so shards are now as short as the cost table allows. There are **72**:
@@ -99,7 +99,7 @@ and re-runs once the classes a crash or the budget left without results. Jobs:
   mismatches) in the run summary, writes the report and is the run's verdict, together with `native-policy`.
 
 A newer push to the same pull request cancels the superseded run; a release, dispatch or dependency run is never
-cancelled. The release workflows (`deploy.yml`, `deploy-beta.yml`, `deploy-pal.yml`) do not call the gate or read its `aggregate` check for 3.0 (owner msg 3757); restore by re-adding the `snapshot-gate` job and the `require-snapshot-gate.sh` step (see git history).
+cancelled. The release workflows (`deploy.yml`, `deploy-beta.yml`, `deploy-pal.yml`) do not call the gate or read its `aggregate` check for 3.0 (owner decision); restore by re-adding the `snapshot-gate` job and the `require-snapshot-gate.sh` step (see git history).
 
 **Restricting a candidate run.** A `workflow_dispatch` of mode `candidate` takes an optional `shards` input,
 comma-separated shard IDs of `snapshot-shards.json` (`s05,s19`; empty runs all). `checks` refuses an ID the plan does
@@ -115,11 +115,11 @@ records a candidate while there is no `fingerprints.json` and compares once ther
 **Red until a baseline exists.** Compare mode needs
 `AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json`. Until the owner approves the first baseline,
 every compare run fails at once with "no approved baseline yet": pull requests, manual compare dispatches and dependency updates
-alike. This is by design; releases no longer depend on it (owner msg 3757).
+alike. This is by design; releases no longer depend on it (owner decision).
 
 **Status.** The gate is built and its scripts are tested. A green hosted run, the candidate run, the approved
 baseline and the controlled regression (a one-point layout change that must turn the gate red on exactly the
-changed coordinates, then green again) are **not done yet**: they are deferred items (owner msgs 3425 and 3428; the
+changed coordinates, then green again) are **not done yet**: they are deferred items (owner decision; the
 planning records are `19-10-SUMMARY.md`, `19-12`, `19-13` and `19-17-SUMMARY.md` in the phase directory). Neither
 3.0 nor the AltStore PAL build can ship before a passing `aggregate` check exists.
 
@@ -180,7 +180,7 @@ fingerprints. A picture whose hash differs, a missing one and an unlisted file a
 `baseline-mismatch`, naming the key; a baseline edited in the snapshot repository therefore never reaches a
 comparison. Exit status: 0 match, 3 mismatch, 4 no approved baseline yet, 1 the fetch itself failed.
 
-**Status.** Neither the repository nor the two files exist yet (deferred with the candidate run, owner msg 3428).
+**Status.** Neither the repository nor the two files exist yet (deferred with the candidate run, owner decision).
 `snapshot_publish.py`, which assembles a candidate run's pictures into this layout, fingerprints them and plans the
 slice commits, belongs to that deferred work and is not in this directory yet.
 
@@ -210,7 +210,7 @@ python3 Scripts/visual/snapshot_report.py --aggregate OUT/aggregate.json --pictu
    before approval, never waved through.
 3. **Owner approval.** The owner reviews and approves the whole set once, against the final UI, in the format he
    chooses (the planning default is the short packet beside the full report). Silence, a partial answer or the
-   approval of a sample is not approval. The approval is recorded with its message number, the run ID and the
+   approval of a sample is not approval. The approval is recorded with the run ID and the
    fingerprints' digest.
 4. **Push and pin.** After a separate go-ahead for the push series, the approved set is pushed to the snapshot
    repository and pinned by `fingerprints.json` and `manifest.json`. A compare run on the hosted runner must then
@@ -232,7 +232,7 @@ fixed enums only.
 `report_issues.py` opens one `Live check: <Page> parser` issue per broken page, comments while it stays broken and
 closes it on the next `ok`; three unreachable runs in a row open `Live check: cannot reach the site`. The repository
 is public, so issues and logs carry page names, statuses and fixed sentences, never a URL, title, gallery ID, header
-or body. The runner is GitHub's hosted Mac (owner msg 2441; the probe found the site reachable). A `launchd` template
+or body. The runner is GitHub's hosted Mac (owner decision; the probe found the site reachable). A `launchd` template
 for a Mac runner is `Scripts/live-check/live-check.plist.template` (not installed). Tests:
 
 ```sh
@@ -511,13 +511,13 @@ The input is a JSON file with exactly these keys:
   `completedPages`; the other statuses require it.
 - A download entry may add two flags, each only ever `true`. `"mockPages": true` marks a complete
   entry as a mock: its folder holds its record, status and cover but none of its page images, so
-  nothing of its pages is acquired (owner msg 5113). No reader or gallery screen of the scene may
+  nothing of its pages is acquired (owner decision). No reader or gallery screen of the scene may
   open a mocked gallery. `"allowedRepeat": true` declares that the gallery may also be visible on
-  another screen of the set (owner msgs 5109, 5110). An entry without `mockPages` keeps every page
+  another screen of the set (owner decision). An entry without `mockPages` keeps every page
   it holds real.
 - A screen never repeats a gallery, including across Home's hero, frontpage and Toplists sections,
   except a gallery Home's optional `allowedRepeats` names: Home lists it exactly twice, once out of
-  sight (owner msgs 5099, 5103). The same gallery may appear on different screens.
+  sight (owner decision). The same gallery may appear on different screens.
 
 Validation here covers the schema, references and repetition. The marketing composition (slot
 counts per section and display order) is checked by `selection-review.py`.
@@ -855,7 +855,7 @@ of the screen, `XCUIScreen.main.screenshot()`, a second apart until the renders 
 for three consecutive intervals, and fails if they never do. Either way it attaches the diagnostics and that
 screenshot's PNG, and `capture-<key>-covers`: the gallery covers in sight (any cover whose frame reaches
 the window; a Home front page cell counts as its cover), which must each show once and which a set's
-cross-screen check compares. iPhone captures are portrait and iPad captures landscape (owner msg 5073);
+cross-screen check compares. iPhone captures are portrait and iPad captures landscape (owner decision);
 the system screenshot of a landscape screen is the display's portrait framebuffer, turned upright
 afterwards without re-rendering. The runner names the coordinate and the fixture version through environment
 variables:
@@ -1052,9 +1052,9 @@ under ignored `.capture/` output.
 ### Approved website fixtures and manual image comment
 
 The private fixture repository's `active-fixtures.json` points to the current index,
-`website-capture-20261104.json`, via `websiteCaptureIndex` (owner-approved 2026-11-04, msg 1581). It supersedes
+`website-capture-20261104.json`, via `websiteCaptureIndex` (owner-approved 2026-11-04). It supersedes
 `website-capture-20261102.json`, which was removed with the fixture versions the new set does not use
-(owner msg 1647). Use the index for the approved 192-image matrix (two groups, six locales, two appearances, eight
+(owner decision). Use the index for the approved 192-image matrix (two groups, six locales, two appearances, eight
 screens), served by 118 files from **11 fixture versions**, all under `fixtures/versions/`. Resolve its fixture
 paths against the private repository root: `routing[set][screen]` names the fixture behind each served file, and
 Reading and Live Text name one per locale. Validate the selected immutable fixture with this repository's fixture

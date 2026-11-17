@@ -8,11 +8,11 @@ Usage:
     18-copy-check.py --root DIR    check the catalogs (or, with --readmes, the READMEs) of another checkout
 
 Sources (CONTEXT D-06a to D-06f, D-09, D-22; Research section 8):
-- 18-COPY-FIRST-LAUNCH.md (owner msg 1767): age wall and analytics choice.
-- 18-COPY-MINIMAL.md: its first table (msg 1805), Revision 2 (msg 1818), Revision 3 (msg 1839, read only as retired
-  text), Revision 5 (msg 1864), both tables of Revision 6 (msgs 1880, 1882) and Revision 7 (msg 2559). Revision 4 was
+- 18-COPY-FIRST-LAUNCH.md (owner decision): age wall and analytics choice.
+- 18-COPY-MINIMAL.md: its first table, Revision 2, Revision 3 (read only as retired
+  text), Revision 5, both tables of Revision 6 and Revision 7. Revision 4 was
   not approved and has no table.
-- 18-COPY-COMMENTS.md (owner msg 1780): comment report, posting warning, blocking, Blocked Users.
+- 18-COPY-COMMENTS.md (owner decision): comment report, posting warning, blocking, Blocked Users.
 
 Precedence: Minimal file Revision 6 (`consent.level.basic.description`, `consent.level.full.description`,
 `consent.level.recommended`), Revision 5 (`consent.body`) and Revision 7, then 2 (`consent.level.minimal.description`) >
@@ -59,8 +59,8 @@ DETAIL_CATALOG = "AppPackage/Sources/DetailFeature/Resources/Localizable.xcstrin
 CATALOG_GLOB = "AppPackage/Sources/**/*.xcstrings"
 
 # Research A-6: the privacy page URL, untranslated (`shouldTranslate: false`). Each locale links its own page on the
-# website, `/<locale>/privacy/` with that exact case and the trailing slash; there is no page at `/privacy` (owner msg
-# 2818, addresses in website msg 2819).
+# website, `/<locale>/privacy/` with that exact case and the trailing slash; there is no page at `/privacy` (owner
+# decision, addresses).
 PRIVACY_KEY = "contact.privacy_policy"
 PRIVACY_URL = "https://ehpanda.app/{locale}/privacy/"
 

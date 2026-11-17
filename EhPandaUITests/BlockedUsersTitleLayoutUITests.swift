@@ -1,7 +1,7 @@
 import XCTest
 
 /// Keeps a screenshot of the Blocked Users empty state in each of the six app languages, at the default text size and
-/// at AX5, for the UI-SPEC C-3 line-break check (owner msg 1822) on its title (C-12): it may not end on a single word,
+/// at AX5, for the UI-SPEC C-3 line-break check (owner decision) on its title (C-12): it may not end on a single word,
 /// or on fewer than two characters in Chinese, Japanese and Korean.
 ///
 /// The line check is visual, read from the kept screenshots (`blocked-users-empty-<locale>-<size>`); the test asserts

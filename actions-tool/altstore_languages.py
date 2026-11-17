@@ -5,7 +5,7 @@ as the app's string catalog. Each entry's plain field (`subtitle`, `description`
 `localizedDescription`) holds the English text: it is what AltStore shows when no key matches the
 device's languages, and the only text SideStore and AltStore before 2.2 read.
 
-`check_source` also checks the screenshots (owner msg 2628). AltStore and SideStore read
+`check_source` also checks the screenshots (owner decision). AltStore and SideStore read
 `screenshots` as a list (iPhone) or as an object with `iphone` and `ipad` lists, each item a URL or an
 `{imageURL, width, height}` object; they decode `width` and `height` as Int16, so a fraction or a
 value over 32767 breaks the source (AltStoreCore/Model/AppScreenshot.swift). EhPanda writes only the

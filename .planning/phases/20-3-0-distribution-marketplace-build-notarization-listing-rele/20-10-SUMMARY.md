@@ -6,7 +6,7 @@ tags: [altstore-pal, screenshots, listing, assets, closed-by-decision]
 
 requires: []
 provides:
-  - "The PAL template lists the owner's seven decorated iPhone screenshots (owner msg 2628), in the same order and as the same `{imageURL, width, height}` objects as `AltStore.json`, the SideStore template and the beta template"
+  - "The PAL template lists the owner's seven decorated iPhone screenshots (owner decision), in the same order and as the same `{imageURL, width, height}` objects as `AltStore.json`, the SideStore template and the beta template"
   - "The source-template tests hold the PAL app to that set: `screenshots` is no longer a PAL-only field"
 affects: [20-08, 20-13]
 
@@ -29,8 +29,8 @@ key-files:
     - .planning/STATE.md
 
 key-decisions:
-  - "20-10 is closed with the owner's existing set, not with store renders from Phase 19: product lead msg 3168, after owner msg 3167 (\"Screenshots for PAL? Approved.\"). 20-10 no longer depends on Phase 19; 20-11 still does."
-  - "The set is the seven decorated iPhone screenshots the owner approved in msg 2628 (01-home to 07-more, 1260 x 2736, RGB, no alpha), pushed to `EhPanda-Team/ehpanda-assets` under `app-marketplace/iphone/` (push reported in msg 2798; assets commit `41f9a13`). The PAL source uses the same raw URLs as the Classic, SideStore and beta sources, so there is no separate `pal/` folder."
+  - "20-10 is closed with the owner's existing set, not with store renders from Phase 19: product lead decision, after an owner decision (\"Screenshots for PAL? Approved.\"). 20-10 no longer depends on Phase 19; 20-11 still does."
+  - "The set is the seven decorated iPhone screenshots the owner approved (01-home to 07-more, 1260 x 2736, RGB, no alpha), pushed to `EhPanda-Team/ehpanda-assets` under `app-marketplace/iphone/` (push reported; assets commit `41f9a13`). The PAL source uses the same raw URLs as the Classic, SideStore and beta sources, so there is no separate `pal/` folder."
   - "The PAL source lists iPhone screenshots only (`{\"iphone\": [...]}`). The owner's set has no iPad pictures, and none were made."
 
 patterns-established: []
@@ -50,11 +50,11 @@ coverage:
         status: pass
     human_judgment: false
   - id: D2
-    description: "Owner approval of the set for the PAL listing, with a message number"
+    description: "Owner approval of the set for the PAL listing,"
     requirement: DIST-18-02
     verification:
       - kind: manual
-        ref: "owner msg 2628 (the set), owner msg 3167 (approved for PAL), product lead msg 3168 (close 20-10)"
+        ref: "owner decision (the set), owner decision (approved for PAL), product lead decision (close 20-10)"
         status: pass
     human_judgment: true
 
@@ -65,8 +65,8 @@ status: complete
 
 # Phase 20 Plan 10: the PAL listing's store screenshots Summary
 
-**20-10 is closed by product-lead decision (msg 3168) with the owner's seven approved decorated iPhone screenshots
-(owner msg 2628). The owner approved them for PAL in msg 3167. The PAL template now lists them, exactly as
+**20-10 is closed by product-lead decision with the owner's seven approved decorated iPhone screenshots
+(owner decision). The owner approved them for PAL . The PAL template now lists them, exactly as
 `AltStore.json`, the SideStore and the beta templates do. The plan no longer waits for Phase 19. The App Store
 Connect upload, the PAL copy and the iPad question move to 20-08.**
 
@@ -102,8 +102,7 @@ Connect upload, the PAL copy and the iPad question move to 20-08.**
 
 ## Decisions Made
 
-See `key-decisions`. The owner chose the set, its decoration and its order before this plan ran (owner msgs 2608,
-2610, 2618, 2623 and 2628; CONTEXT D-17). His msg 3167 approved the same set for PAL. Product lead msg 3168 closed
+See `key-decisions`. The owner chose the set, its decoration and its order before this plan ran (owner decision; CONTEXT D-17). His approved the same set for PAL. Product lead decision closed
 the plan on that basis.
 
 ## Deviations from Plan
@@ -115,7 +114,7 @@ the plan on that basis.
      done. There are no store renders from Phase 19, no `Scripts/visual/store_screenshots.py` and no 1x match. So
      T-20-27's mitigation (the store picture equals the approved scenario) does not apply. The set was made by the
      outside designer from the website screenshots (D-17).
-   - Task 3: the owner's approval (msg 3167) and the push (msg 2798, `41f9a13`) happened outside this plan. The PAL
+   - Task 3: the owner's approval and the push (`41f9a13`) happened outside this plan. The PAL
      template step is done here. The collaborator's upload moved to 20-08.
 2. **No `20-10-LISTING.md`.** This summary records the owner's choices, the pushed commit and the files.
 3. **No `pal/iphone/` or `pal/ipad/` folders.** The set lives under `app-marketplace/iphone/`, shared with the
@@ -128,7 +127,7 @@ the plan on that basis.
 - **(a) The App Store Connect upload.** The collaborator uploads the same seven pictures for the first
   submission. 20-08-PLAN.md Task 3, step 2 now carries it (updated after this summary; the earlier text said the
   set was "already uploaded by the collaborator" in 20-10).
-- **(b) The PAL subtitle and description** (copywriter msg 2785) **and the owner's approval of them** (D-25).
+- **(b) The PAL subtitle and description** (copywriter) **and the owner's approval of them** (D-25).
   20-10 Task 1 carried both. They now come before the PAL submission, in 20-08. The template still has the
   Classic copy, and `test_the_pal_template_has_the_classic_metadata` still holds it to `AltStore.json`. When the
   PAL copy lands, that test must exempt the subtitle and description fields.
@@ -147,14 +146,14 @@ the plan on that basis.
   and support URLs (20-07).
 - **CAP-17-05** (assign AltStore promotional composition to a separate designer agent and validate its local
   consumer handoff): **not met as written, stays Pending.** The composition came from an outside human designer
-  the owner dispatched (owner msg 2618), not from a designer agent. The set was published, not validated as a
+  the owner dispatched (owner decision), not from a designer agent. The set was published, not validated as a
   local handoff. The requirement needs the owner or the product lead to amend or close it; this plan does not.
 - The traceability rows for MKT-18-01 and DIST-18-02 now note the progress. The CAP-17-05 row is unchanged.
 
 ## Open items
 
 - **The first picture's caption.** `01-home.png` is headed "Over a million adult comics and doujinshi". The
-  pictures are non-explicit (D-17), and owner msg 3167 approved the set for PAL as it is. D-25 put the caption
+  pictures are non-explicit (D-17), and an owner decision approved the set for PAL as it is. D-25 put the caption
   check in the copy approval, which has moved to 20-08. Whether the notarization review accepts the caption under
   guideline 2.3.8 is first seen at 20-08.
 - **20-08-PLAN.md wording** was updated after this summary: Task 3, step 1 now has the owner's copy-and-caption

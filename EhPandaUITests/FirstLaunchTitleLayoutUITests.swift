@@ -1,7 +1,7 @@
 import XCTest
 
 /// Keeps a screenshot of the age wall and of the analytics choice in each of the six app languages, at the default
-/// text size and at AX5, for the UI-SPEC C-3 line-break check (owner msg 1822): neither title may end on a single
+/// text size and at AX5, for the UI-SPEC C-3 line-break check (owner decision): neither title may end on a single
 /// word, or on fewer than two characters in Chinese, Japanese and Korean.
 ///
 /// The line check is visual, read from the kept screenshots (`age-wall-<locale>-<size>` and

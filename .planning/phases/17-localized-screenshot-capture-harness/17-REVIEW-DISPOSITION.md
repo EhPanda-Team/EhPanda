@@ -33,10 +33,10 @@ recorded: 2026-11-04T13:55:00.000Z
 | Finding | Severity | Disposition | Source |
 |---------|----------|-------------|--------|
 | WR-01 | warning | fixed | fb1ea4b18 (17-REVIEW-FIX.md) |
-| WR-02 | warning | skipped | accepted / won't-fix: owner msg 1627, "the required pages don't show a home indicator. Do nothing." No code change. (17-REVIEW-FIX.md) |
+| WR-02 | warning | skipped | accepted / won't-fix: owner decision, "the required pages don't show a home indicator. Do nothing." No code change. (17-REVIEW-FIX.md) |
 | IN-01 | info | fixed | 443e74541 (17-REVIEW-FIX.md) |
-| IN-02 | info | deferred | deferred to Phase 18: owner msg 1627 |
-| IN-03 | info | deferred | deferred to Phase 18: owner msg 1627 |
+| IN-02 | info | deferred | deferred to Phase 18: owner decision |
+| IN-03 | info | deferred | deferred to Phase 18: owner decision |
 
 Dispositions: `open` (recorded, not yet triaged), `fixed`, `skipped`, `deferred`.
 Set `deferred` by hand and put the reason in the Source cell; both are preserved. A `|` in the reason is kept as prose and escaped on the next run.

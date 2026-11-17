@@ -25,9 +25,9 @@ key-files:
     - .planning/ROADMAP.md
 
 key-decisions:
-  - "Signals (product lead msg 2829): `FirstLaunch.completed` (`Analytics.level`), `Analytics.levelChanged` (`Analytics.from`, `Analytics.to`), `Moderation.reportOutcome` (`Moderation.reportOutcome` only), `Moderation.posterBlocked`, `Moderation.posterUnblocked` (`Moderation.unblockSurface`), `Moderation.blockedCommentShown`, `Moderation.postingWarningAnswered` (`Moderation.postingChoice`). All need Basic. Nothing new for the marketplace build."
-  - "Report reason (owner msg 2837, \"No, only how it ended\"): option (3-i). `Moderation.reportReason` is dropped and the README line loses \"with its reason\", so no level description changes."
-  - "Channel (owner msg 2842, \"Yes, on every signal\"): §3 option 1. `App.distributionChannel` becomes a default parameter at Basic and Full. The README Basic section gains \"every event also carries where you got the app from\"."
+  - "Signals (product lead decision): `FirstLaunch.completed` (`Analytics.level`), `Analytics.levelChanged` (`Analytics.from`, `Analytics.to`), `Moderation.reportOutcome` (`Moderation.reportOutcome` only), `Moderation.posterBlocked`, `Moderation.posterUnblocked` (`Moderation.unblockSurface`), `Moderation.blockedCommentShown`, `Moderation.postingWarningAnswered` (`Moderation.postingChoice`). All need Basic. Nothing new for the marketplace build."
+  - "Report reason (owner decision, \"No, only how it ended\"): option (3-i). `Moderation.reportReason` is dropped and the README line loses \"with its reason\", so no level description changes."
+  - "Channel (owner decision, \"Yes, on every signal\"): §3 option 1. `App.distributionChannel` becomes a default parameter at Basic and Full. The README Basic section gains \"every event also carries where you got the app from\"."
   - "OI-4: answer A, a technical call by the developer. Both install signals are kept; `App.installed` is the install count."
   - "SC8: the proposed wording, a technical call by the developer, applied to ROADMAP Phase 20 SC8."
 
@@ -45,11 +45,11 @@ coverage:
         status: pass
     human_judgment: false
   - id: D2
-    description: "Sign-off recorded with message numbers before any implementation"
+    description: "Sign-off recorded before any implementation"
     requirement: ANALYTICS-02
     verification:
       - kind: manual
-        ref: "Sign-off table: product lead msg 2829, owner msgs 2837 and 2842; OI-4 and SC8 marked as developer calls; no AppPackage change on the branch for this plan"
+        ref: "Sign-off table: product lead decision, owner decision; OI-4 and SC8 marked as developer calls; no AppPackage change on the branch for this plan"
         status: pass
     human_judgment: true
 
@@ -87,7 +87,7 @@ changed; 20-13 implements the record.**
   Research's `FirstLaunch.kind` was dropped (note c): 3.0 has no stored fact that tells an upgrade from a new
   install.
 - **Sign-off (Task 2).** The record now carries the following, with a table that names who decided each item:
-  - the approvals: product lead msg 2829, owner msgs 2837 and 2842;
+  - the approvals: product lead decision, owner decision;
   - the two developer calls: OI-4 answer A and the SC8 wording.
 
   Where a decision changed the proposal, the record marks the change in place:
@@ -110,8 +110,8 @@ See `key-decisions`. No level description changes, because (3-i) was chosen and 
 
 1. **OI-4 and SC8 were decided by the developer, not by the product lead and the owner.** The plan's truth asks
    for the approvers to sign off OI-4 and SC8. The coordinator's instruction for Task 2 assigned both to the
-   developer as technical calls. The sign-off table records them that way, with no approver message number.
-2. **The product lead's column for §3 is empty.** The owner decided the channel (msg 2842). Product lead msg 2829
+   developer as technical calls. The sign-off table records them that way, with no approver.
+2. **The product lead's column for §3 is empty.** The owner decided the channel. Product lead decision
    approved the §2 list only.
 
 ## Open items

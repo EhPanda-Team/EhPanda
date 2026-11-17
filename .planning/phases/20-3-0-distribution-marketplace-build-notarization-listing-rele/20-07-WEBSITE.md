@@ -1,24 +1,24 @@
 # 20-07 Website URLs (DRAFT; live check pending)
 
-*Amended 2026-11-11 (owner msg 3501; product lead msg 3502):* the website gets no GitHub Issues link, so there is no
+*Amended 2026-11-11 (owner decision; product lead decision):* the website gets no GitHub Issues link, so there is no
 contact URL to check, and the support URL is no longer the home page: it is the GitHub repository page,
 https://github.com/EhPanda-Team/EhPanda (its Issues tab is the contact route), which returns 200 and needs no website
 change. The rows and checks below for the contact link and the home-page support URL are history. The live check
 records `- privacy: <url> 200` lines for the privacy pages, `- support: https://github.com/EhPanda-Team/EhPanda 200`
 and the PAL source redirect.
 
-**Status: DRAFT.** Leto's answer (msg 2795) and the orchestrator's (msg 2797) give the four URLs; owner msg 2809
+**Status: DRAFT.** Leto's answer and the orchestrator's give the four URLs; owner decision
 makes the home page the support URL. The live check waits for the site, which is offline on purpose (no DNS) until it
-goes live with the 3.0 release (D-26, owner msg 2802). 20-07 Task 2 stays open until then. The privacy link now goes
-to each language's own page, because there is no page at `/privacy` (Leto msg 2812; owner msg 2818; see below). The
+goes live with the 3.0 release (D-26, owner decision). 20-07 Task 2 stays open until then. The privacy link now goes
+to each language's own page, because there is no page at `/privacy` (Leto; owner decision; see below). The
 agent does not edit the website; Leto owns it (D-05).
 
-## The four URLs (Leto msgs 2795, 2812; orchestrator msg 2797; owner msgs 2809, 2818; website msg 2819)
+## The four URLs (Leto; owner decision)
 
 | Purpose | URL | Where it stands |
 |---------|-----|-----------------|
-| Privacy policy | https://ehpanda.app/en/privacy/, and `/de/`, `/ja/`, `/ko/`, `/zh-Hans/`, `/zh-Hant/` | There is no page at `/privacy`; it returns 404 (Leto msg 2812). The owner chose to have the app link the per-language pages (owner msg 2818, addresses in website msg 2819). `contact.privacy_policy` (`Constant.xcstrings`) now gives each language its own page, with English as the fallback (`fee87bae6`, checked by `PrivacyPolicyLinkTests`). The rewrite for the three analytics levels stays for the 3.0 release (D-10). |
-| Support | https://ehpanda.app | The home page; there is no separate support page (owner msg 2809) |
+| Privacy policy | https://ehpanda.app/en/privacy/, and `/de/`, `/ja/`, `/ko/`, `/zh-Hans/`, `/zh-Hant/` | There is no page at `/privacy`; it returns 404 (Leto). The owner chose to have the app link the per-language pages (owner decision; addresses from the website). `contact.privacy_policy` (`Constant.xcstrings`) now gives each language its own page, with English as the fallback (`fee87bae6`, checked by `PrivacyPolicyLinkTests`). The rewrite for the three analytics levels stays for the 3.0 release (D-10). |
+| Support | https://ehpanda.app | The home page; there is no separate support page (owner decision) |
 | Contact (published contact link) | https://github.com/EhPanda-Team/EhPanda/issues | GitHub Issues; linked from the website (D-05) |
 | PAL source | https://ehpanda.app/AltStorePAL.json | Being added on the website's `develop` branch. Expected to redirect to `https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/AltStorePAL.json`, as `AltStore.json`'s does. Confirm the redirect target at the live check. |
 
@@ -29,8 +29,8 @@ it at 20-08 Task 3, and the owner may choose otherwise.
 ## Checks so far (2026-11-09T01:35Z, this Mac)
 
 ```
-000 https://ehpanda.app/privacy   curl: (6) Could not resolve host: ehpanda.app   (the app now links /<language>/privacy/, owner msg 2818)
-000 https://ehpanda.app/support   curl: (6) Could not resolve host: ehpanda.app   (support is now the home page, owner msg 2809)
+000 https://ehpanda.app/privacy curl: (6) Could not resolve host: ehpanda.app (the app now links /<language>/privacy/, owner decision)
+000 https://ehpanda.app/support curl: (6) Could not resolve host: ehpanda.app (support is now the home page, owner decision)
 200 https://github.com/EhPanda-Team/EhPanda/issues
     https://ehpanda.app/AltStorePAL.json   curl: (6) Could not resolve host: ehpanda.app
 ```

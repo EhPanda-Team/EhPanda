@@ -5,11 +5,11 @@ of 2, 3 or 4 under D-15's rule. The memory rule, the hosted identity, invocation
 addressed (see "Follow-up: the four options") and `ci/snapshot-measure` was pushed once more. Run 42475531683 chose
 no count either; its main finding is that the hosted simulator itself failed in 5 of 8 jobs. The developer then
 decided on robust simulator steps, the two remaining iPhone identity fixes, and 2 workers as the interim count (see
-"Decision after run 42475531683"). The final run 42533872440 (owner msg 2743) chose no count either: 7 of 8 jobs
+"Decision after run 42475531683"). The final run 42533872440 (owner decision) chose no count either: 7 of 8 jobs
 failed creating the simulator, and the one that measured had 2 changed pictures (see "Final hosted run (run
 42533872440)"). `snapshot-cost.json` stays `workers: 2`, `source: model`.
 
-- **Authority:** owner msg 2438 allowed pushing `ci/snapshot-measure`. The second push (one job per device and text
+- **Authority:** owner decision allowed pushing `ci/snapshot-measure`. The second push (one job per device and text
   size) and the third (after the follow-up) were the lead's technical calls within that go-ahead.
 - **Sample:** the 19-05 classes (8 classes, 34 browsing scenarios) in `en-xSmall`, `en-large` and
   `en-accessibility5`. Per process that is 132 iPhone coordinates (both orientations) and 66 iPad coordinates
@@ -138,7 +138,7 @@ The plan's rule could not choose a count from run 42455556948. These were the op
 4. **Keep `xcodebuild` logs as artifacts** in the next measurement, so a stall like the 2-hour candidate can be
    diagnosed.
 
-The lead took all four as a technical call within owner msg 2438's go-ahead, followed by one more measurement.
+The lead took all four as a technical call within owner's go-ahead, followed by one more measurement.
 
 ## Follow-up: the four options
 
@@ -299,7 +299,7 @@ change. The options were:
 ## Decision after run 42475531683
 
 The developer took options 1 and 2, and option 4 as the interim setting; not option 3. The remote `ci/snapshot-measure`
-was deleted afterwards (owner msg 2637). Another hosted measurement needs a fresh go-ahead from the owner.
+was deleted afterwards (owner decision). Another hosted measurement needs a fresh go-ahead from the owner.
 
 ### Interim worker count: 2
 
@@ -375,7 +375,7 @@ The "did not return a process handle" launch error at 15:10:48Z in that run was 
 not fail the run: xcodebuild launched the app again, and the result bundle has 1 failure, 1822 passed and no test that
 did not run. On the measurement workflow, the same error is infra and is retried once (option 1).
 
-## Final hosted run: the plan (owner msg 2743 allowed it)
+## Final hosted run: the plan (owner decision allowed it)
 
 `snapshot-measure.yml` as committed: one build job (90-minute limit; 8 minutes in run 42475531683), then 8 measurement
 jobs, iPhone and iPad at en-xSmall, en-large, en-accessibility5 and `all`. The `xcode-27` runners took 5 of them at a
@@ -400,7 +400,7 @@ If the run passes the rule, its count replaces the interim 2 (`source: hosted`);
 
 ## Final hosted run (run 42533872440)
 
-Commit `e1335b511` on `ci/snapshot-measure` (`[skip test]`, tree of `e2c6acb5b`), pushed once under owner msg 2743.
+Commit `e1335b511` on `ci/snapshot-measure` (`[skip test]`, tree of `e2c6acb5b`), pushed once under an owner decision.
 The run took 2 h 40 min (23:10 to 01:51 UTC, 8 to 9 November). R-1: `{"billable":{},"run_duration_ms":9645000}`.
 Every job ran in runner group `GitHub Actions` with label `xcode-27` (runners 1000000654 to 662), image `macos27`
 `20261104.0337.1`, Xcode build `27A9275`, so it was still a standard, unbilled runner.

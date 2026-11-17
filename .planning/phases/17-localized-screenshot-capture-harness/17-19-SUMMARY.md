@@ -22,7 +22,7 @@ key-files:
   modified:
     - .planning/phases/17-localized-screenshot-capture-harness/17-LAYOUT-AUDIT.md
 key-decisions:
-  - "Owner, 2026-11-03 (msg 1409, answering msg 1408): keep all five remaining device-idiom places (reader lower Close, Library sidebar, Home title, device name in error details, Duo/iPad capability). Nothing goes to a separate change plan."
+  - "Owner, 2026-11-03: keep all five remaining device-idiom places (reader lower Close, Library sidebar, Home title, device name in error details, Duo/iPad capability). Nothing goes to a separate change plan."
   - "The optional Home-title cleanup (dropping the redundant `.pad` term) is not taken."
 patterns-established: []
 requirements-completed: [CAP-17-06, CAP-17-07]
@@ -51,7 +51,7 @@ coverage:
     requirement: CAP-17-07
     verification:
       - kind: other
-        ref: "git grep -nE \"userInterfaceIdiom|deviceState|deviceType|== \\.pad|case \\.pad\" -- AppPackage/Sources: every hit classified; five owner rows, each 'keep' (2026-11-03, msg 1409)"
+        ref: "git grep -nE \"userInterfaceIdiom|deviceState|deviceType|== \\.pad|case \\.pad\" -- AppPackage/Sources: every hit classified; five owner rows, each 'keep' (2026-11-03)"
         status: pass
     human_judgment: true
 duration: 45min
@@ -64,7 +64,7 @@ source_head: 5a7fe7f13
 
 **Settings and Detail follow the both-regular rule in all three window shapes, the Settings tests
 pass on iPhone Air and iPad Pro 11-inch, and the owner chose to keep all five remaining device-idiom
-places (2026-11-03, msg 1409). No app source changed.**
+places (2026-11-03). No app source changed.**
 
 ## Performance
 
@@ -80,7 +80,7 @@ places (2026-11-03, msg 1409). No app source changed.**
   `api.php` route. Quick task 261103-test-plan-repairs fixed that, and a second pass at HEAD's
   source recorded Detail: a sheet at iPad full width, a push in the 375 pt iPad window and a push in
   iPhone landscape. All three match D02. The census classifies every grep hit.
-- **T3.** The owner was asked on 2026-11-03 (msg 1408) and answered "keep all five" (msg 1409).
+- **T3.** The owner was asked on 2026-11-03 and answered "keep all five".
   Each row records the decision, the date and the reason.
 
 ## Task Commits

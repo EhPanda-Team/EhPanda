@@ -269,7 +269,7 @@ struct GalleryCommentParserTests: TestHelper {
         #expect(comment.author == "author")
     }
 
-    /// The contact link carries the poster's member ID, which comment blocking matches on (owner msg 1918).
+    /// The contact link carries the poster's member ID, which comment blocking matches on (owner decision).
     @Test
     func theMemberIDComesFromTheContactLink() throws {
         let link = "https://forums.e-hentai.org/index.php?showuser=4764920"

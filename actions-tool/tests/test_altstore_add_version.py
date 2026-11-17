@@ -1,4 +1,4 @@
-"""Tests for altstore-add-version.jq: per-language notes (owner msg 2561), the golden outputs of the
+"""Tests for altstore-add-version.jq: per-language notes (owner decision), the golden outputs of the
 Classic, SideStore and beta calls, and the AltStore PAL entry (20-03; Research §4)."""
 
 import json

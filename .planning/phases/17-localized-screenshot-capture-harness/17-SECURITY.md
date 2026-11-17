@@ -19,7 +19,7 @@ audited_source: a71f061e9
 
 > Per-phase security contract: threat register, accepted risks, and audit trail.
 
-Reduced scope (owner msg 1305, 2026-11-03). The register is the `<threat_model>` of the plans this phase
+Reduced scope (owner decision, 2026-11-03). The register is the `<threat_model>` of the plans this phase
 still owns: 17-01 to 17-06, 17-24, 17-14 (T2), 17-16 to 17-19 and 17-23. Plans 17-07 to 17-13, 17-15
 and 17-20 to 17-22 moved to Phase 18 and are not audited here. No kept SUMMARY has a `## Threat Flags`
 section.
@@ -42,7 +42,7 @@ phase records.
 | Debug capture code to the Release build | Release must contain no capture or test code and ignore capture keys | Compiled code, payload files, linked libraries |
 | Simulator observations to tracked metadata | The rendering pin is tracked; device IDs and local paths stay in run-only output | Rendering characteristics, simulator UDIDs |
 | Generated results and landed source to the verification record | Records describe HEAD as read and tested, never intent | Commit IDs, result counts, owner decisions |
-| Verification evidence to owner decisions | Evidence never implies owner acceptance | Owner message IDs and dates |
+| Verification evidence to owner decisions | Evidence never implies owner acceptance | Owner decisions and their dates |
 
 ---
 
@@ -85,10 +85,10 @@ phase records.
 | 17-18 | T-17-18-R | Repudiation | Owner decisions | medium | mitigate | No owner decision is inferred; the checks are by diff and test. | closed |
 | 17-19 | T-17-19-T | Tampering | Verification record | high | mitigate | The cited commit is an ancestor of HEAD. | closed |
 | 17-19 | T-17-19-I | Information disclosure | Logs/screenshots | medium | mitigate | As T-17-16-I; the simulator pass keeps screenshots local. | closed |
-| 17-19 | T-17-19-R | Repudiation | Owner decisions | medium | mitigate | The keep decision is recorded verbatim with its date and message (owner msg 1409, 2026-11-03). | closed |
+| 17-19 | T-17-19-R | Repudiation | Owner decisions | medium | mitigate | The keep decision is recorded verbatim with its date and message (owner decision, 2026-11-03). | closed |
 | 17-23 | T-17-23-T | Tampering | Verification record | high | mitigate | All 14 commits cited in 17-23-SUMMARY and 20 in 17-FINAL-VALIDATION.md are ancestors of HEAD. §9 states that no Debug negative control ran at `b5eca09d1`. The reader fixes `52df81fa3..b5eca09d1` touch no DEBUG, capture or environment code (diff checked), and the scanner did not change. | closed |
 | 17-23 | T-17-23-I | Information disclosure | Logs/screenshots | medium | mitigate | Result bundles (`f23c-*`, `f23d-*`, `stress9-*`) stay local; simulator UDIDs are recorded as not recorded. | closed |
-| 17-23 | T-17-23-R | Repudiation | Owner decisions | medium | mitigate | Owner decisions carry message IDs and dates (msgs 1305, 1581, 1627, 1640). Known limits (×5 page-sync stress) are recorded as owner-accepted, not as passes. | closed |
+| 17-23 | T-17-23-R | Repudiation | Owner decisions | medium | mitigate | Owner decisions carry their dates. Known limits (×5 page-sync stress) are recorded as owner-accepted, not as passes. | closed |
 
 *Status: open · closed · open — below high threshold (non-blocking)*
 *Severity: critical > high > medium > low — only open threats at or above workflow.security_block_on (high) count toward threats_open*
@@ -100,7 +100,7 @@ All 39 plan threats are retained, three per kept plan (13 × T/I/R). Every dispo
 
 ## Review Items With Security Weight
 
-**IN-02: `verify-release.py` has no `captureSystemOverlay` token (deferred to Phase 18, owner msg 1627).**
+**IN-02: `verify-release.py` has no `captureSystemOverlay` token (deferred to Phase 18, owner decision).**
 Not an open threat for Release. It is a gap in what the scanner can detect, not a leak.
 
 - `CaptureSystemOverlays.swift` is wholly `#if DEBUG`, so `captureSystemOverlayVisibility` does not exist
@@ -114,7 +114,7 @@ Not an open threat for Release. It is a gap in what the scanner can detect, not 
 - Severity: low. The fix (add the token to `FORBIDDEN_CONTENT` plus a `test_release.py` case) stays in
   Phase 18.
 
-**IN-03: `RootView` imports `AppComponents` outside `#if DEBUG` (deferred to Phase 18, owner msg 1627).**
+**IN-03: `RootView` imports `AppComponents` outside `#if DEBUG` (deferred to Phase 18, owner decision).**
 No security weight.
 
 - AppFeature already depends on AppComponents (`Package.swift`, `.module(.appComponents)`), and four
@@ -122,7 +122,7 @@ No security weight.
 - In Release, the module holds no capture symbol for the import to bring in.
 - This is code hygiene only.
 
-**WR-02 (skipped, owner msg 1627).** This affects DEBUG capture chrome only. Release is unaffected.
+**WR-02 (skipped, owner decision).** This affects DEBUG capture chrome only. Release is unaffected.
 
 ---
 
@@ -130,7 +130,7 @@ No security weight.
 
 | ID | Severity | Where | Finding | Status |
 |---|---|---|---|---|
-| F-17-FX-01 | low | Private fixture repository `ehpanda-fixture`, `data/objects/` (original acquisition archive) | 160 saved image-page responses keep their static-link (`/r/`) and `/fullimg/` path access tokens unzeroed. These tokens are in neither `fixtures/versions/` (0 nonzero of 680) nor `overrides/`. In the same archive, `apikey`, `showkey` and `keystamp` are all zeroed, and every page has `apiuid = -1`. So the tokens were issued to an anonymous visitor and are not account credentials. This contradicts the fixture repo's own `AGENTS.md` ("transient access values scrubbed") and the 17-03 `SECRETS` list. The tokens have been in `6d5c308` since 2026-11-01, and that commit is already on the private remote. | accepted — owner, 2026-11-05 (msg 1667); see Accepted Risks Log |
+| F-17-FX-01 | low | Private fixture repository `ehpanda-fixture`, `data/objects/` (original acquisition archive) | 160 saved image-page responses keep their static-link (`/r/`) and `/fullimg/` path access tokens unzeroed. These tokens are in neither `fixtures/versions/` (0 nonzero of 680) nor `overrides/`. In the same archive, `apikey`, `showkey` and `keystamp` are all zeroed, and every page has `apiuid = -1`. So the tokens were issued to an anonymous visitor and are not account credentials. This contradicts the fixture repo's own `AGENTS.md` ("transient access values scrubbed") and the 17-03 `SECRETS` list. The tokens have been in `6d5c308` since 2026-11-01, and that commit is already on the private remote. | accepted — owner, 2026-11-05; see Accepted Risks Log |
 | F-17-DOC-01 | informational | `17-REVIEW-FIX.md:108` | A tracked phase record contained the absolute local checkout path, including the macOS user name. It was not a credential, LAN address or simulator ID. | fixed in `b2cb11dad` (now `~/Fork/EhPanda`) |
 
 ---
@@ -160,7 +160,7 @@ No threat in the register needed acceptance. One unregistered finding is accepte
 
 | ID | Severity | Risk | Rationale | Accepted By | Date |
 |----|----------|------|-----------|-------------|------|
-| F-17-FX-01 | low | 160 original acquisition responses in the private fixture repo's `data/objects/` keep anonymous `/r/` and `/fullimg/` image access tokens | Issued to an anonymous visitor (`apiuid = -1`), not account credentials; each is tied to one public image the repo already holds; the copies the app reads (`fixtures/versions/`) are zeroed; the tokens are already in pushed history (`6d5c308`), so scrubbing now would not remove them without a history rewrite. | owner, msg 1667, card 1666 | 2026-11-05 |
+| F-17-FX-01 | low | 160 original acquisition responses in the private fixture repo's `data/objects/` keep anonymous `/r/` and `/fullimg/` image access tokens | Issued to an anonymous visitor (`apiuid = -1`), not account credentials; each is tied to one public image the repo already holds; the copies the app reads (`fixtures/versions/`) are zeroed; the tokens are already in pushed history (`6d5c308`), so scrubbing now would not remove them without a history rewrite. | owner | 2026-11-05 |
 
 ---
 
@@ -179,4 +179,4 @@ No threat in the register needed acceptance. One unregistered finding is accepte
 - [x] `threats_open: 0` confirmed
 - [x] `status: verified` set in frontmatter
 
-**Approval:** verified 2026-11-05 (threat register). F-17-FX-01 accepted by the owner (msg 1667).
+**Approval:** verified 2026-11-05 (threat register). F-17-FX-01 accepted by the owner.

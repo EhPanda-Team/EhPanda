@@ -1,5 +1,5 @@
 """The SideStore, beta and AltStore PAL source templates, as AltStore and SideStore read the sources
-they seed (owner msg 2561; copy from Camo msg 2563; the PAL template from 20-03, Research §4)."""
+they seed (owner decision; copy from Camo; the PAL template from 20-03, Research §4)."""
 
 import copy
 import json
@@ -24,10 +24,10 @@ ALTSTORE = json.loads((TOOLS.parent / "AltStore.json").read_text(encoding="utf-8
 ALTSTORE_BETA = json.loads((TOOLS.parent / "AltStoreBeta.json").read_text(encoding="utf-8"))
 ICON_URL = f"{languages.ASSETS_URL}app-marketplace/icon.png"
 HEADER_URL = f"{languages.ASSETS_URL}app-marketplace/header.png"
-# Owner msgs 4236 and 4238: 01-home is the home screen with the new slogan, in English for everyone, since AltStore
-# has no per-language screenshots. Owner msgs 4331-4343: plain names, with no version and no size.
+# Owner decision: 01-home is the home screen with the new slogan, in English for everyone, since AltStore
+# has no per-language screenshots. Owner decision: plain names, with no version and no size.
 SCREENSHOT_NAMES = ["01-home", "02-detail", "03-reading", "04-comments", "05-downloads", "06-filters", "07-more"]
-# Owner msgs 5072-5085 and 5123: four landscape screenshots from the 13-inch iPad, one set for the sources and the
+# Owner decision: four landscape screenshots from the 13-inch iPad, one set for the sources and the
 # App Store listing.
 IPAD_SCREENSHOT_NAMES = ["01-home", "02-reading", "03-downloads", "04-more"]
 
@@ -48,16 +48,16 @@ DEVICES = {("en-US",): "en", ("de-DE",): "de", ("ja-JP",): "ja", ("ko-KR",): "ko
            ("zh-Hans-CN",): "zh-Hans", ("zh-Hant-TW",): "zh-Hant", ("zh-Hant-HK",): "zh-Hant"}
 
 
-# What a source does not say (owner msg 3827): "Apple ID" in any spelling, a count of apps (3 apps, 3 Apps, 3 つ,
+# What a source does not say (owner decision): "Apple ID" in any spelling, a count of apps (3 apps, 3 Apps, 3 つ,
 # 3개, 3 个, 3 個) or AltStore's own name. It looks at the source's and its app's texts, not the release notes.
 NOT_FOR_A_SOURCE = {
     "an Apple ID": re.compile(r"Apple[ -]?ID", re.IGNORECASE),
     "a number of apps": re.compile(r"(?<![\d.])\d+\s*(?:apps?|つ|개|个|個)", re.IGNORECASE),
     "AltStore": re.compile(r"AltStore", re.IGNORECASE),
-    # Owner msg 3864: the sources name E-Hentai only.
+    # Owner decision: the sources name E-Hentai only.
     "ExHentai": re.compile(r"Ex[ -]?Hentai", re.IGNORECASE),
 }
-# Owner msg 3867: no external links in a source's or its app's description, in any language.
+# Owner decision: no external links in a source's or its app's description, in any language.
 A_LINK = re.compile(r"https?://|www\.|[\w-]+\.(?:com|org|net|io|app|dev|me)\b|\b[\w-]+\.[a-z]{2,}/", re.IGNORECASE)
 DESCRIPTION_KEYS = {"description", "localizedDescriptions", "localizedDescription"}
 SOURCE_TEXT_KEYS = {"name", "subtitle", "description", "localizedSubtitles", "localizedDescriptions",
@@ -103,7 +103,7 @@ class SourceTemplateTests(unittest.TestCase):
         self.assertEqual(app["localizedDescriptions"], ALTSTORE["apps"][0]["localizedDescriptions"])
 
     def test_every_source_has_the_same_about_and_the_same_app_description(self):
-        # Owner msgs 3851 and 3869 (copy from Camo msgs 3863 and 3868): the source's About says what the source is,
+        # Owner decision (copy from Camo): the source's About says what the source is,
         # the app's description says what EhPanda does, and every source shows the same two texts in every language.
         about, description = ALTSTORE["localizedDescriptions"], ALTSTORE["apps"][0]["localizedDescriptions"]
         self.assertNotEqual(about, description)
@@ -117,7 +117,7 @@ class SourceTemplateTests(unittest.TestCase):
                 self.assertEqual(source["apps"][0]["localizedDescriptions"], description)
 
     def test_no_description_has_a_link(self):
-        # Owner msg 3867: no external links in AltStore's description fields.
+        # Owner decision: no external links in AltStore's description fields.
         for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             for where, text in source_texts(source):
                 if where.split(".")[-1] not in DESCRIPTION_KEYS and where.split(".")[-2:-1] != ["localizedDescriptions"]:
@@ -135,7 +135,7 @@ class SourceTemplateTests(unittest.TestCase):
                 self.assertIsNone(A_LINK.search(text))
 
     def test_the_beta_template_is_altstore_json_with_only_its_own_identity(self):
-        # Owner msgs 3824 and 3827: the beta source mirrors the regular one, every source and app key and value,
+        # Owner decision: the beta source mirrors the regular one, every source and app key and value,
         # except what makes it a different app to AltStore. `versions` is left out: the template has none, and the
         # beta workflow adds the builds.
         expected = copy.deepcopy(ALTSTORE)
@@ -187,7 +187,7 @@ class SourceTemplateTests(unittest.TestCase):
                 self.assertEqual(source["apps"][0]["appPermissions"], {"entitlements": entitlements, "privacy": privacy})
 
     def test_no_source_talks_about_apple_ids_or_how_many_apps_altstore_keeps(self):
-        # Owner msg 3827: how many apps a free Apple ID can install is AltStore's business, not the source's.
+        # Owner decision: how many apps a free Apple ID can install is AltStore's business, not the source's.
         for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             for where, text in source_texts(source):
                 with self.subTest(source=source["identifier"], where=where):
@@ -217,8 +217,8 @@ class SourceTemplateTests(unittest.TestCase):
             self.assertIsNone(needle.search(clean), name)
 
     def test_every_app_shows_the_seven_iphone_and_four_ipad_screenshots(self):
-        # Owner msg 2628: the same screenshots, in this order, for the regular, the beta and the PAL app
-        # (20-10, closed with this set). Owner msg 5123: the iPad set is listed too.
+        # Owner decision: the same screenshots, in this order, for the regular, the beta and the PAL app
+        # (20-10, closed with this set). Owner decision: the iPad set is listed too.
         iphone = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/iphone/{name}.png", "width": 1260, "height": 2730}
                   for name in SCREENSHOT_NAMES]
         ipad = [{"imageURL": f"{languages.ASSETS_URL}app-marketplace/ipad/{name}.png", "width": 2752, "height": 2064}
@@ -228,7 +228,7 @@ class SourceTemplateTests(unittest.TestCase):
                 self.assertEqual(source["apps"][0]["screenshots"], {"iphone": iphone, "ipad": ipad})
 
     def test_every_source_and_app_uses_the_icon_in_the_assets_repository(self):
-        # The icon is served from the assets repository (owner msg 3824): the app repository's main branch has no icon
+        # The icon is served from the assets repository (owner decision): the app repository's main branch has no icon
         # file to link to. Source and app have the same one.
         for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             for entry in [source, source["apps"][0]]:
@@ -236,7 +236,7 @@ class SourceTemplateTests(unittest.TestCase):
                     self.assertEqual(entry["iconURL"], ICON_URL)
 
     def test_every_source_shows_the_same_banner_from_the_assets_repository(self):
-        # Owner msgs 3835 and 3848: one banner, AltStore's 3:2 source header, shared by every source.
+        # Owner decision: one banner, AltStore's 3:2 source header, shared by every source.
         for source in [ALTSTORE, SIDESTORE, BETA, PAL]:
             with self.subTest(source=source["identifier"]):
                 self.assertEqual(source["headerURL"], HEADER_URL)
@@ -275,7 +275,7 @@ class SourceTemplateTests(unittest.TestCase):
             "height 40000 is not a whole number": {"iphone": [dict(good, height=40000)]},
             "width True is not a whole number": {"iphone": [dict(good, width=True)]},
             "lists an image twice": {"iphone": [good, good]},
-            # Owner msg 3882: AltStore rounds only a 9:19.5 iPhone screenshot; the shots as taken miss it by 0.00101.
+            # Owner decision: AltStore rounds only a 9:19.5 iPhone screenshot; the shots as taken miss it by 0.00101.
             "1260 x 2736 is not 9:19.5, so AltStore shows square corners": {"iphone": [dict(good, height=2736)]},
         }
         for message, screenshots in cases.items():
@@ -314,7 +314,7 @@ class SourceTemplateTests(unittest.TestCase):
 
 # The fields the PAL template may not share with AltStore.json (CONTEXT developer defaults): its own
 # identity and featured app, the marketplace bundle ID and marketplaceID, and permissions read from the
-# signed build. The screenshots are shared: 20-10 closed with the owner's seven (msg 2628).
+# signed build. The screenshots are shared: 20-10 closed with the owner's seven.
 PAL_SOURCE_OWN = {"identifier", "featuredApps"}
 PAL_APP_OWN = {"bundleIdentifier", "marketplaceID", "appPermissions", "versions"}
 FILTER = TOOLS / "altstore-add-version.jq"

@@ -568,7 +568,7 @@ struct CaptureSceneTests {
         expected.displayJapaneseTitle = japaneseTitles
         let language = Locale(identifier: locale).language.languageCode
         expectNoDifference(CaptureScenePreparation.sceneSetting(languageCode: language, family: .phone), expected)
-        // iPad captures show Downloads as a grid (owner msg 5072) and change nothing else.
+        // iPad captures show Downloads as a grid (owner decision) and change nothing else.
         expected.galleryListPresentation.downloads = .grid
         expectNoDifference(CaptureScenePreparation.sceneSetting(languageCode: language, family: .pad), expected)
     }

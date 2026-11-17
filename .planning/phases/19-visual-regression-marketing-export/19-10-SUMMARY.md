@@ -47,7 +47,7 @@ deferred:
 
 # 19-10 summary: the snapshot gate is built; its green hosted run is deferred
 
-**Status: closed without a passing hosted run** (owner msg 3425, product lead msg 3426). Tasks 1 to 3 are done
+**Status: closed without a passing hosted run** (owner decision, product lead decision). Tasks 1 to 3 are done
 and verified locally. Task 4's proof of retries and error handling has been tried in three hosted runs, each
 failing on causes that were then fixed. A fourth run was still running at handoff, and its result was not read.
 The green run is a deferred item, owed before release day. VIS-18-01 stays Pending.
@@ -114,7 +114,7 @@ serve as the pass proof; if not, triage it as runs 1 to 3 were. A candidate-mode
 candidate run's `aggregate` check could shadow a compare run on the same commit, and a squashed or rebased
 commit on main may have no run of its own.
 
-**Also deferred (owner msg 3428), each owing a run of the GitHub screenshot check (`snapshot-gate.yml` on the
+**Also deferred (owner decision), each owing a run of the GitHub screenshot check (`snapshot-gate.yml` on the
 hosted runner); none is marked done and none has a summary:**
 
 - **19-12:** the full hosted candidate run (every shard in candidate mode, its pictures kept as artifacts) and the

@@ -1,7 +1,7 @@
 import Foundation
 
 /// Which release this copy of the app is, as one value of a small fixed set: the channel stamped
-/// into the app's Info.plist under ``infoPlistKey`` (Phase 20 D-12; owner msgs 2533, 2537, 2552).
+/// into the app's Info.plist under ``infoPlistKey`` (Phase 20 D-12; owner decision).
 ///
 /// The release workflows build once, unsigned, and `actions-tool/package-channel.sh` copies the app
 /// once per channel and overwrites the stamp in each copy, so the copies differ only in this value.

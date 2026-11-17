@@ -10,7 +10,7 @@ import XCTest
 /// Every launch is stubbed: the gallery and its comments come from the bundled fixtures, the Report form never loads
 /// the live site, and sign-in uses the launch automation's cookie keys with placeholder values. Each case presets its
 /// own block list through `EHPANDA_UITEST_BLOCKED_USERS`, so no case depends on another's storage. Blocks match the
-/// poster's E-Hentai member ID, never the name (owner msg 1918).
+/// poster's E-Hentai member ID, never the name (owner decision).
 @MainActor
 final class CommentModerationUITests: XCTestCase {
     private enum Copy {

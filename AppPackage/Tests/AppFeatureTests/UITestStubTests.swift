@@ -133,7 +133,7 @@ struct UITestStubTests {
         BlockListCase(value: nil, expected: []),
         BlockListCase(value: "not json", expected: []),
         BlockListCase(value: #"{"A": "B"}"#, expected: []),
-        // The name-keyed list from before the member ID (owner msg 1918) is malformed now.
+        // The name-keyed list from before the member ID (owner decision) is malformed now.
         BlockListCase(value: #"["A","B"]"#, expected: []),
         BlockListCase(value: #"[{"memberID":"1","name":"A"},{"name":"B"}]"#, expected: []),
         BlockListCase(

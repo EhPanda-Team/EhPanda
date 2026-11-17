@@ -104,7 +104,7 @@ enum TracerScenarios {
 
     static let commentsGalleryURL = URL(string: "https://e-hentai.org/g/1/visual-token/")
 
-    /// Synthetic comments by synthetic members, matched by member ID (owner msg 1918).
+    /// Synthetic comments by synthetic members, matched by member ID (owner decision).
     static func commentFixtures() -> [GalleryComment] {
         (0..<6).map { index in
             GalleryComment(

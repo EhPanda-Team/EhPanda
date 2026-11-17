@@ -1,7 +1,7 @@
 name: Deploy
-# Started by hand on main only, after the release pull request is merged (owner msg 4611). Merging or
-# pushing to main never releases. The title and notes come from ReleaseNotes/<version>.md (owner msg
-# 4620), so nothing is typed in or read from a pull request.
+# Started by hand on main only, after the release pull request is merged (owner decision). Merging or
+# pushing to main never releases. The title and notes come from ReleaseNotes/<version>.md (owner
+# decision), so nothing is typed in or read from a pull request.
 on:
   workflow_dispatch:
 env:
@@ -28,7 +28,7 @@ env:
   SIDESTORE_IPA_PATH: '/tmp/action-builds/EhPanda-SideStore.ipa'
 
 jobs:
-  # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+  # Snapshot gate off for 3.0 (owner decision); restore by re-adding the snapshot-gate job and the require step
   # (see git history of this commit).
   Deploy:
     runs-on: xcode-27
@@ -63,7 +63,7 @@ jobs:
         # the repository's deploy key: the push of the AltStore and SideStore sources below then goes through.
         with:
           ssh-key: ${{ secrets.DEPLOY_KEY }}
-      # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+      # Snapshot gate off for 3.0 (owner decision); restore by re-adding the snapshot-gate job and the require step
       # (see git history of this commit).
       - name: Modify git config
         run: |

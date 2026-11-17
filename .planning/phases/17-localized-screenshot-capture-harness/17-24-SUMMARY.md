@@ -132,7 +132,7 @@ Ready for **17-02**, which owns the regression matrix runner and consumes this p
 
 ## Record correction (2026-11-05)
 
-Following owner msg 1640, `requirements-completed` changed from `[CAP-17-02, CAP-17-03]` to `[]`.
-Both requirements moved to Phase 18 (VIS-18-01; owner msg 1305). The measured geometry and the
+Following owner decision, `requirements-completed` changed from `[CAP-17-02, CAP-17-03]` to `[]`.
+Both requirements moved to Phase 18 (VIS-18-01; owner decision). The measured geometry and the
 rendering pin delivered here are the foundation Phase 18 builds on, not their completion. The
 `coverage` entries above are kept as this plan's historical evidence.

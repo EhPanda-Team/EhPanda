@@ -6,7 +6,7 @@ tags: [live-check, github-actions, deployment]
 
 requires:
   - phase: 19-15
-    provides: "`live-check.yml`, `run-live-check.sh`, `report_issues.py` and the runner choice (hosted, owner msg 2441)"
+    provides: "`live-check.yml`, `run-live-check.sh`, `report_issues.py` and the runner choice (hosted, owner decision)"
 provides:
   - "`19-16-DEPLOY.md`: the first real hosted run, the content check, the charge check and the pending-after-merge items"
 affects: [19-17]
@@ -27,7 +27,7 @@ key-files:
   modified: []
 
 key-decisions:
-  - "Go-ahead: owner msg 2456 (\"Yes, push and run it once\"), covering one push of `ci/live-check`, a fix-up push only for a setup mistake (not needed), issues only for a real break, and deleting the branch."
+  - "Go-ahead: owner decision (\"Yes, push and run it once\"), covering one push of `ci/live-check`, a fix-up push only for a setup mistake (not needed), issues only for a real break, and deleting the branch."
   - "No trigger change: `live-check.yml` already runs on `push` to `ci/live-check`, and `test.yml` skips `[skip test]` commits."
   - "VIS-19-01 stays Pending in REQUIREMENTS.md. The check runs and is proven on one real run. The first scheduled run from `main` can only come after the merge, and 19-17 carries it into 19-VALIDATION.md."
 
@@ -77,7 +77,7 @@ status: complete
 
 # Phase 19 Plan 16: Deploy the daily live check and prove one real run Summary
 
-**The daily live check is on GitHub's hosted runner, and one real run has passed. With owner msg 2456, one empty
+**The daily live check is on GitHub's hosted runner, and one real run has passed. With owner decision, one empty
 `[skip test]` commit pushed to `ci/live-check` started run 42443815779, which succeeded in 12 min 34 s. All nine
 guest pages returned HTTP 200 and parsed, and the three signed-in pages were skipped. The reporter found nothing
 to do and opened no issue. The public log and `results.json` hold no page content. The run is not billable. The
@@ -91,7 +91,7 @@ branch and its worktree are gone.**
 ## Accomplishments
 
 - **Task 1, the first real run.**
-  - The owner's go-ahead (msg 2456) is recorded.
+  - The owner's go-ahead is recorded.
   - The `ci/live-check` commit `3d58637e6` was built in a worktree and sits on `398512662`.
   - `test.yml` run 42443815628 was `skipped`.
   - Live check run 42443815779 succeeded.
@@ -122,7 +122,7 @@ branch and its worktree are gone.**
 
 ## Verification
 
-- `grep -E "owner msg [0-9]+" 19-16-DEPLOY.md` finds `owner msg 2456`.
+- `grep -E "owner decision" 19-16-DEPLOY.md` finds `owner decision`.
 - `grep -c "log checked: no content"` prints 1.
 - `grep -c "Pending after merge"` prints 1.
 - `grep -nE "/Users/"` on `19-16-DEPLOY.md` prints nothing.

@@ -1,6 +1,6 @@
 # Reader page sync: root cause and a single-source-of-truth sketch
 
-Written for owner msg 1630 by the gsd-code-fixer, Phase 17, after the WR-01 and IN-01 fixes
+Written for owner decision by the gsd-code-fixer, Phase 17, after the WR-01 and IN-01 fixes
 (fb1ea4b18, 443e74541). This is analysis only. Nothing here is implemented.
 Copied on 2026-11-05 from the local `/tmp/ehp-17gate/reader-root-cause.md` as the reference for
 Phase 18 Step 4b. Checked for LAN addresses, cookies and credentials: none found, nothing redacted.

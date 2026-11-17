@@ -12,7 +12,7 @@ updated: 2026-11-07T06:38:00Z
 
 ## Tests
 
-Agent-run UAT (owner rule msg 1652), one test per ROADMAP success criterion plus the SUMMARYs' four
+Agent-run UAT (owner rule), one test per ROADMAP success criterion plus the SUMMARYs' four
 `human_judgment: true` items (18-04 D6, 18-09 T3, 18-10 T3, 18-11 T4). Every other SUMMARY coverage entry is
 automated and is covered by the runs below.
 
@@ -160,7 +160,7 @@ source: automated
 evidence: "SettingsModerationUITests.testTheAnalyticsPickerChangesTheLevelAndItsDescription passed on both devices; the UI review captured Minimal, the open picker and Full, default and AX5, light and dark."
 
 ### 4. Report on {site}
-expected: Every other user's comment offers "Report on E-Hentai" (or ExHentai). Since Phase 18.1 it opens EhPanda's own report form directly (owner msg 1931), with the site's report page as the fallback; there is no email or other contact path.
+expected: Every other user's comment offers "Report on E-Hentai" (or ExHentai). Since Phase 18.1 it opens EhPanda's own report form directly (owner decision), with the site's report page as the fallback; there is no email or other contact path.
 result: pass
 source: automated
 evidence: "CommentModerationUITests.testTheMenuOffersReportThenBlockAndReportOpensTheReportForm and testReportOnAStripCardOpensTheReportForm, and ReportFormUITests 8 + 1 device skip, on both devices. The prefill now keeps each run of the comment on its own line (1120de8dd)."
@@ -214,7 +214,7 @@ severity: minor
 expected: The first-launch titles and the Blocked Users empty title never end on a single word (two characters in zh/ja/ko) in any language or size.
 result: pass
 source: automated
-evidence: "FirstLaunchTitleLayoutUITests 6/6 and BlockedUsersTitleLayoutUITests 6/6 on both devices at 199d3e4d2 and in the final runs; the line tables in 18-09/18-10 were accepted (owner msg 1903, lead). The UI review saw 'Choose what / EhPanda shares' on the phone and the pad."
+evidence: "FirstLaunchTitleLayoutUITests 6/6 and BlockedUsersTitleLayoutUITests 6/6 on both devices at 199d3e4d2 and in the final runs; the line tables in 18-09/18-10 were accepted (owner decision, lead). The UI review saw 'Choose what / EhPanda shares' on the phone and the pad."
 
 ### 13. Comment moderation against the mockups (18-11 T4)
 expected: The comment menu, Block alert, collapsed row and card, revealed row, posting warning match mockups 05–11 on both devices.

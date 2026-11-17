@@ -84,7 +84,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
-      # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+      # Snapshot gate off for 3.0 (owner decision); restore by re-adding the snapshot-gate job and the require step
       # (see git history of this commit).
       - name: Check version
         run: |

@@ -1,17 +1,17 @@
 > **Superseded in part:** None strings and consent.body superseded by [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md)
-> (owner msgs 1795, 1805).
+> (owner decision).
 > `consent.level.basic.description` is superseded by Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md)
-> (owner msgs 1830, 1839; CONTEXT D-06d). The Basic description in the table below is the retired text.
-> `consent.body` is superseded by Revision 5 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner msg 1864; CONTEXT D-06e).
+> (owner decision; CONTEXT D-06d). The Basic description in the table below is the retired text.
+> `consent.body` is superseded by Revision 5 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner decision; CONTEXT D-06e).
 > The `consent.body` row in the table below is the retired text.
 > `consent.level.basic.description` (again) and `consent.level.full.description` are superseded by Revision 6 in
-> [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner msgs 1869, 1880; CONTEXT D-06f). The Full description in the table below is the retired text.
-> Basic carries a "Recommended" label (`consent.level.recommended`, Revision 6; owner msg 1882); nothing is pre-selected.
+> [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (owner decision; CONTEXT D-06f). The Full description in the table below is the retired text.
+> Basic carries a "Recommended" label (`consent.level.recommended`, Revision 6; owner decision); nothing is pre-selected.
 
 # EhPanda 3.0: first-launch copy (age wall + analytics choice)
 
-APPROVED by the owner, msg 1767 (2026-11-05), all six languages. Author: Camo. Delivered in msg 1761.
-Decisions this is written for (owner card answers, msg 1753): two screens, everyone sees both once on the first 3.0 launch; analytics levels None / Basic / Full; agents draft, owner approves.
+APPROVED by the owner (2026-11-05), all six languages. Author: Camo. Delivered .
+Decisions this is written for (owner card answers): two screens, everyone sees both once on the first 3.0 launch; analytics levels None / Basic / Full; agents draft, owner approves.
 Tone per locale, as in the rest of the app and site: de "du", ko -습니다, ja です/ます, zh plain 你.
 
 ## One term per concept
@@ -32,7 +32,7 @@ All of these match existing app or website strings. Don't introduce synonyms ("t
 
 No skip and no "No" button. The Continue button stays dimmed until the checkbox is ticked, the same pattern as the website's adult-mode box. Nothing on this screen may say or suggest that the age was checked.
 
-The checkbox sentence is the owner-approved text (msg 1454, 1457), word for word. Don't edit it.
+The checkbox sentence is the owner-approved text, word for word. Don't edit it.
 
 | Key (suggested) | en | de | ko | ja | zh-Hans | zh-Hant |
 |---|---|---|---|---|---|---|
@@ -54,9 +54,9 @@ Notes:
 
 Three options, all equally prominent, none pre-selected (Pluso's recommendation in the prep file; Colo decides the layout). If the design uses a separate Continue button, it stays dimmed until an option is picked and reuses `age_wall.continue`. If tapping an option saves and continues directly, no button is needed.
 
-Note (owner msg 1839): the `consent.level.basic.description` row below is retired; use Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06d).
-Note (owner msg 1864): the `consent.body` row below is retired; use Revision 5 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06e).
-Note (owner msgs 1880, 1882): the `consent.level.full.description` row below is retired; Basic's and Full's descriptions come from Revision 6 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), which also adds `consent.level.recommended`, shown on Basic only. Still none pre-selected (D-06f).
+Note (owner decision): the `consent.level.basic.description` row below is retired; use Revision 3 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06d).
+Note (owner decision): the `consent.body` row below is retired; use Revision 5 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md) (D-06e).
+Note (owner decision): the `consent.level.full.description` row below is retired; Basic's and Full's descriptions come from Revision 6 in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), which also adds `consent.level.recommended`, shown on Basic only. Still none pre-selected (D-06f).
 
 The SDK doesn't start before this choice (L14), so "None" really means nothing is sent. The level descriptions follow Pluso's GA-2 option A; if the developer changes what a level sends, the description has to change with it.
 

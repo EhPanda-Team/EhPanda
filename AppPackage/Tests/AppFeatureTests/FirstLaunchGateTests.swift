@@ -771,8 +771,8 @@ private struct AnalyticsClientSpy {
     }
 }
 
-/// The title widow guard shared by the first-launch titles and the Blocked Users empty state (UI-SPEC C-3, lead msg
-/// 1900).
+/// The title widow guard shared by the first-launch titles and the Blocked Users empty state (UI-SPEC C-3, lead
+/// decision).
 struct TitleWidowGuardTests {
     private let noBreakSpace = String(TitleWidowGuard.noBreakSpace)
 

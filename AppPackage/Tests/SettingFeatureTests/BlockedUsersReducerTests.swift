@@ -6,7 +6,7 @@ import Foundation
 import Sharing
 import Testing
 
-// Covers the Blocked Users list (UI-SPEC C-11, C-12; D-14, D-14a; owner msg 1918): it reads the shared block list,
+// Covers the Blocked Users list (UI-SPEC C-11, C-12; D-14, D-14a; owner decision): it reads the shared block list,
 // sorts it by the names users were last seen under for display, unblocks a user by member ID from the shared store
 // with no confirmation, and is empty once the last user goes.
 // Every case isolates `@Shared(.blockedCommentUsers)` in its own in-memory defaults.
@@ -94,7 +94,7 @@ struct BlockedUsersReducerTests {
                 $0.defaultAppStorage = defaults
             }
 
-            // The member ID is the user (owner msg 1918): another ID changes nothing.
+            // The member ID is the user (owner decision): another ID changes nothing.
             await store.send(.unblockTapped(memberID: "2"))
             #expect(store.state.users.map(\.name) == ["Roobubba"])
         }

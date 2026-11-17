@@ -15,7 +15,7 @@ provides:
   - "`Scripts/live-check/run-live-check.sh --mode hosted|local`: the one entry point for both runners"
   - "`.github/workflows/live-check.yml` (daily 04:17 UTC, dispatch, push to `ci/live-check`)"
   - "`Scripts/live-check/live-check.plist.template` (not installed: the owner chose the hosted runner)"
-  - "`19-15-RUNNER.md`: Choice: hosted (owner msg 2441)"
+  - "`19-15-RUNNER.md`: Choice: hosted (owner decision)"
 affects: [19-16, 19-17]
 
 actuals:
@@ -41,7 +41,7 @@ key-files:
   modified: []
 
 key-decisions:
-  - "Runner: GitHub's hosted runner (owner msg 2441), on 19-03's `reachable` verdict. Options shown: hosted, mac-timer, mac-runner, fixtures-only."
+  - "Runner: GitHub's hosted runner (owner decision), on 19-03's `reachable` verdict. Options shown: hosted, mac-timer, mac-runner, fixtures-only."
   - "Issue titles: `Live check: <Page> parser` with fixed display names (for example `Toplists`, `Reader image`) and `Live check: cannot reach the site`; label `live-check`, created with `gh label create --force` just before the first issue a run opens."
   - "Bodies carry only the page's display name, the date (day only), the mode, `HTTP <status>` or `no HTTP status`, the expectation's fixed sentence and, for the cannot-reach issue, the run count and the unreached pages' names."
   - "Strict validation: exactly the schema 1 keys, no duplicate keys, schema 1, an ISO 8601 UTC date, fixed enums, a status of 100 to 599 or null (never a boolean), unique pages, an expectation exactly on `parser` results, no status on `skipped`. A rejected file exits 2 with a fixed phrase, before any gh call."
@@ -87,7 +87,7 @@ status: complete
 # Phase 19 Plan 15: Live check runner, issue reporter, entry script and workflow Summary
 
 **The daily live check now reports through self-closing GitHub issues, and one script runs it on either runner. The
-owner chose GitHub's hosted runner (owner msg 2441), on 19-03's `reachable` probe. The reporter validates
+owner chose GitHub's hosted runner (owner decision), on 19-03's `reachable` probe. The reporter validates
 `results.json` strictly before any `gh` call and writes only fixed templates. A local dry run through the entry
 script found all nine guest pages `ok`, so the reporter would take no action, and it touched no real issue.**
 
@@ -98,7 +98,7 @@ script found all nine guest pages `ok`, so the reporter would take no action, an
 
 ## Accomplishments
 
-- **Runner choice** (Task 1): `Choice: hosted (owner msg 2441)` in `19-15-RUNNER.md`, with the probe verdict and
+- **Runner choice** (Task 1): `Choice: hosted (owner decision)` in `19-15-RUNNER.md`, with the probe verdict and
   the options shown.
 - **Reporter and fake gh** (Task 2, TDD). Tests were committed failing (`be36f43e2`), then the code (`d7a5daaa5`).
   - `report_issues.py --results --previous --repo [--gh] [--dry-run]` opens one issue per `parser` page, comments
@@ -128,7 +128,7 @@ script found all nine guest pages `ok`, so the reporter would take no action, an
 
 ## Verification
 
-- Task 1: `grep -E "Choice: (hosted|...) \(owner msg [0-9]+\)"` prints `Choice: hosted (owner msg 2441)`.
+- Task 1: `grep -E "Choice: (hosted|...) \(owner decision\)"` prints `Choice: hosted (owner decision)`.
 - Task 2: `python3 -m unittest discover -s Scripts/live-check -p 'test_report_issues.py'`: 16 tests, OK. All
   `test_*.py` in `Scripts/live-check`: OK.
 - Task 3: `syntax-ok`; `plutil` OK; the workflow assertion prints `ok`; `grep -c xcresult` prints 0;
@@ -146,7 +146,7 @@ See `key-decisions`.
 
 ## Deviations from Plan
 
-1. **Task 1 was answered during execution.** It had been an open checkpoint. The owner's answer (msg 2441) was
+1. **Task 1 was answered during execution.** It had been an open checkpoint. The owner's answer was
    relayed during the run and is recorded in `19-15-RUNNER.md`.
 2. **The fake gh keeps state.** It answers `issue list` from `$FAKE_GH_STATE` as planned. It also adds created
    issues to that file and closes them there, so a test can run several days in a row. It also answers `run list`,

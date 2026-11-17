@@ -46,7 +46,7 @@ key-decisions:
   - "The two list pages (front page, Popular) use the app's URL builders and list parser over a plain GET, not `FrontPageGalleriesRequest` / `PopularGalleriesRequest`: those request types also send the gdata title query, a POST, which D-21 forbids. The gallery page goes through `GalleryDetailRequest`."
   - "The probe records and does not judge: a block is written to `probe.json`, the test does not fail on it."
   - "`runner-probe.yml` keeps the full xcodebuild log on the runner (a failed request's console line carries its URL and the repository's logs are public); it prints only counts, verdicts and error lines, and uploads only `probe.json`. The job reads `actions` to print the runner name, image and group for 19-04."
-  - "Hosted verdict `reachable` (owner msg 2397, run 42433098473): OQ-3 is not asked; 19-15 can choose the hosted runner on this evidence."
+  - "Hosted verdict `reachable` (owner decision, run 42433098473): OQ-3 is not asked; 19-15 can choose the hosted runner on this evidence."
 
 patterns-established:
   - "Live outputs carry only fixed fields; a test with a title-like value proves it never reaches the file"
@@ -81,7 +81,7 @@ coverage:
         ref: "run 42433098473 on xcode-27-arm64 20261104.0337.1: three pages 200, cfMitigated false, parsed; Verdict: reachable"
         status: pass
       - kind: manual
-        ref: "owner msg 2397 (answer to card msg 2246) authorised the ci/runner-probe push and its deletion"
+        ref: "owner decision (answer to the card) authorised the ci/runner-probe push and its deletion"
         status: pass
     human_judgment: true
 
@@ -112,7 +112,7 @@ with no Cloudflare challenge. Verdict: reachable.**
 - **The local probe and the workflow** (Task 2). Locally all three pages answered 200 with no challenge and parsed.
   `runner-probe.yml` runs on a push to `ci/runner-probe` on `xcode-27`, uploads only `probe.json`, and writes the
   runner name, image version and runner group to the job summary.
-- **The hosted probe** (Task 3). Owner msg 2397 allowed the push. Run 42433098473 (runner `GitHub Actions
+- **The hosted probe** (Task 3). Owner decision allowed the push. Run 42433098473 (runner `GitHub Actions
   1000000629`, image `xcode-27-arm64` `20261104.0337.1`): frontPage, popular and gallery each 200, `cfMitigated`
   false, parsed. The remote branch `ci/runner-probe` was deleted afterwards under the same go-ahead.
 

@@ -34,7 +34,7 @@ env:
   BETA_IPA_PATH: '/tmp/action-builds/EhPanda-Beta.ipa'
 
 jobs:
-  # Snapshot gate off for 3.0 (owner msg 3757); restore by re-adding the snapshot-gate job and the require step
+  # Snapshot gate off for 3.0 (owner decision); restore by re-adding the snapshot-gate job and the require step
   # (see git history of this commit).
   Deploy:
     runs-on: xcode-27

@@ -1,6 +1,6 @@
 # 19-16 Live check deployment
 
-Deploys the owner's choice in `19-15-RUNNER.md` (`Choice: hosted (owner msg 2441)`): the daily live check runs on
+Deploys the owner's choice in `19-15-RUNNER.md` (`Choice: hosted (owner decision)`): the daily live check runs on
 GitHub's hosted Mac through `.github/workflows/live-check.yml`.
 
 ## Go-ahead (Task 1)
@@ -8,7 +8,7 @@ GitHub's hosted Mac through `.github/workflows/live-check.yml`.
 - **Asked:** "May I push a temporary branch so GitHub runs the daily page check once now? It reads about 12 public
   pages and opens a public issue only if the app really can't read one. It doesn't start the app's tests, and I
   delete the branch afterwards."
-- **Answer:** owner msg 2456: "Yes, push and run it once".
+- **Answer:** owner decision: "Yes, push and run it once".
 - **What it covers:** one push of `ci/live-check`, plus one fix-up push to the same branch if the run failed from a
   setup mistake (not needed); the run opening an issue only if a page really broke; deleting the remote branch
   afterwards. Nothing else was pushed: not `feature/gsd-phase-18`, `main` or a tag. No repository setting, secret or
@@ -85,7 +85,7 @@ log checked: no content
 
 ## Clean-up (Task 2)
 
-- **Remote branch:** `ci/live-check` was deleted under owner msg 2456, after the run was recorded.
+- **Remote branch:** `ci/live-check` was deleted under an owner decision, after the run was recorded.
   `git ls-remote --heads origin 'ci/*'` now lists only another plan's branch, and no `ci/live-check`.
 - **Worktree:** `.airbuild/worktree/live-check` was removed with `git worktree remove`, and its local
   `ci/live-check` branch was deleted. Commit `3d58637e6` is on no branch now.

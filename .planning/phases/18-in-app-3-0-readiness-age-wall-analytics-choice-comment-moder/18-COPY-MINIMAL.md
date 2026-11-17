@@ -1,23 +1,23 @@
 # EhPanda 3.0: analytics wording change for "Minimal"
 
-APPROVED by the owner, msg 1805 (2026-11-05), all six languages. Author: Camo. Delivered in msg 1797. Written for owner msg 1795: "None" becomes "Minimal", which sends only the installation.
-Everything not listed here in 18-COPY-FIRST-LAUNCH.md stays as approved (msg 1767).
-Developer confirmation (msg 1798): under Minimal the analytics SDK never starts; the app sends one signal, once per install (D-06b).
+APPROVED by the owner (2026-11-05), all six languages. Author: Camo. Delivered . Written for owner decision: "None" becomes "Minimal", which sends only the installation.
+Everything not listed here in 18-COPY-FIRST-LAUNCH.md stays as approved.
+Developer confirmation: under Minimal the analytics SDK never starts; the app sends one signal, once per install (D-06b).
 
-**Revision 2 APPROVED by the owner, msg 1818 (2026-11-05):** owner msg 1812 adds the install channel to the Minimal signal (D-06c, developer msg 1814). The Minimal description in the table below is SUPERSEDED by Revision 2 at the end of this file; everything else stays as approved in msg 1805.
+**Revision 2 APPROVED by the owner (2026-11-05):** owner decision adds the install channel to the Minimal signal (D-06c, developer check). The Minimal description in the table below is SUPERSEDED by Revision 2 at the end of this file; everything else stays as approved.
 
-**Revision 3 APPROVED by the owner, msg 1839 (2026-11-05):** owner msg 1830 notes that the Basic description repeated Minimal's install line (the copywriter's draft is msg 1832). Basic's description now builds on Minimal ("Everything in Minimal, plus ..."); what Basic sends does not change (D-06d). Revision 3 at the end of this file supersedes the Basic description (`consent.level.basic.description`) in 18-COPY-FIRST-LAUNCH.md, in all six languages. Minimal (Revision 2), Full, `consent.title` and `consent.body` are unchanged. (Basic's description is superseded again by Revision 6, msg 1880.)
+**Revision 3 APPROVED by the owner (2026-11-05):** owner decision notes that the Basic description repeated Minimal's install line (the copywriter's draft is). Basic's description now builds on Minimal ("Everything in Minimal, plus ..."); what Basic sends does not change (D-06d). Revision 3 at the end of this file supersedes the Basic description (`consent.level.basic.description`) in 18-COPY-FIRST-LAUNCH.md, in all six languages. Minimal (Revision 2), Full, `consent.title` and `consent.body` are unchanged. (Basic's description is superseded again by Revision 6.)
 
-**Revision 5 APPROVED by the owner, msg 1864 (2026-11-05):** owner msgs 1844 and 1854 ask for a much shorter intro under the analytics title; version B of Revision 5 is approved (developer check msg 1858; D-06e). Revision 5 at the end of this file supersedes `consent.body` in this file's first table (msg 1805), and with it the original `consent.body` in 18-COPY-FIRST-LAUNCH.md, in all six languages. The purpose ("which features matter") and TelemetryDeck's name move to the Privacy Policy (website, Phase 20). Revision 4 (msg 1847) was not approved and is not used. Everything else stays as approved.
+**Revision 5 APPROVED by the owner (2026-11-05):** owner decision ask for a much shorter intro under the analytics title; version B of Revision 5 is approved (developer check; D-06e). Revision 5 at the end of this file supersedes `consent.body` in this file's first table, and with it the original `consent.body` in 18-COPY-FIRST-LAUNCH.md, in all six languages. The purpose ("which features matter") and TelemetryDeck's name move to the Privacy Policy (website, Phase 20). Revision 4 was not approved and is not used. Everything else stays as approved.
 
-**Revision 6 APPROVED by the owner, msg 1880 (2026-11-05):** owner msg 1869 moves the screens and features from Full to Basic (developer mapping msg 1878; D-06f). Revision 6 at the end of this file supersedes the Basic description of Revision 3 (msg 1839) and the Full description (`consent.level.full.description`) in 18-COPY-FIRST-LAUNCH.md (msg 1767), in all six languages; both are retired. Its `consent.level.recommended` table is approved as well: the owner chose "Basic marked Recommended" (owner msg 1882, card 1873, options in msgs 1872 and 1874). Nothing is pre-selected; Basic only carries the label. The pre-selected variant (msg 1871) was not chosen, so the section heading's "Basic is the default" (the owner's ask in msg 1869) means recommended, not pre-selected. Minimal (Revision 2), `consent.title`, `consent.body` (Revision 5) and the level names are unchanged.
+**Revision 6 APPROVED by the owner (2026-11-05):** owner decision moves the screens and features from Full to Basic (developer mapping; D-06f). Revision 6 at the end of this file supersedes the Basic description of Revision 3 and the Full description (`consent.level.full.description`) in 18-COPY-FIRST-LAUNCH.md, in all six languages; both are retired. Its `consent.level.recommended` table is approved as well: the owner chose "Basic marked Recommended" (owner decision, options). Nothing is pre-selected; Basic only carries the label. The pre-selected variant was not chosen, so the section heading's "Basic is the default" (the owner's ask) means recommended, not pre-selected. Minimal (Revision 2), `consent.title`, `consent.body` (Revision 5) and the level names are unchanged.
 
-**Revision 7 (2026-11-08):** owner msg 2552 drops the install-source lookup; the app now knows only which download it is (its distribution channel), not how it was installed. The copywriter's wording (msg 2559) replaces "where you installed the app from" with "where you got the app from"; the owner was told in developer msg 2560 and did not object. Revision 7 at the end of this file supersedes Revision 2's `consent.level.minimal.description` in de, en, ko, zh-Hans and zh-Hant; ja already said 入手元 and is unchanged. Nothing else changes.
+**Revision 7 (2026-11-08):** owner decision drops the install-source lookup; the app now knows only which download it is (its distribution channel), not how it was installed. The copywriter's wording replaces "where you installed the app from" with "where you got the app from"; the owner was told in developer check and did not object. Revision 7 at the end of this file supersedes Revision 2's `consent.level.minimal.description` in de, en, ko, zh-Hans and zh-Hant; ja already said 入手元 and is unchanged. Nothing else changes.
 
 ## What changes
 
 1. The level name and its description (key renamed `consent.level.none` -> `consent.level.minimal`).
-2. `consent.body` (superseded by Revision 5, msg 1864): "can send" becomes "sends", plus a short line saying the user picks how much. "Can send" implied a level that sends nothing, which no longer exists.
+2. `consent.body` (superseded by Revision 5): "can send" becomes "sends", plus a short line saying the user picks how much. "Can send" implied a level that sends nothing, which no longer exists.
 3. Order stays: Minimal, Basic, Full. Still none pre-selected.
 4. Settings footer: unchanged rule (shows the selected level's description), so it picks up the new Minimal line automatically.
 5. Drop the note "In ko, ja and zh, None reads as Don't share". It no longer applies.
@@ -32,7 +32,7 @@ Developer confirmation (msg 1798): under Minimal the analytics SDK never starts;
 
 Retired: `consent.level.none` ("None"), `consent.level.none.description` ("Nothing is sent.").
 
-Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the Basic and Full names and descriptions (Basic's description later superseded by Revision 3, msg 1839, then Basic's and Full's by Revision 6, msg 1880), `consent.footer` ("You can change this anytime in Settings."), `consent.privacy_link`, `shareAnalyticsData`.
+Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the Basic and Full names and descriptions (Basic's description later superseded by Revision 3, then Basic's and Full's by Revision 6), `consent.footer` ("You can change this anytime in Settings."), `consent.privacy_link`, `shareAnalyticsData`.
 
 ## Notes
 
@@ -43,11 +43,11 @@ Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the
 ## Knock-on for the website (Leto, at 3.0 ship, not before)
 
 The privacy page rewrite for the three levels now uses Minimal / Basic / Full and these descriptions. There is no level that sends nothing, so the page must not say sharing can be turned off completely.
-Since Revision 5 (msg 1864) the in-app intro no longer names TelemetryDeck or says why analytics are collected; the privacy page, linked from the same screen, must carry both (D-06e).
+Since Revision 5 the in-app intro no longer names TelemetryDeck or says why analytics are collected; the privacy page, linked from the same screen, must carry both (D-06e).
 
-## Revision 2 (owner msg 1812; APPROVED owner msg 1818)
+## Revision 2 (owner decision; APPROVED owner decision)
 
-Only `consent.level.minimal.description` changes. The name "Minimal", `consent.body` and everything else stay as approved in msg 1805.
+Only `consent.level.minimal.description` changes. The name "Minimal", `consent.body` and everything else stay as approved.
 
 | Key | en | de | ko | ja | zh-Hans | zh-Hant |
 |---|---|---|---|---|---|---|
@@ -57,7 +57,7 @@ Notes:
 - "Where you installed the app from" is word for word the phrase already approved in Basic's description, in every language, so the two levels name the install channel the same way. No new term ("marketplace", "channel", "install source") reaches the user.
 - Still true only if the signal carries nothing beyond the install and its source, once per install (D-06b/D-06c).
 
-## Revision 3 (owner msg 1830: Basic's description repeats Minimal's; APPROVED owner msg 1839)
+## Revision 3 (owner decision: Basic's description repeats Minimal's; APPROVED owner decision)
 
 Only `consent.level.basic.description` changes. Basic now builds on Minimal the same way Full builds on Basic ("Everything in X, plus ..."), so the three read as one ladder and the install line appears once. Content is unchanged: Basic still sends the install signal and where it came from (via "Everything in Minimal"), usage frequency, device model and app version, and error kinds.
 
@@ -65,23 +65,23 @@ Only `consent.level.basic.description` changes. Basic now builds on Minimal the 
 |---|---|---|---|---|---|---|
 | consent.level.basic.description | Everything in Minimal, plus how often the app is used, technical details such as device model and app version, and which kinds of errors occur. | Alles aus „Minimal“, dazu wie oft die App genutzt wird, technische Angaben wie Gerätemodell und App-Version und welche Arten von Fehlern auftreten. | 최소 항목에 더해 앱 사용 빈도, 기기 모델과 앱 버전 같은 기술 정보, 발생한 오류의 종류를 보냅니다. | 「最小限」の内容に加え、アプリの利用頻度、デバイスのモデルやアプリのバージョンなどの技術情報、発生したエラーの種類を送信します。 | 在“最少”的基础上，还会发送应用的使用频率、设备型号和应用版本等技术信息，以及出现的错误类型。 | 在「最少」之外，還會傳送 App 的使用頻率、裝置型號和 App 版本等技術資訊，以及發生的錯誤類型。 |
 
-Unchanged: Minimal (Revision 2, msg 1818), Full, the title and the intro.
+Unchanged: Minimal (Revision 2), Full, the title and the intro.
 Side effect: in Settings the footer for Basic now starts "Everything in Minimal", which reads fine beside the picker that lists Minimal.
 
-## Revision 5 (owner msg 1854: "too much details. can we go with something like, what you have searched or viewed are never sent"; version B APPROVED owner msg 1864)
+## Revision 5 (owner decision: "too much details. can we go with something like, what you have searched or viewed are never sent"; version B APPROVED owner decision)
 
-Only `consent.body` changes. Revision 4 (msg 1847) was not approved. The owner chose version B over A ("Anonymous analytics. What you search for or view is never sent.") because Full sends the category of a gallery that is opened, but never which gallery; B promises exactly that.
+Only `consent.body` changes. Revision 4 was not approved. The owner chose version B over A ("Anonymous analytics. What you search for or view is never sent.") because Full sends the category of a gallery that is opened, but never which gallery; B promises exactly that.
 
 | Key | en | de | ko | ja | zh-Hans | zh-Hant |
 |---|---|---|---|---|---|---|
 | consent.body | Anonymous analytics. Your searches and the galleries you view are never sent. | Anonyme Analysedaten. Deine Suchen und die Galerien, die du ansiehst, werden nie gesendet. | 익명 분석 데이터입니다. 검색어와 본 갤러리는 절대 보내지 않습니다. | 匿名の分析データです。検索語や閲覧したギャラリーは送信されません。 | 匿名分析数据。你的搜索内容和浏览的画廊永远不会发送。 | 匿名分析資料。你的搜尋內容和瀏覽的畫廊永遠不會傳送。 |
 
 Notes:
-- Developer check (msg 1858): at no level does any gallery ID, title, link, tag name or search text go out. Full sends a gallery's category and per-namespace tag counts on open; a search sends only word count, length, tag-syntax flag and a result-count bucket.
-- 77 characters in English, two lines on iPhone at default size (designer msg 1846/1850).
+- Developer check: at no level does any gallery ID, title, link, tag name or search text go out. Full sends a gallery's category and per-namespace tag counts on open; a search sends only word count, length, tag-syntax flag and a result-count bucket.
+- 77 characters in English, two lines on iPhone at default size (designer).
 - The purpose ("which features matter") and TelemetryDeck's name move to the Privacy Policy, linked on the same screen (website, Phase 20).
 
-## Revision 6 (owner msg 1869: screens and features move from Full to Basic; Basic is the default)
+## Revision 6 (owner decision: screens and features move from Full to Basic; Basic is the default)
 
 Only the Basic and Full descriptions change. The ladder stays.
 
@@ -92,13 +92,13 @@ Only the Basic and Full descriptions change. The ladder stays.
 
 The screens-and-features phrase is the one already approved in Full, moved word for word in every language.
 
-Only if the owner takes the "Recommended" label option (msg 1872):
+Only if the owner takes the "Recommended" label option:
 
 | Key | en | de | ko | ja | zh-Hans | zh-Hant |
 |---|---|---|---|---|---|---|
 | consent.level.recommended | Recommended | Empfohlen | 권장 | おすすめ | 推荐 | 推薦 |
 
-## Revision 7 (owner msg 2552: report the distribution channel only; copywriter msg 2559)
+## Revision 7 (owner decision: report the distribution channel only; copywriter)
 
 Only `consent.level.minimal.description` changes.
 
@@ -108,4 +108,4 @@ Only `consent.level.minimal.description` changes.
 
 Notes:
 - The signal carries only the channel the download was published for (GitHub, AltStore, SideStore, AltStore PAL, EhPanda Beta, or `source`), so "got the app from" is what the app knows; "installed from" claimed more.
-- The READMEs' Analytics sections use the same line (copywriter msg 2586).
+- The READMEs' Analytics sections use the same line (copywriter).

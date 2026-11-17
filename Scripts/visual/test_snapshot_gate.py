@@ -658,7 +658,7 @@ class ArtifactLayoutTests(unittest.TestCase):
 
 
 class WiringTests(unittest.TestCase):
-    # Snapshot gate off for 3.0 (owner msg 3757): the release workflows neither call the gate nor wait for it.
+    # Snapshot gate off for 3.0 (owner decision): the release workflows neither call the gate nor wait for it.
     # The gate itself is still run by pull requests, dispatches and dependency updates.
     def assert_gate_off(self, path):
         workflow = load(path)

@@ -15,7 +15,7 @@ validation_result: "partial: kept scope automated except the WR-01 rebuild wirin
 
 # Phase17 validation strategy
 
-> **Reduced scope, 2026-11-03 (owner msg 1305); signed off on 2026-11-04 at `b5eca09d1`** (17-23's gate
+> **Reduced scope, 2026-11-03 (owner decision); signed off on 2026-11-04 at `b5eca09d1`** (17-23's gate
 > at `52df81fa3`, repeated at `b5eca09d1` after the code review). Only
 > the plans Phase 17 kept were executed. The map below is the original plan; rows for moved plans are
 > moved to Phase 18 and are not evidence. See "Reduced-scope sign-off" at the end and
@@ -201,15 +201,15 @@ passed, 0 retries. The last Debug negative-control scan (991 findings) is at `52
   phone run is at `33dbf648b`, before the WR-01/IN-01 fixes. (At `52df81fa3` only the iPad was
   reduced, by the owner's choice on 2026-11-04.) Earlier iPad desyncs occurred about once in 20 runs
   or less, so 5 iterations cannot exclude that rate. The owner accepted ×5 on both devices as a known
-  limit (owner msg 1640).
+  limit (owner decision).
 - ReaderPageSyncUITests covers the vertical strip and the left-to-right pager, not right-to-left.
 - `ReaderPageProbe` can't read an iPad landscape two-page spread.
 - The reader still keeps several copies of the current page; Phase 18 reworks it to one source of truth.
 
 **Still open, flagged.** The CAP-17-07 unclassified edge is classified in 17-FINAL-VALIDATION.md
-section 8; the verifier concurred and the owner accepted it (owner msg 1640). The three descriptor-less
+section 8; the verifier concurred and the owner accepted it (owner decision). The three descriptor-less
 prohibitions stay flagged-unverified per 17-SOURCE-AUDIT.md: the first with the owner-approved synthetic
-comment (exception accepted, owner msg 1640), the other two moved to Phase 18. UAT
+comment (exception accepted, owner decision), the other two moved to Phase 18. UAT
 (`/gsd-verify-work 17`) and the remaining close steps are ahead.
 
 ## Nyquist audit (`/gsd-validate-phase 17`, 2026-11-05)
@@ -229,7 +229,7 @@ are not counted as gaps here.
 | Full suite | `xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan FeatureTests -destination 'platform=iOS Simulator,id=<UDID>'`, then the same with `-testPlan UITests`, phone then tablet, one invocation at a time |
 | Quick | `python3 -B -m unittest discover -s Scripts/visual -p 'test_*.py'` |
 | Not in the default plans | `VisualSnapshotTests/GeometryTests` (skipped in FeatureTests, opt-in measurement); `MarketingCaptureUITests`, `CaptureIsolationUITests`, `AppshotCaptureUITests` (skipped in UITests; run only through `Scripts/visual/capture-native.py`, `run-single-pass.py` or `verify-release.py`) |
-| Final gate at `b5eca09d1` | FeatureTests 1541 cases, 0 failed (10 expected failures), both devices; UITests 88 cases, 0 failed (phone 20 skipped, tablet 17 skipped), 0 Repetition nodes; strict no-cache lint 0 violations in 759 files; Release scan 0 findings, `test_release.py` 19 OK; ReaderPageSyncUITests ×5 on each device, 40/40, 0 retries (owner-accepted, msg 1640) |
+| Final gate at `b5eca09d1` | FeatureTests 1541 cases, 0 failed (10 expected failures), both devices; UITests 88 cases, 0 failed (phone 20 skipped, tablet 17 skipped), 0 Repetition nodes; strict no-cache lint 0 violations in 759 files; Release scan 0 findings, `test_release.py` 19 OK; ReaderPageSyncUITests ×5 on each device, 40/40, 0 retries (owner-accepted) |
 
 ### Audited per-task map (kept scope)
 
@@ -260,9 +260,9 @@ each kept task. Status: ✅ green · ⚠️ green with caveat · 🖐 manual-onl
 | Requirement | Automated coverage | Manual-only remainder | Classification |
 |---|---|---|---|
 | CAP-17-01, fixture part | `test_fixtures.py`, `test_selection_review.py`, `CaptureSceneTests`, `CaptureFixtureTests`, `CaptureLiveTextRecordTests`, `CaptureDownloadTests` | owner approval of the website fixture versions | COVERED (Python part last sampled at its plan gate) |
-| CAP-17-04, amended (192 approved images) | capture foundation: `MarketingCaptureUITests/testCaptureCoordinate` (driver-run), `test_capture_native.py`, FeatureTests capture suites | the image set itself is accepted by owner approval (msgs 1581, 1640) | COVERED for the producer; acceptance manual-only by nature |
+| CAP-17-04, amended (192 approved images) | capture foundation: `MarketingCaptureUITests/testCaptureCoordinate` (driver-run), `test_capture_native.py`, FeatureTests capture suites | the image set itself is accepted by owner approval | COVERED for the producer; acceptance manual-only by nature |
 | CAP-17-06, bounded part | FeatureTests and UITests (behavior suites), `PagerTurnGateTests`, `PagerSeedTests`, `ReaderPageSyncUITests` | standard/AX1/AX3/AX5 title/search/top-edge checks (quick 260921-f5u); WR-01 rebuild wiring (G1); RTL page sync and iPad two-page spread (G2) | PARTIAL |
-| CAP-17-07, amended | `test_release.py`, `verify-release.py` scan + launch probe, routing/layout reducer tests | one simulator layout pass, census keep decisions (msg 1409), unclassified-edge classification (msg 1640) | COVERED for automated parts; owner decisions manual-only by nature |
+| CAP-17-07, amended | `test_release.py`, `verify-release.py` scan + launch probe, routing/layout reducer tests | one simulator layout pass, census keep decisions, unclassified-edge classification | COVERED for automated parts; owner decisions manual-only by nature |
 | CAP-17-02, -03, -05 and moved parts of -01/-04/-06 | — | — | MOVED to Phase 18 (VIS-18-01, MKT-18-01, DIST-18-02); not gaps here |
 
 ### Gaps and disposition
@@ -276,9 +276,9 @@ test are therefore escalated to manual-only instead of being filled (auditor ret
 | G1 | WR-01: the reader's rebuild wiring (`.onChange(of: store.forceRefreshID)` outside the `.id` identity, and the `readingDirection` observer calling `ReadingView.pagerRebuilt()`) | MISSING (no committed UI test; `PagerTurnGateTests` cover only `PagerTurnGate.pagerRebuilt()`) | **Escalated → manual-only.** UAT tests 1 to 3 do not reach the rebuild-during-turn condition. G1 is now evidenced by the agent-run mid-turn check at `b5eca09d1` (17-WR01-MIDTURN.md: 60/60 on the fixed build, with a fault-injected control that fails). That check used a throwaway XCUITest that was **not committed**, so it is not automated coverage in the repository. Phase 18 ROADMAP Step 4b plans the real UI tests (Reload all images then a turn, a direction change during Auto-Play, an LTR/RTL switch). |
 | G2 | Page sync in right-to-left reading, and the iPad landscape two-page spread | MISSING (`ReaderPageSyncUITests` covers vertical and LTR only; `ReaderPageProbe` cannot read a spread) | **Escalated → manual-only.** RTL was exercised only by the same throwaway UAT test (test 3). The LTR/RTL switch test is in Phase 18 Step 4b; the two-page spread probe limit stays a known limit with no planned test. |
 | G3 | Planned suites `LayoutTraitTests`, `HomeLayoutNavigationTests`, `FavoritesLayoutNavigationTests`, `SearchLayoutNavigationTests`, `DownloadsLayoutNavigationTests` do not exist | no_automated_command (planned name) | **Resolved by map update.** The kept behavior is covered by the existing suites in the audited map, green on both devices at `b5eca09d1`; the snapshot-measured part is moved to VIS-18-01. |
-| G4 | Reduced page-sync stress (×5 instead of ×20 on both devices at `b5eca09d1`) | WARNING (test green; sample too small to exclude a ~1-in-20 desync) | Owner-accepted known limit (msg 1640). Not a test failure. |
+| G4 | Reduced page-sync stress (×5 instead of ×20 on both devices at `b5eca09d1`) | WARNING (test green; sample too small to exclude a ~1-in-20 desync) | Owner-accepted known limit. Not a test failure. |
 | G5 | Python suites and `MarketingCaptureUITests` were last run at their own plan gates, not at the final source | WARNING (stale sample) | Recorded. `Scripts/visual/*.py` is unchanged since 17-14; the capture UI test is driver-run by design. |
-| G6 | Owner and visual judgements: 192-image approval, census keep decisions, one simulator layout pass, AX title/search/top-edge checks, the "MUST NOT invent gallery content" exception, the CAP-17-07 unclassified edge | manual-only by nature | Manual-only; each has recorded owner evidence (msgs 1409, 1581, 1640; quick 260921-f5u). The other two descriptor-less prohibitions are moved to Phase 18. |
+| G6 | Owner and visual judgements: 192-image approval, census keep decisions, one simulator layout pass, AX title/search/top-edge checks, the "MUST NOT invent gallery content" exception, the CAP-17-07 unclassified edge | manual-only by nature | Manual-only; each has recorded owner evidence (quick 260921-f5u). The other two descriptor-less prohibitions are moved to Phase 18. |
 
 ### Manual-only verifications
 
@@ -287,10 +287,10 @@ test are therefore escalated to manual-only instead of being filled (auditor ret
 | Reader page-turn gate restarts after Reload all images and after a vertical→LTR direction change (WR-01) | CAP-17-06 | No committed UI test; the UAT throwaway XCUITest was not committed; Phase 18 Step 4b adds the real tests | 17-WR01-MIDTURN.md (agent-run mid-turn check, not committed; UAT tests 1 and 2 do not reach the rebuild-during-turn condition) |
 | LTR→RTL switch keeps turning, reversed order, indicator matches | CAP-17-06 | `ReaderPageSyncUITests` does not cover RTL | 17-UAT.md test 3 (passed, agent-run) |
 | iPad landscape two-page spread page sync | CAP-17-06 | `ReaderPageProbe` cannot read a spread | Known limit, FV section 8; no planned test |
-| The 192 website images are the approved set | CAP-17-04 | Owner acceptance | FV section 3; owner msgs 1581, 1640; 17-UAT.md test 8 |
-| Idiom census keep decisions and the one simulator layout pass | CAP-17-07 | Owner decisions and a visual pass | 17-LAYOUT-AUDIT.md; owner msg 1409; 17-UAT.md test 6 |
+| The 192 website images are the approved set | CAP-17-04 | Owner acceptance | FV section 3; owner decision; 17-UAT.md test 8 |
+| Idiom census keep decisions and the one simulator layout pass | CAP-17-07 | Owner decisions and a visual pass | 17-LAYOUT-AUDIT.md; owner decision; 17-UAT.md test 6 |
 | Standard/AX1/AX3/AX5 title, search and top-edge behavior | CAP-17-06 | Recorded visual checks; snapshot measurement moved to VIS-18-01 | quick 260921-f5u, 260921-f5u-VERIFICATION.md |
-| Synthetic comment exception to "MUST NOT invent gallery content"; CAP-17-07 unclassified edge | CAP-17-04, CAP-17-07 | Descriptor-less, owner-classified | FV section 8; owner msg 1640 |
+| Synthetic comment exception to "MUST NOT invent gallery content"; CAP-17-07 unclassified edge | CAP-17-04, CAP-17-07 | Descriptor-less, owner-classified | FV section 8; owner decision |
 
 ### Sign-off checklist
 

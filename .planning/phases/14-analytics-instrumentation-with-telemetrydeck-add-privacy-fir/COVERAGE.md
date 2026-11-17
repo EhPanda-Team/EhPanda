@@ -30,7 +30,7 @@ a malformed data row. Group boundaries, by row number:
 | `TelemetryDeck.initialize(config:)` | INTEGRATE | |
 | `TelemetryDeck.Config.init(appID:)` | INTEGRATE | |
 | `TelemetryDeck.Config.salt` | INTEGRATE | Set once from the gitignored local xcconfig; permanent commitment, owner-confirmed in plan `14-02`. |
-| `TelemetryDeck.Config.defaultParameters` | INTEGRATE | D-11 — the settings snapshot on every signal at Full. Phase 20 (20-12, owner msg 2842) adds `App.distributionChannel` on every signal at Basic and Full, and nothing else at Basic. Returns empty before a level is chosen and at Minimal (where the SDK is never started), so no app-authored parameter rides on the session signal. |
+| `TelemetryDeck.Config.defaultParameters` | INTEGRATE | D-11 — the settings snapshot on every signal at Full. Phase 20 (20-12, owner decision) adds `App.distributionChannel` on every signal at Basic and Full, and nothing else at Basic. Returns empty before a level is chosen and at Minimal (where the SDK is never started), so no app-authored parameter rides on the session signal. |
 | `TelemetryDeck.Config.sendNewSessionBeganSignal` | INTEGRATE | Kept at its `true` default; this *is* D-05 family 1 (launch / foreground). |
 | `TelemetryDeck.Config.sessionStatsEnabled` | INTEGRATE | Kept at its `true` default; feeds the vendor's built-in session insights. |
 | `TelemetryDeck.Config.testMode` | INTEGRATE | Kept at its auto-`DEBUG` default so debug builds are segregated server-side. |
@@ -106,7 +106,7 @@ Per section — Initialization & configuration 10/15, Signal emission 1/7, Durat
 
 ## 3.0 signals (Phase 20, plan 20-13)
 
-The seven signals below were signed off in `20-12-VOCABULARY.md` (product lead msg 2829; owner msgs 2837 and 2842) and
+The seven signals below were signed off in `20-12-VOCABULARY.md` (product lead decision; owner decision) and
 implemented in plan 20-13. They are `AnalyticsSignal` cases, each rendered once in `AnalyticsSignal+Rendering.swift`
 through `TelemetryDeck.signal(_:parameters:)` (an INTEGRATE row above), and every one needs Basic: "which screens and
 features you use". Every value is the raw value of a closed enum. None carries a comment, a poster, a member ID, a
@@ -117,7 +117,7 @@ report field, a gallery or a URL. No level description changed.
 - `Analytics.levelChanged`: `Analytics.from` (`minimal`, `basic` or `full`) and `Analytics.to` (`basic` or `full`). Sent
   after a change in Settings is applied. A change to Minimal sends nothing.
 - `Moderation.reportOutcome`: `Moderation.reportOutcome` (`sent`, `failed`, `unavailable` or `reportPageOpened`). It
-  carries how a report ended and not why (`Moderation.reportReason` was dropped, owner msg 2837).
+  carries how a report ended and not why (`Moderation.reportReason` was dropped, owner decision).
 - `Moderation.posterBlocked`: no parameter.
 - `Moderation.posterUnblocked`: `Moderation.unblockSurface` (`comment` or `blockedUsers`).
 - `Moderation.blockedCommentShown`: no parameter.

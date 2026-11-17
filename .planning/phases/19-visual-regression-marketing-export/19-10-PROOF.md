@@ -2,7 +2,7 @@
 
 ## Status (2026-11-09): Task 4 stopped after hosted run 1; two gate bugs found, run 2 not started
 
-The owner said yes in owner msg 2876. Run 1 found two gate bugs that have nothing to do with the injected faults,
+The owner said yes. Run 1 found two gate bugs that have nothing to do with the injected faults,
 plus a native-policy failure on the hosted Macs (see "Task 4: hosted run 1" below). Following the rule for this step,
 I stopped there: no second proof commit, and no fix. The remote branch `ci/snapshot-gate` is deleted. The proof
 commit was never on the phase branch.
@@ -131,9 +131,9 @@ run. There is no `fingerprints.json`, so a push runs in **candidate** mode.
   job does not stop the proof.
 - After both runs are recorded here, the remote branch is deleted unless the owner says otherwise.
 
-### Task 4: hosted run 1 (owner msg 2876)
+### Task 4: hosted run 1 (owner decision)
 
-- **Go-ahead:** owner msg 2876, the answer to the question in Task 4 step 1.
+- **Go-ahead:** owner decision, the answer to the question in Task 4 step 1.
 - **Branch and commit:** `ci/snapshot-gate`, made in its own worktree from `813ac0f43`. One proof commit,
   `6460a82e7` ("… [skip test]"), added `EHPANDA_SNAPSHOT_FAULT: 's03=crash,s11=no-artifact'` to the workflow
   `env:`. `test.yml` ran and was skipped, as intended.
@@ -213,7 +213,7 @@ run. There is no `fingerprints.json`, so a push runs in **candidate** mode.
 - Proof commit 2 was not made, and no fix was made.
 - The remote branch `ci/snapshot-gate` was deleted after this record, and its worktree removed.
 - A new hosted proof needs Bugs 1 and 2 fixed on the phase branch first. Whether the native-policy failures remain
-  should be checked at the same time. Then both proof runs can be made again (owner msg 2876 approved two runs;
+  should be checked at the same time. Then both proof runs can be made again (owner decision approved two runs;
   one has been used).
 
 ### Task 4: hosted run 2 (run 42577585956)

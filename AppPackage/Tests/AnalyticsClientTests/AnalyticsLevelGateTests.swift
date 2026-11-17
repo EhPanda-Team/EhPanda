@@ -29,7 +29,7 @@ struct AnalyticsLevelGateTests {
     private static let fullOnlyCases: Set<String> = [
         "galleryDetailOpened", "readingSessionEnded", "downloadStateChanged"
     ]
-    /// The one default parameter at Basic: where the app came from (20-12 §3, owner msg 2842).
+    /// The one default parameter at Basic: where the app came from (20-12 §3, owner decision).
     private static let basicDefaultParameterKeys: Set<String> = ["App.distributionChannel"]
     private static let defaultParameterKeys: Set<String> = [
         "App.host", "App.loggedIn", "App.readingDirection", "App.dualPageMode", "App.translateTags",
