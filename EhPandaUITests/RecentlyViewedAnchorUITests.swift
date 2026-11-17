@@ -137,9 +137,9 @@ final class RecentlyViewedAnchorUITests: XCTestCase {
             let window = app.windows.firstMatch.frame
             let rowY = min(max(covers.firstMatch.frame.midY, window.height * 0.3), window.height * 0.8)
             let origin = app.coordinate(withNormalizedOffset: .zero)
-            let from = origin.withOffset(CGVector(dx: window.width * 0.85, dy: rowY))
-            let to = origin.withOffset(CGVector(dx: window.width * 0.15, dy: rowY))
-            from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.2)
+            let start = origin.withOffset(CGVector(dx: window.width * 0.85, dy: rowY))
+            let end = origin.withOffset(CGVector(dx: window.width * 0.15, dy: rowY))
+            start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
             tries += 1
         }
         XCTFail("No cover left to open.")
@@ -173,9 +173,9 @@ final class RecentlyViewedAnchorUITests: XCTestCase {
         let window = app.windows.firstMatch.frame
         let rowY = row.cards.first.map({ $0.midY }) ?? window.midY
         let origin = app.coordinate(withNormalizedOffset: .zero)
-        let from = origin.withOffset(CGVector(dx: window.width * (direction == .left ? 0.8 : 0.2), dy: rowY))
-        let to = origin.withOffset(CGVector(dx: window.width * (direction == .left ? 0.35 : 0.65), dy: rowY))
-        from.press(forDuration: 0.05, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.2)
+        let start = origin.withOffset(CGVector(dx: window.width * (direction == .left ? 0.8 : 0.2), dy: rowY))
+        let end = origin.withOffset(CGVector(dx: window.width * (direction == .left ? 0.35 : 0.65), dy: rowY))
+        start.press(forDuration: 0.05, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
         settle(app)
     }
 
