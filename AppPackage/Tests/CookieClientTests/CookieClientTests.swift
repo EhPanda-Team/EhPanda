@@ -326,6 +326,33 @@ struct CookieClientTests {
     }
 
     @Test
+    func theTestingClientReadsCookiesAsTheLiveClientDoes() {
+        // Account draws a cookie's text from `getCookie`: the testing jar the snapshot scenarios use must give an
+        // absent cookie the live client's "None", not an empty string.
+        let storage = makeCookieStorage()
+        let live = CookieClient.live(cookieStorage: storage)
+        defer { live.clearAll() }
+        let testing = CookieClient.testing()
+        let url = GalleryHost.exhentai.url
+        for client in [live, testing] {
+            client.setOrEditCookie(for: url, key: CookieName.memberID, value: "member-fixture")
+            client.setOrEditCookie(for: url, key: CookieName.igneous, value: CookieName.mystery)
+        }
+
+        for key in [CookieName.memberID, CookieName.igneous, CookieName.passHash] {
+            let expected = live.getCookie(url, key)
+            let actual = testing.getCookie(url, key)
+            #expect(actual.rawValue == expected.rawValue, "\(key)")
+            #expect(actual.localizedString == expected.localizedString, "\(key)")
+        }
+        let absent = testing.getCookie(url, CookieName.passHash)
+        #expect(absent.rawValue.isEmpty)
+        #expect(!absent.localizedString.isEmpty)
+        #expect(testing.getCookie(url, CookieName.igneous).isInvalid)
+        #expect(!testing.getCookie(url, CookieName.memberID).isInvalid)
+    }
+
+    @Test
     func importsAutomationCredentialsAcrossCookieHosts() throws {
         let client = CookieClient.testing()
         let ehentaiURL = GalleryHost.ehentai.url

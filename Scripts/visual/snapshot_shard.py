@@ -4,6 +4,8 @@
 `Scripts/visual/run-shard.sh` runs one entry of `snapshot-shards.json` and asks this script for:
 
 - `describe`: the shard's family, pinned device type and runtime, worker count, timeout and estimate (tab-separated).
+- `workers`: the worker count of this run: the plan's (one, the shard's simulator itself), or the one
+  `EHPANDA_SHARD_WORKERS` names (the gate's dispatch input `workers`). `describe` and `record` use the same count.
 - `invocations`: one line per `xcodebuild` invocation, `<configurations,> <orientations,>`.
 - `slices`: the baseline slices (`<family>/<locale>/<size>`) the shard compares against, comma-separated.
 - `classes`: the `SnapshotMatrixCase` subclasses, read from the test sources, without the `Tracer*` classes (19-01's
@@ -36,6 +38,7 @@ CLASS = re.compile(r'^\s*(?:final\s+)?class\s+(\w+)\s*:\s*SnapshotMatrixCase\b',
 CAPTURE = re.compile(r'capture\(scenario:\s*"([^"]+)"')
 FAULTS = ('crash', 'no-artifact')
 EVERY_ATTEMPT = '@every-attempt'
+WORKERS = re.compile(r'[1-9][0-9]*')
 INFRA = (*snapshot_aggregate.SHARD_ERRORS, *snapshot_aggregate.SHARD_CLASSES)
 
 
@@ -44,6 +47,19 @@ def load_shard(plan, shard_id):
         if shard['id'] == shard_id:
             return shard
     raise SystemExit(f'snapshot_shard: no shard {shard_id!r} in the shard plan')
+
+
+def workers(plan, named):
+    """The worker count of a run: the plan's, or the one a dispatch named (`EHPANDA_SHARD_WORKERS`; empty: none).
+
+    The plan's count is the gate's: one, the prepared device itself, without clones (19-CONTEXT D-15 as amended on
+    2026-11-15; run-shard.sh). A candidate run may be dispatched on another one to measure it (the workflow's
+    `workers` input)."""
+    if not named:
+        return plan['workers']
+    if not WORKERS.fullmatch(named):
+        raise ValueError(f'EHPANDA_SHARD_WORKERS: {named!r} is not a positive whole number')
+    return int(named)
 
 
 def split_configuration(configuration):
@@ -177,6 +193,7 @@ def main(argv=None):
     for name in ('describe', 'invocations', 'slices'):
         commands.add_parser(name, parents=[common]).add_argument('--shard', required=True)
     commands.add_parser('classes', parents=[common]).add_argument('--sources', type=Path, default=SOURCES)
+    commands.add_parser('workers', parents=[common])
     command = commands.add_parser('pending', parents=[common])
     command.add_argument('--shard', required=True)
     command.add_argument('--invocation', type=int, required=True)
@@ -208,13 +225,20 @@ def main(argv=None):
     if args.command == 'classes':
         print('\n'.join(classes(args.sources)))
         return 0
+    if args.command in ('describe', 'record', 'workers'):
+        try:
+            count = workers(plan, os.environ.get('EHPANDA_SHARD_WORKERS', ''))
+        except ValueError as error:
+            parser.error(str(error))
+    if args.command == 'workers':
+        print(count)
+        return 0
     shard = load_shard(plan, args.shard)
     if args.command == 'describe':
         _, env = snapshot_matrix.load(args.inventory, args.environment)
         device = env['devices'][shard['family']]['deviceTypeIdentifier']
         print('\t'.join(str(value) for value in (shard['family'], device, env['runtime']['identifier'],
-                                                   plan['workers'], shard['timeoutMinutes'],
-                                                   shard['estimatedMinutes'])))
+                                                   count, shard['timeoutMinutes'], shard['estimatedMinutes'])))
     elif args.command == 'invocations':
         for invocation in shard['invocations']:
             print(','.join(invocation['configurations']), ','.join(invocation['orientations']))
@@ -240,7 +264,7 @@ def main(argv=None):
             parser.error(f'--infra {args.infra!r} is not one of {", ".join(INFRA)}')
         results = args.out.parent / 'results.jsonl'
         record = {'shard': shard['id'], 'family': shard['family'], 'units': shard['configurations'],
-                  'workers': plan['workers'], 'mode': args.mode, 'attempt': args.attempt,
+                  'workers': count, 'mode': args.mode, 'attempt': args.attempt,
                   'xcodeBuild': args.xcode, 'runnerImage': args.runner, 'started': args.started,
                   'finished': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
                   'infra': args.infra or None, 'detail': args.detail or None,

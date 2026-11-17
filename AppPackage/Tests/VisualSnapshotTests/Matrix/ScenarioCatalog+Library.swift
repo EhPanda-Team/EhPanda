@@ -2,10 +2,10 @@
 import AppModels
 import ComposableArchitecture
 import DateSeekFeature
-import DetailFeature
+@testable import DetailFeature
 import DownloadsFeature
 import FavoritesFeature
-import FiltersFeature
+@testable import FiltersFeature
 import Foundation
 import QuickSearchFeature
 import Resources
@@ -35,7 +35,7 @@ extension ScenarioCatalog {
             ),
             "search-typing-suggestions": .init(
                 make: { Page.searchRoot(history: true, suggestions: true) }, prepare: artwork,
-                interact: { try await Page.type(LibraryFixtures.typedTag, in: $0) }
+                interact: { try await Page.type(LibraryFixtures.typedTag, in: $0, until: Page.firstSuggestion) }
             ),
             "search-results-list": ScenarioFactory(
                 make: { Page.searchResults(.loaded(.row)) }, prepare: artwork
@@ -60,7 +60,10 @@ extension ScenarioCatalog {
                 make: { Page.quickSearch(.wordEditor) }, interact: Page.holdCaret
             ),
             "quick-search-filters": .init(make: { Page.filters(confirmingReset: false) }),
-            "quick-search-filters-reset-confirmation": .init(make: { Page.filters(confirmingReset: true) }),
+            "quick-search-filters-reset-confirmation": .init(
+                make: { Page.filters(confirmingReset: true) },
+                interact: RevealStep.reveal(.label(String(localized: .resetFilters)))
+            ),
             "quick-search-date-seek": .init(make: { Page.dateSeek() }, prepare: TracerScenarios.cacheHomeArtwork)
         ]
     }
@@ -93,10 +96,12 @@ extension ScenarioCatalog {
                 make: { Page.downloads(LibraryFixtures.activeFailedDownloads, mode: .row) }, prepare: artwork
             ),
             "downloads-delete-confirmation": .init(
-                make: { Page.downloads(completed, mode: .row, confirming: .delete) }, prepare: artwork
+                make: { Page.downloads(completed, mode: .row, confirming: .delete) }, prepare: artwork,
+                interact: Page.tapHeldRow
             ),
             "downloads-move-confirmation": .init(
-                make: { Page.downloads(completed, mode: .row, confirming: .move) }, prepare: artwork
+                make: { Page.downloads(completed, mode: .row, confirming: .move) }, prepare: artwork,
+                interact: Page.tapHeldRow
             ),
             "downloads-inspector": .init(
                 make: { Page.downloads(completed, mode: .row, inspecting: 0) }, prepare: artwork
@@ -118,8 +123,20 @@ extension ScenarioCatalog {
                 make: { try Page.detail(.loading) }, prepare: artwork, interact: BrowsingScenarios.freezeIndicators
             ),
             "gallery-detail-error": .init(make: { try Page.detail(.error) }, prepare: artwork),
-            "gallery-detail-rating": .init(make: { try Page.detail(.rating) }, prepare: artwork),
-            "gallery-detail-downloading": .init(make: { try Page.detail(.downloading) }, prepare: artwork),
+            // At accessibility5 the rating row is below the fold (run 43403534542): the page is scrolled to it. Rate
+            // Gallery is matched whole: in Chinese its label (评分, 評分) is part of the average rating's and of the
+            // rating count's, which are above it, and iPad zh-Hans and zh-Hant accessibility5 landscape stopped at
+            // those with the rating out of view (run 43451019962).
+            "gallery-detail-rating": .init(
+                make: { try Page.detail(.rating) }, prepare: artwork,
+                interact: RevealStep.reveal(.wholeLabel(String(localized: .rateGallery)))
+            ),
+            // At accessibility5 in iPhone landscape the download button and its progress are below the fold, and the
+            // pictures were the same as gallery-detail-loaded's (run 43451019962): the page is scrolled to it.
+            "gallery-detail-downloading": .init(
+                make: { try Page.detail(.downloading) }, prepare: artwork,
+                interact: RevealStep.reveal(.label(String(localized: .accessibilityPauseAction)))
+            ),
             "gallery-detail-delete-download-confirmation": .init(
                 make: { try Page.detail(.deleteDownloadConfirmation) }, prepare: artwork
             ),
@@ -139,6 +156,12 @@ enum LibraryScenarios {
 
     /// The Recent Searches section's Remove All, the first of the page's two.
     static var removeAllLabel: String { String(localized: .removeAll) }
+
+    /// The first suggestion for ``LibraryFixtures/typedTag``, by its tag with its namespace, which is not translated
+    /// and which no recent search contains. It is the only row on screen at accessibility5 in iPhone landscape.
+    static var firstSuggestion: RevealStep.Target {
+        .label(LibraryFixtures.tagTranslations.first.map({ "\($0.namespace):\($0.key)" }) ?? LibraryFixtures.typedTag)
+    }
 
     /// The Search tab's root: empty, or with recent searches and recently viewed galleries. With `suggestions`,
     /// tag suggestions are switched on and the synthetic translations are loaded.
@@ -226,13 +249,15 @@ enum LibraryScenarios {
     }
 
     /// Filters as the sheet it is over the Search root, loaded from the stored filters as the root presents it.
+    /// Confirming a reset is the tap on Reset Filters, whose row is below the fold at accessibility5: there it is
+    /// tapped once the row is shown (``RevealStep/tap(_:)``).
     static func filters(confirmingReset: Bool) -> AnyView {
         var root = SearchRootReducer.State()
         root.destination = .filters(FiltersReducer.State())
         let store = Store(initialState: root, reducer: SearchRootReducer.init)
         store.send(.destination(.presented(.filters(.fetchFilters))))
         if confirmingReset {
-            store.send(.destination(.presented(.filters(.resetFiltersButtonTapped))))
+            RevealStep.tap { store.send(.destination(.presented(.filters(.resetFiltersButtonTapped)))) }
         }
         return AnyView(SearchRootView(store: store))
     }
@@ -298,14 +323,14 @@ enum LibraryScenarios {
         let root = try XCTUnwrap(window.rootViewController?.view)
         try openOverflowMenu(in: root)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
+        let budget = StepBudget(.seconds(3))
         while true {
             let menuLists = scrollViews(in: window).filter({ !$0.isDescendant(of: root) })
             if !menuLists.isEmpty {
                 menuLists.forEach({ $0.showsVerticalScrollIndicator = false })
                 return
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("menu") }
+            guard !budget.isSpent else { throw AccessibilityActionDriver.Failure.notFound("menu") }
             try await clock.sleep(for: .milliseconds(100))
         }
     }
@@ -447,8 +472,30 @@ enum LibraryScenarios {
         )
     }
 
+    /// The first row's tap that presents its confirmation, held from ``downloads(_:mode:confirming:inspecting:)``
+    /// until the page is hosted (``tapHeldRow(_:)``).
+    private static var heldRowTap: (@MainActor () -> Void)?
+
+    /// Drops a held row tap that no ``tapHeldRow(_:)`` performed (SnapshotMatrixCase, before and after each case).
+    static func discardHeldRowTap() {
+        heldRowTap = nil
+    }
+
+    /// Taps the first row's Delete or Move once the hosted page has settled at rest, as a user taps it.
+    ///
+    /// The dialog is a popover from the row. Asked for while the page was still being built, before the window held
+    /// it, the popover came up in portrait but never in landscape, where every confirmation picture was the plain
+    /// list's at every size (run 43403534542). Tapped once the row is on screen, it comes up in both.
+    static func tapHeldRow(_ window: UIWindow) async throws {
+        let tap = heldRowTap
+        heldRowTap = nil
+        _ = await HostedWindowCapture.settle(window)
+        tap?()
+    }
+
     /// Downloads in the Library, in the first synthetic folder, as the Library shows it on each device. A
-    /// confirmation is the first row's own dialog; an inspector is the sheet the list presents for a record.
+    /// confirmation is the first row's own dialog, tapped once the page is hosted; an inspector is the sheet the
+    /// list presents for a record.
     static func downloads(
         _ records: [DownloadRecordFixture], mode: GalleryListDisplayMode,
         confirming confirmation: DownloadConfirmation? = nil, inspecting inspected: Int? = nil
@@ -469,12 +516,16 @@ enum LibraryScenarios {
             state.destination = .inspector(inspector)
         }
         let store = Store(initialState: state, reducer: DownloadsReducer.init)
+        heldRowTap = nil
         if let confirmation, let first = state.downloads.first {
             let destinations = LibraryFixtures.downloadFolders.filter({ $0 != first.folderName })
-            store.send(.rows(.element(
-                id: first.id,
-                action: confirmation == .delete ? .deleteButtonTapped : .moveButtonTapped(destinations: destinations)
-            )))
+            heldRowTap = {
+                store.send(.rows(.element(
+                    id: first.id,
+                    action: confirmation == .delete
+                        ? .deleteButtonTapped : .moveButtonTapped(destinations: destinations)
+                )))
+            }
         }
         return AnyView(LibraryView(
             store: Store(
@@ -576,12 +627,23 @@ enum LibraryScenarios {
     // MARK: User steps
 
     /// Focuses the search field and types `text`, as a user would; the keyboard is a separate window and is not
-    /// drawn. Once the suggestions have appeared the caret is held still.
-    static func type(_ text: String, in window: UIWindow) async throws {
+    /// drawn. Once the field has held its focus with `shown` on screen while the window came to rest twice in a row,
+    /// the caret is drawn solid (``BrowsingScenarios/stopCaretBlink(in:)``) and the page is held still; a step that
+    /// has not got there by ``BrowsingScenarios/focusDeadline`` fails, and the capture retries it.
+    ///
+    /// On the hosted runner the field gave its focus back after the typing in run 43451019962 (iPhone de
+    /// accessibility5 portrait dark, ja large portrait light): the search ended, and the picture held the typed word
+    /// over Recent Searches, without the suggestions or a caret. The field is focused again until it holds.
+    ///
+    /// Both waits are counted in time the main run loop turned (``StepBudget``): run 43621303643 failed the step as
+    /// `no-suggestions` on attempts of 40 s and more in pictures that took 60 and 67 s.
+    static func type(_ text: String, in window: UIWindow, until shown: RevealStep.Target) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
-        while true {
+        var focusBudget = StepBudget(BrowsingScenarios.focusDeadline)
+        let fieldBudget = StepBudget(.seconds(3))
+        var typedField: UISearchTextField?
+        while typedField == nil {
             if let field = firstView(of: UISearchTextField.self, in: root), field.becomeFirstResponder() {
                 // A key at a time: the suggestions list appears with the first character and reads every
                 // later change, as it does under a typing user.
@@ -589,12 +651,33 @@ enum LibraryScenarios {
                     field.insertText(String(character))
                     try await clock.sleep(for: .milliseconds(150))
                 }
+                typedField = field
                 break
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("search field") }
+            guard !fieldBudget.isSpent else { throw AccessibilityActionDriver.Failure.notFound("search field") }
             try await clock.sleep(for: .milliseconds(100))
         }
-        try await holdCaret(window)
+        let field = try XCTUnwrap(typedField)
+        try await clock.sleep(for: .milliseconds(800))
+        var held = 0
+        while held < 2 {
+            let focused = field.isFirstResponder
+            let showing = RevealStep.element(shown, in: window) != nil
+            guard !focusBudget.isSpent else {
+                throw focusBudget.failure(focused ? "no-suggestions" : "search-focus-not-held")
+            }
+            focusBudget.look()
+            if focused && showing {
+                held += 1
+            } else {
+                held = 0
+                if !focused { _ = field.becomeFirstResponder() }
+            }
+            try await clock.sleep(for: .milliseconds(300))
+            try await BrowsingScenarios.waitForRest(window)
+        }
+        BrowsingScenarios.stopCaretBlink(in: window)
+        try await BrowsingScenarios.freezeIndicators(window)
     }
 
     private static func firstView<View: UIView>(of type: View.Type, in view: UIView) -> View? {
@@ -617,7 +700,7 @@ extension ScenarioFactory {
     /// user step: the pages whose navigation bar hides a search field on scroll.
     func restingAtTop() -> ScenarioFactory {
         let step = interact
-        return ScenarioFactory(signedIn: signedIn, make: make, prepare: prepare, interact: { window in
+        return ScenarioFactory(signedIn: signedIn, cookies: cookies, make: make, prepare: prepare, interact: { window in
             try LibraryScenarios.restAtTop(window)
             try await step?(window)
         }, minimumReads: minimumReads)

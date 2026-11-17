@@ -103,6 +103,7 @@
     {"id": "search-typing-suggestions", "group": "search", "plan": "19-06", "state": "Search typing a tag with suggestions. The keyboard is a separate system window and is not drawn (D-05); the field shows its focus.", "signedIn": true, "notApplicable": []},
     {"id": "blocked-users-empty", "group": "settings", "plan": "19-08", "state": "Blocked Users with none", "signedIn": true, "notApplicable": []},
     {"id": "blocked-users-filled", "group": "settings", "plan": "19-08", "state": "Blocked Users with members", "signedIn": true, "notApplicable": []},
+    {"id": "settings-account-invalid-cookies", "group": "settings", "plan": "19-08", "state": "Account signed in with cookies the site no longer honours, each marked invalid", "signedIn": true, "notApplicable": []},
     {"id": "settings-account-logout-confirmation", "group": "settings", "plan": "19-08", "state": "Account asking to confirm Log Out", "signedIn": true, "notApplicable": []},
     {"id": "settings-account-signed-in", "group": "settings", "plan": "19-08", "state": "Account signed in", "signedIn": true, "notApplicable": []},
     {"id": "settings-account-signed-out", "group": "settings", "plan": "19-08", "state": "Account signed out", "signedIn": false, "notApplicable": []},

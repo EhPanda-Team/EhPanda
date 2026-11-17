@@ -93,7 +93,7 @@ final class BrowsingStepTests: XCTestCase {
             try await BrowsingScenarios.focusSearchField(window, deadline: .seconds(3))
             XCTFail("A field that never takes the focus was focused")
         } catch let failure as BrowsingScenarios.StepFailure {
-            XCTAssertEqual(failure.reason, "search-focus-not-held")
+            XCTAssertTrue(failure.reason.hasPrefix("search-focus-not-held waited="), failure.reason)
             XCTAssertLessThan(start.duration(to: clock.now), .seconds(15))
         }
     }
@@ -102,12 +102,138 @@ final class BrowsingStepTests: XCTestCase {
     func testTheFocusDeadlineIsLongerThanTheOneRun42533872440Overran() {
         XCTAssertGreaterThanOrEqual(BrowsingScenarios.focusDeadline, .seconds(30))
     }
+
+    /// A focused field's caret, once its blink is stopped and the page frozen as the caret steps freeze it, reads the
+    /// same over two blink periods: a caret held by the stopped layer clock alone kept turning on and off.
+    @MainActor
+    func testAStoppedCaretReadsTheSameOverTwoBlinks() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let page = SearchPage(moves: false, realField: true)
+        let hosted = HostedWindowCapture.host(page, in: window, style: .light)
+        defer { hosted.dispose() }
+        let field = try await page.field()
+        XCTAssertTrue(field.becomeFirstResponder())
+        defer { field.resignFirstResponder() }
+        let clock = ContinuousClock()
+        var cursor: (any UITextCursorView)?
+        for _ in 0..<50 where cursor == nil {
+            try await clock.sleep(for: .milliseconds(100))
+            cursor = Self.views(in: window).compactMap({ $0 as? any UIView & UITextCursorView }).first
+        }
+        let caret = try XCTUnwrap(cursor, "The focused field drew no caret")
+        BrowsingScenarios.stopCaretBlink(in: window)
+        XCTAssertFalse(caret.isBlinking)
+        try await BrowsingScenarios.freezeIndicators(window)
+        let first = try XCTUnwrap(HostedWindowCapture.comparedBytes(HostedWindowCapture.capture(window)))
+        for read in 1...6 {
+            try await clock.sleep(for: .milliseconds(400))
+            let bytes = try XCTUnwrap(HostedWindowCapture.comparedBytes(HostedWindowCapture.capture(window)))
+            guard bytes != first else { continue }
+            // Where the read differs, not the reads themselves: two pictures in a message are 15 MB of numbers.
+            let region = HostedWindowCapture.changedRegion(first, bytes, width: Int(window.bounds.width))
+            XCTFail("Read \(read) differs from the first in \(region ?? "its size")")
+        }
+    }
+
+    /// The keyboard counts as up while the frame UIKit last announced for it covers the bottom of the screen, and
+    /// not once it is announced below the screen, as it is when it goes down.
+    @MainActor
+    func testTheKeyboardIsUpWhileItsAnnouncedFrameCoversTheScreen() throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let screen = window.screen.bounds
+        KeyboardWatch.start()
+        let raised = CGRect(x: 0, y: screen.maxY - 300, width: screen.width, height: 300)
+        let lowered = CGRect(x: 0, y: screen.maxY, width: screen.width, height: 300)
+        defer { Self.announceKeyboard(lowered) }
+        Self.announceKeyboard(raised)
+        XCTAssertTrue(GalleryScenarios.keyboardIsUp(over: window))
+        Self.announceKeyboard(lowered)
+        XCTAssertFalse(GalleryScenarios.keyboardIsUp(over: window))
+    }
+
+    /// A keyboard step's failure says why the keyboard was not held up: the field lost the focus, no frame was
+    /// announced since the step began, the last one is below the screen, or the keyboard is up but was not yet held
+    /// (run 43575259346 said only `no-keyboard`).
+    @MainActor
+    func testAKeyboardStepsFailureSaysWhatTheKeyboardLastDid() throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let screen = window.screen.bounds
+        KeyboardWatch.start()
+        let raised = CGRect(x: 0, y: screen.maxY - 300, width: screen.width, height: 300)
+        let lowered = CGRect(x: 0, y: screen.maxY, width: screen.width, height: 300)
+        defer { Self.announceKeyboard(lowered) }
+        let start = KeyboardWatch.announcements
+        XCTAssertEqual(
+            GalleryScenarios.keyboardState(over: window, focused: false, since: start), "field-unfocused announced=0"
+        )
+        XCTAssertEqual(
+            GalleryScenarios.keyboardState(over: window, focused: true, since: start), "never-announced announced=0"
+        )
+        Self.announceKeyboard(raised)
+        XCTAssertEqual(
+            GalleryScenarios.keyboardState(over: window, focused: true, since: start), "announced-up announced=1"
+        )
+        Self.announceKeyboard(lowered)
+        XCTAssertEqual(
+            GalleryScenarios.keyboardState(over: window, focused: true, since: start), "announced-hidden announced=2"
+        )
+    }
+
+    /// A step's failure says how long its attempt waited, how long the main run loop turned meanwhile, how many times
+    /// it looked, the longest stall it waited through and how long the process had run.
+    func testAStepsFailureSaysHowLongItWaited() throws {
+        let failure = BrowsingScenarios.StepFailure(
+            reason: "no-keyboard:never-announced", waited: .milliseconds(50_260), turned: .milliseconds(30_040),
+            polls: 24, stall: " stall=40.1s/frozen"
+        )
+        XCTAssertTrue(
+            failure.reason.hasPrefix(
+                "no-keyboard:never-announced waited=50.3s turned=30.0s polls=24 stall=40.1s/frozen process="
+            ),
+            failure.reason
+        )
+        let process = try XCTUnwrap(BrowsingScenarios.processSeconds)
+        XCTAssertGreaterThan(process, 0)
+        XCTAssertLessThan(process, 24 * 3600)
+    }
+
+    /// The suggestions step waits for a row by a text no recent search and no typed word holds, and that the
+    /// first row, the one row on screen at accessibility5 in iPhone landscape, draws.
+    @MainActor
+    func testTheSuggestionsStepWaitsForTheFirstRowsOwnText() throws {
+        guard case .label(let text) = LibraryScenarios.firstSuggestion else {
+            return XCTFail("The suggestions step names its row by part of its label")
+        }
+        let first = try XCTUnwrap(LibraryFixtures.tagTranslations.first)
+        XCTAssertEqual(text, "\(first.namespace):\(first.key)")
+        XCTAssertFalse(LibraryFixtures.historyKeywords.contains(where: { $0.contains(text) }))
+        XCTAssertFalse(LibraryFixtures.typedTag.contains(text))
+    }
+
+    @MainActor
+    private static func announceKeyboard(_ frame: CGRect) {
+        NotificationCenter.default.post(
+            name: UIResponder.keyboardDidChangeFrameNotification, object: nil,
+            userInfo: [UIResponder.keyboardFrameEndUserInfoKey: NSValue(cgRect: frame)]
+        )
+    }
+
+    @MainActor
+    private static func views(in view: UIView) -> [UIView] {
+        [view] + view.subviews.flatMap(views(in:))
+    }
 }
 
 /// A search field, and a layer that moves until ``stopMoving()``.
 private struct SearchPage: UIViewRepresentable {
     let moves: Bool
     var refusesFocus = false
+    /// A plain field that takes the focus as any field does, with its caret. It has no clear button: the caret is
+    /// what its case reads. In the three runs that failed the case (hosted 43681051816 and 43689174320, and one
+    /// local) the reads differed in the button's 20 points alone, drawn after the first read, and the caret was the
+    /// same in all of them. Each of those runs took 95 s or more where the case takes 4; why the button is late
+    /// then is not known.
+    var realField = false
     let box = Box()
 
     final class Box {
@@ -137,8 +263,10 @@ private struct SearchPage: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
         view.backgroundColor = .systemBackground
-        let field = Field(frame: CGRect(x: 20, y: 120, width: 280, height: 36))
-        field.refuses = refusesFocus
+        let frame = CGRect(x: 20, y: 120, width: 280, height: 36)
+        let field = realField ? UISearchTextField(frame: frame) : Field(frame: frame)
+        if realField { field.clearButtonMode = .never }
+        (field as? Field)?.refuses = refusesFocus
         field.text = "keyword"
         view.addSubview(field)
         box.field = field

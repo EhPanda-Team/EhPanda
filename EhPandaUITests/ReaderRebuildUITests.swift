@@ -30,26 +30,28 @@ final class ReaderRebuildUITests: XCTestCase {
     /// G1, the direction path: the direction changes right after auto-play has turned the pages. The change is made
     /// from the Reading Setting sheet, and presenting a sheet stops auto-play (`ReadingView`), so auto-play is then
     /// started again on the pager the change built. After its next tick, the indicator names the page shown.
+    ///
+    /// While auto-play runs, the indicator alone says that it turned the pages (`requireIndicatedPage`). The page
+    /// shown is read each time the reader rests: under the sheet's stop, and after auto-play is switched off.
     func testChangingDirectionDuringAutoPlayKeepsTheIndicatorOnThePageShown() throws {
         let reader = try openReader()
         reader.setDirection(.leftToRight)
         let start = try reader.requirePage("On entering the pager")
 
         reader.selectAutoPlay("1 second")
-        let ticked = try reader.requirePage("While auto-play turns the pager", timeout: 15, where: { $0 > start })
+        let ticked = try reader.requireIndicatedPage("While auto-play turns the pager", where: { $0 > start })
         reader.setDirection(.rightToLeft)
         let switched = try reader.requirePage(
             "After changing the direction during auto-play",
             where: { $0 >= ticked }
         )
         reader.selectAutoPlay("1 second")
-        try reader.requirePage(
+        let turned = try reader.requireIndicatedPage(
             "At auto-play's next tick on the pager the change built",
-            timeout: 15,
             where: { $0 > switched }
         )
         reader.selectAutoPlay("Off")
-        try reader.requirePage("After auto-play stopped")
+        try reader.requirePage("After auto-play stopped", where: { $0 >= turned })
 
         reader.setDirection(.vertical)
     }

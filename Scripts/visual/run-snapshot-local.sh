@@ -9,8 +9,8 @@
 # run to finish first. The simulator settings follow 19-01-MEASURE.md: Reduce Motion and the app accessibility
 # runtime on before every run. An iPad process captures one orientation (iPadOS refuses in-process rotation), so
 # on iPad the device is turned first with VisualCaptureOrientationUITests; the iPhone captures both in process.
-# Several configurations run in one invocation, one after another. --workers N runs the classes on N simulator clones,
-# as the hosted check does; without it the run is not parallel. Clones boot in portrait whatever the turned iPad shows
+# Several configurations run in one invocation, one after another. --workers N runs the classes on N simulator clones;
+# without it the run is not parallel, as on the hosted check. Clones boot in portrait whatever the turned iPad shows
 # (19-10-PROOF.md), so an iPad landscape run takes no --workers.
 set -euo pipefail
 

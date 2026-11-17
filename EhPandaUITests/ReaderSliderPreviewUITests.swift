@@ -46,12 +46,14 @@ final class ReaderSliderPreviewUITests: XCTestCase {
         let pageURL = try XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda"))
         try app.openCold(pageURL)
         app.requireForeground()
-        let reader = app.requireElement("reading_view")
-        let indicator = app.staticTexts.matching(identifier: "reading_page_indicator").firstMatch
-        if !indicator.exists {
-            reader.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35)).tap()
-        }
-        XCTAssertTrue(indicator.waitForExistence(timeout: 10), "The reader did not show its panel.")
+        _ = app.requireElement("reading_view")
+        let reader = ReaderPageProbe(app: app)
+        reader.showPanel()
+        // The direction persists between launches and the slider runs the way the pages do. A reader that another
+        // test left right to left has page 1 at the slider's right end, and adjusting the slider there leaves the
+        // thumb where it is: both cases then hold a track with no thumb in its middle.
+        reader.setDirection(.vertical)
+        reader.showPanel()
         return app
     }
 
@@ -60,6 +62,11 @@ final class ReaderSliderPreviewUITests: XCTestCase {
         let slider = app.sliders.firstMatch
         XCTAssertTrue(slider.waitForExistence(timeout: 10), "The panel did not expose its page slider.")
         slider.adjust(toNormalizedSliderPosition: 0.5)
+        // Both cases stand on this: a hold in the middle of the track is a hold on the thumb.
+        XCTAssertEqual(
+            slider.normalizedSliderPosition, 0.5, accuracy: 0.1,
+            "The slider's thumb is not in the middle of its track."
+        )
         // Dragging the thumb shows the preview; it goes when the finger does.
         let preview = previewElement(in: app)
         XCTAssertTrue(

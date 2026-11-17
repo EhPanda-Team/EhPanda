@@ -8,7 +8,8 @@ and absorbs the uncommitted 2026-11-06 discussion prep, which predated the scope
 decision; team decision), which resolves OQ-1. Then the baseline store and parallel runs (owner decision),
 which resolve OQ-2 (D-13 to D-15). OQ-4 (review format) stays open at low priority. A fourth amendment the same
 day, at planning: 20 smaller shards with retries and error handling (owner decision, D-15), and planning notes on
-D-14 (push size), D-21 (GET only) and OQ-4 (the planning default).
+D-14 (push size), D-21 (GET only) and OQ-4 (the planning default). A fifth on 2026-11-15, from the hosted runs: one
+simulator per shard instead of clones (the owner's decision; D-15, with notes on D-11 and D-13).
 **Status:** Ready for planning. Next open item: the runner-IP probe's go-ahead (OQ-6, card pending); OQ-4
 low priority; OQ-3 only if the probe shows a block; OQ-5 later. None blocks the first screenshot plans. The
 directory name is unchanged.
@@ -109,6 +110,8 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   screenshot runs only. The approval is documented above each narrow
   `// swiftlint:disable:next no_serialized_test`, as AGENTS.md requires. All other tests stay parallel. Locally,
   `xcodebuild` invocations never overlap (`.planning/codebase/TESTING.md`).
+  *Amended 2026-11-15:* a CI job runs no clones; each shard captures on its one simulator (D-15's amendment of that
+  day). Several jobs still run in parallel.
 
 ### Matrix, run time and storage (owner decision)
 
@@ -152,6 +155,9 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   45 to 95 minutes, plus about 30 minutes for the shared build and about 10 minutes per shard to boot and fetch its
   baseline slice: **about 1½ to 2¼ hours per PR**. With three clones per Mac (about 2.4×), if plan 1 shows the
   runner sustains them, about 1¼ to 1¾ hours. Both are well inside the 2-day limit (D-16).
+  *Amended 2026-11-15:* the two-clone assumption did not hold on the hosted runner (D-15's amendment of that day).
+  On one simulator per shard the ten shards of run 43681082788 took 216 runner minutes, which puts the 72 at about
+  26 runner hours, a little over 5 hours at five jobs at once (an estimate from those ten; inside D-16's limit).
 - **D-14: storage (owner decision; resolves OQ-2).** At 1x the spike measured 46 to 374 KB for real app screens on
   the iPhone Air (median about 120 KB) and AX5 at about 2.5× the default; iPad pictures are assumed about 2.5× the
   iPhone's area. The baseline is therefore about **5 to 10 GB**, so it is kept out of the app repository:
@@ -215,6 +221,21 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
     - **Timeouts:** each shard has its own timeout well under GitHub's 6-hour cap, set from the measured cost.
     - **Assignment:** shards are assigned deterministically and balanced by measured cost, so the same commit
       always gives the same shards.
+  - **Amended 2026-11-15 (the owner's decision, after the ten-shard proof run 43681082788).** The gate runs each
+    shard on its one prepared simulator, with XCTest's parallel testing off: worker count 1 in `snapshot-cost.json`
+    and `snapshot-shards.json`. This replaces the worker-count rule above and D-13's two-clone assumption.
+    - **Measured on the hosted runner:** two clones gave no gain (run 42577585956, speed-up 0.82) and overloaded it.
+      Run 43670819839, ten shards on two clones: load average 320 or more when the tests began and 570 to 1,000
+      after, the app's main thread stalled about 7,400 s, two jobs cancelled, three tests cut at their time
+      allowance. Run 43681082788, the same ten on one simulator each: every shard passed at its first attempt,
+      835 s of stalls, 216 runner minutes instead of 379.
+    - **Scope of the approval:** the gate's capture invocations only, documented in `Scripts/visual/run-shard.sh`
+      and above `SnapshotMatrixCase`. Every other test stays parallel, and several gate jobs still run at once.
+    - **Plan:** still one process per shard, 72 shards (owner decision: a shorter shard loses less to a cut), with
+      the cost table re-measured for one simulator: about 24 estimated minutes for an iPhone shard and about 26 for
+      an iPad shard. The iPad shard IDs swapped halves (landscape `s37` to `s54`, portrait `s55` to `s72`).
+    - **Measuring clones again:** a dispatched candidate run may name more workers (input `workers`); the plan
+      stays that of one simulator.
 - **D-16: run limits (owner decision).** One full check may take up to 2 days before options go back to the owner.
   The check runs on every PR and every release (17-CONTEXT D-13); weekly dependency-update PRs wait for it too.
   Superseded runs of the same PR are cancelled.

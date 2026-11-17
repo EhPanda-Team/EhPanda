@@ -140,7 +140,7 @@ class RunShardTests(unittest.TestCase):
             'EHPANDA_SNAPSHOT_INVENTORY': str(self.root / 'scenarios.json'),
             'EHPANDA_SNAPSHOT_SOURCES': str(self.root / 'sources'),
             'EHPANDA_HOSTED_SIMULATOR': str(self.root / 'simulator.sh'),
-            'EHPANDA_SNAPSHOT_FAULT': '', **variables}
+            'EHPANDA_SNAPSHOT_FAULT': '', 'EHPANDA_SHARD_WORKERS': '', **variables}
         return subprocess.run(
             ['bash', str(SCRIPT), '--shard', shard, '--mode', mode, '--products', str(self.root / 'products'),
              '--out', str(self.out), '--attempt', attempt, '--fingerprints', str(self.root / 'fingerprints.json')],
@@ -180,7 +180,11 @@ class RunShardTests(unittest.TestCase):
         [call] = self.calls('snapshot')
         args = call['args']
         self.assertEqual(self.values(args, '-only-test-configuration'), ['de-accessibility5', 'zh-Hans-large'])
-        self.assertEqual(self.values(args, '-parallel-testing-worker-count'), ['2'])
+        # The plan's one worker is the prepared device itself, without parallel-testing clones (the owner's decision
+        # of 2026-11-15; run-shard.sh).
+        self.assertEqual(self.values(args, '-parallel-testing-enabled'), ['NO'])
+        self.assertEqual(self.values(args, '-parallel-testing-worker-count'), [])
+        self.assertEqual(record['workers'], 1)
         self.assertEqual([arg for arg in args if arg.startswith('-only-testing:')],
                          ['-only-testing:VisualSnapshotTests/HomeSnapshotTests',
                           '-only-testing:VisualSnapshotTests/ShellSnapshotTests'])
@@ -193,21 +197,21 @@ class RunShardTests(unittest.TestCase):
         self.assertIn('clear-clones EhPanda gate', simulator)
 
     def test_an_iphone_shard_of_one_orientation_captures_only_that_orientation(self):
-        # Run 43298876957: an iPhone shard is one orientation of one configuration, about 42 minutes instead of 73.
+        # Run 43298876957: an iPhone shard is one orientation of one configuration, not both (then 73 minutes).
         # The matrix process turns the iPhone itself (SnapshotMatrixCase), so it only needs to be told which one.
         plan = json.loads(json.dumps(PLAN))
         plan['shards'].append({
             'id': 's30', 'family': 'iphone', 'configurations': ['en-large'],
             'runs': [{'configuration': 'en-large', 'orientations': ['landscape']}],
             'invocations': [{'configurations': ['en-large'], 'orientations': ['landscape']}],
-            'estimatedMinutes': 42.4, 'timeoutMinutes': 85})
+            'estimatedMinutes': 24.2, 'timeoutMinutes': 49})
         (self.root / 'shards.json').write_text(json.dumps(plan))
         result = self.run_shard('s30')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIsNone(self.record()['infra'], self.record())
         [call] = self.calls('snapshot')
         self.assertEqual(call['orientations'], 'landscape')
-        self.assertEqual(self.values(call['args'], '-parallel-testing-enabled'), ['YES'])
+        self.assertEqual(self.values(call['args'], '-parallel-testing-enabled'), ['NO'])
         self.assertEqual(self.calls('ui'), [], 'an iPhone is never turned by the UI test')
         keys = self.keys()
         self.assertTrue(keys and all('__landscape__' in key for key in keys), keys)
@@ -220,11 +224,10 @@ class RunShardTests(unittest.TestCase):
         self.assertIsNone(self.record()['infra'])
 
     def test_a_crash_reruns_only_the_unfinished_classes_and_the_ipad_turns_for_each_orientation(self):
-        # 19-10, checked on iOS 27.2: parallel-testing clones boot in portrait whatever the turned device shows, and the
-        # turn's UI test run leaves the app accessibility runtime off. A device the turn's own xcodebuild booted (a
-        # parallel run had shut it down) was back in portrait before the capture began; booted and waited for first,
-        # it stayed turned. So every turn has the settings step before it and after it, and a landscape invocation
-        # runs on the turned device itself, without clones.
+        # 19-10, checked on iOS 27.2: the turn's UI test run leaves the app accessibility runtime off. A device the
+        # turn's own xcodebuild booted (a parallel run had shut it down) was back in portrait before the capture
+        # began; booted and waited for first, it stayed turned. So every turn has the settings step before it and
+        # after it, and every invocation runs on the turned device itself, as the plan's one worker says.
         # ko-large portrait: HomeSnapshotTests writes 4 lines, then the run crashes before ShellSnapshotTests.
         (self.fake / 'crash-after').write_text('4')
         result = self.run_shard('s09')
@@ -260,8 +263,35 @@ class RunShardTests(unittest.TestCase):
         self.assertEqual(self.values(turn, '-parallel-testing-enabled'), ['NO'])
         parallel = [(row['orientations'], self.values(row['args'], '-parallel-testing-enabled'),
                      self.values(row['args'], '-parallel-testing-worker-count')) for row in self.calls('snapshot')]
-        self.assertEqual(parallel, [('portrait', ['YES'], ['2']), ('landscape', ['NO'], []),
-                                    ('portrait', ['YES'], ['2'])])
+        self.assertEqual(parallel, [('portrait', ['NO'], []), ('landscape', ['NO'], []), ('portrait', ['NO'], [])])
+
+    def test_a_candidate_naming_more_workers_runs_on_clones_except_the_ipads_landscape(self):
+        # The dispatch input `workers` names another count than the plan's for a candidate run, to measure it. Run
+        # 43670819839 is why the plan's is one: on every two-clone shard the hosted runner was overloaded and the
+        # second clone ran few of the tests or none. 19-10: clones boot in portrait whatever the turned device shows,
+        # so the iPad's landscape runs on the turned device itself on any count.
+        result = self.run_shard('s09', EHPANDA_SHARD_WORKERS='2')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIsNone(self.record()['infra'], self.record())
+        self.assertEqual(self.record()['workers'], 2)
+        self.assertEqual(sorted(self.keys()), self.expected('s09'))
+        parallel = [(row['orientations'], self.values(row['args'], '-parallel-testing-enabled'),
+                     self.values(row['args'], '-parallel-testing-worker-count')) for row in self.calls('snapshot')]
+        self.assertEqual(parallel, [('portrait', ['YES'], ['2']), ('landscape', ['NO'], [])])
+        (self.fake / 'calls').unlink()
+        result = self.run_shard('s01', EHPANDA_SHARD_WORKERS='2')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.record()['workers'], 2)
+        [call] = self.calls('snapshot')
+        self.assertEqual(self.values(call['args'], '-parallel-testing-enabled'), ['YES'])
+        self.assertEqual(self.values(call['args'], '-parallel-testing-worker-count'), ['2'])
+
+    def test_a_worker_count_that_is_no_number_stops_the_shard_before_any_simulator(self):
+        result = self.run_shard('s01', EHPANDA_SHARD_WORKERS='two')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('EHPANDA_SHARD_WORKERS', result.stderr)
+        self.assertFalse((self.out / 'shard.json').exists())
+        self.assertEqual(self.calls(), [])
 
     def test_a_rerun_keeps_the_configurations_a_class_finished_before_the_crash(self):
         # Run 42577585956: the re-run of a class dropped and captured again every configuration of the invocation, and

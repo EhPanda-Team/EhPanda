@@ -70,6 +70,9 @@ public struct CaptureOutcome: Sendable {
     /// The first attempt's picture and difference when that attempt differed or timed out, so a flaky picture can
     /// be read afterwards.
     public var firstAttempt: (png: Data?, difference: Data?)?
+    /// The first attempt's reason when a second attempt was made: why the first did not count, whether the second
+    /// passed or failed too.
+    public var firstReason: String?
 }
 
 /// A SwiftUI root installed as the root view controller of a real window.
@@ -430,7 +433,8 @@ public enum HostedWindowCapture {
     /// user step once.
     ///
     /// The retry re-hosts a fresh root from `make`, settles and captures again (owner decision): a second pass that
-    /// passes is `passed` with `flaky`; otherwise the second pass decides (`changed`, `timeout` or `error`). A failed
+    /// passes is `passed` with `flaky`; otherwise the second pass decides (`changed`, `timeout` or `error`). Either
+    /// way the first pass's reason is kept as `firstReason`. A failed
     /// user step (`interaction`) is retried like a timeout since run 42577585956, where iPad front-page-search
     /// failed it once in four of 90 runs; its reason names the step's failure (``CaptureStepFailure``). In candidate
     /// mode the picture is returned for the caller to write into the run's output; `reference` is never touched.
@@ -461,7 +465,10 @@ public enum HostedWindowCapture {
                 seconds: elapsed, settleSamples: result.settleSamples, png: result.png,
                 difference: result.difference, reason: result.reason
             )
-            if attempt == 2, let first = last { outcome.firstAttempt = (first.png, first.difference) }
+            if attempt == 2, let first = last {
+                outcome.firstAttempt = (first.png, first.difference)
+                outcome.firstReason = first.reason
+            }
             switch result.status {
             case .changed, .timeout:
                 firstFailed = true

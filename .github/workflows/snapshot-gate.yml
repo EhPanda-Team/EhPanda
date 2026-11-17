@@ -31,6 +31,9 @@ name: Snapshot gate
 # the run's `pictures-*` artifacts for 7 days. A dispatched candidate run may be restricted to some shards (input
 # `shards`, comma-separated IDs of the plan; refused for compare and for an unknown ID, by `checks`); the native policy
 # jobs belong to no shard and are skipped then, and the verdict is the aggregate's over the selected shards.
+# Every shard captures on its one prepared simulator, the plan's worker count (the owner's decision of 2026-11-15:
+# two parallel-testing clones overloaded the hosted runner). A dispatched candidate run may name another count (input
+# `workers`: that many clones per shard): a measurement, refused for compare by `checks`.
 # No shard uploads a result bundle (D-14); the native policy job keeps its
 # own when it fails, for 7 days, since its failures are taps and waits only the bundle's screens show.
 on:
@@ -44,6 +47,10 @@ on:
         default: compare
       shards:
         description: 'candidate runs only: comma-separated shard IDs of snapshot-shards.json (s01 to s72) to run; empty runs all'
+        type: string
+        default: ''
+      workers:
+        description: 'candidate runs only: how many simulators each shard captures on (2 or more: parallel-testing clones) instead of the one of snapshot-shards.json; empty keeps the one'
         type: string
         default: ''
   workflow_call:
@@ -67,6 +74,9 @@ env:
   SCHEME_NAME: 'EhPanda'
   # The shards a dispatched candidate run is restricted to (empty: all); checked by `checks`.
   SHARD_IDS: ${{ inputs.shards }}
+  # The worker count a dispatched candidate run names instead of the plan's (empty: the plan's); checked by `checks`
+  # and read by Scripts/visual/snapshot_shard.py in every shard and retry.
+  EHPANDA_SHARD_WORKERS: ${{ inputs.workers }}
   FINGERPRINTS: 'AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json'
 jobs:
   checks:
@@ -139,6 +149,23 @@ jobs:
             echo "### Restricted to shards: $ids" >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "restricted=$restricted" >> "$GITHUB_OUTPUT"
+      # The plan's worker count is the gate's: one simulator per shard (19-CONTEXT D-15, amended 2026-11-15). A run on
+      # another one is a measurement, never a verdict: candidate mode only.
+      - name: Check the worker count
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
+        run: |
+          count=$(python3 Scripts/visual/snapshot_shard.py workers) || {
+            echo "::error::the workers input must be a positive whole number, not '$EHPANDA_SHARD_WORKERS'."
+            exit 1
+          }
+          if [ -n "$EHPANDA_SHARD_WORKERS" ]; then
+            if [ "$MODE" != candidate ]; then
+              echo "::error::a run on a named worker count ($count) must be a candidate run, not $MODE."
+              exit 1
+            fi
+            echo "### Workers: $count, named by the dispatch instead of the plan's" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
   build:
     needs: checks
@@ -732,9 +759,10 @@ jobs:
           echo "XCTESTRUN=$(ls "$RUNNER_TEMP"/Products/*UITests*.xctestrun | head -1)" >> "$GITHUB_ENV"
       # Run 42577585956: the iPhone's test runner never finished bootstrapping and no test ran (3 minutes). A run the
       # simulator lost that way (Scripts/visual/snapshot_infra.py) is made once more on the same device; a run whose
-      # tests failed is not. Each attempt starts at Large, whatever text size an earlier one left behind, and a
-      # failing test runs at most twice: the plan's three iterations, at up to 20 minutes each, would outrun the
-      # step. The logs and result bundles are uploaded.
+      # tests failed is not. Each attempt starts at Large, whatever text size an earlier one left behind. Every test
+      # runs once: the plan carries no retry and none is passed here, so a test that fails once fails the job. Until
+      # 2026-11-16 a failing test was run a second time, and three of the four jobs that passed did so by it. The
+      # logs and result bundles of a failed job are uploaded.
       - name: Run the native visual policy tests
         id: policy
         timeout-minutes: 80
@@ -747,7 +775,6 @@ jobs:
               -xctestrun "$XCTESTRUN" \
               -destination "platform=iOS Simulator,id=$UDID" \
               -parallel-testing-enabled NO \
-              -retry-tests-on-failure -test-iterations 2 \
               -collect-test-diagnostics never \
               -resultBundlePath "$RUNNER_TEMP/policy/attempt-$1.xcresult" \
               -only-testing:EhPandaUITests/NativeVisualPolicyUITests >"$log" 2>&1 || status=$?

@@ -273,6 +273,24 @@ class GateWorkflowTests(unittest.TestCase):
         for name in ('triage', 'triage2', 'triage3', 'aggregate'):
             self.assertIn('--only "$SHARD_IDS"', runs(self.jobs[name]), name)
 
+    def test_a_dispatch_can_name_the_worker_count_of_a_candidate_run(self):
+        # The dispatch input `workers`: the simulators each shard captures on, empty for the plan's count (one). A
+        # call (a release's verdict) has no such input.
+        on = triggers(self.gate)
+        option = on['workflow_dispatch']['inputs']['workers']
+        self.assertEqual(option['type'], 'string')
+        self.assertEqual(option['default'], '')
+        self.assertIsNot(option.get('required'), True)
+        self.assertIn('candidate', option['description'])
+        self.assertNotIn('workers', on['workflow_call']['inputs'])
+        self.assertEqual(self.gate['env']['EHPANDA_SHARD_WORKERS'], '${{ inputs.workers }}')
+        checks = self.jobs['checks']
+        [step] = [step for step in checks['steps'] if step.get('name') == 'Check the worker count']
+        self.assertIn('snapshot_shard.py workers', step['run'])
+        self.assertEqual(step['env']['MODE'], '${{ steps.mode.outputs.mode }}')
+        names = [step.get('name') for step in checks['steps']]
+        self.assertLess(names.index('Decide the mode'), names.index(step['name']))
+
     def test_the_native_policy_belongs_to_no_shard_and_is_skipped_in_a_restricted_run(self):
         # It tests the devices' transitions, not a shard's pictures, so a run restricted to some shards leaves it out,
         # and the verdict of such a run is the aggregate's alone.
@@ -307,14 +325,15 @@ class GateWorkflowTests(unittest.TestCase):
         create = next(step for step in job['steps'] if 'hosted-simulator.sh create' in step.get('run', ''))
         self.assertLessEqual(create['timeout-minutes'] + step['timeout-minutes'], JOB_LIMIT - 10)
 
-    def test_each_native_policy_attempt_starts_at_large_and_retries_a_failing_test_once(self):
-        # Hosted run 3: a test that failed at AX5 left the simulator there for the next, and the plan's three
-        # iterations of a 20-minute test outran the step.
+    def test_each_native_policy_attempt_starts_at_large_and_runs_every_test_once(self):
+        # Hosted run 3: a test that failed at AX5 left the simulator there for the next. No test is run a second
+        # time: a test that passes on its retry is a flaky test, and the retry hid three of them in four jobs.
         step = next(step for step in self.jobs['native-policy']['steps'] if step.get('id') == 'policy')
         policy = step['run'].split('policy() {', 1)[1].split('\n}', 1)[0]
         self.assertLess(policy.index('content_size large'), policy.index('xcodebuild test-without-building'))
         self.assertIn('xcrun simctl ui "$UDID" content_size large || return $?', policy)
-        self.assertIn('-retry-tests-on-failure -test-iterations 2', policy)
+        for flag in ('-retry-tests-on-failure', '-test-iterations', '-run-tests-until-failure'):
+            self.assertNotIn(flag, self.text, flag)
         self.assertIn('-collect-test-diagnostics never', policy)
 
     def test_fail_fast_is_off_on_every_matrix(self):
@@ -413,7 +432,7 @@ class ArtifactLayoutTests(unittest.TestCase):
     def run_step(self, step, temp, shard=None, extra=None, check=True):
         env = {**os.environ, 'RUNNER_TEMP': str(temp), 'GITHUB_OUTPUT': str(temp / 'output'),
                'GITHUB_STEP_SUMMARY': str(temp / 'summary'), 'RUNNER_NAME': 'model', 'MODE': 'candidate',
-               'SHARD_IDS': ''}
+               'SHARD_IDS': '', 'EHPANDA_SHARD_WORKERS': ''}
         env.pop('GITHUB_REF', None)
         for key, value in (step.get('env') or {}).items():
             env[key] = expand(str(value), temp, shard) if shard else str(value)
@@ -627,6 +646,33 @@ class ArtifactLayoutTests(unittest.TestCase):
         result, outputs = self.selection('s01', 'compare')
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('candidate', result.stdout + result.stderr)
+
+    def worker_count(self, named, mode='candidate'):
+        step = next(step for step in self.jobs['checks']['steps'] if step.get('name') == 'Check the worker count')
+        temp = self.runner()
+        result = self.run_step(step, temp, extra={'EHPANDA_SHARD_WORKERS': named, 'MODE': mode}, check=False)
+        summary = temp / 'summary'
+        return result, summary.read_text() if summary.exists() else ''
+
+    def test_the_checks_accept_the_plans_count_in_either_mode_and_a_named_one_for_a_candidate(self):
+        for mode in ('candidate', 'compare'):
+            result, summary = self.worker_count('', mode)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(summary, '')
+        result, summary = self.worker_count('2')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Workers: 2', summary)
+
+    def test_the_checks_refuse_a_named_count_on_a_compare_run_and_one_that_is_no_number(self):
+        result, summary = self.worker_count('2', 'compare')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('candidate', result.stdout + result.stderr)
+        self.assertEqual(summary, '')
+        for named in ('0', 'two', '1,2', ' '):
+            result, summary = self.worker_count(named)
+            self.assertNotEqual(result.returncode, 0, named)
+            self.assertIn('positive whole number', result.stdout + result.stderr)
+            self.assertEqual(summary, '')
 
     def test_the_matrix_holds_only_the_selected_shards(self):
         step = next(step for step in self.jobs['build']['steps'] if step.get('id') == 'shards')

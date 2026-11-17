@@ -1,14 +1,13 @@
 {
   "schema": 1,
   "source": "measured",
-  "runId": "42577585956",
-  "note": "Measured on the hosted runners of gate run 42577585956 (2 workers, Xcode 27.1). iPad: 3.2 s per picture on the turned device alone (median of 15 landscape invocations, 2.5 to 4.3) and 3.9 s per picture of wall time with 2 clones (median of 12 portrait invocations, 2.4 to 11.8), so the clone speed-up is 3.2 / 3.9 = 0.82: clones gave no gain. iPhone: 6.9 s of wall time per picture with 2 clones, the median of its 7 attempts (4.0 for the one that finished, up to 8.6; pictures from passed tests x 3.32 pictures per test, crashes and re-runs included), stored as 6.9 x 0.82. No text size measured slower than another (iPad landscape medians: xSmall 3.4, large 3.5, AX5 3.1), so one figure per device. bootFetchMinutes is the median job time outside the invocations (5 to 25); invocationMinutes the median setup of a later invocation or pass (0.7 to 4.7).",
+  "runId": "43681082788",
+  "note": "Seconds per picture are an invocation's wall time over its pictures on the shard's one simulator (workers 1: no parallel-testing clones). iPhone: 2.85, the median of the 8 iPhone invocations of gate run 43681082788 (2.39 to 3.57, and 5.62 for the one whose simulator went down and came back). iPad: 3.2, the median of 15 landscape invocations of run 42577585956 (2.5 to 4.3); the 2 portrait invocations of run 43681082788 gave 3.02 and 3.37. One figure per device: the iPad's landscape medians did not differ by text size (xSmall 3.4, large 3.5, AX5 3.1), and 8 iPhone invocations are too few to tell the sizes apart. Until run 43681082788 the gate ran 2 clones: 6.9 s of wall time per iPhone picture and 3.9 per iPad portrait picture in run 42577585956, and 379 runner minutes for the ten shards of run 43670819839 that took 216 on one simulator each. bootFetchMinutes is run 42577585956's median job time outside the invocations (5 to 25; the ten jobs of run 43681082788 had 3.7 to 9.8, median 6.8); invocationMinutes its median setup of a later invocation or pass (0.7 to 4.7).",
   "secondsPerPicture": {
-    "iphone": {"xSmall": 5.66, "large": 5.66, "accessibility5": 5.66},
+    "iphone": {"xSmall": 2.85, "large": 2.85, "accessibility5": 2.85},
     "ipad": {"xSmall": 3.2, "large": 3.2, "accessibility5": 3.2}
   },
-  "workers": 2,
-  "cloneSpeedup": 0.82,
+  "workers": 1,
   "bootFetchMinutes": 9.0,
   "invocationMinutes": 2.3
 }

@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "costTable": "725591347343f68e02f85a207a3c6264e33912879c2b93031bf8735f2036f119",
+  "costTable": "6d0e5eedf6b73bed0edec5be161e476d060fb4e3cd04a304fa13968243953377",
   "costSource": "measured",
-  "workers": 2,
+  "workers": 1,
   "targetMinutes": {
-    "iphone": 45.0,
-    "ipad": 35.0
+    "iphone": 30.0,
+    "ipad": 30.0
   },
   "shards": [
     {
@@ -32,10 +32,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s02",
@@ -61,10 +61,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s03",
@@ -90,10 +90,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s04",
@@ -119,10 +119,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s05",
@@ -148,10 +148,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s06",
@@ -177,10 +177,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s07",
@@ -206,10 +206,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s08",
@@ -235,10 +235,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s09",
@@ -264,10 +264,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s10",
@@ -293,10 +293,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s11",
@@ -322,10 +322,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s12",
@@ -351,10 +351,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s13",
@@ -380,10 +380,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s14",
@@ -409,10 +409,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s15",
@@ -438,10 +438,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s16",
@@ -467,10 +467,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s17",
@@ -496,10 +496,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s18",
@@ -525,10 +525,10 @@
           ]
         }
       ],
-      "pictures": 270,
-      "costSeconds": 1528.2,
-      "estimatedMinutes": 42.4,
-      "timeoutMinutes": 85
+      "pictures": 272,
+      "costSeconds": 775.2,
+      "estimatedMinutes": 24.2,
+      "timeoutMinutes": 49
     },
     {
       "id": "s19",
@@ -554,10 +554,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s20",
@@ -583,10 +583,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s21",
@@ -612,10 +612,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s22",
@@ -641,10 +641,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s23",
@@ -670,10 +670,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s24",
@@ -699,10 +699,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s25",
@@ -728,10 +728,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s26",
@@ -757,10 +757,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s27",
@@ -786,10 +786,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s28",
@@ -815,10 +815,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s29",
@@ -844,10 +844,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s30",
@@ -873,10 +873,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s31",
@@ -902,10 +902,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s32",
@@ -931,10 +931,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s33",
@@ -960,10 +960,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s34",
@@ -989,10 +989,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s35",
@@ -1018,10 +1018,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s36",
@@ -1047,10 +1047,10 @@
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 1516.9,
-      "estimatedMinutes": 42.1,
-      "timeoutMinutes": 85
+      "pictures": 270,
+      "costSeconds": 769.5,
+      "estimatedMinutes": 24.1,
+      "timeoutMinutes": 49
     },
     {
       "id": "s37",
@@ -1062,7 +1062,7 @@
         {
           "configuration": "de-accessibility5",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1072,14 +1072,14 @@
             "de-accessibility5"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s38",
@@ -1091,7 +1091,7 @@
         {
           "configuration": "de-large",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1101,14 +1101,14 @@
             "de-large"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s39",
@@ -1120,7 +1120,7 @@
         {
           "configuration": "de-xSmall",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1130,14 +1130,14 @@
             "de-xSmall"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s40",
@@ -1149,7 +1149,7 @@
         {
           "configuration": "en-accessibility5",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1159,14 +1159,14 @@
             "en-accessibility5"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s41",
@@ -1178,7 +1178,7 @@
         {
           "configuration": "en-large",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1188,14 +1188,14 @@
             "en-large"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s42",
@@ -1207,7 +1207,7 @@
         {
           "configuration": "en-xSmall",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1217,14 +1217,14 @@
             "en-xSmall"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s43",
@@ -1236,7 +1236,7 @@
         {
           "configuration": "ja-accessibility5",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1246,14 +1246,14 @@
             "ja-accessibility5"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s44",
@@ -1265,7 +1265,7 @@
         {
           "configuration": "ja-large",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1275,14 +1275,14 @@
             "ja-large"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s45",
@@ -1294,7 +1294,7 @@
         {
           "configuration": "ja-xSmall",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1304,14 +1304,14 @@
             "ja-xSmall"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s46",
@@ -1323,7 +1323,7 @@
         {
           "configuration": "ko-accessibility5",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1333,14 +1333,14 @@
             "ko-accessibility5"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s47",
@@ -1352,7 +1352,7 @@
         {
           "configuration": "ko-large",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1362,14 +1362,14 @@
             "ko-large"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s48",
@@ -1381,7 +1381,7 @@
         {
           "configuration": "ko-xSmall",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1391,14 +1391,14 @@
             "ko-xSmall"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s49",
@@ -1410,7 +1410,7 @@
         {
           "configuration": "zh-Hans-accessibility5",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1420,14 +1420,14 @@
             "zh-Hans-accessibility5"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s50",
@@ -1439,7 +1439,7 @@
         {
           "configuration": "zh-Hans-large",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1449,14 +1449,14 @@
             "zh-Hans-large"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s51",
@@ -1468,7 +1468,7 @@
         {
           "configuration": "zh-Hans-xSmall",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1478,14 +1478,14 @@
             "zh-Hans-xSmall"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s52",
@@ -1497,7 +1497,7 @@
         {
           "configuration": "zh-Hant-accessibility5",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1507,14 +1507,14 @@
             "zh-Hant-accessibility5"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s53",
@@ -1526,7 +1526,7 @@
         {
           "configuration": "zh-Hant-large",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1536,14 +1536,14 @@
             "zh-Hant-large"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s54",
@@ -1555,7 +1555,7 @@
         {
           "configuration": "zh-Hant-xSmall",
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
@@ -1565,14 +1565,14 @@
             "zh-Hant-xSmall"
           ],
           "orientations": [
-            "portrait"
+            "landscape"
           ]
         }
       ],
-      "pictures": 268,
-      "costSeconds": 857.6,
-      "estimatedMinutes": 28.7,
-      "timeoutMinutes": 58
+      "pictures": 272,
+      "costSeconds": 870.4,
+      "estimatedMinutes": 25.8,
+      "timeoutMinutes": 52
     },
     {
       "id": "s55",
@@ -1584,7 +1584,7 @@
         {
           "configuration": "de-accessibility5",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1594,7 +1594,7 @@
             "de-accessibility5"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1613,7 +1613,7 @@
         {
           "configuration": "de-large",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1623,7 +1623,7 @@
             "de-large"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1642,7 +1642,7 @@
         {
           "configuration": "de-xSmall",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1652,7 +1652,7 @@
             "de-xSmall"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1671,7 +1671,7 @@
         {
           "configuration": "en-accessibility5",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1681,7 +1681,7 @@
             "en-accessibility5"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1700,7 +1700,7 @@
         {
           "configuration": "en-large",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1710,7 +1710,7 @@
             "en-large"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1729,7 +1729,7 @@
         {
           "configuration": "en-xSmall",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1739,7 +1739,7 @@
             "en-xSmall"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1758,7 +1758,7 @@
         {
           "configuration": "ja-accessibility5",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1768,7 +1768,7 @@
             "ja-accessibility5"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1787,7 +1787,7 @@
         {
           "configuration": "ja-large",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1797,7 +1797,7 @@
             "ja-large"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1816,7 +1816,7 @@
         {
           "configuration": "ja-xSmall",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1826,7 +1826,7 @@
             "ja-xSmall"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1845,7 +1845,7 @@
         {
           "configuration": "ko-accessibility5",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1855,7 +1855,7 @@
             "ko-accessibility5"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1874,7 +1874,7 @@
         {
           "configuration": "ko-large",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1884,7 +1884,7 @@
             "ko-large"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1903,7 +1903,7 @@
         {
           "configuration": "ko-xSmall",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1913,7 +1913,7 @@
             "ko-xSmall"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1932,7 +1932,7 @@
         {
           "configuration": "zh-Hans-accessibility5",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1942,7 +1942,7 @@
             "zh-Hans-accessibility5"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1961,7 +1961,7 @@
         {
           "configuration": "zh-Hans-large",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1971,7 +1971,7 @@
             "zh-Hans-large"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -1990,7 +1990,7 @@
         {
           "configuration": "zh-Hans-xSmall",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -2000,7 +2000,7 @@
             "zh-Hans-xSmall"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -2019,7 +2019,7 @@
         {
           "configuration": "zh-Hant-accessibility5",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -2029,7 +2029,7 @@
             "zh-Hant-accessibility5"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -2048,7 +2048,7 @@
         {
           "configuration": "zh-Hant-large",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -2058,7 +2058,7 @@
             "zh-Hant-large"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -2077,7 +2077,7 @@
         {
           "configuration": "zh-Hant-xSmall",
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],
@@ -2087,7 +2087,7 @@
             "zh-Hant-xSmall"
           ],
           "orientations": [
-            "landscape"
+            "portrait"
           ]
         }
       ],

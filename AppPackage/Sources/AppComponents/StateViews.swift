@@ -72,21 +72,35 @@ public struct NotLoginView: View {
 public struct ErrorView: View {
     private let error: AppError
     private let buttonTitle: LocalizedStringResource
+    private let showsSymbol: Bool
     private let action: (() -> Void)?
 
+    /// - Parameter showsSymbol: Whether the error's symbol is drawn above its title; a view with little height
+    ///   leaves it out so the title and the text stay in view.
     public init(
         error: AppError,
         buttonTitle: LocalizedStringResource = .RLocalizable.retry,
+        showsSymbol: Bool = true,
         action: (() -> Void)? = nil
     ) {
         self.error = error
         self.buttonTitle = buttonTitle
+        self.showsSymbol = showsSymbol
         self.action = action
     }
 
     public var body: some View {
         ContentUnavailableView {
-            Label(error.localizedDescription, systemSymbol: error.symbol)
+            if showsSymbol {
+                Label(error.localizedDescription, systemSymbol: error.symbol)
+            } else {
+                // Still a label, so the title keeps the unavailable view's title style.
+                Label {
+                    Text(error.localizedDescription)
+                } icon: {
+                    EmptyView()
+                }
+            }
         } description: {
             if !error.alertText.isEmpty {
                 Text(error.alertText)

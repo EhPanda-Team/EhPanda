@@ -19,9 +19,7 @@ struct HomePrimaryNavigationView: View {
         let hidesTitle = store.device == .pad && tabBarPlacement == .topBar
         NavigationStack(path: $store.scope(\.path, action: \.path)) {
             HomeSectionsView(store: store, pane: showsSplitHome ? .left : nil)
-            .animation(.default) {
-                $0.visible(!store.popularGalleries.isEmpty)
-            }
+            .revealed(!store.popularGalleries.isEmpty)
             // Keyed on the loading state, this animates the scroll content only (the overlays are
             // attached after it): `fetchPopularGalleriesDone` settles the state and lands the
             // galleries in one action, so what it drives is the card section's insertion, which

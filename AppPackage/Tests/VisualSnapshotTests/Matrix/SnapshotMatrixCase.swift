@@ -18,15 +18,37 @@ import XCTest
 /// process captures the one orientation its device was turned to before launch, named by
 /// `EHPANDA_SNAPSHOT_ORIENTATIONS`; the window must still match the pinned geometry.
 ///
-/// Capture is serial within each simulator clone, by the owner's approval for the screenshot runs only (D-11; owner
-/// decision): XCTest's parallel testing hands whole classes to clones, each clone runs one class at a time,
-/// and several clones and CI jobs run at once. No serial trait or single-worker cap is involved, and every
-/// other test stays parallel (AGENTS.md test parallelism).
+/// Capture is serial, by the owner's approval for the screenshot runs only (D-11; owner decision): a process
+/// captures one picture at a time and runs one class at a time. The hosted gate also runs a shard's classes one
+/// after another on its one prepared simulator, with XCTest's parallel testing off (`Scripts/visual/run-shard.sh`),
+/// by the owner's decision of 2026-11-15: two parallel-testing clones overloaded the hosted runner (run
+/// 43670819839), and the same shards on one simulator each passed at the first attempt in fewer runner minutes (run
+/// 43681082788). Several CI jobs still run at once, no serial trait is involved, and every other test stays
+/// parallel (AGENTS.md test parallelism).
 class SnapshotMatrixCase: XCTestCase {
     override func setUp() {
         super.setUp()
         // Dependencies clears prepared values before each XCTest case; restore the opt-in host defaults.
         UITestAutomation.prepareIfNeeded()
+        Self.discardHeldTaps()
+        MainActor.assumeIsolated {
+            KeyboardWatch.start()
+            MainThreadWatch.start(output: SnapshotRunEnvironment.current.output)
+        }
+    }
+
+    override func tearDown() {
+        Self.discardHeldTaps()
+        super.tearDown()
+    }
+
+    /// A scenario's factory holds its dialog tap for the scenario's own user step; a tap its step never performed
+    /// (a capture that failed or was skipped first) must not fire in the next scenario's page.
+    private static func discardHeldTaps() {
+        MainActor.assumeIsolated {
+            RevealStep.discardHeldTap()
+            LibraryScenarios.discardHeldRowTap()
+        }
     }
 
     /// Captures, or compares, the four in-process coordinates of `id` in this process's configuration.
@@ -85,6 +107,10 @@ class SnapshotMatrixCase: XCTestCase {
             NSTimeZone.default = originalTimeZone
             UIView.setAnimationsEnabled(animations)
         }
+        // Which of the test's pictures a coordinate is, for a failed attempt's reason: run 43575259346's step failures
+        // were all its first picture.
+        let pictures = coordinates.filter({ inventory.notApplicableReason(for: $0, pins: pins) == nil }).count
+        var picture = 0
         for orientation in run.orientations {
             let wanted = coordinates.filter({ $0.orientation == orientation })
             let rules = wanted.map({ inventory.notApplicableReason(for: $0, pins: pins) })
@@ -115,9 +141,12 @@ class SnapshotMatrixCase: XCTestCase {
                     try writer.append(.notApplicable(coordinate.key, reason: reason))
                     continue
                 }
+                picture += 1
                 try await captureCoordinate(
                     coordinate, factory: factory,
-                    context: .init(window: window, mode: mode, run: run, writer: writer)
+                    context: .init(
+                        window: window, mode: mode, run: run, writer: writer, picture: picture, pictures: pictures
+                    )
                 )
             }
         }
@@ -135,9 +164,11 @@ class SnapshotMatrixCase: XCTestCase {
         let reference = run.references?.appending(path: coordinate.baselinePath)
         let shift = run.shift == coordinate.scenario
         let appStorage = UserDefaults.inMemory
+        MainThreadWatch.context = coordinate.key
+        defer { MainThreadWatch.context = "" }
         let outcome = await withDependencies {
             $0.context = .preview
-            $0.cookieClient = factory.signedIn ? .previewLoggedIn : .noop
+            $0.cookieClient = factory.cookies ?? (factory.signedIn ? .previewLoggedIn : .noop)
             $0.date.now = PublicVisualFixtures.fixedDate
             $0.uuid = .incrementing
             $0.defaultAppStorage = appStorage
@@ -154,37 +185,49 @@ class SnapshotMatrixCase: XCTestCase {
             )
         }
         let digest = outcome.png.map({ SHA256.hash(data: $0).map({ String(format: "%02x", $0) }).joined() })
-        try writer.append(SnapshotResultLine(
-            key: coordinate.key, status: outcome.status, attempts: outcome.attempts, flaky: outcome.flaky,
-            seconds: outcome.seconds, settleSamples: outcome.settleSamples, bytes: outcome.png?.count ?? 0,
-            sha256: digest, reason: outcome.reason
-        ))
+        let path = coordinate.baselinePath
         // A first attempt that differed or timed out, kept beside the result so a flaky picture can be read.
-        if let first = outcome.firstAttempt {
-            if let png = first.png {
-                try writer.writePicture(png, kind: "first-actual", relativePath: coordinate.baselinePath)
-            }
-            if let difference = first.difference {
-                try writer.writePicture(difference, kind: "first-difference", relativePath: coordinate.baselinePath)
-            }
-        }
+        var pictures = [
+            outcome.firstAttempt?.png.map({ SnapshotPicture($0, kind: "first-actual", relativePath: path) }),
+            outcome.firstAttempt?.difference.map({ SnapshotPicture($0, kind: "first-difference", relativePath: path) })
+        ]
         switch outcome.status {
         case .recorded:
-            if let png = outcome.png {
-                try writer.writePicture(png, kind: nil, relativePath: coordinate.baselinePath)
-            }
+            pictures.append(outcome.png.map({ SnapshotPicture($0, kind: nil, relativePath: path) }))
         case .passed, .notApplicable:
             break
         case .changed, .missingBaseline, .timeout, .error:
-            if let png = outcome.png {
-                try writer.writePicture(png, kind: "actual", relativePath: coordinate.baselinePath)
-            }
-            if let difference = outcome.difference {
-                try writer.writePicture(difference, kind: "difference", relativePath: coordinate.baselinePath)
-            }
-            // A fixed message: the key names synthetic coordinates only.
-            XCTFail("\(coordinate.key): \(outcome.status.rawValue)")
+            pictures.append(outcome.png.map({ SnapshotPicture($0, kind: "actual", relativePath: path) }))
+            pictures.append(outcome.difference.map({ SnapshotPicture($0, kind: "difference", relativePath: path) }))
         }
+        // The line and its pictures are written together, and only if no other runner wrote this coordinate first
+        // (SnapshotResultWriter).
+        let reason = Self.lineReason(outcome, picture: context.picture, of: context.pictures)
+        try writer.append(
+            SnapshotResultLine(
+                key: coordinate.key, status: outcome.status, attempts: outcome.attempts, flaky: outcome.flaky,
+                seconds: outcome.seconds, settleSamples: outcome.settleSamples, bytes: outcome.png?.count ?? 0,
+                sha256: digest, reason: reason
+            ),
+            pictures: pictures.compactMap({ $0 })
+        )
+        switch outcome.status {
+        case .recorded, .passed, .notApplicable:
+            break
+        case .changed, .missingBaseline, .timeout, .error:
+            // A fixed message: the key names synthetic coordinates only, and a reason never holds page text.
+            XCTFail("\(coordinate.key): \(outcome.status.rawValue)" + (reason.map({ " (\($0))" }) ?? ""))
+        }
+    }
+
+    /// A result line's reason: the last attempt's, then the first attempt's when a second was made
+    /// (`attempt 1: …`, also on a picture that passed on the retry), then which of the test's pictures it was
+    /// (`picture 1 of 2`); `nil` for a picture that passed at once. `Scripts/visual/snapshot_aggregate.py` shows it
+    /// beside the coordinate's infrastructure error or in the flake log.
+    static func lineReason(_ outcome: CaptureOutcome, picture: Int, of pictures: Int) -> String? {
+        let parts = [outcome.reason, outcome.firstReason.map({ "attempt 1: \($0)" })].compactMap({ $0 })
+        guard !parts.isEmpty else { return nil }
+        return (parts + ["picture \(picture) of \(pictures)"]).joined(separator: "; ")
     }
 
     private static func coordinates(
@@ -271,12 +314,15 @@ class SnapshotMatrixCase: XCTestCase {
     }
 }
 
-/// What every coordinate of one scenario call shares.
+/// What one coordinate's capture takes from its scenario call.
 struct CaptureContext {
     let window: UIWindow
     let mode: SnapshotMode
     let run: SnapshotRunEnvironment
     let writer: SnapshotResultWriter
+    /// This coordinate's place among the test's captured pictures, from 1, and how many it captures.
+    let picture: Int
+    let pictures: Int
 }
 
 enum SnapshotMatrixError: Error {

@@ -28,10 +28,14 @@ extension ScenarioCatalog {
             ),
             "comments-blocked-row-collapsed": .init(make: { try Page.comments(.blocked) }),
             "comments-blocked-row-shown": .init(make: { try Page.comments(.blockedShown) }),
-            "comments-post-empty": .init(make: { try Page.comments(.postEmpty) }, interact: Page.holdStill),
-            "comments-post-filled": .init(make: { try Page.comments(.postFilled) }, interact: Page.holdStill),
+            "comments-post-empty": .init(
+                make: { try Page.comments(.postEmpty) }, interact: Page.holdStillOverKeyboard
+            ),
+            "comments-post-filled": .init(
+                make: { try Page.comments(.postFilled) }, interact: Page.holdStillOverKeyboard
+            ),
             "comments-posting-warning": .init(
-                make: { try Page.comments(.postingWarning) }, interact: Page.holdStill
+                make: { try Page.comments(.postingWarning) }, interact: Page.holdStillOverKeyboard
             )
         ]
     }
@@ -66,11 +70,20 @@ extension ScenarioCatalog {
             "detail-pages-detail-search-grid": .init(
                 make: { Page.detailSearch(.loaded(.grid)) }, prepare: artwork
             ),
-            "detail-pages-archives": .init(make: { try Page.archives(lowFunds: false) }, prepare: artwork),
-            "detail-pages-archives-insufficient-funds": .init(
-                make: { try Page.archives(lowFunds: true) }, prepare: artwork
+            // At accessibility5 the sheet's large title could be laid out in its hidden error view, and drawn in one
+            // run and not in the next (run 43451019962): it is given back to the shown list.
+            "detail-pages-archives": .init(
+                make: { try Page.archives(lowFunds: false) }, prepare: artwork, interact: RevealStep.showLargeTitle()
             ),
-            "detail-pages-torrents": .init(make: { try Page.torrents(empty: false) }, prepare: artwork),
+            // At accessibility5 the balances are below the fold (run 43403534542): the sheet is scrolled to them, once
+            // its large title is drawn.
+            "detail-pages-archives-insufficient-funds": .init(
+                make: { try Page.archives(lowFunds: true) }, prepare: artwork,
+                interact: RevealStep.showLargeTitle(then: RevealStep.reveal(.label(Page.lowGalleryPointsLabel)))
+            ),
+            "detail-pages-torrents": .init(
+                make: { try Page.torrents(empty: false) }, prepare: artwork, interact: RevealStep.showLargeTitle()
+            ),
             "detail-pages-torrents-empty": .init(make: { try Page.torrents(empty: true) }, prepare: artwork),
             "detail-pages-tag-detail": .init(make: { try Page.tagDetail() }, prepare: Page.cacheTagArtwork),
             "detail-pages-new-dawn": .init(make: { try Page.newDawn() }, prepare: artwork),
@@ -215,6 +228,10 @@ enum GalleryScenarios {
     /// a fresh controller, so no clock stays stopped. The keyboard is a separate window and is not drawn.
     static func holdStill(_ window: UIWindow) async throws {
         try await ContinuousClock().sleep(for: .milliseconds(1500))
+        try freeze(window)
+    }
+
+    private static func freeze(_ window: UIWindow) throws {
         var controller = try XCTUnwrap(window.rootViewController)
         while true {
             controller.view.layer.speed = 0
@@ -224,12 +241,115 @@ enum GalleryScenarios {
         }
     }
 
+    /// Post Comment's step: once its editor's keyboard is up and the window has come to rest
+    /// twice in a row, the caret is drawn solid (``BrowsingScenarios/stopCaretBlink(in:)``) and the page is held
+    /// still as in ``holdStill(_:)``; a step that has not got there by ``keyboardDeadline`` fails, and the capture
+    /// retries it.
+    ///
+    /// The fixed 1.5 s of ``holdStill(_:)`` was not always enough for the keyboard on the hosted runner. The
+    /// keyboard shrinks the posting warning to fit above it and scrolls the editor's text to the caret, and run
+    /// 43451019962 held what came before it: the warning half presented (iPhone ja and zh-Hant accessibility5), the
+    /// filled draft scrolled and clipped (iPhone zh-Hant accessibility5 landscape), the iPad sheet in another place.
+    /// The 1.5 s stays as the shortest wait, so what a picture held after it is unchanged.
+    ///
+    /// A step that fails says why the keyboard was not counted as up (``keyboardState(over:focused:since:)``), as
+    /// `no-keyboard:<state>` with how long it waited (``BrowsingScenarios/StepFailure``).
+    ///
+    /// The wait is counted in time the main run loop turned (``StepBudget``): in run 43621303643 two attempts
+    /// looked once in 34 and 38 s with the keyboard up (`announced-up waited=38.1s polls=1`).
+    ///
+    /// An editor the step saw focused that gives the focus up is focused again, as the alert's field is
+    /// (``SettingsScenarios/holdAlertCaret(_:)``); one the step never saw focused is left as the reducer left it. A
+    /// failure says how often it was focused again and what the editors did (``KeyboardWatch/editing(since:in:)``).
+    static func holdStillOverKeyboard(_ window: UIWindow) async throws {
+        let clock = ContinuousClock()
+        var budget = StepBudget(keyboardDeadline)
+        let mark = KeyboardWatch.mark
+        try await clock.sleep(for: .milliseconds(1500))
+        var held = 0
+        var refocused = 0
+        weak var editor: UIView?
+        while held < 2 {
+            guard !budget.isSpent else {
+                let focused = focusedEditor(in: window) != nil
+                let state = keyboardState(over: window, focused: focused, since: mark.announcements)
+                throw budget.failure(
+                    "no-keyboard:\(state) refocused=\(refocused)" + KeyboardWatch.editing(since: mark, in: window)
+                )
+            }
+            budget.look()
+            var focusing = false
+            if let focused = focusedEditor(in: window) {
+                editor = focused
+            } else if let editor, isFrontmost(editor, in: window) {
+                // Nothing is presented over it (the posting warning takes the focus on purpose).
+                refocused += 1
+                focusing = true
+                _ = editor.becomeFirstResponder()
+            }
+            // A seen editor counts only while it holds the focus, or while something is presented over it.
+            let holds = editor.map({ $0.isFirstResponder || !isFrontmost($0, in: window) }) ?? true
+            held = !focusing && holds && keyboardIsUp(over: window) ? held + 1 : 0
+            try await clock.sleep(for: .milliseconds(300))
+            try await BrowsingScenarios.waitForRest(window)
+            // Given up during the last rest: not held after all.
+            if let editor, !editor.isFirstResponder, isFrontmost(editor, in: window) {
+                held = 0
+            }
+        }
+        BrowsingScenarios.stopCaretBlink(in: window)
+        try freeze(window)
+    }
+
+    /// How long ``holdStillOverKeyboard(_:)`` may take before it fails the attempt with `interaction`, in time the
+    /// main run loop turned.
+    static let keyboardDeadline: Duration = .seconds(30)
+
+    /// Whether `view` is in the window, in the front-most presentation, with nothing presented over it.
+    private static func isFrontmost(_ view: UIView, in window: UIWindow) -> Bool {
+        var front = window.rootViewController
+        while let next = front?.presentedViewController {
+            front = next
+        }
+        guard view.window === window, let frontView = front?.view else { return false }
+        return view.isDescendant(of: frontView)
+    }
+
+    /// The text view or field that holds the focus in `view`, if any.
+    static func focusedEditor(in view: UIView) -> UIView? {
+        if view is UITextView || view is UITextField, view.isFirstResponder { return view }
+        for subview in view.subviews {
+            if let found = focusedEditor(in: subview) { return found }
+        }
+        return nil
+    }
+
+    /// Whether the keyboard covers the bottom of `window`'s screen, as UIKit last announced its frame
+    /// (``KeyboardWatch``).
+    static func keyboardIsUp(over window: UIWindow) -> Bool {
+        KeyboardWatch.start()
+        let frame = KeyboardWatch.frame
+        return frame.height > 0 && frame.minY < window.screen.bounds.maxY - 1
+    }
+
+    /// Why a keyboard step's wait ended without the keyboard held up, for its failure: the text field lost the focus
+    /// (`field-unfocused`); UIKit announced no keyboard frame since `announcements`, the count when the step began
+    /// (`never-announced`); the frame it last announced is below the screen (`announced-hidden`); or the keyboard is up
+    /// but was not yet read up twice in a row (`announced-up`). Each is followed by the number of frames announced
+    /// since the step began.
+    static func keyboardState(over window: UIWindow, focused: Bool, since announcements: Int) -> String {
+        let count = KeyboardWatch.announcements - announcements
+        guard focused else { return "field-unfocused announced=\(count)" }
+        guard count > 0 else { return "never-announced announced=0" }
+        return (keyboardIsUp(over: window) ? "announced-up" : "announced-hidden") + " announced=\(count)"
+    }
+
     /// Opens the first comment's `…` moderation menu, as a tap on it does. The button is hidden from VoiceOver (its
     /// items are the row's own actions), so it is found as the first menu control of the list.
     static func openFirstRowMenu(_ window: UIWindow) async throws {
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
+        let budget = StepBudget(.seconds(3))
         while true {
             if let control = menuControls(in: root).min(by: {
                 $0.convert($0.bounds, to: nil).minY < $1.convert($1.bounds, to: nil).minY
@@ -237,7 +357,7 @@ enum GalleryScenarios {
                 control.performPrimaryAction()
                 return
             }
-            guard clock.now < deadline else { throw AccessibilityActionDriver.Failure.notFound("comment menu") }
+            guard !budget.isSpent else { throw AccessibilityActionDriver.Failure.notFound("comment menu") }
             try await clock.sleep(for: .milliseconds(100))
         }
     }
@@ -356,6 +476,12 @@ extension GalleryScenarios {
 
     /// Archives with the user's balances. With low funds the balances are below every archive's price and the
     /// 1280x archive is chosen: the app has no state of its own for a balance that cannot pay (see 19-07 summary).
+    /// The low gallery points balance as VoiceOver reads it, the funds row of the archives without enough funds.
+    nonisolated static var lowGalleryPointsLabel: String {
+        let balance = Int(GalleryFixtures.lowFunds.galleryPoints) ?? 0
+        return String(localized: .accessibilityGalleryPointsBalance(balance: balance))
+    }
+
     static func archives(lowFunds: Bool) throws -> AnyView {
         let resolutions: [ArchiveResolution] = [.x780, .x980, .x1280, .x1600, .x2400, .original]
         var archives = ArchivesReducer.State()
@@ -570,5 +696,81 @@ extension GalleryScenarios {
         } operation: {
             prepareDependencies { $0.liveTextCapture = capture }
         }
+    }
+}
+
+/// The keyboard's frame on its screen as UIKit last announced it, watched from the first matrix case on
+/// (SnapshotMatrixCase), so a keyboard that came up before a step looks is known to it. A window's keyboard layout
+/// guide read from the step did not follow the keyboard: it never read it as up.
+///
+/// It also counts every text field and text view that began or ended editing, and writes who ended it (the call
+/// stack of the resignation) to the main-thread log (``MainThreadWatch/note(_:)``): run 43621303643 failed keyboard
+/// steps as `field-unfocused` while they looked at their normal pace, and nothing said whether the field had never
+/// taken the focus or had lost it, nor to what.
+@MainActor
+enum KeyboardWatch {
+    /// The counts when a step began, for what happened since (``editing(since:in:)``).
+    struct Mark {
+        let announcements: Int
+        let begins: Int
+        let ends: Int
+    }
+
+    private(set) static var frame: CGRect = .zero
+    /// How many frames UIKit has announced since the watch started, so a step can tell a keyboard that announced
+    /// nothing from one that announced itself hidden.
+    private(set) static var announcements = 0
+    private(set) static var begins = 0
+    private(set) static var ends = 0
+    private static var observers: [any NSObjectProtocol] = []
+
+    static var mark: Mark {
+        Mark(announcements: announcements, begins: begins, ends: ends)
+    }
+
+    static func start() {
+        guard observers.isEmpty else { return }
+        let center = NotificationCenter.default
+        observers.append(center.addObserver(
+            forName: UIResponder.keyboardDidChangeFrameNotification, object: nil, queue: .main
+        ) { notification in
+            let end = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
+            MainActor.assumeIsolated {
+                frame = end ?? .zero
+                announcements += 1
+            }
+        })
+        for name in [UITextField.textDidBeginEditingNotification, UITextView.textDidBeginEditingNotification] {
+            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { _ in
+                MainActor.assumeIsolated {
+                    begins += 1
+                }
+            })
+        }
+        for name in [UITextField.textDidEndEditingNotification, UITextView.textDidEndEditingNotification] {
+            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { notification in
+                let editor = notification.object.map({ String(describing: type(of: $0)) }) ?? "?"
+                // Posted from inside the resignation: the stack names who ended the editing.
+                let stack = Thread.callStackSymbols.prefix(32).joined(separator: "\n    ")
+                MainActor.assumeIsolated {
+                    ends += 1
+                    MainThreadWatch.note("editing ended: \(editor)\n    \(stack)")
+                }
+            })
+        }
+    }
+
+    /// What the text fields and the window did since `mark`, for a keyboard step's failure:
+    /// ` began=<n> ended=<n>`, then ` key=0` if the window is not the key window and ` scene=<state>` if its scene is
+    /// not active in the foreground.
+    static func editing(since mark: Mark, in window: UIWindow) -> String {
+        var text = " began=\(begins - mark.begins) ended=\(ends - mark.ends)"
+        if !window.isKeyWindow {
+            text += " key=0"
+        }
+        if let scene = window.windowScene, scene.activationState != .foregroundActive {
+            text += " scene=\(scene.activationState.rawValue)"
+        }
+        return text
     }
 }

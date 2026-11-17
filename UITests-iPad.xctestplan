@@ -1,0 +1,40 @@
+{
+  "configurations": [
+    {
+      "id": "13080000-0000-4000-8000-000000000002",
+      "name": "Configuration 1",
+      "options": {}
+    }
+  ],
+  "defaultOptions": {
+    "environmentVariableEntries": [
+      {
+        "key": "EHPANDA_IPAD_UI_TESTS",
+        "value": "1"
+      }
+    ],
+    "testTimeoutsEnabled": true
+  },
+  "testTargets": [
+    {
+      "target": {
+        "containerPath": "container:EhPanda.xcodeproj",
+        "identifier": "A13080000000000000000006",
+        "name": "EhPandaUITests"
+      },
+      "selectedTests": [
+        "AccessibilityAuditUITests/testPadSettingAndDetailModalsAudit()",
+        "DeepLinkPadUITests/testPadTabModalReplacedByDeepLink()",
+        "LandscapePaneUITests/testHomePreservesOriginalTitlesAndSectionLayout()",
+        "LandscapePaneUITests/testPadHomeKeepsSinglePaneAcrossRotationAndTextSizes()",
+        "LandscapePaneUITests/testReaderControlsMoveAndKeepTheirSideAfterRotation()",
+        "LandscapePaneUITests/testWideSlideshowRevealsNeighborsAndPreservesSelectionAcrossRotation()",
+        "ReadingOrientationUITests/testAutomaticLayoutPreservesThePageOnRotationAndReentry()",
+        "ReadingOrientationUITests/testDisablingAutomationKeepsManualDirectionAfterRotation()",
+        "ReportFormUITests/testThePadFormSheetAndCommandReturn()"
+      ],
+      "parallelizable": true
+    }
+  ],
+  "version": 1
+}

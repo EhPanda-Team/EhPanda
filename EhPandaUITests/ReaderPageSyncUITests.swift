@@ -74,16 +74,21 @@ final class ReaderPageSyncUITests: XCTestCase {
     /// Auto-play at its shortest interval, on the real clock: a page turn has an animation to
     /// finish, and a second is what a reader can actually choose. `AutoPlayHandlerTests` pins the
     /// cadence itself against a test clock.
+    ///
+    /// While auto-play runs, the indicator alone says that it turned two pages (`requireIndicatedPage`); the page
+    /// shown is read once auto-play has stopped, and has to be a page auto-play reached.
     func testAutoPlayTurnsThePageAndKeepsTheIndicatorOnIt() throws {
         try underEachDirection { reader, direction, start in
             reader.selectAutoPlay("1 second")
-            try reader.requirePage(
+            let turned = try reader.requireIndicatedPage(
                 "While auto-play turns the \(direction.rawValue) reader",
-                timeout: 15,
                 where: { $0 >= start + 2 }
             )
             reader.selectAutoPlay("Off")
-            try reader.requirePage("After auto-play stopped in the \(direction.rawValue) reader")
+            try reader.requirePage(
+                "After auto-play stopped in the \(direction.rawValue) reader",
+                where: { $0 >= turned }
+            )
         }
     }
 

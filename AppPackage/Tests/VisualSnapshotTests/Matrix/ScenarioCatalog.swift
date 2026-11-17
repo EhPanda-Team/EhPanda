@@ -1,4 +1,5 @@
 import AppModels
+import CookieClient
 import Foundation
 import SwiftUI
 import UIKit
@@ -12,6 +13,9 @@ struct ScenarioFactory {
     typealias Interact = @MainActor (UIWindow) async throws -> Void
 
     let signedIn: Bool
+    /// The cookie jar the scenario reads, when its cookies are themselves on screen; otherwise a signed-in scenario
+    /// reads the preview client and a signed-out one an empty jar.
+    let cookies: CookieClient?
     let make: Make
     let prepare: Prepare?
     let interact: Interact?
@@ -19,10 +23,11 @@ struct ScenarioFactory {
     let minimumReads: Int
 
     init(
-        signedIn: Bool = true, make: @escaping Make, prepare: Prepare? = nil, interact: Interact? = nil,
-        minimumReads: Int = HostedWindowCapture.minimumReads
+        signedIn: Bool = true, cookies: CookieClient? = nil, make: @escaping Make, prepare: Prepare? = nil,
+        interact: Interact? = nil, minimumReads: Int = HostedWindowCapture.minimumReads
     ) {
         self.signedIn = signedIn
+        self.cookies = cookies
         self.make = make
         self.prepare = prepare
         self.interact = interact

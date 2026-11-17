@@ -201,9 +201,7 @@ private extension DetailView {
         }
         .scrollIndicators(.hidden)
         .scrollEdgeEffectStyle(.soft, for: .top)
-        .animation(.default) {
-            $0.visible(store.galleryDetail != nil)
-        }
+        .revealed(store.galleryDetail != nil)
         .overlay {
             LoadingView()
                 .animation(.default) {
