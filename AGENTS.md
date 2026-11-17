@@ -1,7 +1,8 @@
 # AGENTS.md
 
 This file gives coding agents a reliable working guide for this repository.
-For AirBuild work, also read the local [AIRBUILD.md](AIRBUILD.md).
+Only agents running in the AirBuild runtime read the local [AIRBUILD.md](AIRBUILD.md). Agents running in any other runtime, such as Claude Code or Codex, must not read or follow `AIRBUILD.md`, even when their task involves AirBuild.
+Every agent, in any runtime, also reads the local [AGENTS.local.md](AGENTS.local.md) when it exists, before working on this project, and follows it.
 
 ## Planning workflow
 

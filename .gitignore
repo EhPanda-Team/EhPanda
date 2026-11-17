@@ -22,3 +22,4 @@ AppPackage/.swiftpm/xcode/package.xcworkspace/xcuserdata
 # Local capture output and verification evidence
 /.capture/
 /AIRBUILD.md
+/AGENTS.local.md
