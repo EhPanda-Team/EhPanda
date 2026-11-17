@@ -127,7 +127,7 @@ Each is written first in its own task (TDD), so no separate Wave 0 plan is neede
 | Apple-account records, agreements, marketplace, secrets | DIST-18-03 | collaborator's account; D-07 | 20-06 checkpoints |
 | First notarization submission and verdict; D-21 key test | DIST-18-03 | live Apple review | 20-08 Task 3 |
 | AltStore processing and the real ADP layout | DIST-18-03 | live AltStore service | 20-08 Task 4 |
-| Website URLs | UGC-18-01 | Leto's website | 20-07 Task 2 |
+| Website URLs | UGC-18-01 | Webmaster's website | 20-07 Task 2 |
 | iPad stall, iPhone background downloads | DEV-18-01 | owner hardware; system UI | 20-09 |
 | Store screenshot approval | MKT-18-01, CAP-17-05 | owner's judgement | 20-10 Task 3 |
 

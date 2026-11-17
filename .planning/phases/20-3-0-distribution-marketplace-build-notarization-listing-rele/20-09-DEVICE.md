@@ -7,7 +7,7 @@ which includes the driver's own time. The 30-second ceiling was never close.
 
 ### Consent and setup
 
-- Consent: owner decision, answering a card: "I will connect the iPad but you run the verification". The owner
+- Consent: owner decision: "I will connect the iPad but you run the verification". The owner
   only connected the iPad. The agent did the build, the install and all ten launches. Owner decision then named the
   device and allowed control of it through the Device MCP app. The owner tapped nothing.
 - Device: the owner's iPad mini (6th generation, iPad14,1), iPadOS 27.2 (24B119), Developer Mode on, connected over
@@ -111,7 +111,7 @@ All times below are UTC on 2026-11-09.
 
 ### Consent and setup
 
-- Consent: owner decision, answering a card. The agent ran the whole procedure through the Device MCP app.
+- Consent: owner decision. The agent ran the whole procedure through the Device MCP app.
   The owner tapped nothing, and no passcode or Face ID prompt came up.
 - Device: the owner's test iPhone 11 (iPhone12,1), iOS 27.2 (24B120), on Wi-Fi with airplane mode on, and
   charging. While the app was in the background, the app's log reported the thermal state as `serious`. Nothing

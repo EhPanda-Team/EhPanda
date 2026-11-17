@@ -51,11 +51,11 @@ does not redo them.
   AltStore download URL must still resolve to the release's actual asset.
   *Amended 2026-11-09:* answered by D-19; for Classic, SideStore and the beta it is already true in the workflows.
 - **D-04:** **Store screenshots** are the website screenshots plus extra decorations (owner decision). An AltStore
-  listing can use only non-adult pictures (Ampo, guideline 2.3.8). These are the AltStore promotional
+  listing can use only non-adult pictures (the compliance advisor, guideline 2.3.8). These are the AltStore promotional
   images moved from Phase 17 (17-22). The listing icon is all-ages (prep L28), and no "Apple-approved" wording
   appears anywhere (prep L8).
   *Partly superseded 2026-11-09:*
-  - The Classic and SideStore screenshots are done (D-17). The designer Colo no longer makes them: the
+  - The Classic and SideStore screenshots are done (D-17). The designer no longer makes them: the
     owner stopped that (owner decision) and had an outside designer do the decorated set (owner decision).
   - Still open for the **PAL listing**, all in step (f) and none decided here:
     - **Sizes.** App Store Connect requires at least one iPhone screenshot in the "iPhone with Dynamic Island (medium
@@ -70,9 +70,9 @@ does not redo them.
       feeds iOS's install sheet, so App Store Connect's screenshots must also be all-ages. The current Classic
       set's first picture is headed "Over a million adult comics and doujinshi"; whether that wording suits an
       all-ages listing is for the same checkpoint.
-- **D-05:** **Published contact link:** there is no in-app contact option for now (Ampo, after the owner's
-  question). A published contact link, GitHub Issues on the website, is needed before the AltStore build
-  goes to Apple. The website owner is Leto. The privacy policy and support URLs are website work too (prep L7).
+- **D-05:** **Published contact link:** there is no in-app contact option for now (the compliance advisor, after the
+  owner's question). A published contact link, GitHub Issues on the website, is needed before the AltStore build
+  goes to Apple. The webmaster owns the website. The privacy policy and support URLs are website work too (prep L7).
   *Amended 2026-11-11 (owner decision; product lead decision):* The website gets no GitHub Issues link: its existing GitHub link is
   enough, and installation questions are not answered (owner decision; product lead decision). The published contact link
   is out of the 3.0 plan. The App Store Connect Support URL is the GitHub repository page,
@@ -148,7 +148,7 @@ does not redo them.
 - **D-13:** **Phase 20 runs now, without waiting for Phase 19** (owner decision, 2026-11-09). It runs on its own
   branch, `feature/gsd-phase-20`, created from `e2c6acb5b`. Phase 19 work continues on `feature/gsd-phase-19` in the
   main checkout and is not touched from here.
-- **D-14:** **"Depends on Phase 19" is relaxed by an owner decision** (product lead Ato). Only two parts
+- **D-14:** **"Depends on Phase 19" is relaxed by an owner decision** (the product lead). Only two parts
   truly need Phase 19 finished:
   1. the store screenshots built from Phase 19's approved reference set;
   2. a release that relies on Phase 19's screenshot check.
@@ -162,7 +162,7 @@ does not redo them.
   (`release-notes.yml`) and `deploy.yml` both run `actions-tool/release_notes.py check`. The PR description is no
   longer read. *Landed:* `624192ebc`, `9e5dfc9f4`, `982305386`, `df3d04feb`.
 - **D-16:** **The sources' metadata matches the website** (owner decision). The subtitle and description are the
-  website copy from Leto's, in six languages, with English in the plain fields (`d9ad08bd8`, `751235a23`).
+  website copy from the webmaster's, in six languages, with English in the plain fields (`d9ad08bd8`, `751235a23`).
   The website link is https://ehpanda.app (`269cb08e5`). The tint color is `#557F72` (designer, owner
  decision; `17eb08125`, `1aef4a243`, `1d2351ada`). The PAL source reuses all of this (developer defaults).
 - **D-17:** **Classic and SideStore screenshots** (owner decision).
@@ -240,7 +240,7 @@ does not redo them.
   judged to meet guideline 2.3.8's 4+ rule, so every build and every listing uses it, and the marketplace flavor
   does not set `ASSETCATALOG_COMPILER_APPICON_NAME`. No icon task is planned. It changes only if Apple's review
   objects: if the notarization review rejects the icon under 2.3.8, step (c) pauses and the owner asks the designer
-  Colo for an all-ages variant; the flavor then points at it and the build is submitted again.
+  for an all-ages variant; the flavor then points at it and the build is submitted again.
 - **D-23:** **The website check, the device checks and the analytics proposal may start now** (product lead
  decision, 2026-11-09; OQ-G answered yes). 20-07 (step (d)), 20-09 (step (e)) and 20-12 (step (g), the vocabulary
   proposal) run in wave 1, in parallel with the build steps, instead of waiting for 20-08 and the steps before it;
@@ -317,8 +317,8 @@ parallel with (a) to (c); the order below still holds for everything else. *Amen
     - the countries or regions the app is offered in (AltStore PAL serves the EU, Japan and Brazil);
     - the GitHub environment secrets;
     - the first submission, including the App Manager key test (D-21), made after the Classic release (D-26). If
-      the review rejects the icon under guideline 2.3.8, this step pauses for a design request to Colo (D-22).
-- **(d) Website dependencies check** (Leto):
+      the review rejects the icon under guideline 2.3.8, this step pauses for a design request to the designer (D-22).
+- **(d) Website dependencies check** (the webmaster):
   - the privacy policy URL (each language's own page, `/<language>/privacy/`; owner decision);
   - the support URL: the GitHub repository page, https://github.com/EhPanda-Team/EhPanda (D-05 amended, owner decision);
   - ~~the published contact link (GitHub Issues), live before the build goes to Apple (D-05)~~ dropped, owner decision
@@ -373,7 +373,7 @@ These were not put to the owner (prep section 3).
     entry has `downloadURL` (the manifest), `assetURLs` and `size` (one variant's size, as AltStore advises) and no
     single-IPA `sha256`. `altstore-add-version.jq` is extended for that rather than forked.
   - **Not yet.** Screenshots are added in step (f). The public URL (an ehpanda.app redirect like `AltStore.json`'s)
-    is agreed with Leto in step (d). Making the source discoverable is deferred.
+    is agreed with the webmaster in step (d). Making the source discoverable is deferred.
 - **Notarization CI:**
   - **The workflow.** A separate `workflow_dispatch` workflow behind a protected GitHub environment with a
     required reviewer. The collaborator's signing material and API key live only in that environment's secrets.

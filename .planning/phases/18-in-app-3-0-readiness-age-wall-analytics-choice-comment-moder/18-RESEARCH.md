@@ -9,7 +9,7 @@ question (fixture evidence only, see Open Item OI-1).
 **How this file was made.** The plan-phase roles (researcher, pattern mapper, planner, checker) were run inline, in
 sequence, by the developer, as the user asked for this run; no subagents were spawned. Interactive questions were
 replaced by recorded defaults (section 9). `/gsd-ui-phase` was not run, on the user's instruction. The designer
-(Colo) supplied `18-UI-SPEC.md` with 24 mockups (final 1826), committed unchanged; every UI task reads
+supplied `18-UI-SPEC.md` with 24 mockups (final version), committed unchanged; every UI task reads
 it as its design contract (D-17a).
 
 **Revised 2026-11-05 during planning** for the owner's analytics change (Minimal replaces None), the developer decision on what Minimal sends (CONTEXT D-06b), Blocked Users in Account settings (D-14a), and
@@ -22,7 +22,7 @@ the UI-SPEC refreshes ( adds the title line-break rule, C-3) are committed.
 sends is unchanged. The UI-SPEC and mockups refresh for it is committed. Only User Constraints, §8, Validation Architecture and Sources change.
 **Revised a fourth time the same day** for D-06e (owner decision): `consent.body` is Revision 5 of
 `18-COPY-MINIMAL.md` ("Anonymous analytics. Your searches and the galleries you view are never sent."), superseding
-the msg-1805 intro; the purpose and TelemetryDeck's name move to the Privacy Policy (website, Phase 20). Revision 4
+the original intro; the purpose and TelemetryDeck's name move to the Privacy Policy (website, Phase 20). Revision 4
  was not approved. The same sections change.
 **Revised a fifth time the same day** for D-06f (owner decision; developer mapping): the
 screen and feature signals move from Full to Basic and `cloudflareChallengeEncountered` is Basic (§4.3, A-3; OI-3
@@ -562,7 +562,7 @@ The key is absent today. Add `<key>MKSellsDigitalGoods</key><false/>`. Verify on
   `consent.level.recommended` ("Recommended" and its five translations, Revision 6) labels Basic on the first-launch
   screen only (UI-SPEC C-3).
 - **Intro (D-06e, owner decision):** `consentBody` takes Revision 5 of the Minimal file ("Anonymous
-  analytics. Your searches and the galleries you view are never sent." and its five translations); the msg-1805
+  analytics. Your searches and the galleries you view are never sent." and its five translations); the original
   first-table `consent.body` is retired, like the original first-launch one. Revision 4 was not approved.
 - Copy precedence: the Minimal file's Revision 6 (Basic and Full descriptions, `consent.level.recommended`),
   Revision 5 (`consent.body`) and Revision 2 (Minimal description) > its first table > the first-launch file

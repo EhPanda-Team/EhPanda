@@ -1,6 +1,6 @@
 # EhPanda 3.0: analytics wording change for "Minimal"
 
-APPROVED by the owner (2026-11-05), all six languages. Author: Camo. Delivered . Written for owner decision: "None" becomes "Minimal", which sends only the installation.
+APPROVED by the owner (2026-11-05), all six languages. Author: the copywriter. Written for owner decision: "None" becomes "Minimal", which sends only the installation.
 Everything not listed here in 18-COPY-FIRST-LAUNCH.md stays as approved.
 Developer confirmation: under Minimal the analytics SDK never starts; the app sends one signal, once per install (D-06b).
 
@@ -40,7 +40,7 @@ Unchanged and still correct: `consent.title` ("Choose what EhPanda shares"), the
 - zh uses 最少 (least) beside 基本 / 完整; ja 最小限 and ko 최소 are the usual words for a minimal setting.
 - The description starts with "Sends", like Basic's, so the three read as one ladder.
 
-## Knock-on for the website (Leto, at 3.0 ship, not before)
+## Knock-on for the website (the webmaster, at 3.0 ship, not before)
 
 The privacy page rewrite for the three levels now uses Minimal / Basic / Full and these descriptions. There is no level that sends nothing, so the page must not say sharing can be turned off completely.
 Since Revision 5 the in-app intro no longer names TelemetryDeck or says why analytics are collected; the privacy page, linked from the same screen, must carry both (D-06e).

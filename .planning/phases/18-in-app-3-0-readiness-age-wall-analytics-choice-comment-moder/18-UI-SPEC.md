@@ -5,15 +5,15 @@ status: draft
 shadcn_initialized: false
 preset: none
 created: 2026-11-05
-author: Colo (design)
+author: the designer
 ---
 
 # Phase 18 — UI Design Contract
 
 > Visual and interaction contract for the Phase 18 screens: the age wall, the analytics choice, the comment
 > report and block UI (menu items, confirmations, posting warning, collapsed row) and the Settings changes
-> (analytics picker and Privacy Policy row in General; Blocked Users row and list in Account). Written by Colo for
-> D-17. Revised after an owner decision: None → Minimal, Blocked Users moved to Account.
+> (analytics picker and Privacy Policy row in General; Blocked Users row and list in Account). Written by
+> the designer for D-17. Revised after an owner decision: None → Minimal, Blocked Users moved to Account.
 >
 > **Contract nature: new screens inside a shipped design language.** Nothing here restyles an existing screen.
 > New screens reuse the app's system typography, its existing AccentColor, its 15pt card radius and its existing
@@ -181,13 +181,13 @@ the catalog may rename them, never the text. Nothing on any screen below may say
 | Continue hint while dimmed (VoiceOver) | `age_wall.continue_hint` (age wall only — see C-2) |
 | Age wall footnote (always visible) | `age_wall.footnote` |
 | Analytics title / body | `consent.title` / `consent.body` |
-| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. Minimal replaces None (owner decision); its name and description and the new `consent.body` are Camo's wording: name and `consent.body` (approved), Minimal's description from Revision 2 (**approved**, replaces the 1805 line), Basic's and Full's descriptions from Revision 6 (**approved**; screens and features moved from Full to Basic, replaces the 1839 Basic line), `consent.body` from the Revision 5 fallback (**approved**, replaces the 1805 body), as shown in the mockups |
+| Level names / descriptions | `consent.level.{minimal,basic,full}` / `…description`. Minimal replaces None (owner decision); its name and description and the new `consent.body` are the copywriter's wording: name and `consent.body` (approved), Minimal's description from Revision 2 (**approved**, replaces the original line), Basic's and Full's descriptions from Revision 6 (**approved**; screens and features moved from Full to Basic, replaces the earlier Basic line), `consent.body` from the Revision 5 fallback (**approved**, replaces the original body), as shown in the mockups |
 | Analytics footer | `consent.footer` |
 | Privacy link (both places) | `consent.privacy_link` |
 | Settings analytics row | `shareAnalyticsData` (existing key, now a picker); section header `analytics` (existing) |
 | Settings analytics footer | the selected level's `consent.level.*.description`; `shareAnalyticsDataFooter` retired |
 | Comment menu | `comment.report` ("Report on {site}"), `comment.block` ("Block %@"), `comment.unblock` ("Unblock %@") |
-| Report form (C-13) | `report.*` keys from Camo's `report-form-copy.md` (**approved by the owner**; never reword). Sheet title = `comment.report`; site-page button = `comment.report.open`; `retry`, `cancel` existing. `comment.report.confirm_title` / `_body` are retired with the old alert |
+| Report form (C-13) | `report.*` keys from the copywriter's report-form copy (**approved by the owner**; never reword). Sheet title = `comment.report`; site-page button = `comment.report.open`; `retry`, `cancel` existing. `comment.report.confirm_title` / `_body` are retired with the old alert |
 | Destructive confirmation | Block: `comment.block.confirm_title` / `comment.block.confirm_body`, buttons `comment.block.confirm` (destructive) + `cancel` |
 | Posting warning | `comment.filter.title` / `comment.filter.body`, buttons `comment.filter.edit` (default) + `comment.filter.post_anyway` |
 | Collapsed row | `comment.blocked_row`, buttons `comment.blocked_row.show`, `blocked_users.unblock` ("Unblock", no name — the row never shows the name) |
@@ -305,14 +305,14 @@ your mind, and a shared Continue keeps both first-launch screens one pattern.
    - Selected card: plus `.strokeBorder(Color.accentColor, lineWidth: 2)` on the card shape. Unselected: no stroke.
    - Initially **none selected** (owner decision: Basic is recommended, not pre-selected). Tapping a card selects it
      (and deselects the others); tapping the selected card keeps it. Haptic `.selection`.
-   - **Recommended label on Basic only** (`consent.level.recommended`, approved; Camo's file):
+   - **Recommended label on Basic only** (`consent.level.recommended`, approved; the copywriter's file):
      a capsule right after the name, inside the name row — `HStack(alignment: .firstTextBaseline, spacing: 8)` { name;
      label }, wrapped in `ViewThatFits` so at large sizes the label drops onto its own line under the name, leading-
      aligned, 4pt below. Label: `.caption.weight(.semibold)`, `.primary` (not `.secondary`: 12pt text needs 4.5:1, and `.primary` on the fill is > 12:1 in both modes), padding 8 h / 2 v,
      `Capsule().fill(Color(.tertiarySystemFill))`. Neutral, never accent: accent means "selected", and the label
      stays the same whether Basic is selected or not. `.accessibilityHidden` is NOT set — it is read as part of the
      card (see VoiceOver below).
-   - **Order stays Minimal, Basic, Full** (layout call, Ato). Reason: the descriptions are a ladder
+   - **Order stays Minimal, Basic, Full** (layout call, the product lead). Reason: the descriptions are a ladder
      ("Everything in Minimal, plus…", "Everything in Basic, plus…") that only reads top-down in that order, and the
      label is what makes Basic stand out, not its position.
 6. Continue in the bar (C-1) — `.disabled(selection == nil)`. No hint string is approved for this screen, so none.
@@ -471,7 +471,7 @@ Changing the level takes effect immediately (DD-09). No confirmation when loweri
 ### C-13 · Report form (owner decision: "Our own form") [25–34]
 
 Replaces the report alert and the web sheet as the first route. The site's report page stays as the fallback.
-Copy: Camo's `report-form-copy.md`, approved by the owner. Reports are from comments only:
+Copy: the copywriter's report-form copy, approved by the owner. Reports are from comments only:
 the owner ruled out a gallery-level Report, now and later, unless App Review requires it.
 
 **Presentation.** `.sheet` from the comments list or the Detail strip. iPhone: `.presentationDetents([.large])`;
@@ -489,7 +489,7 @@ form scrolls under it with the soft scroll-edge effect and nothing else behind t
 C-1 "No bar background"). With the keyboard up, the bar rides on top of the keyboard
 (the safe area does this by itself; no `.toolbar(.keyboard)`) with 8pt above the keyboard — frame 26. Label wraps at
 large sizes, the button grows (min 50pt) [33]. One button per state:
-- Ready / loading: `report.send` ("Send Report" — Camo). Disabled (system dim) until enabled, rule below.
+- Ready / loading: `report.send` ("Send Report" — the copywriter). Disabled (system dim) until enabled, rule below.
 - Sending: same button, disabled, label becomes `ProgressView()` + `report.sending` in an `HStack(spacing: 8)` [27].
 - Sent: `report.sent.done` [28]. Unavailable: `comment.report.open` [30].
 - Failed: the bar keeps Send Report live under the alert (the alert owns the choice) [29].
@@ -516,8 +516,8 @@ Swap labels without animation (Reduce Motion or not) so the bar never jumps; the
    Signed-in users: prefill the email the site remembers for the account, if the loaded form carries one; never
    store it in EhPanda.
 4. Section header `report.details`. `TextField(axis: .vertical)` with `.lineLimit(5...)` (grows; min ~5 lines),
-   `.body`. Opened from a comment it starts with the English prefill block (Camo's file), cursor placed after the
-   blank line, and gets focus once a reason is picked (not on open — the keyboard would hide the reasons).
+   `.body`. Opened from a comment it starts with the English prefill block (the copywriter's file), cursor placed after
+   the blank line, and gets focus once a reason is picked (not on open — the keyboard would hide the reasons).
    Footer: when an illegal-content reason is picked, `report.help.illegal` first, then a blank line, then
    `report.comment_footer`; otherwise only `report.comment_footer`.
 5. Send Report is enabled when: a reason is picked, the email field is non-empty, and Details contains text beyond

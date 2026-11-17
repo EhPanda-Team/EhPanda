@@ -46,7 +46,7 @@ key-decisions:
   - "`entitlements` replaces the list without `application-identifier` and `com.apple.developer.team-identifier`, which AltStore says not to list (Research §4). 20-05 can therefore pass `codesign`'s keys unchanged."
   - "`marketplaceID` must be digits. It is set only when the source has the key with an empty value or has no key, and a different value is an error."
   - "The template has no `versions` key, like the SideStore template. `marketplaceID` follows `bundleIdentifier`. Otherwise the field order is the SideStore template's."
-  - "The PAL source's public address is https://ehpanda.app/AltStorePAL.json, which forwards to `AltStorePAL.json` on `main` the way /AltStore.json does (owner decision; Leto adds it, and it goes live with the site at 3.0). It is recorded here, not in the JSON, because the Classic and SideStore sources carry no `sourceURL` either."
+  - "The PAL source's public address is https://ehpanda.app/AltStorePAL.json, which forwards to `AltStorePAL.json` on `main` the way /AltStore.json does (owner decision; the webmaster adds it, and it goes live with the site at 3.0). It is recorded here, not in the JSON, because the Classic and SideStore sources carry no `sourceURL` either."
 
 patterns-established:
   - "`check_source(..., pal=True)` for the PAL source; `check_pal_version` for its entries"

@@ -474,7 +474,7 @@ def self_test() -> int:
         set_value(catalogs, "consent.level.basic.description", "en",
                   first_launch_retired("consent.level.basic.description"))
 
-    def body_1805(catalogs):
+    def body_first_table(catalogs):
         set_value(catalogs, "consent.body", "en", minimal_retired("consent.body", "first table"))
 
     def revision3_basic(catalogs):
@@ -523,9 +523,9 @@ def self_test() -> int:
         ("correct catalogs pass", None, None),
         ("a curly apostrophe in age_wall.footnote fails", apostrophe, "differs: age_wall.footnote [en]"),
         ("a missing zh-Hant locale fails", missing_zh_hant, "missing locale: age_wall.declaration [zh-Hant]"),
-        ("the msg-1805 Minimal description fails", old_minimal, "retired text:"),
+        ("the original Minimal description fails", old_minimal, "retired text:"),
         ("the first-launch Basic description fails", first_launch_basic, "retired text:"),
-        ("the msg-1805 consent.body fails", body_1805, "retired text:"),
+        ("the original consent.body fails", body_first_table, "retired text:"),
         ("the Revision 3 Basic description fails", revision3_basic, "retired text:"),
         ("the first-launch Full description fails", first_launch_full, "retired text:"),
         ("a missing consent.level.recommended fails", missing_recommended, "missing key: consent.level.recommended"),
@@ -591,7 +591,7 @@ def readme_retired_en(retired, key: str, source: str) -> str:
 
 README_CASES = (
     ("correct README sections pass", None, None),
-    ("the msg-1805 Minimal description in README.md fails", "old_minimal", "missing description:"),
+    ("the original Minimal description in README.md fails", "old_minimal", "missing description:"),
     ("the old opt-out sentence in README.md fails", "old_opt_out", "retired opt-out:"),
     ("the old opt-out sentence in README.de.md fails", "old_opt_out_de", "retired opt-out:"),
     ("the first-launch Basic description in README.md fails", "first_launch_basic", "retired text:"),

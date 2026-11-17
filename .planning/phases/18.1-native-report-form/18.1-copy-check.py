@@ -6,7 +6,7 @@ Usage:
     18.1-copy-check.py --self-test   run the built-in cases on temporary catalogs
     18.1-copy-check.py --root DIR    check the catalogs of another checkout
 
-Source (CONTEXT D-06, D-09): 18.1-COPY-REPORT-FORM.md, Camo's final file, headed "APPROVED".
+Source (CONTEXT D-06, D-09): 18.1-COPY-REPORT-FORM.md, the copywriter's final file, headed "APPROVED".
 This script only reads it; the file is never edited.
 
 - Every `report.*` row of its key tables is a shipping key, unless its key cell is struck out (`~~key~~ DROPPED`):

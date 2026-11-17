@@ -1,4 +1,4 @@
-"""AltStore.json as AltStore and SideStore read it (owner decision; copy from Camo)."""
+"""AltStore.json as AltStore and SideStore read it (owner decision; copy from the copywriter)."""
 
 import json
 import pathlib

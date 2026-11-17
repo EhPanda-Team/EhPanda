@@ -112,7 +112,7 @@ the privacy URL. `18-copy-check.py` proves it and fails on any drift or retired 
     U+2028, U+2029); a placeholder set different from en; `extractionState` not `manual`; a translatable privacy
     URL; a `consent.level.none*` key or any retired text in any `.xcstrings` under `AppPackage/Sources`.
   - `--self-test` builds temporary catalogs from the expected map and runs 11 cases (correct passes; curly
-    apostrophe, missing zh-Hant, msg-1805 Minimal description, first-launch Basic description, msg-1805
+    apostrophe, missing zh-Hant, original Minimal description, first-launch Basic description, original
     `consent.body`, Revision 3 Basic description, first-launch Full description, missing
     `consent.level.recommended`, `consent.title` with `\n`, `consent.level.none` key each fail). It also asserts the
     retired list holds all eight retired rows in all six languages.
@@ -186,7 +186,7 @@ None in scope or behaviour. Two notes:
   DetailFeature and a recompile of `ResourceStringSymbols.swift`.
 - `swiftlint lint --strict --no-cache --config .swiftlint.yml AppPackage/Sources/Resources`: 0 violations.
 - Acceptance greps on the Resources catalog: Revision 2 Minimal, Revision 6 Basic and Full, Revision 5 intro and the
-  `"consent.level.recommended"` key each 1; Revision 3 Basic, first-launch Basic and Full, msg-1805 intro and
+  `"consent.level.recommended"` key each 1; Revision 3 Basic, first-launch Basic and Full, original intro and
   "EhPanda can send anonymous analytics" each 0; no catalog contains `consent.level.none`.
 
 ## User Setup Required

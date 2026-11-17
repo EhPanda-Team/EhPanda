@@ -27,7 +27,7 @@ submission, 20-08).
     the final build (OQ-A answered, OQ-B moot).
   - D-21: the App Manager key test is recorded at the first submission.
   - D-22 (product lead decision): the current icon stays everywhere; if the review rejects it under 2.3.8, step (c)
-    pauses for a design request to Colo. **No icon task.**
+    pauses for a design request to the designer. **No icon task.**
 
 ### Claude's Discretion
 
@@ -106,7 +106,7 @@ and 20-12 (vocabulary sign-off) need no code from earlier steps and could run in
 | Release, beta, PAL publishing | `.github/workflows/*.yml` + `actions-tool/` | sources on `main`, never written with zero versions |
 | Apple records, keys, agreements | collaborator's App Store Connect account | D-07; agents never create them |
 | PAL processing and ADP download | AltStore REST API (`api.altstore.io`) | no account needed for `GET/POST /adps` |
-| Website pages and redirects | Leto | D-05, D-10 |
+| Website pages and redirects | Webmaster | D-05, D-10 |
 | Signal vocabulary | `AnalyticsClient` (`AnalyticsSignal`, `+Level`, `+Rendering`, `AnalyticsVocabulary`) | exhaustive switches; levels are a copy contract |
 </architectural_responsibility_map>
 
@@ -365,11 +365,11 @@ PAL version entry the filter writes:
   There is no page at `/privacy` (owner decision; addresses from the website). It must resolve before the
   submission.
 - *Amended 2026-11-11 (owner decision):* the published contact link is dropped and the support URL is the GitHub
-  repository page, https://github.com/EhPanda-Team/EhPanda; from Leto only the privacy policy URL and the PAL source
-  URL are needed. Guideline 1.5 is a Notarization guideline; 1.2 is not.
-- Needed from Leto: the privacy policy URL (same), a support URL, the published contact link (GitHub Issues), and a
-  public URL for `AltStorePAL.json` (an `ehpanda.app` redirect to `raw.githubusercontent.com/.../main/AltStorePAL.json`,
-  like `AltStore.json`'s).
+  repository page, https://github.com/EhPanda-Team/EhPanda; from the webmaster only the privacy policy URL and the PAL
+  source URL are needed. Guideline 1.5 is a Notarization guideline; 1.2 is not.
+- Needed from the webmaster: the privacy policy URL (same), a support URL, the published contact link (GitHub Issues),
+  and a public URL for `AltStorePAL.json` (an `ehpanda.app` redirect to
+  `raw.githubusercontent.com/.../main/AltStorePAL.json`, like `AltStore.json`'s).
 - `ehpanda.app` did not resolve from this machine during research (curl exit 6); 20-07 checks from the executing
   machine and, if DNS fails there too, from a GitHub-hosted run or the owner's browser.
 - "Apple-approved" wording: 20-07 greps the repository and the website pages it fetches.

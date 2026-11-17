@@ -4,7 +4,7 @@ import Foundation
 /// The block a comment report's Details starts with (18.1 D-07): which comment the report is about, because the site's
 /// report covers the whole gallery.
 ///
-/// It is English in every app language, since the site's staff read it (Camo), and the wording is the
+/// It is English in every app language, since the site's staff read it (the copywriter), and the wording is the
 /// approved copy's, so it is not a catalog key.
 enum ReportPrefill {
     /// `Reporting a comment by {name} ({date}):\n"{comment text}"\n\n`, with `{date}` as `yyyy-MM-dd HH:mm 'UTC'`

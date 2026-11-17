@@ -101,7 +101,7 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   `consent.level.none.description` are retired, and `shareAnalyticsDataFooter` stays retired (D-07). The Settings
   footer keeps its rule (the selected level's description). This also amends D-02 for one signal: the install signal
   of D-06b is new in this phase; every other new signal still waits for ANALYTICS-02.
-- **D-06b (developer's technical decision for D-06a, relayed by the lead; confirmed to Camo):** what
+- **D-06b (developer's technical decision for D-06a, confirmed to the copywriter):** what
   "Minimal" sends, exactly.
   - **Why not the SDK.** Phase 14's "your installation is still counted" came from the SDK's own signals:
     `TelemetryDeck.Session.started` on every cold launch and every foreground after 5 minutes, and
@@ -137,7 +137,7 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
     payload, and never a second one (also across a relaunch and after a level change); the SDK is never initialised
     under Minimal.
   - **Amended by D-06c:** the payload is no longer `{}`; it holds exactly one key, the install source.
-- **D-06c (amends D-06b; owner decision, developer decision relayed by the lead; copy approved by the owner):**
+- **D-06c (amends D-06b; owner decision, developer decision; copy approved by the owner):**
   the Minimal install signal also carries where the app was installed from, and nothing else.
   - **One parameter.** The one-time `App.installed` signal (at every level, as in D-06b) has exactly one payload key,
     `App.installSource`, whose value is one of a small fixed enum, `InstallSource`: `appStore`, `testFlight`,
@@ -177,7 +177,7 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   analytics title too verbose and asked for something like "what you have searched or viewed are never
   sent". `consent.body` is now one short line: "Anonymous analytics. Your searches and the galleries you
   view are never sent." (Revision 5, version B, in [18-COPY-MINIMAL.md](18-COPY-MINIMAL.md), approved in owner
- decision, six languages). It supersedes the msg-1805 `consent.body` in that file's first table and, with it, the
+ decision, six languages). It supersedes the original `consent.body` in that file's first table and, with it, the
   original first-launch `consent.body`; both are retired and must not appear in any catalog. Revision 4
   was not approved and is not used.
   - **Why it is true (developer check):** at no level does any gallery ID, title, link, tag name or search
@@ -248,12 +248,13 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
   a confirmation, then opens the gallery's report page on E-Hentai or ExHentai. There is no email, no "Report to
   EhPanda" and no support-contact fallback. This replaces prep L18's fallback and GA-3 Q1 option A. If research finds a
   per-comment report link on the site, drop the second sentence of `comment.report.confirm_body` (copy file note).
-- **D-11:** **No in-app contact option now.** The owner asked Ampo, and Ampo answered "not now".
+- **D-11:** **No in-app contact option now.** The owner asked the compliance advisor, who answered "not now".
   Prep L20's "contact details in Settings" and GA-3 Q2 (a support mailbox) are not done in this phase. Before the
-  AltStore build goes to Apple, a published contact link is needed: GitHub Issues on the website, owned by Leto. That
-  is Phase 20 work. The existing About contact list in Settings (website, GitHub, Discord, Telegram) is unchanged.
+  AltStore build goes to Apple, a published contact link is needed: GitHub Issues on the website, owned by the
+  webmaster. That is Phase 20 work. The existing About contact list in Settings (website, GitHub, Discord,
+  Telegram) is unchanged.
 - **D-12:** **The posting filter warns and still allows posting** (owner decision). This replaces GA-4
-  Q1 option A (block posting). Ampo flagged the Guideline 1.2 risk; the owner made the call. The warning:
+  Q1 option A (block posting). The compliance advisor flagged the Guideline 1.2 risk; the owner decided. The warning:
   - appears after the user taps Post, before anything is sent;
   - offers Edit (the default, which keeps the typed text) and Post Anyway;
   - never names the matched word;
@@ -276,18 +277,18 @@ Owner decisions are binding. "Prep L*n*" and "GA-*n*" refer to [18-DISCUSSION-PR
 
 ### Design dependency (UI-SPEC before UI execution)
 
-- **D-17:** Colo, the designer, owns the layout spec and mockups for the age wall, the analytics choice, the comment
+- **D-17:** The designer owns the layout spec and mockups for the age wall, the analytics choice, the comment
   report and block UI (menu items, confirmations, the posting warning, the collapsed row) and the Blocked Users list
 . The project has `workflow.ui_phase: true`. Requirements for plan-phase:
   - A UI-SPEC (`18-UI-SPEC.md`) must exist before any UI execution task: either run `/gsd-ui-phase 18` to produce the
-    design contract Colo fills or reviews, or take a UI-SPEC Colo supplies.
+    design contract the designer fills or reviews, or take a UI-SPEC the designer supplies.
   - Plans must leave that spec input for him (screens, states, approved strings, constraints such as "no default
     selection" and "Continue dimmed until ticked") and make every UI task depend on it.
   - Non-UI tasks may run first: the launch gate, the SDK lifecycle, level gating, the filter function, the block
     store, the reader rework, IN-02/IN-03 and `MKSellsDigitalGoods`.
   - Layout choices left open by the copy, such as whether the analytics choice uses a separate Continue button or
-    saves on tap, are Colo's.
-- **D-17a (amends D-17's status):** the UI-SPEC exists. Colo delivered it, revised it for D-06a/D-14a, finalised it and refreshed the Minimal line and mockups 03, 04, 13 and 21 for D-06c
+    saves on tap, are the designer's.
+- **D-17a (amends D-17's status):** the UI-SPEC exists. The designer delivered it, revised it for D-06a/D-14a, finalised it and refreshed the Minimal line and mockups 03, 04, 13 and 21 for D-06c
   , added the title line-break rule (owner decision; C-3: a title's last line is never a single
   word, or for zh/ja/ko never a single character, in any locale or text size), and took the Revision 3
   Basic line (D-06d, owner decision) into the spec and refreshed mockups 03, 04, 12 and 21, and took
@@ -365,7 +366,7 @@ They come from the prep's GA-4/GA-5 recommendations and its section 3.
 - **DD-09a (amends DD-09; owner decision; developer decision D-06b):** nothing starts before the choice. After
   it, every level sends the one install signal (D-06b); the SDK starts at Basic and Full only. Raising to Basic/Full
   starts the SDK; lowering to Minimal stops app signals at once and terminates the SDK, which then stays down. Unit
-  tests prove no request and no SDK call before the choice and no SDK initialisation under Minimal. Ato's
+  tests prove no request and no SDK call before the choice and no SDK initialisation under Minimal. The product lead's
   ("the SDK starts at every level") is met in substance by the own sender: what the owner asked for is that Minimal
   sends the install signal, and the SDK cannot send it without device details.
 - **DD-10, moderation storage:** the block list is an `@Shared` set of author names. The report and block actions go
@@ -416,7 +417,7 @@ layout, test structure and the bundled filter list's contents.
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-DISCUSSION-LOG.md`: the options
   and the owner's choices (audit trail only).
 - `.planning/phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-UI-SPEC.md` and `mockups/`:
-  Colo's final design contract (D-17a).
+  the designer's final design contract (D-17a).
 - `.planning/ROADMAP.md`, Phase 18 (and the split map at the end of that section); Phases 19 and 20 for the work that
   is not here.
 - `.planning/REQUIREMENTS.md`: AGE-18-01, CONSENT-18-01, UGC-18-01, DIST-18-01 and their 2026-11-05 amendments.
@@ -508,8 +509,8 @@ These notes come from the approved copy files and keep their intent:
 <deferred>
 ## Deferred Ideas
 
-- **Contact option:** no in-app contact option or support mailbox for now (Ampo). Phase 20 needs a published
-  contact link (GitHub Issues on the website, Leto) before the AltStore build goes to Apple.
+- **Contact option:** no in-app contact option or support mailbox for now (the compliance advisor). Phase 20 needs a
+  published contact link (GitHub Issues on the website, the webmaster) before the AltStore build goes to Apple.
 - **New analytics signals and the install source on Basic/Full:** signals for the age wall, the analytics choice and
   moderation, and the install source on the Basic/Full signals, come with ANALYTICS-02, the last plan of Phase 20
   (D-02). The install source client itself and its use in the one install signal are in this phase (D-06c).

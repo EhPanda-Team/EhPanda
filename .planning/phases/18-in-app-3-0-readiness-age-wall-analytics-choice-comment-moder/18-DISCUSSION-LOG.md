@@ -66,8 +66,8 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Q2 A: support email plus support page | | |
 | Q2 B: existing community channels only | | |
 
-**User's choice:** "E-Hentai report only" (owner decision). No contact option now: the owner asked Ampo, who answered "not now".
-**Notes:** a published contact link (GitHub Issues on the website, website owner Leto) is needed before the AltStore build goes to Apple. That is Phase 20.
+**User's choice:** "E-Hentai report only" (owner decision). No contact option now: the owner asked the compliance advisor, who answered "not now".
+**Notes:** a published contact link (GitHub Issues on the website, owned by the webmaster) is needed before the AltStore build goes to Apple. That is Phase 20.
 
 ---
 
@@ -85,7 +85,7 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Q3 B: collapse into "Comment from a blocked user" | | ✓ |
 
 **User's choice:**
-- Warn, allow posting anyway, edits included (owner decision). Ampo flagged the Guideline 1.2 risk; the owner made the call.
+- Warn, allow posting anyway, edits included (owner decision). The compliance advisor flagged the Guideline 1.2 risk; the owner made the call.
 - Blocked comments collapse into "Comment from a user you've blocked" (Show / Unblock), without the name (owner decision).
 - The Blocked Users list in Settings is included (owner decision). Comment copy approved by the owner.
 
@@ -139,7 +139,7 @@ The options come from [18-DISCUSSION-PREP.md](18-DISCUSSION-PREP.md) section 2. 
 | Q2 A: reuse the website selections for the iPhone half | | open (Phase 19) |
 | Q2 B: fresh full selection | | |
 
-**User's choice:** store screenshots are the website screenshots plus extra decorations by the designer Colo (owner decision; Colo). An AltStore listing can use only non-adult pictures (Ampo, guideline 2.3.8). Q2 was not answered; it is open in 19-CONTEXT.md.
+**User's choice:** store screenshots are the website screenshots plus extra decorations by the designer (owner decision). An AltStore listing can use only non-adult pictures (the compliance advisor, guideline 2.3.8). Q2 was not answered; it is open in 19-CONTEXT.md.
 
 ---
 

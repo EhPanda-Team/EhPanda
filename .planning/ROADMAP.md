@@ -1359,7 +1359,7 @@ Phase 17 is complete (2026-11-05) at the reduced scope above. The moved plans ar
 ### Phase 18: In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework
 
 **Goal**: Finish every in-app change 3.0 needs, in every build, before the visual baseline and distribution work start. Every user, upgraders included, sees two first-launch screens once: an age wall, then an analytics choice (None / Basic / Full, nothing pre-selected); no content, network request or analytics SDK start happens before them. Comments gain an E-Hentai report action, a posting warning and local blocking with a Blocked Users list in Settings (App Review Guideline 1.2). The reader gets one source of truth for its current page, with committed UI tests for Phase 17's gaps G1/G2. The other in-app carries from Phase 17 (IN-02, IN-03) and the app-code release fix (`MKSellsDigitalGoods`) land here too.
-**Depends on**: Phase 17. UI tasks also wait for the UI-SPEC from the designer (Colo), or for `/gsd-ui-phase 18`.
+**Depends on**: Phase 17. UI tasks also wait for the UI-SPEC from the designer, or for `/gsd-ui-phase 18`.
 **Requirements**: AGE-18-01, CONSENT-18-01, UGC-18-01 (report, posting warning, blocking; the contact part maps to Phase 20), DIST-18-01 (`MKSellsDigitalGoods` only; the marketplace build flavor maps to Phase 20). Carried from Phase 17's close without an ID: the reader page-tracking rework with the G1/G2 UI tests, and IN-02/IN-03.
 
 **Scope and owner decisions** (context: [18-CONTEXT.md](phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-CONTEXT.md)):
@@ -1367,9 +1367,9 @@ Phase 17 is complete (2026-11-05) at the reduced scope above. The moved plans ar
 1. Split (owner decision, 2026-11-05): the original Phase 18 becomes three phases. This phase is the in-app work; Phase 19 takes visual regression and the marketing export, Phase 20 distribution. The split map is at the end of this section.
 2. First launch (owner decision): two screens, everyone once: the age wall, then the analytics choice. Upgraders from 2.x and the 3.0.0 pre-release see both too. The age-wall checkbox sentence is the owner-approved website sentence, unchanged and with no list of examples.
 3. Analytics (owner decision): levels None / Basic / Full, none pre-selected. The SDK does not start before the choice, and never with None. A Settings picker replaces today's toggle.
-4. Comments (owner decision): reporting goes to E-Hentai only (the gallery's report page; no email). No in-app contact option now (Ampo); the published contact link is Phase 20 work. A comment that trips the filter gets a warning and can be posted anyway, edits included. A blocked user's comments collapse into "Comment from a user you've blocked" (Show / Unblock, name not shown). Settings gets a Blocked Users list.
+4. Comments (owner decision): reporting goes to E-Hentai only (the gallery's report page; no email). No in-app contact option now (the compliance advisor); the published contact link is Phase 20 work. A comment that trips the filter gets a warning and can be posted anyway, edits included. A blocked user's comments collapse into "Comment from a user you've blocked" (Show / Unblock, name not shown). Settings gets a Blocked Users list.
 5. Copy (owner decision): the approved six-language strings in [18-COPY-FIRST-LAUNCH.md](phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-FIRST-LAUNCH.md) and [18-COPY-COMMENTS.md](phases/18-in-app-3-0-readiness-age-wall-analytics-choice-comment-moder/18-COPY-COMMENTS.md) are canonical and used verbatim.
-6. Design: Colo owns the layout spec and mockups for the age wall, the analytics choice, the comment report/block UI and the Blocked Users list. Plans leave a UI-SPEC input for him; UI execution waits for it.
+6. Design: the designer owns the layout spec and mockups for the age wall, the analytics choice, the comment report/block UI and the Blocked Users list. Plans leave a UI-SPEC input for him; UI execution waits for it.
 7. Carried from Phase 17's close: the reader page-tracking rework to one source of truth (owner decision, product lead decision; was Step 4b) with committed UI tests for G1/G2, and the code-review items IN-02 and IN-03 (owner decision; was part of Step 7), closed before Phase 20's final Release scan.
 8. App-code release fix: `MKSellsDigitalGoods` = `NO` in `App/Info.plist`, for every build (DIST-18-01; was part of Step 1).
 
@@ -1435,7 +1435,7 @@ Plans:
 **Goal:** Replace Phase 18's report alert and web sheet with EhPanda's own native "Report on {site}" form for comments (owner decision, "Our own form"): two reasons only, child pornography and other illegal content (owner decision), a required email that is never stored, Details prefilled in English with the reported comment, and Send Report in a pinned bar with no background (owner decision). The form posts the site's own report fields to the gallery's site; the site's report page stays as the fallback. There are no gallery reports, now or later, unless distribution is blocked without them (owner decision).
 **Requirements**: UGC-18-01 (native report route)
 **Depends on:** Phase 18
-**Context:** [`18.1-CONTEXT.md`](phases/18.1-native-report-form/18.1-CONTEXT.md); design contract UI-SPEC C-13 in the Phase 18 spec (Colo, mockups 25–31, 33, 34); copy [`18.1-COPY-REPORT-FORM.md`](phases/18.1-native-report-form/18.1-COPY-REPORT-FORM.md) (approved, owner decision).
+**Context:** [`18.1-CONTEXT.md`](phases/18.1-native-report-form/18.1-CONTEXT.md); design contract UI-SPEC C-13 in the Phase 18 spec (the designer, mockups 25–31, 33, 34); copy [`18.1-COPY-REPORT-FORM.md`](phases/18.1-native-report-form/18.1-COPY-REPORT-FORM.md) (approved, owner decision).
 
 **Success Criteria** (what must be TRUE):
   1. Report on a comment by someone else opens the native form directly, from the comments list and the Detail strip, with no alert; the retired confirm strings are gone.
@@ -1552,8 +1552,8 @@ Cross-cutting constraints:
 
 1. Marketplace build (owner decision): same features as the GitHub IPA, listed on AltStore PAL only; something is hidden only if Apple objects. Its own bundle ID comes through the existing `BUNDLE_ID_SUFFIX` setting, for the app and the share extension.
 2. Apple-service actions (App IDs, the app record, certificates, API keys, marketplace registration, trader status) happen in the collaborator's App Store Connect account, by the collaborator or with the owner's explicit OK at that time; agents never create them on their own.
-3. Store screenshots (owner decision): the website screenshots plus extra decorations by the designer Colo, who starts when this phase starts. The AltStore listing uses only non-adult pictures (guideline 2.3.8). This covers the AltStore promotional images moved from Phase 17 (17-22). No "Apple-approved" wording anywhere.
-4. Website dependencies (website owner Leto): the privacy policy URL and the PAL source's public URL, and a support URL, needed before the AltStore build goes to Apple (Ampo). The website privacy page is rewritten for the three analytics levels when 3.0 ships, not before.
+3. Store screenshots (owner decision): the website screenshots plus extra decorations by the designer, who starts when this phase starts. The AltStore listing uses only non-adult pictures (guideline 2.3.8). This covers the AltStore promotional images moved from Phase 17 (17-22). No "Apple-approved" wording anywhere.
+4. Website dependencies (the webmaster): the privacy policy URL and the PAL source's public URL, and a support URL, needed before the AltStore build goes to Apple (the compliance advisor). The website privacy page is rewritten for the three analytics levels when 3.0 ships, not before.
    *Amended 2026-11-11 (owner decision; product lead decision):* The website gets no GitHub Issues link (owner decision; product lead decision): its existing GitHub link is enough, and installation questions are not answered. The published contact link is out of the 3.0 plan. The App Store Connect Support URL is the GitHub repository page, https://github.com/EhPanda-Team/EhPanda, whose Issues tab is the contact route; no website change is needed for it. Basis: Apple's guideline 1.5 (Developer Information: the app and its Support URL include an easy way to contact you) is one of the Notarization Review Guidelines; guideline 1.2 (UGC, published contact information) is not (checked 2026-11-11 at https://developer.apple.com/app-store/review/guidelines/).
 5. Release mechanics (REL-18-01): build number above 158; `AltStore.json` keeps its version history and shows non-explicit screenshots; the AltStore download URL resolves to the release's actual asset. Owner decision, "Tagging is not your business": no tag-style decision, no plan to remove or rename the `3.0.0` tag, no tag creation and no release order in the plans.
 6. Real-device checks on owner hardware (DEV-18-01): the iPad Gallery Detail stall on a Release build, continued background downloads on an iPhone.
@@ -1579,7 +1579,7 @@ Ordered plan outline (CONTEXT D-14; product lead decision; old step numbers are 
 - **(a) Marketplace build flavor and release mechanics fixes** (was Step 1 without `MKSellsDigitalGoods` and without the tag checkpoint; REL-18-01, DIST-18-01): `Config/Marketplace.xcconfig` with the channel stamp set at build time, `PrivacyInfo.xcprivacy` (D-18), the build-number check in `deploy.yml` and the bump above 158. **Checkpoint (owner):** creating `EhPanda-Team/ehpanda-assets` on GitHub (D-17).
 - **(b) PAL source JSON** (was part of Step 9; DIST-18-02): template, `assetURLs` support in the version filter, checks.
 - **(c) Notarization CI job** (was Step 10; DIST-18-03). **Checkpoints (collaborator and owner, at the time):** Apple-account setup, keys, secrets and the first submission with the App Manager key test (D-07, D-21).
-- **(d) Website dependencies check** (Leto): privacy policy, the support URL (the GitHub repository page), the PAL source URL. *Amended 2026-11-11 (owner decision):* the published contact link and the support page are dropped.
+- **(d) Website dependencies check** (the webmaster): privacy policy, the support URL (the GitHub repository page), the PAL source URL. *Amended 2026-11-11 (owner decision):* the published contact link and the support page are dropped.
 - **(e) Real-device checks** (was Step 11; DEV-18-01). **Checkpoint (owner hardware).**
 - **(f) Needs Phase 19** (D-14): PAL listing assets and store screenshots from the approved reference set (MKT-18-01 remaining part, from 17-22; the current icon is kept, D-22), and the release's reliance on the screenshot check. **Checkpoint (owner):** store screenshots and listing assets.
 - **(g) Analytics revision** (was Step 12; ANALYTICS-02; the distribution channel is already in the install signal, D-06).
@@ -1591,7 +1591,7 @@ Plans:
 
 - [x] 20-01-PLAN.md — the marketplace flavor (`Config/Marketplace.xcconfig`, channel stamp as a build setting), its hand-off scheme, and `PrivacyInfo.xcprivacy`
 - [x] 20-02-PLAN.md — the build-number check in `deploy.yml`, the bump above 158, history and URL tests *(checkpoint: owner OK to create and push `EhPanda-Team/ehpanda-assets`)*
-- [ ] 20-07-PLAN.md — the "Apple-approved" wording guard and the website check *(checkpoint: Leto, privacy and PAL source URLs live; amended 2026-11-11, owner decision: no contact link, support URL is the GitHub repository page)*
+- [ ] 20-07-PLAN.md — the "Apple-approved" wording guard and the website check *(checkpoint: the webmaster, privacy and PAL source URLs live; amended 2026-11-11, owner decision: no contact link, support URL is the GitHub repository page)*
 - [x] 20-09-PLAN.md — real-device checks *(checkpoints: owner hardware — iPad Release stall, iPhone background downloads; done 2026-11-09, `20-09-SUMMARY.md`)*
 - [x] 20-12-PLAN.md — the analytics vocabulary proposal *(checkpoint: product lead and owner sign-off, OQ-E)*
 
@@ -1623,4 +1623,4 @@ Plans:
 
 **Wave 8** *(blocked on Waves 4 to 7, 20-07, and the 3.0 GitHub and Classic release, D-26)* — (c), the PAL submission
 
-- [ ] 20-08-PLAN.md — the first live submission, which is also the final build; the App Manager key test, Apple's verdict and a dry-run publish *(checkpoints: OQ-A/OQ-B as D-26 settles them; owner OK per dispatch; real ADP layout; pauses for Colo if the icon is rejected under 2.3.8, D-22)*
+- [ ] 20-08-PLAN.md — the first live submission, which is also the final build; the App Manager key test, Apple's verdict and a dry-run publish *(checkpoints: OQ-A/OQ-B as D-26 settles them; owner OK per dispatch; real ADP layout; pauses for the designer if the icon is rejected under 2.3.8, D-22)*
