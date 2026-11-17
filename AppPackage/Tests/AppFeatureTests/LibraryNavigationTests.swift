@@ -8,6 +8,7 @@ import CustomDump
 import DetailFeature
 import DownloadsFeature
 import FavoritesFeature
+import Foundation
 import Testing
 
 @Suite
@@ -28,16 +29,25 @@ struct LibraryNavigationTests {
     @MainActor
     @Test
     func phoneEntryUsesRememberedFavoritesWithoutResettingItsNavigation() async {
-        var initialState = AppReducer.State()
-        initialState.favoritesState.favoritesIndex = 3
-        initialState.favoritesState.path.append(.detail(.init(gallery: .preview)))
-        initialState.favoritesState.keyword = "remembered query"
-        let store = TestStore(initialState: initialState, reducer: AppReducer.init)
+        let appStorage = UserDefaults.inMemory
+        let (initialState, store) = withDependencies {
+            $0.defaultAppStorage = appStorage
+        } operation: {
+            var initialState = AppReducer.State()
+            initialState.favoritesState.favoritesIndex = 3
+            initialState.favoritesState.path.append(.detail(.init(gallery: .preview)))
+            initialState.favoritesState.keyword = "remembered query"
+            let store = TestStore(initialState: initialState, reducer: AppReducer.init) {
+                $0.defaultAppStorage = appStorage
+            }
+            return (initialState, store)
+        }
 
         await store.send(.library(.deviceChanged(.other))) {
             $0.libraryState.device = .other
+            $0.libraryState.$pickerChoice.withLock({ $0 = LibraryPickerChoice(group: .favorites(3)) })
         }
-        await store.receive(\.library.showInitialFavorites) {
+        await store.receive(\.library.showInitialSelection) {
             $0.libraryState.selection = .favorites(3)
         }
         await store.receive(\.favorites.setFavoritesIndex, 3)
@@ -48,12 +58,12 @@ struct LibraryNavigationTests {
 
     @MainActor
     @Test
-    func delayedInitialFavoritesDoesNotReplaceAnExplicitDownloadSelection() async {
+    func delayedInitialSelectionDoesNotReplaceAnExplicitDownloadSelection() async {
         var initialState = AppReducer.State()
         initialState.libraryState.selection = .downloads(.all)
         let store = TestStore(initialState: initialState, reducer: AppReducer.init)
 
-        await store.send(.library(.showInitialFavorites))
+        await store.send(.library(.showInitialSelection))
         await store.finish()
         #expect(store.state.libraryState.selection == .downloads(.all))
     }
