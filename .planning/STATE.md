@@ -5,10 +5,10 @@ current_phase: 20
 current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks"
 status: executing
 stopped_at: Completed 20-14-PLAN.md (Release isolation scan, both flavors 0 findings; phase gate green)
-last_updated: "2026-11-17T09:18:14.685Z"
-last_activity: 2026-11-11
-last_activity_desc: "20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
-state_head: d6944586b5add49dfa32bbf642233b28429a8f99
+last_updated: "2026-11-17T15:10:53.851Z"
+last_activity: 2026-11-18
+last_activity_desc: "Quick task 261117-tyj completed: the compact Library picker remembers its last choice across launches (the sidebar does not), and a user-deleted gallery, singly or by folder, leaves the continued-download card's pages and galleries count. Earlier, 20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
+state_head: 9b79a2a121c16d803d4e10a87a77d1ee76bdc6c8
 progress:
   total_phases: 21
   completed_phases: 19
@@ -924,7 +924,7 @@ See: .planning/PROJECT.md (updated 2026-11-05)
 Phase: 20 — 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks
 Plan: Not started (no plans yet)
 Status: Ready to discuss and plan; Phase 19 complete with deferred items
-Last activity: 2026-11-11 — Phase 19 closed (15/17 plans; deferred items recorded)
+Last activity: 2026-11-18 - Completed quick task 261117-tyj: Library picker reset and download card galleries count fixed
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
 validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); Phase 18.1 closed
@@ -1983,6 +1983,7 @@ None yet.
 | 16 | Commit website screenshot recapture records and discard incomplete Phase 17 drafts | 2026-11-04 | 22b7a3b3e | — |
 | 261104-website-recapture | Regenerate ten website screenshots with no home indicator in capture launches | 2026-11-04 | 33dbf648b + capture policy | [261104-website-recapture](./quick/261104-website-recapture/SUMMARY.md) |
 | 16 | Replace agent names, chat message IDs, a page link and chat routes in planning records and comments with roles and plain wording | 2026-11-17 | — | — |
+| 261117-tyj | Fix the Library picker reset (remember the compact picker's choice) and the download card's galleries count (a user deletion leaves the session) | 2026-11-18 | 9b79a2a12 | [261117-tyj-fix-library-picker-reset-and-download-ca](./quick/261117-tyj-fix-library-picker-reset-and-download-ca/) |
 
 ### Roadmap Evolution
 

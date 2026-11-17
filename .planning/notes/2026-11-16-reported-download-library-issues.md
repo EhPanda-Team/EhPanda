@@ -34,14 +34,14 @@ implementation is recorded by this note.
 
 ## 2. Library picker does not remember the last selection — reported bug
 
-**Status: recorded/deferred per owner decision. Investigation and implementation are not authorized now.**
+**Status: fixed by quick task 261117-tyj (owner authorized 2026-11-17; decisions A-1, A-2).** The compact picker's last choice is remembered across launches; the sidebar is not. See `.planning/quick/261117-tyj-fix-library-picker-reset-and-download-ca/`.
 
 The owner reports that the Library picker does not remember the last selection and resets to
 Favorites. This is owner-reported and unverified. Persistence and session boundaries are unspecified.
 
 ## 3. Incorrect data on a download card — reported bug
 
-**Status: recorded/deferred per owner decision. Investigation and implementation are not authorized now.**
+**Status: fixed by quick task 261117-tyj (owner authorized 2026-11-17; decisions B-1 to B-3).** The count was not delta-tracked: deleted galleries stayed in the session ledger by design (D-G2C-01). A user deletion, singly or by folder, now leaves X, Y and N. See `.planning/quick/261117-tyj-fix-library-picker-reset-and-download-ca/`.
 
 The owner reports incorrect data on a download card. The exact field and incorrect/expected values
 are unknown; reproduction is not confirmed.
@@ -65,12 +65,12 @@ downloads, the owner saw the count go up, but it still included the galleries de
 Owner's impression: every queue action seems to apply only its own change to the count (+1 on
 add, −1 on removal), and no action recounts the galleries actually in the current queue.
 
-This is an owner observation and impression, not a verified finding or diagnosis. It does not change
-this item's deferred status.
+This was an owner observation and impression; quick task 261117-tyj's investigation found the cause
+recorded in the status line above.
 
 ## Authorization boundary
 
-All three items remain recorded/deferred per owner decision. Investigation and implementation are
-explicitly **not authorized now**. This documentation-only capture creates no new phase, changes no
+Item 1 remains recorded/deferred per owner decision: its investigation and implementation are
+explicitly **not authorized now**. Items 2 and 3 were fixed by quick task 261117-tyj. This documentation-only capture creates no new phase, changes no
 ROADMAP, STATE or verification status, and grants no authorization for source changes, tests, builds,
 app runs, simulator, NAS or network operations. Further work requires separate owner authorization.
