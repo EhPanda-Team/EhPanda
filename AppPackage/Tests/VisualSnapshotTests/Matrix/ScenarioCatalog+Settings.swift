@@ -61,11 +61,11 @@ extension ScenarioCatalog {
             // At accessibility5 the rows above Clear Image Cache could still grow after it was placed, and the row
             // sat at three heights (run 43451019962): it is placed again until it stays.
             "settings-pages-general-cache-confirmation": .init(
-                make: { Page.general(level: nil, action: .clearImageCacheButtonTapped) },
+                make: { Page.general(level: .basic, action: .clearImageCacheButtonTapped) },
                 interact: RevealStep.reveal(.label(String(localized: .clearImageCache)), holdingPlacement: true)
             ),
             "settings-pages-general-translations-confirmation": .init(
-                make: { Page.general(level: nil, action: .removeCustomTranslationsButtonTapped) },
+                make: { Page.general(level: .basic, action: .removeCustomTranslationsButtonTapped) },
                 interact: RevealStep.reveal(.label(String(localized: .removeCustomTranslations)), settlingSteps: true)
             ),
             "settings-pages-activity-logs": .init(make: { Page.activityLogs(filled: true) }),
@@ -197,11 +197,13 @@ enum SettingsScenarios {
 
     // MARK: Settings pages
 
-    /// General, with the analytics level chosen (or none). `action`, if any, is the user's tap on the page that
-    /// presents a dialog; at accessibility5 its row is below the fold, so it is tapped once the row is shown. The
+    /// General, with the analytics level chosen: Settings opens only after the first launch's choice, so a page
+    /// without a level is never shown (the picker drew no value and no footer in candidate run 44025665174). The
+    /// dialogs' pictures take Basic, the recommended level. `action`, if any, is the user's tap on the page that
+    /// presents a dialog; its row can be below the fold, so it is tapped once the row is shown. The
     /// cache size is the one the preview library client reports; removing translations needs a custom table, which
     /// the synthetic translations stand in for.
-    static func general(level: AnalyticsLevel?, action: GeneralSettingReducer.Action? = nil) -> AnyView {
+    static func general(level: AnalyticsLevel, action: GeneralSettingReducer.Action? = nil) -> AnyView {
         @Shared(.setting) var setting
         $setting.withLock({ $0.analyticsLevel = level })
         if action == .removeCustomTranslationsButtonTapped {
