@@ -409,7 +409,7 @@ struct UITestStubTests {
     /// a PNG.
     @Test
     func multiPageViewerAndPageImagesAreWhatTheReaderParses() throws {
-        let page = String(decoding: UITestStubURLProtocol.multiPageViewerPage(), as: UTF8.self)
+        let page = try #require(String(bytes: UITestStubURLProtocol.multiPageViewerPage(), encoding: .utf8))
         #expect(page.contains("mpvkey = \"stubmpvkey\";\nvar imagelist = [{"))
         #expect(page.contains("{\"n\":\"156.png\",\"k\":\"stubkey156\"}]"))
         #expect(UITestStubURLProtocol.pageImage(number: 5).starts(with: [0x89, 0x50, 0x4E, 0x47]))
@@ -479,7 +479,7 @@ struct UITestStubTests {
         let tagAnswer = try #require(
             try UITestStubURLProtocol.apiAnswer(requestBody: tag, fixtureDirectory: directory)
         )
-        #expect(String(decoding: tagAnswer, as: UTF8.self) == "{}")
+        #expect(String(bytes: tagAnswer, encoding: .utf8) == "{}")
 
         let dispatch = try JSONSerialization.data(withJSONObject: ["method": "imagedispatch", "gid": 1, "page": 7])
         let dispatchAnswer = try #require(
