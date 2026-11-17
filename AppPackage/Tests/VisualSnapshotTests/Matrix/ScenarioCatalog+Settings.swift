@@ -224,6 +224,12 @@ enum SettingsScenarios {
     /// The form sizes its rows as they are built, so its content grows as it scrolls. At accessibility5 one move to
     /// the bottom it reported first stopped short, above the analytics section, and the three levels' pictures were
     /// the same (run 43403534542); there the move is repeated until the bottom stays put. Other sizes reach it in one.
+    ///
+    /// The page rests where a user's scroll would: a large title is either expanded or collapsed once a drag ends,
+    /// never partway, because UIKit snaps it. A page only a little taller than the window (General in Korean on the
+    /// phone, 47 points) has its bottom inside the title's collapse, and resting there left the title halfway over
+    /// the first row. So the title is collapsed first, and the page rests at its bottom or at the collapsed title's
+    /// top, whichever is further down: with the title collapsed such a page fits, as the user sees it.
     static func scrollToBottom(_ window: UIWindow) async throws {
         _ = await HostedWindowCapture.settle(window)
         let root = try XCTUnwrap(window.rootViewController?.view)
@@ -232,15 +238,25 @@ enum SettingsScenarios {
                 try await ContinuousClock().sleep(for: .milliseconds(100))
             }
             var moved = false
-            for list in scrollViews(in: root) {
-                let bottom = list.contentSize.height - list.bounds.height + list.adjustedContentInset.bottom
-                guard bottom > list.contentOffset.y else { continue }
-                list.setContentOffset(CGPoint(x: list.contentOffset.x, y: bottom), animated: false)
+            for list in scrollViews(in: root) where restAtBottom(list, in: root) {
                 moved = true
             }
-            root.layoutIfNeeded()
             guard moved else { return }
         }
+    }
+
+    /// Moves `list` to its resting place at the bottom (``scrollToBottom(_:)``). Returns whether it moved.
+    private static func restAtBottom(_ list: UIScrollView, in root: UIView) -> Bool {
+        let bottom = list.contentSize.height - list.bounds.height + list.adjustedContentInset.bottom
+        guard bottom > list.contentOffset.y else { return false }
+        // Past the content's end the title has collapsed whatever its height; the insets then hold the collapsed bar.
+        list.setContentOffset(CGPoint(x: list.contentOffset.x, y: bottom + list.bounds.height), animated: false)
+        root.layoutIfNeeded()
+        let collapsedTop = -list.adjustedContentInset.top
+        let rest = max(list.contentSize.height - list.bounds.height + list.adjustedContentInset.bottom, collapsedTop)
+        list.setContentOffset(CGPoint(x: list.contentOffset.x, y: rest), animated: false)
+        root.layoutIfNeeded()
+        return true
     }
 
     /// Laboratory's cell is interactive glass. On the phone in landscape its shadow can still step after the window
