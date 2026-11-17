@@ -401,7 +401,9 @@ final class UITestStubURLProtocol: URLProtocol {
     private func loadGalleryMetadata(url: URL, fixtureDirectory: URL?) {
         do {
             if let fixtureDirectory, let body = Self.body(of: request),
-               let data = try Self.apiAnswer(requestBody: body, fixtureDirectory: fixtureDirectory) {
+               let data = try Self.commentVotes.withLock({ votes in
+                   try Self.apiAnswer(requestBody: body, fixtureDirectory: fixtureDirectory, commentVotes: &votes)
+               }) {
                 finish(statusCode: 200, data: data, url: url, mimeType: "application/json")
                 return
             }
@@ -457,7 +459,11 @@ final class UITestStubURLProtocol: URLProtocol {
     /// An image dispatch names the numbered page image the stub serves itself. A comment vote
     /// is answered as the site answers it: the same direction again withdraws the vote, another direction replaces
     /// it, and the score is the saved page's score for the comment plus the vote now held.
-    static func apiAnswer(requestBody: Data, fixtureDirectory: URL) throws -> Data? {
+    ///
+    /// `commentVotes` is the ledger the vote is held in (by comment ID, `1` up, `-1` down). The caller owns it: a
+    /// launch keeps one for its whole life, and a unit test keeps its own, so cases sharing a test process, or
+    /// repeating in it, never see one another's votes.
+    static func apiAnswer(requestBody: Data, fixtureDirectory: URL, commentVotes: inout [Int: Int]) throws -> Data? {
         guard let request = try JSONSerialization.jsonObject(with: requestBody) as? [String: Any],
               let method = request["method"] as? String
         else { return nil }
@@ -478,11 +484,8 @@ final class UITestStubURLProtocol: URLProtocol {
                 contentsOf: fixtureDirectory.appending(path: "GalleryDetail.html"),
                 encoding: .utf8
             )
-            let vote = commentVotes.withLock { votes in
-                let held = votes[commentID] == direction ? 0 : direction
-                votes[commentID] = held == 0 ? nil : held
-                return held
-            }
+            let vote = commentVotes[commentID] == direction ? 0 : direction
+            commentVotes[commentID] = vote == 0 ? nil : vote
             let score = savedCommentScore(commentID: commentID, in: page) + vote
             return try JSONSerialization.data(
                 withJSONObject: ["comment_id": commentID, "comment_score": score, "comment_vote": vote],

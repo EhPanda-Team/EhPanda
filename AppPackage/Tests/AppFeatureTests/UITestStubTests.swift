@@ -493,13 +493,17 @@ struct UITestStubTests {
         <span id="comment_score_990001" style="opacity:1.0">+10</span>
         """.utf8).write(to: directory.appending(path: "GalleryDetail.html"))
 
+        var commentVotes = [Int: Int]()
+        func answer(_ body: Data) throws -> Data? {
+            try UITestStubURLProtocol.apiAnswer(
+                requestBody: body, fixtureDirectory: directory, commentVotes: &commentVotes
+            )
+        }
         func vote(_ direction: Int) throws -> [String: Int] {
             let body = try JSONSerialization.data(withJSONObject: [
                 "method": "votecomment", "comment_id": 990_001, "comment_vote": direction
             ])
-            let data = try #require(
-                try UITestStubURLProtocol.apiAnswer(requestBody: body, fixtureDirectory: directory)
-            )
+            let data = try #require(try answer(body))
             return try #require(try JSONSerialization.jsonObject(with: data) as? [String: Int])
         }
 
@@ -509,20 +513,16 @@ struct UITestStubTests {
         expectNoDifference(try vote(1), ["comment_id": 990_001, "comment_score": 11, "comment_vote": 1])
 
         let tag = try JSONSerialization.data(withJSONObject: ["method": "taggallery", "tags": "a:b", "vote": 1])
-        let tagAnswer = try #require(
-            try UITestStubURLProtocol.apiAnswer(requestBody: tag, fixtureDirectory: directory)
-        )
+        let tagAnswer = try #require(try answer(tag))
         #expect(String(data: tagAnswer, encoding: .utf8) == "{}")
 
         let dispatch = try JSONSerialization.data(withJSONObject: ["method": "imagedispatch", "gid": 1, "page": 7])
-        let dispatchAnswer = try #require(
-            try UITestStubURLProtocol.apiAnswer(requestBody: dispatch, fixtureDirectory: directory)
-        )
+        let dispatchAnswer = try #require(try answer(dispatch))
         let dispatched = try #require(try JSONSerialization.jsonObject(with: dispatchAnswer) as? [String: String])
         expectNoDifference(dispatched, ["i": "https://fixtures.ehpanda.invalid/page/7.png", "s": "1"])
 
         let rating = try JSONSerialization.data(withJSONObject: ["method": "rategallery", "gid": 1])
-        #expect(try UITestStubURLProtocol.apiAnswer(requestBody: rating, fixtureDirectory: directory) == nil)
+        #expect(try answer(rating) == nil)
     }
 
     private func post(_ body: [String: Any], in session: URLSession) async throws -> (data: Data, statusCode: Int) {
