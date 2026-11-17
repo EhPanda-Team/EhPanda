@@ -46,7 +46,7 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
 
 - **Inventory.** `AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json` (schema 2) lists every scenario and
   its not-applicable rules, each with a reason. `python3 Scripts/visual/snapshot_matrix.py --totals` prints the
-  current totals: 137 scenarios, 19,728 coordinates, 360 not applicable (five by-design rules, 72 each), 19,368
+  current totals: 138 scenarios, 19,872 coordinates, 360 not applicable (five by-design rules, 72 each), 19,512
   expected pictures. `ScenarioInventoryTests` fails on any inventory ID without a factory.
   What a process cannot draw is listed under `notCaptured`: the keyboard, live web content, the share sheet and the
   file importer.
@@ -223,9 +223,25 @@ fingerprints. A picture whose hash differs, a missing one and an unlisted file a
 `baseline-mismatch`, naming the key; a baseline edited in the snapshot repository therefore never reaches a
 comparison. Exit status: 0 match, 3 mismatch, 4 no approved baseline yet, 1 the fetch itself failed.
 
-**Status.** Neither the repository nor the two files exist yet (deferred with the candidate run, owner msg 3428).
-`snapshot_publish.py`, which assembles a candidate run's pictures into this layout, fingerprints them and plans the
-slice commits, belongs to that deferred work and is not in this directory yet.
+**Publishing.** `snapshot_publish.py` turns a candidate run's `pictures-*` downloads into an approved set and puts it
+in a local clone of the snapshot repository. It never pushes; each push needs the owner's go-ahead.
+
+```sh
+gh run download RUN --repo EhPanda-Team/EhPanda --pattern 'pictures-*' --dir ARTIFACTS
+python3 Scripts/visual/snapshot_publish.py assemble --artifacts ARTIFACTS --out SET
+python3 Scripts/visual/snapshot_publish.py plan --set SET
+python3 Scripts/visual/snapshot_publish.py push --set SET --repo CLONE --tag baseline-1 --approval APPROVAL.json
+python3 Scripts/visual/snapshot_publish.py pin --set SET --repo CLONE --tag baseline-1 \
+  --out AppPackage/Tests/VisualSnapshotTests/Baseline/fingerprints.json
+```
+
+`assemble` takes each coordinate's picture from the latest attempt that recorded it, checks it against its result
+line and fails on any key outside the inventory or any expected coordinate without a picture. `plan` lists the 12
+device-and-language commits and fails on one over 1.8 GB. `push` makes those commits and the approval commit with
+`baseline.json` and the tag, dated `+08:00`, and prints the push commands. `pin` checks that the tagged commit holds
+exactly the set and writes the pinned fingerprints. The snapshot repository's README is `snapshot-repo-README.md`.
+
+**Status.** The repository and the two pinned files do not exist yet (the baseline was deferred, owner msg 3428).
 
 # Report
 
