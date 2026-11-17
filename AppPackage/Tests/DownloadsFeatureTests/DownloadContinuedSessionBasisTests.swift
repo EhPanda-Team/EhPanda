@@ -27,7 +27,8 @@ import Testing
 ///
 /// **Choreography discipline.** Record state comes only from fixture manifests, `writePageFiles`,
 /// the production announcing preparation, and production flushes — never from the ledger suite's
-/// manual index-patch seam, which stays private to that file deliberately. Departures are the
+/// manual index-patch seam (`DownloadFeatureManifestPatching.swift`), which only the ledger and
+/// deletion suites use, deliberately. Departures are the
 /// product's own `pause`. The correction's push is the announcing wrapper's own. The only
 /// test-issued pushes are macro-cadence ones between settled steps, which is this suite family's
 /// documented idiom for asserting arithmetic rather than scheduling timing.

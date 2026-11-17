@@ -31,7 +31,8 @@ import Testing
 ///
 /// **Choreography discipline**, carried over from both sibling files. Record state comes only from
 /// fixture manifests, `writePageFiles` and production routes — never from the ledger file's
-/// private index-patch seam, which stays private to that file deliberately — and every push
+/// index-patch seam (`DownloadFeatureManifestPatching.swift`), which only the ledger and deletion
+/// suites use, deliberately — and every push
 /// asserted is production-issued: the session ensure inside `retryPages`, its convergence pushes,
 /// the preparation's own announcement, and the drain's.
 extension DownloadContinuedSessionLedgerTests {

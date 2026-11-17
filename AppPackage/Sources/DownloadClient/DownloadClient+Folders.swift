@@ -175,6 +175,8 @@ extension DownloadCoordinator {
             await queueStore.remove(gid)
             await backgroundTaskStore.removeAll(for: gid)
             downloadIndex[gid] = nil
+            // Deleting a folder is a user deletion too (B-2): each gallery leaves the continued session (B-1).
+            withdrawDeletedGalleryFromSession(gid: gid)
             releaseScheduling(gid: gid)
         }
         userFolders.removeAll { $0 == name }

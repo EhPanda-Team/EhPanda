@@ -164,22 +164,22 @@ struct DownloadSourceInventoryTests {
     /// This is the inventory `lastPushedCompletedPageCount`'s own doc carries, and that doc used to
     /// close by asking the reader to re-run the grep it was derived from. It now names this table
     /// instead. The four in `+ContinuedSession.swift` are the session-start reset, the seed from the
-    /// opening snapshot before the client start's hop, the teardown zero and the per-push re-latch; the one in
-    /// `+ExecutionSupport.swift` is D-G7-01's withdrawal, whose single implementation serves ALL of
-    /// its call sites — which is why one rule counts once here.
+    /// opening snapshot before the client start's hop, the teardown zero and the per-push re-latch.
+    /// The one in `+ExecutionSupport.swift` is D-G7-01's withdrawal, whose single implementation
+    /// serves ALL of its call sites, and the one in `+ContinuedSessionDeletion.swift` is the user
+    /// deletion's withdrawal (B-1), a separate rule that no bracket wraps.
     ///
-    /// That last clause is also this table's blind spot, stated rather than left to be discovered:
-    /// counting assignments means the number stays 5 however many callers the bracket grows, so a
-    /// new call site is structurally invisible here. `expectedBracketCallSites` below is what owns
-    /// the caller count, and it exists because a round added a fourth caller while three
-    /// load-bearing sentences went on saying three and two.
+    /// The bracket's single implementation is also this table's blind spot, stated rather than left
+    /// to be discovered: the number stays 6 however many callers the bracket grows, so a new call
+    /// site is structurally invisible here. `expectedBracketCallSites` below owns the caller count.
     private static let expectedFloorWriters = [
         "DownloadClient+ContinuedSession.swift": 4,
+        "DownloadClient+ContinuedSessionDeletion.swift": 1,
         "DownloadClient+ExecutionSupport.swift": 1
     ]
 
     /// The floor table's sum, asserted the same way and for the same reason.
-    private static let expectedFloorWriterTotal = 5
+    private static let expectedFloorWriterTotal = 6
 
     /// Every call of the D-G7-01 counted-basis bracket, named per file.
     ///

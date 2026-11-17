@@ -21,8 +21,8 @@ import Testing
 ///
 /// **Choreography discipline**, carried over because every case here relies on it. Record state
 /// comes only from fixture manifests, `writePageFiles` and the production announcing preparation —
-/// never from the ledger suite's manual index-patch seam, which stays private to that file
-/// deliberately. Each case asserts on the announcement's OWN push, pinned by
+/// never from the manual index-patch seam (`DownloadFeatureManifestPatching.swift`), which only
+/// the ledger and deletion suites use, deliberately. Each case asserts on the announcement's OWN push, pinned by
 /// `spy.progressUpdates.count == 1`, so the pair it reads is a fact about the production sequence
 /// rather than about a push the test issued.
 extension DownloadContinuedSessionBasisTests {
