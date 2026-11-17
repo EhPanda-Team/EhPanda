@@ -62,9 +62,10 @@ extension DownloadContinuedSessionLedgerTests {
     /// function's synchronous reset block and before `await backgroundProcessingClient.start(...)`.
     /// The client start is the first suspension whose far side the subtitle is already fixed on — the
     /// spy suspends there too, its `start` closure beginning with `await Task.yield()` before it
-    /// records anything — so a seed landing with the POST-start merges cannot move this reading. It
-    /// would pass a mid-session assertion and leave the card's opening at zero, which is the failure
-    /// this case is written to catch.
+    /// records anything — and the seed that follows the snapshot lands in the same synchronous stretch,
+    /// before that suspension, so it cannot move this reading either. A seed that only landed after the
+    /// start would pass a mid-session assertion and leave the card's opening at zero, which is the
+    /// failure this case is written to catch.
     ///
     /// The precondition is asserted rather than assumed: without it a case that accidentally had a
     /// live session at the preparation would be asserting the ordinary in-session path and proving

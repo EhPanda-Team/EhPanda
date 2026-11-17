@@ -161,19 +161,20 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
     }
 
     /// The floor's second absorber, made deterministic: a withdrawal landing inside the client
-    /// start's main-actor hop must survive the seeding that follows it.
+    /// start's main-actor hop must act on the seeded floor.
     ///
     /// On the canonical `retryPages` route the run is scheduled BEFORE the trailing
-    /// `ensureContinuedSession`, so a correction can land precisely inside that hop — where the
-    /// floor was just reset to zero. The seed then folded the pre-hop snapshot in, and while it
-    /// ASSIGNED that snapshot it re-installed a total that still counted the blanked pages: the
-    /// same overwrite class 15-25 closed for the two trust collections, reappearing on the scalar
-    /// the moment the scalar gained a hop-window writer.
+    /// `ensureContinuedSession`, so a correction can land precisely inside that hop. The seed from
+    /// the opening snapshot precedes the hop, so the withdrawal subtracts from a floor that already
+    /// counts the snapshot's pages, with no negative transient and no second merge to fold it back
+    /// in. Seeded after the hop, the same correction needed an additive merge, because an assigned
+    /// snapshot re-installed a total that still counted the blanked pages: the overwrite class 15-25
+    /// closed for the two trust collections, reappearing on the scalar.
     ///
     /// The START pair is legitimately unchanged by the correction. The card's opening is the
-    /// snapshot taken at start time by design; what the merge corrects is the FLOOR, and the very
-    /// next push is where the difference becomes visible. The gate makes the ordering a fact rather
-    /// than a race: the start parks inside the spy, the production preparation runs against a
+    /// snapshot taken at start time by design; what the withdrawal corrects is the FLOOR, and the
+    /// very next push is where the difference becomes visible. The gate makes the ordering a fact
+    /// rather than a race: the start parks inside the spy, the production preparation runs against a
     /// coordinator whose session id is already stamped, and the start is released only afterwards.
     @Test
     func testAWithdrawalDuringTheClientStartHopSurvivesTheFloorSeed() async throws {
@@ -214,21 +215,21 @@ struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
 
         #expect(await manager.fetchDownload(gid: seeded.gid)?.completedPageCount == 2)
         // The announcement's push records its reconcile and then skips the card at the nil-client
-        // guard, so the held-open hop paints nothing and the withdrawal drove the freshly reset
-        // floor to −2 — a value that exists only as coordinator state.
+        // guard, so the held-open hop paints nothing and the withdrawal took the seeded floor
+        // from 4 to 2 — a value that exists only as coordinator state.
         #expect(spy.progressUpdates.isEmpty)
 
         gate.release()
         await sessionStart.value
 
-        // The pre-hop pair, unchanged by design: the opening is the snapshot at start time.
+        // The opening pair, unchanged by design: it is the snapshot at start time.
         #expect(spy.startSubtitles == ["4 / 6 pages · 1 gallery"])
 
         let sessionID = try #require(await manager.testingContinuedSessionID())
         let pageThree = try landPageFiles([3], of: seeded, in: fixture)
         try await manager.flushManifestPageProgress(folderURL: folderURL, pages: pageThree)
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        // The discriminator: with the seed merged the floor is 2, so the honest 3 shows.
+        // The discriminator: the withdrawal left the seeded floor at 2, so the honest 3 shows.
         let firstPair = try lastPushedPair(spy.progressUpdates)
         #expect(firstPair.subtitle == "3 / 6 pages · 1 gallery")
 

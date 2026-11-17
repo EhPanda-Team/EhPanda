@@ -615,7 +615,7 @@ public actor DownloadCoordinator {
     /// across `AppPackage/Sources/DownloadClient`:
     ///
     /// 1. `ensureContinuedSession`'s synchronous reset to zero, at the start of a session.
-    /// 2. That same function's additive seed merge, once the client start returns.
+    /// 2. That same function's seed from the opening snapshot, before the client start's main-actor hop.
     /// 3. `markContinuedSessionEnded`'s teardown zero, at the end of a session.
     /// 4. The re-latch at the end of every accepted `pushContinuedSessionProgress`.
     /// 5. The **D-G7-01** withdrawal inside `withdrawingCountedBasisMovement`, which gives back
@@ -641,13 +641,11 @@ public actor DownloadCoordinator {
     /// exhaustive-sounding inventory that source quietly answers with one more entry is what this
     /// phase has already lost rounds to.
     ///
-    /// One deliberate transient: inside the client start's main-actor hop this value can read
-    /// NEGATIVE. The reset has already run, so a withdrawal landing in that window leaves "zero
-    /// minus corrections the seed has not yet absorbed", and the seed's merge is what folds them
-    /// into the pre-hop snapshot. Elsewhere a negative value is inert — the push compares it
-    /// against a `displayCompletedPageCount` that is never negative. A reader finding a negative
-    /// value must not "fix" it by clamping the withdrawal: that silently re-opens the seed
-    /// overwrite, which is the second half of G-15-6.
+    /// The seed precedes the client start's main-actor hop, so a withdrawal landing in the hop acts on
+    /// seeded state, and the hop needs no negative floor. A negative value can still follow a
+    /// withdrawal larger than what the floor held, and it is inert: the push compares it against a
+    /// `displayCompletedPageCount` that is never negative. That is why neither writer clamps, and a
+    /// reader finding a negative value must not "fix" it by clamping the withdrawal.
     ///
     /// Session-scoped: cleared when a session starts (writer 1) and when one ends (writer 3), so no
     /// floor survives into the next session. The rule and the inventory name the same two writers,

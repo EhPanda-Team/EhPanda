@@ -737,19 +737,20 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     }
 
     /// WR-03 folded into the closure: an announcement landing inside the client-start main-actor hop
-    /// must survive the seeding that follows it.
+    /// must act on the seeded state.
     ///
     /// This interleaving is reachable on the canonical `retryPages` route, where the run is scheduled
     /// before the trailing `ensureContinuedSession`. The announcement's push deliberately runs its
     /// reconcile ahead of the nil-client guard, so it records membership and trust while there is no
-    /// card to paint — and the post-start seeding then *assigned* the pre-hop snapshot over both
-    /// collections. The pre-hop snapshot saw a still-complete record, so the trust the announcement
+    /// card to paint. The seed precedes the hop, so that recording replaces the seeded observation
+    /// instead of being overwritten by it. Seeded after the hop, the start assigned the opening
+    /// snapshot over both collections: it saw a still-complete record, so the trust the announcement
     /// had just earned was discarded, and at one missing page that reproduced the pinned zero
     /// exactly.
     ///
     /// The gate makes the ordering a fact rather than a race: the start parks inside the spy, the
     /// production preparation runs against a coordinator whose session id is already stamped, and the
-    /// start is released only afterwards. Merging is what makes the drain read six of six here.
+    /// start is released only afterwards. The drain reads six of six here.
     @Test
     func testAnAnnouncementDuringTheClientStartHopSurvivesTheSeed() async throws {
         let repair = SessionGallery(

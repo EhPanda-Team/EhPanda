@@ -293,12 +293,11 @@ extension DownloadCoordinator {
     /// deleted INSIDE the bracket would break this rule silently.
     ///
     /// The delta is clamped at zero so an upward movement withdraws nothing, while the floor
-    /// subtraction itself is unclamped on purpose. Inside `ensureContinuedSession`'s client-start
-    /// main-actor hop the scalar has just been reset to zero, so a withdrawal landing there drives
-    /// it negative — "zero minus corrections the seed has not yet absorbed" — which is exactly what
-    /// that seed's additive merge folds into the pre-hop snapshot. Outside the hop a negative floor
-    /// is inert, because the push's `max()` compares it against a `displayCompletedPageCount` that
-    /// is never negative.
+    /// subtraction itself is unclamped on purpose. `ensureContinuedSession` seeds the floor before
+    /// its client-start main-actor hop, so a withdrawal landing in the hop acts on seeded state like
+    /// any other. A withdrawal larger than the floor held (a correction for work the floor never
+    /// counted) leaves it negative, which is inert, because the push's `max()` compares it against a
+    /// `displayCompletedPageCount` that is never negative.
     ///
     /// The whole stretch is synchronous — this function does not suspend, and none of the bodies
     /// it wraps does — so no interleaved push can observe a lowered basis under an un-lowered
@@ -640,8 +639,9 @@ extension DownloadCoordinator {
     /// changes.
     /// `prepareWorkingSeed` itself therefore stays synchronous. The push's reconcile records the
     /// observation even when the client start is still in flight, because that reconcile
-    /// deliberately runs ahead of the nil-client guard; `ensureContinuedSession`'s seed merges
-    /// rather than overwrites, so the recording survives the start's main-actor hop.
+    /// deliberately runs ahead of the nil-client guard, and `ensureContinuedSession` seeds its state
+    /// before the start's main-actor hop, so the recording lands on seeded state and nothing
+    /// overwrites it.
     func prepareWorkingSeedAnnouncingProgress(
         payload: DownloadRequestPayload,
         folderURL: URL
