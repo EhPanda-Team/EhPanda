@@ -115,6 +115,7 @@ public final class HostedRoot {
         controller.dismiss(animated: false)
         window.rootViewController = previousRoot
         window.overrideUserInterfaceStyle = previousStyle
+        window.tintAdjustmentMode = .automatic
         window.layoutIfNeeded()
     }
 }
@@ -133,7 +134,11 @@ public enum HostedWindowCapture {
     public static let sampleInterval: Duration = .milliseconds(100)
     public static let maximumSamples = 40
     /// The fewest matching consecutive reads that count as settled, unless a scenario asks for more.
-    public nonisolated static let minimumReads = 2
+    ///
+    /// At ``sampleInterval`` over ``stableSpan``, an unstalled host already takes six reads; keeping six as the floor
+    /// stops a single slow capture on a starved runner from settling on two or three reads before Liquid Glass or the
+    /// search bar's subviews finish converging (runs 42533872440, 44025665174 and 44137794244).
+    public nonisolated static let minimumReads = 6
     public nonisolated static let precision: Float = 0.9999
     public static let perceptualPrecision: Float = 1
 
@@ -161,7 +166,11 @@ public enum HostedWindowCapture {
             $0.animation = nil
         }))
         controller.overrideUserInterfaceStyle = style
+        window.tintAdjustmentMode = .automatic
         window.rootViewController = controller
+        if !window.isKeyWindow {
+            window.makeKeyAndVisible()
+        }
         controller.view.setNeedsLayout()
         controller.view.layoutIfNeeded()
         return HostedRoot(
@@ -202,6 +211,10 @@ public enum HostedWindowCapture {
     /// animation. On a loaded host either could be read as settled in one run and not in the next (run
     /// 42455556948), so reads count only once nothing in the window moves.
     public static func settle(_ window: UIWindow, minimumReads: Int = minimumReads) async -> SettleResult {
+        await settleRead(window, minimumReads: minimumReads).result
+    }
+
+    private static func settleRead(_ window: UIWindow, minimumReads: Int) async -> SettledRead {
         let clock = ContinuousClock()
         let start = clock.now
         var runStart = clock.now
@@ -222,7 +235,10 @@ public enum HostedWindowCapture {
             if matches {
                 runReads += 1
                 if runReads >= minimumReads, runStart.duration(to: clock.now) >= stableSpan {
-                    return .settled(samples: sample, seconds: seconds(start.duration(to: clock.now)))
+                    return SettledRead(
+                        result: .settled(samples: sample, seconds: seconds(start.duration(to: clock.now))),
+                        image: image
+                    )
                 }
             } else {
                 runStart = clock.now
@@ -234,11 +250,17 @@ public enum HostedWindowCapture {
             } catch {
                 // Cancellation ends the wait; the reads so far did not settle.
                 lastChange = changed.flatMap({ changedRegion($0.old, $0.new, width: $0.width) })
-                return .timeout(samples: sample, seconds: seconds(start.duration(to: clock.now)))
+                return SettledRead(
+                    result: .timeout(samples: sample, seconds: seconds(start.duration(to: clock.now))),
+                    image: nil
+                )
             }
         }
         lastChange = changed.flatMap({ changedRegion($0.old, $0.new, width: $0.width) })
-        return .timeout(samples: maximumSamples, seconds: seconds(start.duration(to: clock.now)))
+        return SettledRead(
+            result: .timeout(samples: maximumSamples, seconds: seconds(start.duration(to: clock.now))),
+            image: nil
+        )
     }
 
     /// What still moves in `window`, or `nil` when it is at rest: a scroll view that is tracked, dragged or
@@ -369,8 +391,13 @@ public enum HostedWindowCapture {
         return drawn ? bytes : nil
     }
 
+    /// How many times ``capture(_:)`` has drawn a window in this process, so tests can verify a settled attempt
+    /// records the settled read itself without an extra unverified draw.
+    public private(set) static var captureCalls = 0
+
     /// Draws the window's hierarchy into an opaque image at scale 1, so its pixel size is the window's point size.
     public static func capture(_ window: UIWindow) -> UIImage {
+        captureCalls += 1
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.opaque = true
@@ -513,6 +540,13 @@ public enum HostedWindowCapture {
         let width: Int
     }
 
+    /// The outcome of ``settleRead(_:minimumReads:)``, keeping the exact settled frame verified against `anchor` so
+    /// ``attemptHosted(window:request:)`` does not draw an extra unverified frame after settling.
+    private struct SettledRead {
+        let result: SettleResult
+        let image: UIImage?
+    }
+
     private struct Request {
         let style: UIUserInterfaceStyle
         let reference: URL?
@@ -551,8 +585,9 @@ public enum HostedWindowCapture {
                                reason: "\(interactionReason):\(stepFailure(error))")
             }
         }
-        let settled = await settle(window, minimumReads: request.minimumReads)
-        let image = capture(window)
+        let settledRead = await settleRead(window, minimumReads: request.minimumReads)
+        let settled = settledRead.result
+        let image = settledRead.image ?? capture(window)
         let png = pngData(image)
         if case .timeout = settled {
             return Attempt(status: .timeout, settleSamples: settled.samples, png: png, difference: nil,

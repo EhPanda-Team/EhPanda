@@ -11,20 +11,12 @@ final class BrowsingStepTests: XCTestCase {
         UITestAutomation.prepareIfNeeded()
     }
 
-    func testFirstLaunchPicturesSettleOnMoreReadsThanOtherPages() throws {
-        let ids = [
-            "agewall-unticked", "agewall-ticked", "analytics-choice-none", "analytics-choice-minimal",
-            "analytics-choice-basic", "analytics-choice-full"
-        ]
-        XCTAssertGreaterThan(ScenarioCatalog.firstLaunchMinimumReads, HostedWindowCapture.minimumReads)
-        for id in ids {
-            let factory = try XCTUnwrap(ScenarioCatalog.factories[id], id)
-            XCTAssertEqual(factory.minimumReads, ScenarioCatalog.firstLaunchMinimumReads, id)
-        }
-        let others = ScenarioCatalog.factories.filter({ !ids.contains($0.key) })
-        XCTAssertFalse(others.isEmpty)
-        for (id, factory) in others {
-            XCTAssertEqual(factory.minimumReads, HostedWindowCapture.minimumReads, id)
+    func testEveryScenarioSettlesOnAtLeastSixReads() {
+        XCTAssertGreaterThanOrEqual(HostedWindowCapture.minimumReads, 6)
+        XCTAssertEqual(ScenarioCatalog.firstLaunchMinimumReads, HostedWindowCapture.minimumReads)
+        XCTAssertFalse(ScenarioCatalog.factories.isEmpty)
+        for (id, factory) in ScenarioCatalog.factories {
+            XCTAssertGreaterThanOrEqual(factory.minimumReads, 6, id)
         }
     }
 

@@ -23,12 +23,22 @@ final class HostedWindowCaptureTests: XCTestCase {
         guard case .settled(let samples, let seconds) = result else {
             return XCTFail("A still view did not settle")
         }
-        // Settling is timed, not counted: the identical reads must span the stable span. How many reads that takes
-        // depends on the host, since each gap is the sample interval plus a capture: a loaded runner settled on read 4
-        // (run 42490998810), a local one on read 5, a starved one on read 3. The floor is two: one read opens the run,
-        // and one that matches it at least the stable span later closes it.
-        XCTAssertGreaterThanOrEqual(samples, 2)
+        // Settling requires both the stable span and the six-read floor, so a single slow capture on a starved runner
+        // cannot short-circuit on two or three reads before Liquid Glass and bar subviews converge.
+        XCTAssertGreaterThanOrEqual(samples, HostedWindowCapture.minimumReads)
         XCTAssertGreaterThanOrEqual(seconds, HostedWindowCapture.stableSpan / .seconds(1))
+    }
+
+    @MainActor
+    func testASettledAttemptRecordsTheSettledReadWithoutAnExtraCapture() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let before = HostedWindowCapture.captureCalls
+        let outcome = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.sample(offset: 0)) }, window: window, style: .light, reference: nil, mode: .candidate
+        )
+        XCTAssertEqual(outcome.status, .recorded)
+        XCTAssertGreaterThanOrEqual(outcome.settleSamples, HostedWindowCapture.minimumReads)
+        XCTAssertEqual(HostedWindowCapture.captureCalls - before, outcome.settleSamples)
     }
 
     /// A scenario that asks for more reads settles on no fewer, even on a host that would settle a still view on

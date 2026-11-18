@@ -19,10 +19,10 @@ extension ScenarioCatalog {
         }
     }
 
-    /// The fewest identical reads a first-launch picture settles on. These pages are hosted first in a process and
-    /// end in a Liquid Glass button; on run 42533872440 two candidates settled on two reads and held that button
-    /// 1/255 off the reference, so the glass is given longer to finish than other pages.
-    static let firstLaunchMinimumReads = 6
+    /// The fewest identical reads a first-launch picture settles on; ``HostedWindowCapture/minimumReads`` now shares
+    /// this six-read floor across the matrix so starved runners never settle on two reads (runs 42533872440,
+    /// 44025665174 and 44137794244).
+    static let firstLaunchMinimumReads = HostedWindowCapture.minimumReads
 
     private static var firstLaunch: [String: ScenarioFactory] {
         typealias Page = BrowsingScenarios
