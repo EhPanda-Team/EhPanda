@@ -19,6 +19,12 @@ class RunSnapshotLocalTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn('clones boot in portrait', result.stderr)
 
+    def test_parallel_testing_is_disabled_without_workers(self):
+        # SnapshotMatrix.xctestplan marks VisualSnapshotTests parallelizable; without --workers the local script must
+        # pass `-parallel-testing-enabled NO` so xcodebuild does not spawn unconfigured clones on its own.
+        text = SCRIPT.read_text()
+        self.assertIn('PARALLEL=(-parallel-testing-enabled NO)', text)
+
 
 if __name__ == '__main__':
     unittest.main()

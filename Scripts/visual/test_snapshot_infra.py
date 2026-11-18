@@ -45,6 +45,22 @@ Failing tests:
 \tToplistsSnapshotTests.testGrid()
 ** TEST EXECUTE FAILED **
 '''
+# Run 44137794244: CoreSimulator's service hub dropped while setting up a case; xcodebuild restarted the runner and
+# listed the unexecuted case under `Failing tests:` with no `Testing failed:` header.
+SERVICE_HUB_RESTART = """Test Case '-[EhPandaUITests.NativeVisualPolicyUITests testColdEntryAtAX5]' started.
+iOSSimulator: unable to connect to "com.apple.instruments.deviceservice.lockdown" \
+(Error Domain=DVTiPhoneSimulatorErrorDomain Code=-1 "DTServiceHubClient failed to bless service hub for simulator")
+
+Restarting after unexpected exit, crash, or test timeout; summary will include totals from previous launches.
+
+Test Case '-[EhPandaUITests.NativeVisualPolicyUITests testColdEntryAtLarge]' started.
+Test Case '-[EhPandaUITests.NativeVisualPolicyUITests testColdEntryAtLarge]' passed (118.075 seconds).
+
+Failing tests:
+\tNativeVisualPolicyUITests.testColdEntryAtAX5()
+
+** TEST EXECUTE FAILED **
+"""
 
 
 class SnapshotInfraTests(unittest.TestCase):
@@ -69,6 +85,37 @@ class SnapshotInfraTests(unittest.TestCase):
         # A summary that names a failure that cost tests is still infra.
         lost = 'Testing failed:\n\tEhPanda encountered an error\n' + RECOVERED_SERVER
         self.assertEqual(snapshot_infra.classify(lost, 65), 'simulator-service')
+
+    def test_service_hub_drop_is_infra_only_when_no_test_failed_on_its_own(self):
+        self.assertEqual(snapshot_infra.classify(SERVICE_HUB_RESTART, 65), 'service-hub')
+        # When another test in the same run genuinely failed, the run is not retried as infra.
+        mixed = SERVICE_HUB_RESTART.replace(
+            'Failing tests:',
+            "Test Case '-[EhPandaUITests.NativeVisualPolicyUITests testOther]' failed (12.0 seconds).\n\n"
+            'Failing tests:',
+        )
+        self.assertIsNone(snapshot_infra.classify(mixed, 65))
+        # A service-hub hiccup that lost no test at all is not infra either.
+        recovered = SERVICE_HUB_RESTART.replace(
+            'Restarting after unexpected exit, crash, or test timeout; summary will include totals from previous '
+            'launches.\n\n',
+            '',
+        )
+        self.assertIsNone(snapshot_infra.classify(recovered, 65))
+        # The iOS 27 runner can also drop its automation XPC channel during `Setting up automation session` without
+        # printing `DTServiceHubClient`.
+        automation_drop = """Test Case '-[EhPandaUITests.NativeVisualPolicyUITests testSettingMarks]' started.
+    t =     1.28s         Setting up automation session
+2026-11-18 18:25:57+0000 EhPandaUITests-Runner[11626:2982112] [connection] Connection interrupted: will attempt to reconnect
+
+Restarting after unexpected exit, crash, or test timeout; summary will include totals from previous launches.
+
+Failing tests:
+\tNativeVisualPolicyUITests.testSettingMarks()
+
+** TEST FAILED **
+"""
+        self.assertEqual(snapshot_infra.classify(automation_drop, 65), 'service-hub')
 
     def test_other_failures_stay_infra_after_a_summary(self):
         self.assertEqual(snapshot_infra.classify(SHUTTING_DOWN + '** TEST EXECUTE FAILED **\n', 65),
