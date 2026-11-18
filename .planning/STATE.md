@@ -384,6 +384,15 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   meet, so the app keeps its motion (owner, 2026-11-17); the toast's case waits until the toast takes touches.
   Open, for the owner: 74 direct `isHittable` reads in 18 UI test files, the Duo's among them; the screenshot
   check's in-test recapture (`HostedWindowCapture`), which is a retry of its own kind.
+- **Candidate pre-check, workflow stability fixes, and open B/C items, 2026-11-18** (on `fix/snapshot-scenarios`):
+  `19-12-CANDIDATE.md` and `19-13-PRECHECK.md` record the hosted candidate runs (`44025665174` on `16a08f42a` and
+  `44137794244` on `ce3732a89`, 19,512 pictures / 4.94 GB across 12 slices under 0.58 GB each), the public
+  `EhPanda-Team/ehpanda-snapshot` repository (`14a6b03`), the scenario fixes `A1–A9` and `A12` (`8493cf859..8f2c96fe3`),
+  the run-to-run capture stability and native policy fixes (`d24ea6438..84c9c00bd`), and the in-flight candidate run
+  `44279625701` on `84c9c00bd` (dispatched with owner go-ahead).
+  **Blocking before closing 19-12 / 19-13:** `A11`, `B1–B2` (capture-policy choices), and `C1–C16` (app UI/layout
+  findings) in `19-13-PRECHECK.md` remain `owner to decide` and must be resolved — fixed and re-recorded, or
+  explicitly accepted by the owner — before baseline approval and publication (19-CONTEXT D-17).
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
