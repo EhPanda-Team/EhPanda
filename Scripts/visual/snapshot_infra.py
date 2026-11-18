@@ -40,19 +40,27 @@ SIGNATURES = (
     ('prepare-device', r'Failed to prepare device'),
     ('runner-connection', r'Lost pending connection to the test runner|operation never finished bootstrapping'
                           r'|Test runner never began executing tests'),
+    ('service-hub', r'DTServiceHubClient failed to bless service hub|Connection to Simulator service hub .* '
+                    r'interrupted|Setting up automation session\r?\n[^\n]*\[connection\] Connection interrupted: '
+                    r'will attempt to reconnect'),
     ('simulator-service', r'\(ipc/mig\) server died'),
     ('runner-launch', r'Failed to install or launch the test runner'),
 )
 
 
 # Failures the simulator recovers from on its own; infra only when tests went unreported.
-RECOVERABLE = {'simulator-service'}
+RECOVERABLE = {'service-hub', 'simulator-service'}
 
 
 def reported_every_test(text):
-    """Whether xcodebuild ended in its test summary without naming a failure that cost tests."""
-    summary = re.search(r'^\*\* TEST EXECUTE (FAILED|SUCCEEDED) \*\*', text, re.MULTILINE)
-    return summary is not None and re.search(r'^Testing failed:', text, re.MULTILINE) is None
+    """Whether xcodebuild ended in its test summary without losing the run exclusively to a simulator drop."""
+    summary = re.search(r'^\*\* TEST (?:EXECUTE )?(FAILED|SUCCEEDED) \*\*', text, re.MULTILINE)
+    if summary is None or re.search(r'^Testing failed:', text, re.MULTILINE) is not None:
+        return False
+    restarted = re.search(r'^Restarting after unexpected exit, crash, or test timeout', text, re.MULTILINE)
+    if restarted is not None and re.search(r"^Test [Cc]ase '.*' failed", text, re.MULTILINE) is None:
+        return False
+    return True
 
 
 def classify(text, status):

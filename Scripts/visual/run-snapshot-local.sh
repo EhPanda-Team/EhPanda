@@ -99,7 +99,7 @@ IFS=',' read -r -a NAMES <<<"$CONFIG"
 for NAME_ in "${NAMES[@]}"; do
     CONFIGURATIONS+=(-only-test-configuration "$NAME_")
 done
-PARALLEL=()
+PARALLEL=(-parallel-testing-enabled NO)
 if [ -n "$WORKERS" ]; then
     PARALLEL=(-parallel-testing-enabled YES -parallel-testing-worker-count "$WORKERS")
 fi
