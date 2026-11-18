@@ -96,10 +96,10 @@ All third-party dependencies are declared in `AppPackage/Package.swift`, not in 
 
 ## GSD Subagent Models And Effort
 
-- Before spawning a GSD role, resolve its model and effort from the repository root:
+- Before spawning a GSD role, resolve its model and effort from the repository root using the active runtime's own `gsd-tools.cjs` (`~/.claude` in Claude Code, `~/.codex` in Codex, or `$ANTIGRAVITY_CONFIG_DIR` in Antigravity; never read another runtime's home directory):
 
   ```sh
-  node ~/.claude/gsd-core/bin/gsd-tools.cjs query resolve-model gsd-<role> 2>/dev/null
+  node <runtime-config-dir>/gsd-core/bin/gsd-tools.cjs query resolve-model gsd-<role> 2>/dev/null
   ```
 
 - Pass the returned `model` exactly; omit it only when it is `inherit` or empty. Check the spawning tool's parameters at each dispatch: if it has an effort parameter, pass the returned `effort`; if not, the subagent runs at `inherit`.
