@@ -768,7 +768,7 @@ jobs:
         timeout-minutes: 80
         run: |
           mkdir -p "$RUNNER_TEMP/policy"
-          policy() { # <attempt>
+          policy() { # <attempt> [xcodebuild args...]
             local status=0 log="$RUNNER_TEMP/policy/xcodebuild-$1.log"
             xcrun simctl ui "$UDID" content_size large || return $?
             xcodebuild test-without-building \
@@ -777,7 +777,7 @@ jobs:
               -parallel-testing-enabled NO \
               -collect-test-diagnostics never \
               -resultBundlePath "$RUNNER_TEMP/policy/attempt-$1.xcresult" \
-              -only-testing:EhPandaUITests/NativeVisualPolicyUITests >"$log" 2>&1 || status=$?
+              -only-testing:EhPandaUITests/NativeVisualPolicyUITests "${@:2}" >"$log" 2>&1 || status=$?
             grep -E "Test [Cc]ase .* (passed|failed)|Executed [0-9]+ test|TEST EXECUTE (SUCCEEDED|FAILED)" "$log" |
               sort -u || true
             return "$status"
@@ -790,8 +790,15 @@ jobs:
             echo "::warning::native policy (${{ matrix.family }}): attempt 1 lost to the simulator ($reason); once more"
             echo "retried=true" >> "$GITHUB_OUTPUT"
             Scripts/visual/hosted-simulator.sh settings "$UDID" || true
+            skip=()
+            if grep -q "^Restarting after unexpected exit" "$RUNNER_TEMP/policy/xcodebuild-1.log"; then
+              while IFS= read -r method; do
+                [ -n "$method" ] && skip+=("-skip-testing:EhPandaUITests/NativeVisualPolicyUITests/$method")
+              done < <(sed -n "s/^Test Case '-\[EhPandaUITests\.NativeVisualPolicyUITests \(test[^]]*\)\]' passed.*/\1/p" \
+                "$RUNNER_TEMP/policy/xcodebuild-1.log" | sort -u)
+            fi
             status=0
-            policy 2 || status=$?
+            policy 2 ${skip[@]+"${skip[@]}"} || status=$?
           fi
           exit "$status"
       - name: Upload native policy diagnostics

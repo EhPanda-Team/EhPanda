@@ -68,6 +68,9 @@ class SnapshotInfraTests(unittest.TestCase):
         self.assertEqual(snapshot_infra.classify(SHUTTING_DOWN, 65), 'clone-shutting-down')
         self.assertEqual(snapshot_infra.classify(BOOT, 65), 'boot-timeout')
         self.assertEqual(snapshot_infra.classify(CONNECTION, 65), 'runner-connection')
+        hung = ('Testing failed:\n\tEhPandaUITests-Runner (29802) encountered an error '
+                '(The test runner hung before establishing connection.)\n** TEST EXECUTE FAILED **\n')
+        self.assertEqual(snapshot_infra.classify(hung, 65), 'runner-connection')
         self.assertEqual(snapshot_infra.classify(SERVER, 143), 'simulator-service')
 
     def test_the_startup_watchdog_is_infra(self):
@@ -116,6 +119,35 @@ Failing tests:
 ** TEST FAILED **
 """
         self.assertEqual(snapshot_infra.classify(automation_drop, 65), 'service-hub')
+        # Run 44279625701: `Setting up automation session` hung for Xcode's 3-minute runner bootstrap allowance and
+        # restarted the runner with no `[connection] Connection interrupted` line.
+        automation_hang = """Test Case '-[EhPandaUITests.NativeVisualPolicyUITests testColdEntryAtAX3]' started.
+    t =    25.15s         Setting up automation session
+2026-11-18 10:25:26.494672+0000 EhPandaUITests-Runner[21570:67101] [Default] Running tests...
+    t =      nans Interface orientation changed to Portrait
+
+Restarting after unexpected exit, crash, or test timeout; summary will include totals from previous launches.
+
+Failing tests:
+\tNativeVisualPolicyUITests.testColdEntryAtAX3()
+
+** TEST EXECUTE FAILED **
+"""
+        self.assertEqual(snapshot_infra.classify(automation_hang, 65), 'service-hub')
+        # A test that exceeded its execution time allowance is a real failure, never infra.
+        timed_out = automation_hang.replace(
+            'Failing tests:',
+            "Test Case '-[EhPandaUITests.NativeVisualPolicyUITests testSettingMarks]' exceeded execution time "
+            'allowance of 20 minutes.\n\nFailing tests:',
+        )
+        self.assertIsNone(snapshot_infra.classify(timed_out, 65))
+        # A crash after `Setting up automation session` moved on to `t = ...` steps is an app/test crash, not infra.
+        post_session_crash = automation_hang.replace(
+            '    t =    25.15s         Setting up automation session\n',
+            '    t =    25.15s         Setting up automation session\n'
+            '    t =    31.00s         Wait for app.ehpanda to idle\n',
+        )
+        self.assertIsNone(snapshot_infra.classify(post_session_crash, 65))
 
     def test_other_failures_stay_infra_after_a_summary(self):
         self.assertEqual(snapshot_infra.classify(SHUTTING_DOWN + '** TEST EXECUTE FAILED **\n', 65),

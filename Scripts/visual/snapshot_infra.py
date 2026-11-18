@@ -39,10 +39,13 @@ SIGNATURES = (
     ('boot-timeout', r'Timed out trying to boot simulator'),
     ('prepare-device', r'Failed to prepare device'),
     ('runner-connection', r'Lost pending connection to the test runner|operation never finished bootstrapping'
-                          r'|Test runner never began executing tests'),
+                          r'|Test runner never began executing tests'
+                          r'|The test runner hung before establishing connection'),
     ('service-hub', r'DTServiceHubClient failed to bless service hub|Connection to Simulator service hub .* '
-                    r'interrupted|Setting up automation session\r?\n[^\n]*\[connection\] Connection interrupted: '
-                    r'will attempt to reconnect'),
+                    r'interrupted|unable to connect to "com\.apple\.instruments\.deviceservice\.lockdown"'
+                    r'|Setting up automation session\r?\n(?:^(?!    t = *[0-9]|Test [Cc]ase \').*\r?\n)*'
+                    r'(?:[^\n]*\[connection\] Connection interrupted: will attempt to reconnect'
+                    r'|^Restarting after unexpected exit, crash, or test timeout)'),
     ('simulator-service', r'\(ipc/mig\) server died'),
     ('runner-launch', r'Failed to install or launch the test runner'),
 )
@@ -58,7 +61,10 @@ def reported_every_test(text):
     if summary is None or re.search(r'^Testing failed:', text, re.MULTILINE) is not None:
         return False
     restarted = re.search(r'^Restarting after unexpected exit, crash, or test timeout', text, re.MULTILINE)
-    if restarted is not None and re.search(r"^Test [Cc]ase '.*' failed", text, re.MULTILINE) is None:
+    failed = re.search(
+        r"^Test [Cc]ase '.*' (?:failed|exceeded execution time allowance)", text, re.MULTILINE
+    )
+    if restarted is not None and failed is None:
         return False
     return True
 

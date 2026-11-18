@@ -314,6 +314,7 @@ class GateWorkflowTests(unittest.TestCase):
         step = next(step for step in job['steps'] if step.get('id') == 'policy')
         self.assertIn('snapshot_infra.py --status "$status" "$RUNNER_TEMP/policy/xcodebuild-1.log"', step['run'])
         self.assertIn('policy 2', step['run'])
+        self.assertIn('-skip-testing:EhPandaUITests/NativeVisualPolicyUITests/$method', step['run'])
         self.assertEqual(step['run'].count('xcodebuild test-without-building'), 1)
         upload = next(step for step in job['steps'] if step.get('uses', '').startswith('actions/upload-artifact'))
         self.assertEqual(upload['if'], "failure() || steps.policy.outputs.retried == 'true'")

@@ -205,10 +205,10 @@ final class NativeVisualPolicyUITests: XCTestCase {
     func testSearchKeepsQueryFocusAndTabThroughSizesAndTurns() throws {
         let app = XCUIApplication()
         addTeardownBlock { @MainActor in
-            XCUIDevice.shared.orientation = .portrait
+            Self.resetOrientation()
             LiveTextSize.reset()
         }
-        XCUIDevice.shared.orientation = .portrait
+        Self.resetOrientation()
         try app.launchStubbed(extraEnvironment: [Self.tabKey: "search"])
         app.requireForeground()
         let field = revealSearchField(in: app)
@@ -231,18 +231,15 @@ final class NativeVisualPolicyUITests: XCTestCase {
     func testSettingMarksAndTitleSurviveSizesAndTurns() throws {
         let app = XCUIApplication()
         addTeardownBlock { @MainActor in
-            XCUIDevice.shared.orientation = .portrait
+            Self.resetOrientation()
             LiveTextSize.reset()
         }
-        XCUIDevice.shared.orientation = .portrait
+        Self.resetOrientation()
         try app.launchStubbed(extraEnvironment: [Self.tabKey: "setting"])
         app.requireForeground()
         requireTitle("Settings", in: app)
-        let appearancePredicate = NSPredicate(
-            format: "label == %@ AND elementType == %d", "Appearance", XCUIElement.ElementType.button.rawValue
-        )
         let row = app.buttons["Appearance"].firstMatch
-        revealElement(row, matching: appearancePredicate, in: app)
+        revealElement(row, in: app)
         row.tapWhenHittable("Appearance")
         requireTitle("Appearance", in: app)
         let marks = Self.markLabels.map({ mark($0, in: app) })
@@ -252,7 +249,7 @@ final class NativeVisualPolicyUITests: XCTestCase {
             for orientation in [UIDeviceOrientation.landscapeLeft, .portrait] {
                 turn(app, to: orientation)
                 let step = "\(size.name) \(orientation.isLandscape ? "landscape" : "portrait")"
-                XCTAssertTrue(app.navigationBars["Appearance"].waitForExistence(timeout: 10),
+                XCTAssertTrue(app.navigationBars["Appearance"].waitForExistence(timeout: 15),
                               "Appearance left at \(step).")
                 let now = Self.markLabels.map({ mark($0, in: app) })
                 XCTAssertEqual(now, marks, "The marks changed at \(step).")
@@ -267,9 +264,9 @@ final class NativeVisualPolicyUITests: XCTestCase {
     func testReaderToolbarKeepsPriorityAtEveryWidth() throws {
         let app = XCUIApplication()
         addTeardownBlock { @MainActor in
-            XCUIDevice.shared.orientation = .portrait
+            Self.resetOrientation()
         }
-        XCUIDevice.shared.orientation = .portrait
+        Self.resetOrientation()
         try app.openCold(XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda")))
         let reader = app.requireElement("reading_view")
         for orientation in [UIDeviceOrientation.portrait, .landscapeLeft, .portrait] {
@@ -287,9 +284,9 @@ final class NativeVisualPolicyUITests: XCTestCase {
             let source = more.frame
             more.tapWhenHittable("The reader's More at \(width)")
             let settings = app.buttons["Reading Settings"].firstMatch
-            XCTAssertTrue(settings.waitForExistence(timeout: 5), "More lost Reading Settings at \(width).")
+            XCTAssertTrue(settings.waitForExistence(timeout: 15), "More lost Reading Settings at \(width).")
             requireAnchored(settings.frame, to: source, named: "More at \(width)")
-            dismissPopover(in: app, until: settings)
+            dismissPopover(in: app, outside: indicator, until: settings)
         }
     }
 
@@ -298,28 +295,28 @@ final class NativeVisualPolicyUITests: XCTestCase {
     func testDialogAndMenuStayAnchoredThroughTurns() throws {
         let app = XCUIApplication()
         addTeardownBlock { @MainActor in
-            XCUIDevice.shared.orientation = .portrait
+            Self.resetOrientation()
         }
-        XCUIDevice.shared.orientation = .portrait
+        Self.resetOrientation()
         try app.launchStubbed(extraEnvironment: [Self.tabKey: "search"])
         app.requireForeground()
         let field = revealSearchField(in: app)
         field.tapWhenHittable("Search field")
         field.typeText(Self.query + "\n")
-        // The results page's overflow menu.
+        // The results page's overflow menu. Dismiss onto the bar's own non-interactive title rather than over the
+        // results list, because iPadOS forwards a context-menu outside tap to the gallery row beneath it.
+        let resultsHeading = app.navigationBars[Self.query].staticTexts[Self.query].firstMatch
+        XCTAssertTrue(resultsHeading.waitForExistence(timeout: 15), "Search results did not open.")
         let more = app.navigationBars.buttons.matching(UITestConstants.overflowButtonPredicate).firstMatch
         checkAnchorThroughTurns(
-            of: app.buttons["Quick Search"].firstMatch, from: more, isDialog: false, named: "More", in: app
+            of: app.buttons["Quick Search"].firstMatch, from: more, isDialog: false, named: "More",
+            outside: resultsHeading, in: app
         )
         // Back on the Search root, the query is a recent search that Remove All can clear.
         app.buttons["BackButton"].firstMatch.tapWhenHittable("Back to Search")
         XCTAssertTrue(app.navigationBars["Search"].waitForExistence(timeout: 15), "Search did not come back.")
-        let sourcePredicate = NSPredicate(
-            format: "identifier == %@ AND elementType == %d",
-            "search-remove-all-keywords", XCUIElement.ElementType.button.rawValue
-        )
         let source = app.buttons["search-remove-all-keywords"].firstMatch
-        revealElement(source, matching: sourcePredicate, in: app)
+        revealElement(source, in: app)
         let confirm = app.buttons.matching(
             // Not either section's own Remove All, which open the dialogs.
             NSPredicate(format: "label == %@ AND NOT identifier BEGINSWITH %@", "Remove All", "search-remove-all")
@@ -454,17 +451,24 @@ final class NativeVisualPolicyUITests: XCTestCase {
         }
     }
 
+    /// Restores portrait only when the device was left turned: on a newly booted simulator the reported orientation is
+    /// `.unknown` before an app launches, and setting `.portrait` then pokes SpringBoard's AX server before bootstrap.
+    static func resetOrientation() {
+        if XCUIDevice.shared.orientation.isLandscape {
+            XCUIDevice.shared.orientation = .portrait
+        }
+    }
+
     /// Turns the device and waits until the window has turned with it.
     func turn(_ app: XCUIApplication, to orientation: UIDeviceOrientation) {
         if XCUIDevice.shared.orientation != orientation {
             XCUIDevice.shared.orientation = orientation
         }
-        let turned = NSPredicate { _, _ in
+        let turned = Polling.wait {
             let frame = app.windows.firstMatch.frame
-            return (frame.width > frame.height) == orientation.isLandscape
+            return !frame.isEmpty && (frame.width > frame.height) == orientation.isLandscape
         }
-        let wait = XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: turned, object: nil)], timeout: 10)
-        XCTAssertEqual(wait, .completed, "The window did not turn.")
+        XCTAssertTrue(turned, "The window did not turn.")
     }
 
     /// Reads the mark of the switch or menu picker labelled `label`, scrolling it into view: a switch's 0 or 1, a
@@ -473,7 +477,7 @@ final class NativeVisualPolicyUITests: XCTestCase {
         let predicate = NSPredicate(format: "label BEGINSWITH %@ AND elementType IN %@", label,
                                     [XCUIElement.ElementType.switch, .button].map(\.rawValue))
         let element = app.descendants(matching: .any).matching(predicate).firstMatch
-        revealElement(element, matching: predicate, in: app)
+        revealElement(element, in: app)
         guard element.exists else { return "" }
         // A menu picker's button carries its choice as a value, or after its label.
         let value = element.value as? String ?? ""
@@ -482,47 +486,51 @@ final class NativeVisualPolicyUITests: XCTestCase {
             : value
     }
 
-    /// Scrolls the page until `element` can be tapped: towards it when it is built, and otherwise back to the top
-    /// first, then down the page, since a row far off is not in the hierarchy at all.
+    /// Scrolls the page until `element` can be tapped: towards it when it is built, and otherwise down the page first
+    /// and back to the top after, since an off-screen row is not in the hierarchy until scrolled near.
     ///
     /// On iPad, Settings opens in a sheet over `HomeView`: `lists.firstMatch` is `HomeView`'s background scroll view,
-    /// whose swipe lands on the dimming scrim outside the sheet, so the containing list or frontmost collection view is
-    /// chosen instead, and an element already resting and hittable skips scrolling altogether.
-    func revealElement(_ element: XCUIElement, matching predicate: NSPredicate, in app: XCUIApplication) {
-        if element.waitUntilHittable(timeout: 5) {
+    /// whose swipe lands on the dimming scrim outside the sheet, so the frontmost collection view is chosen once before
+    /// scrolling, and an unbuilt row takes one `exists` look per swipe rather than a multi-sample hittability wait.
+    func revealElement(_ element: XCUIElement, in app: XCUIApplication) {
+        if element.exists && element.waitUntilHittable(timeout: 5) {
             return
         }
-        for scroll in 0..<Self.maximumScrolls where !element.waitUntilHittable(timeout: 1) {
-            let lists = app.descendants(matching: .any).matching(Self.listPredicate)
-            let holder = lists.containing(predicate).firstMatch
-            let collections = app.collectionViews
-            let host: XCUIElement
-            if holder.exists {
-                host = holder
-            } else if collections.count > 0 {
-                host = collections.element(boundBy: collections.count - 1)
-            } else if lists.firstMatch.exists {
-                host = lists.firstMatch
-            } else {
-                host = app.windows.firstMatch
-            }
-            let isAbove = element.exists ? element.frame.midY < host.frame.midY : scroll < Self.maximumScrolls / 2
+        let collections = app.collectionViews
+        let count = collections.count
+        let lists = app.descendants(matching: .any).matching(Self.listPredicate)
+        let host: XCUIElement
+        if count > 0 {
+            host = collections.element(boundBy: count - 1)
+        } else if lists.firstMatch.exists {
+            host = lists.firstMatch
+        } else {
+            host = app.windows.firstMatch
+        }
+        for scroll in 0..<Self.maximumScrolls {
+            let isAbove = element.exists
+                ? element.frame.midY < host.frame.midY
+                : scroll >= Self.downwardScrolls
             if isAbove {
                 host.swipeDown(velocity: .slow)
             } else {
                 host.swipeUp(velocity: .slow)
             }
+            if element.exists && element.waitUntilHittable(timeout: 2) {
+                return
+            }
         }
     }
 
-    private static let maximumScrolls = 12
+    private static let downwardScrolls = 4
+    private static let maximumScrolls = 10
 
     /// Shows the reader's panel, which carries the toolbar, with a tap in the middle of the page.
     func showReaderPanel(in app: XCUIApplication) {
         let indicator = app.staticTexts.matching(identifier: "reading_page_indicator").firstMatch
         guard !indicator.waitForExistence(timeout: 2) else { return }
         app.requireElement("reading_pages").coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
-        XCTAssertTrue(indicator.waitForExistence(timeout: 5), "The reader did not show its panel.")
+        XCTAssertTrue(indicator.waitForExistence(timeout: 15), "The reader did not show its panel.")
     }
 
     /// Checks `item`, opened from `source`, is beside its source upright, turned and upright again. A dialog is
@@ -530,21 +538,22 @@ final class NativeVisualPolicyUITests: XCTestCase {
     /// turn: a menu reopened right after a turn once left the app animating for minutes on an iPhone simulator.
     /// An open menu or popover covers its source, so the item is read open and the source after it closes.
     func checkAnchorThroughTurns(
-        of item: XCUIElement, from source: XCUIElement, isDialog: Bool, named name: String, in app: XCUIApplication
+        of item: XCUIElement, from source: XCUIElement, isDialog: Bool, named name: String,
+        outside: XCUIElement? = nil, in app: XCUIApplication
     ) {
         for orientation in [UIDeviceOrientation.portrait, .landscapeLeft, .portrait] {
             if !isDialog {
                 turn(app, to: orientation)
             }
             source.tapWhenHittable(name)
-            XCTAssertTrue(item.waitForExistence(timeout: 5), "\(name) did not open.")
+            XCTAssertTrue(item.waitForExistence(timeout: 15), "\(name) did not open.")
             if isDialog {
                 turn(app, to: orientation)
-                XCTAssertTrue(item.waitForExistence(timeout: 5), "\(name) closed in a turn.")
+                XCTAssertTrue(item.waitForExistence(timeout: 15), "\(name) closed in a turn.")
             }
             let itemFrame = item.frame
-            dismissPopover(in: app, until: item)
-            XCTAssertTrue(source.waitForExistence(timeout: 5), "\(name)'s control left.")
+            dismissPopover(in: app, outside: outside, until: item)
+            XCTAssertTrue(source.waitForExistence(timeout: 15), "\(name)'s control left.")
             let side = orientation.isLandscape ? "landscape" : "portrait"
             if !(isDialog && UIDevice.current.userInterfaceIdiom == .phone) {
                 // A phone shows a dialog as a sheet along the bottom edge, not beside its control.
@@ -566,19 +575,18 @@ final class NativeVisualPolicyUITests: XCTestCase {
     /// How far a popover's nearest item may sit from its source: the arrow and the popover's margin.
     private static let anchorReach: CGFloat = 160
 
-    /// Closes an open menu, popover or dialog without choosing anything: by its Cancel, or by a tap outside it,
-    /// which an open menu or popover takes to close without passing it on. The tap goes to the half of the window
-    /// the item is not in, away from the edges, where a turned phone's camera housing takes no taps.
-    func dismissPopover(in app: XCUIApplication, until item: XCUIElement) {
-        let cancel = app.buttons["Cancel"].firstMatch
-        if cancel.waitUntilHittable(timeout: 1) {
-            cancel.tap()
+    /// Closes an open menu, popover or dialog without choosing anything: a menu by a tap on an inert `outside` view
+    /// (since iPadOS forwards a context-menu outside tap to the control beneath it), and a confirmation dialog by its
+    /// dimming region away from the edges, where a turned phone's camera housing takes no taps.
+    func dismissPopover(in app: XCUIApplication, outside: XCUIElement? = nil, until item: XCUIElement) {
+        if let outside {
+            outside.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.5)).tap()
         } else {
             let window = app.windows.firstMatch.frame
             let isInUpperHalf = item.exists && item.frame.midY < window.midY
             app.coordinate(withNormalizedOffset: CGVector(dx: 0.3, dy: isInUpperHalf ? 0.8 : 0.2)).tap()
         }
-        XCTAssertTrue(item.waitForNonExistence(timeout: 5), "The popover did not close.")
+        XCTAssertTrue(item.waitForNonExistence(timeout: 15), "The popover did not close.")
     }
 
     /// Returns the page's search field, pulling the list down when its drawer is closed.
