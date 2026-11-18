@@ -238,8 +238,11 @@ final class NativeVisualPolicyUITests: XCTestCase {
         try app.launchStubbed(extraEnvironment: [Self.tabKey: "setting"])
         app.requireForeground()
         requireTitle("Settings", in: app)
+        let appearancePredicate = NSPredicate(
+            format: "label == %@ AND elementType == %d", "Appearance", XCUIElement.ElementType.button.rawValue
+        )
         let row = app.buttons["Appearance"].firstMatch
-        revealElement(row, in: app)
+        revealElement(row, matching: appearancePredicate, in: app)
         row.tapWhenHittable("Appearance")
         requireTitle("Appearance", in: app)
         let marks = Self.markLabels.map({ mark($0, in: app) })
@@ -275,7 +278,9 @@ final class NativeVisualPolicyUITests: XCTestCase {
             showReaderPanel(in: app)
             let indicator = app.staticTexts.matching(identifier: "reading_page_indicator").firstMatch
             XCTAssertTrue(indicator.waitUntilHittable(timeout: 10), "The page indicator overflowed at \(width).")
-            XCTAssertTrue(reader.buttons["Close"].firstMatch.isHittable, "Close overflowed at \(width).")
+            XCTAssertTrue(
+                reader.buttons["Close"].firstMatch.waitUntilHittable(timeout: 10), "Close overflowed at \(width)."
+            )
             let more = reader.buttons.matching(UITestConstants.overflowButtonPredicate).firstMatch
             XCTAssertTrue(more.waitUntilHittable(timeout: 10), "More overflowed at \(width).")
             // The open menu covers the bar, so More is read before it opens.
@@ -308,8 +313,13 @@ final class NativeVisualPolicyUITests: XCTestCase {
         )
         // Back on the Search root, the query is a recent search that Remove All can clear.
         app.buttons["BackButton"].firstMatch.tapWhenHittable("Back to Search")
+        XCTAssertTrue(app.navigationBars["Search"].waitForExistence(timeout: 15), "Search did not come back.")
+        let sourcePredicate = NSPredicate(
+            format: "identifier == %@ AND elementType == %d",
+            "search-remove-all-keywords", XCUIElement.ElementType.button.rawValue
+        )
         let source = app.buttons["search-remove-all-keywords"].firstMatch
-        revealElement(source, in: app)
+        revealElement(source, matching: sourcePredicate, in: app)
         let confirm = app.buttons.matching(
             // Not either section's own Remove All, which open the dialogs.
             NSPredicate(format: "label == %@ AND NOT identifier BEGINSWITH %@", "Remove All", "search-remove-all")
@@ -360,7 +370,10 @@ final class NativeVisualPolicyUITests: XCTestCase {
                 requireTitle(root.title, in: app, at: size)
             }
             if root.isSearchable {
-                XCTAssertTrue(revealSearchField(in: app).isHittable, "\(label) has no search field to reach.")
+                XCTAssertTrue(
+                    revealSearchField(in: app).waitUntilHittable(timeout: XCUIElement.hittableTimeout),
+                    "\(label) has no search field to reach."
+                )
             }
             app.terminate()
         }
@@ -430,7 +443,9 @@ final class NativeVisualPolicyUITests: XCTestCase {
                            "The search field lost focus at \(step).", file: file, line: line)
             // An iPad's tab bar, floating at the top, hides while a search is active: the Search page stands for
             // its tab then.
-            guard app.tabBars.firstMatch.exists || NativeVisualPolicyUITests.tab("Home", in: app).isHittable else {
+            guard app.tabBars.firstMatch.exists
+                || NativeVisualPolicyUITests.tab("Home", in: app).waitUntilHittable(timeout: 2)
+            else {
                 return
             }
             let tab = NativeVisualPolicyUITests.tab("Search", in: app)
@@ -458,7 +473,7 @@ final class NativeVisualPolicyUITests: XCTestCase {
         let predicate = NSPredicate(format: "label BEGINSWITH %@ AND elementType IN %@", label,
                                     [XCUIElement.ElementType.switch, .button].map(\.rawValue))
         let element = app.descendants(matching: .any).matching(predicate).firstMatch
-        revealElement(element, in: app)
+        revealElement(element, matching: predicate, in: app)
         guard element.exists else { return "" }
         // A menu picker's button carries its choice as a value, or after its label.
         let value = element.value as? String ?? ""
@@ -469,11 +484,28 @@ final class NativeVisualPolicyUITests: XCTestCase {
 
     /// Scrolls the page until `element` can be tapped: towards it when it is built, and otherwise back to the top
     /// first, then down the page, since a row far off is not in the hierarchy at all.
-    func revealElement(_ element: XCUIElement, in app: XCUIApplication) {
-        _ = element.waitForExistence(timeout: 5)
-        for scroll in 0..<Self.maximumScrolls where !(element.exists && element.isHittable) {
-            let list = app.descendants(matching: .any).matching(Self.listPredicate).firstMatch
-            let host = list.exists ? list : app.windows.firstMatch
+    ///
+    /// On iPad, Settings opens in a sheet over `HomeView`: `lists.firstMatch` is `HomeView`'s background scroll view,
+    /// whose swipe lands on the dimming scrim outside the sheet, so the containing list or frontmost collection view is
+    /// chosen instead, and an element already resting and hittable skips scrolling altogether.
+    func revealElement(_ element: XCUIElement, matching predicate: NSPredicate, in app: XCUIApplication) {
+        if element.waitUntilHittable(timeout: 5) {
+            return
+        }
+        for scroll in 0..<Self.maximumScrolls where !element.waitUntilHittable(timeout: 1) {
+            let lists = app.descendants(matching: .any).matching(Self.listPredicate)
+            let holder = lists.containing(predicate).firstMatch
+            let collections = app.collectionViews
+            let host: XCUIElement
+            if holder.exists {
+                host = holder
+            } else if collections.count > 0 {
+                host = collections.element(boundBy: collections.count - 1)
+            } else if lists.firstMatch.exists {
+                host = lists.firstMatch
+            } else {
+                host = app.windows.firstMatch
+            }
             let isAbove = element.exists ? element.frame.midY < host.frame.midY : scroll < Self.maximumScrolls / 2
             if isAbove {
                 host.swipeDown(velocity: .slow)
@@ -539,7 +571,7 @@ final class NativeVisualPolicyUITests: XCTestCase {
     /// the item is not in, away from the edges, where a turned phone's camera housing takes no taps.
     func dismissPopover(in app: XCUIApplication, until item: XCUIElement) {
         let cancel = app.buttons["Cancel"].firstMatch
-        if cancel.exists, cancel.isHittable {
+        if cancel.waitUntilHittable(timeout: 1) {
             cancel.tap()
         } else {
             let window = app.windows.firstMatch.frame
@@ -552,8 +584,10 @@ final class NativeVisualPolicyUITests: XCTestCase {
     /// Returns the page's search field, pulling the list down when its drawer is closed.
     func revealSearchField(in app: XCUIApplication) -> XCUIElement {
         let field = app.searchFields.firstMatch
-        _ = field.waitForExistence(timeout: 10)
-        for _ in 0..<Self.maximumPulls where !(field.exists && field.isHittable) {
+        if field.waitUntilHittable(timeout: 10) {
+            return field
+        }
+        for _ in 0..<Self.maximumPulls where !field.waitUntilHittable(timeout: 2) {
             let list = app.descendants(matching: .any).matching(Self.listPredicate).firstMatch
             (list.exists ? list : app.windows.firstMatch).swipeDown(velocity: .slow)
         }
