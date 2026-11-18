@@ -49,6 +49,7 @@ class SnapshotMatrixCase: XCTestCase {
         MainActor.assumeIsolated {
             RevealStep.discardHeldTap()
             LibraryScenarios.discardHeldRowTap()
+            GalleryScenarios.discardHeldReportTap()
         }
     }
 

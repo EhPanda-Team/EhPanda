@@ -137,7 +137,10 @@ extension ScenarioCatalog {
             "history-empty": .init(make: { Page.history(nil) }),
             "history-clear-confirmation": .init(
                 make: { Page.history(.row) }, prepare: artwork,
-                interact: { try await Page.activate(String(localized: .RLocalizable.clear), in: $0) }
+                interact: { window in
+                    try await Page.activate(String(localized: .RLocalizable.clear), in: window)
+                    try await RevealStep.awaitDialogPlatter()(window)
+                }
             )
         ]
     }

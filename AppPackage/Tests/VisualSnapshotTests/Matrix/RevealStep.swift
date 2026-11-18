@@ -486,6 +486,11 @@ enum RevealStep {
         element(target, in: window, view: window)?.element
     }
 
+    /// The nearest view at or above the first element in `window` that `target` names.
+    static func view(of target: Target, in window: UIWindow) -> UIView? {
+        element(target, in: window, view: window)?.view
+    }
+
     /// The first element below `root`, depth first, that `target` names, with the view it belongs to: `root`'s
     /// view, the nearest view at or above `root` (`view`).
     private static func element(
