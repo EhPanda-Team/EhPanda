@@ -295,6 +295,10 @@ enum RevealStep {
             if holdingPlacement {
                 try await holdPlacement(target, in: window)
             }
+            if let (_, view) = element(target, in: window, view: window),
+               let list = scrollView(holding: view, in: window) {
+                restWhereTitleSnaps(list)
+            }
             tap?()
         }
     }
@@ -407,6 +411,25 @@ enum RevealStep {
             }
             try await ContinuousClock().sleep(for: .milliseconds(100))
         }
+    }
+
+    /// Leaves a page the step scrolled where a user's scroll would rest it: UIKit snaps a large title to expanded or
+    /// collapsed when a drag ends, never partway. A page only a little taller than its window has its bottom inside
+    /// the title's collapse, and a part placed there left the title halfway over the first row (General in Korean on
+    /// the phone, 47 points: `settings-pages-general-cache-confirmation` and the General pages, candidate runs
+    /// 44025665174 and 44137794244). The title is collapsed by moving past the content's end, and the page then
+    /// rests where it was placed or at the collapsed title's top, whichever is further down. A page without a large
+    /// title returns to where it was placed, and a page the step did not scroll is left as it is.
+    static func restWhereTitleSnaps(_ list: UIScrollView) {
+        let placed = list.contentOffset.y
+        guard placed > -list.adjustedContentInset.top + 0.5 else { return }
+        // The bar is laid out by its navigation controller, outside the list: the whole window is laid out.
+        let pastEnd = list.contentSize.height + list.bounds.height
+        list.setContentOffset(CGPoint(x: list.contentOffset.x, y: pastEnd), animated: false)
+        list.window?.layoutIfNeeded()
+        let collapsedTop = -list.adjustedContentInset.top
+        list.setContentOffset(CGPoint(x: list.contentOffset.x, y: max(placed, collapsedTop)), animated: false)
+        list.window?.layoutIfNeeded()
     }
 
     /// The part of `list`'s content shown between its bars, in the list's own coordinates.
