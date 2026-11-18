@@ -49,7 +49,9 @@ extension ScenarioCatalog {
             "report-form-sending": .init(make: { try Page.reportForm(.sending) }, interact: Page.holdStill),
             "report-form-sent": .init(make: { try Page.reportForm(.sent) }),
             "report-form-unavailable": .init(make: { try Page.reportForm(.unavailable) }),
-            "report-form-error-alert": .init(make: { try Page.reportForm(.errorAlert) })
+            "report-form-error-alert": .init(
+                make: { try Page.reportForm(.errorAlert) }, interact: Page.presentHeldReportFailure
+            )
         ]
     }
 
@@ -102,8 +104,12 @@ extension ScenarioCatalog {
             "reader-vertical": .init(make: { try Page.reader(.vertical) }, prepare: pages),
             "reader-horizontal": .init(make: { try Page.reader(.horizontal) }, prepare: pages),
             "reader-two-page-spread": .init(make: { try Page.reader(.spread) }, prepare: pages),
-            "reader-controls": .init(make: { try Page.reader(.controls) }, prepare: pages),
-            "reader-slider-scrub": .init(make: { try Page.reader(.scrub) }, prepare: pages),
+            "reader-controls": .init(
+                make: { try Page.reader(.controls) }, prepare: pages, interact: SettingsScenarios.waitForGlassShadow
+            ),
+            "reader-slider-scrub": .init(
+                make: { try Page.reader(.scrub) }, prepare: pages, interact: SettingsScenarios.waitForGlassShadow
+            ),
             "reader-page-failed": .init(make: { try Page.reader(.pageFailed) }, prepare: pages),
             "reader-loading": .init(
                 make: { try Page.reader(.loading) }, prepare: pages, interact: Page.holdStill
@@ -171,9 +177,43 @@ enum GalleryScenarios {
         case loading, ready, filled, sending, sent, unavailable, errorAlert
     }
 
+    /// The Send tap held from ``reportForm(_:)`` for ``presentHeldReportFailure(_:)``, so the sheet and its soft
+    /// bottom scroll edge settle before the failed alert dims over them (runs 44025665174 and 44137794244).
+    private static var heldReportTap: (@MainActor () -> Void)?
+
+    /// Drops a held report tap that no ``presentHeldReportFailure(_:)`` performed (`SnapshotMatrixCase`).
+    static func discardHeldReportTap() {
+        heldReportTap = nil
+    }
+
+    /// Sends the filled report once the sheet has settled, then waits for the failed alert to finish presenting.
+    static func presentHeldReportFailure(_ window: UIWindow) async throws {
+        let tap = heldReportTap
+        heldReportTap = nil
+        _ = await HostedWindowCapture.settle(window)
+        tap?()
+        var budget = StepBudget(RevealStep.platterDeadline)
+        while true {
+            budget.look()
+            var front = window.rootViewController
+            while let presented = front?.presentedViewController {
+                front = presented
+            }
+            if let alert = front as? UIAlertController, !alert.isBeingPresented, alert.transitionCoordinator == nil {
+                try await BrowsingScenarios.waitForRest(window)
+                return
+            }
+            guard !budget.isSpent else {
+                throw budget.failure("not-found:report-alert chain=\(RevealStep.presentationChain(in: window))")
+            }
+            try await ContinuousClock().sleep(for: .milliseconds(100))
+        }
+    }
+
     /// The Report form for the first synthetic comment, as Comments presents it from the comment's Report. Its phase
-    /// and fields are the form reducer's own state; the failed alert is the reducer's own. The site is never asked:
-    /// the form's load waits for good, which is the loading state, and nothing sends.
+    /// and fields are the form reducer's own state; the failed alert comes from the reducer's own failed send once the
+    /// sheet has settled. The site is never asked: the form's load waits for good, which is the loading state, and
+    /// nothing sends to the network.
     static func reportForm(_ kind: ReportFormState) throws -> AnyView {
         let url = try XCTUnwrap(galleryURL)
         let comments = TracerScenarios.commentFixtures()
@@ -190,9 +230,6 @@ enum GalleryScenarios {
             form.reason = .child
             form.email = GalleryFixtures.reportEmail
             form.details = form.prefill + "\n\n" + GalleryFixtures.reportDetails
-            if kind == .errorAlert {
-                form.presentFailedAlert()
-            }
         case .sent:
             form.phase = .sent
             form.reason = .child
@@ -210,9 +247,15 @@ enum GalleryScenarios {
                 throw CancellationError()
             }
             $0.reportFormClient.send = { _, _, _, _ in
-                try await Task.sleep(for: .seconds(3600))
+                if kind != .errorAlert {
+                    try await Task.sleep(for: .seconds(3600))
+                }
                 throw CancellationError()
             }
+        }
+        heldReportTap = nil
+        if kind == .errorAlert {
+            heldReportTap = { _ = store.send(.destination(.presented(.reportForm(.primaryTapped)))) }
         }
         return AnyView(NavigationStack {
             CommentsView(

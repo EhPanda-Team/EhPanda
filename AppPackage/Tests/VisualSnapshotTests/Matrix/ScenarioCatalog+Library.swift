@@ -32,7 +32,10 @@ extension ScenarioCatalog {
             "search-root-history": .init(make: { Page.searchRoot(history: true) }, prepare: artwork),
             "search-clear-confirmation": .init(
                 make: { Page.searchRoot(history: true) }, prepare: artwork,
-                interact: { try await BrowsingScenarios.activate(Page.removeAllLabel, in: $0) }
+                interact: { window in
+                    try await BrowsingScenarios.activate(Page.removeAllLabel, in: window)
+                    try await RevealStep.awaitDialogPlatter()(window)
+                }
             ),
             "search-typing-suggestions": .init(
                 make: { Page.searchRoot(history: true, suggestions: true) }, prepare: artwork,
@@ -323,11 +326,11 @@ enum LibraryScenarios {
                 CGPoint(x: list.contentOffset.x, y: -list.adjustedContentInset.top - pull), animated: false
             )
         }
-        root.layoutIfNeeded()
+        window.layoutIfNeeded()
         for list in lists {
             list.setContentOffset(CGPoint(x: list.contentOffset.x, y: -list.adjustedContentInset.top), animated: false)
         }
-        root.layoutIfNeeded()
+        window.layoutIfNeeded()
     }
 
     /// Opens the overflow menu once the page beneath it has settled. The category list is taller than the menu, so
@@ -506,6 +509,52 @@ enum LibraryScenarios {
         heldRowTap = nil
         _ = await HostedWindowCapture.settle(window)
         tap?()
+        try await RevealStep.awaitDialogPlatter()(window)
+        try await syncDisabledBarControls(in: window)
+    }
+
+    /// Waits for SwiftUI's toolbar update after a row confirmation to disable `GalleryLayoutPicker`'s bar item, then
+    /// toggles `isEnabled` once under the already-dimmed bar so UIKit computes the same disabled+dimmed symbol color
+    /// regardless of whether `.disabled(true)` arrived before or after the dialog dimmed the bar.
+    private static func syncDisabledBarControls(in window: UIWindow) async throws {
+        guard hasPresentedAlert(in: window.rootViewController) else { return }
+        let navigations = navigationControllers(in: window.rootViewController)
+        guard !navigations.isEmpty else { return }
+        func allItems(of navigation: UINavigationController) -> [UIBarButtonItem] {
+            guard let item = navigation.topViewController?.navigationItem else { return [] }
+            let grouped = (item.leadingItemGroups + item.centerItemGroups + item.trailingItemGroups)
+                .flatMap(\.barButtonItems)
+            let pinned = item.pinnedTrailingGroup?.barButtonItems ?? []
+            return (item.leftBarButtonItems ?? []) + (item.rightBarButtonItems ?? []) + grouped + pinned
+        }
+        let clock = ContinuousClock()
+        var budget = StepBudget(.seconds(2))
+        while !budget.isSpent {
+            budget.look()
+            if navigations.flatMap(allItems(of:)).contains(where: { !$0.isEnabled }) {
+                break
+            }
+            try await clock.sleep(for: .milliseconds(100))
+        }
+        for navigation in navigations {
+            let disabled = allItems(of: navigation).filter({ !$0.isEnabled })
+            guard !disabled.isEmpty else { continue }
+            disabled.forEach({ $0.isEnabled = true })
+            navigation.navigationBar.setNeedsLayout()
+            navigation.navigationBar.layoutIfNeeded()
+            disabled.forEach({ $0.isEnabled = false })
+            navigation.navigationBar.setNeedsLayout()
+            navigation.navigationBar.layoutIfNeeded()
+        }
+        window.layoutIfNeeded()
+        try await BrowsingScenarios.waitForRest(window)
+    }
+
+    private static func hasPresentedAlert(in controller: UIViewController?) -> Bool {
+        guard let controller else { return false }
+        if controller.presentedViewController is UIAlertController { return true }
+        if let presented = controller.presentedViewController, hasPresentedAlert(in: presented) { return true }
+        return controller.children.contains(where: hasPresentedAlert(in:))
     }
 
     /// Downloads in the Library, in the first synthetic folder, as the Library shows it on each device. A
@@ -660,8 +709,11 @@ enum LibraryScenarios {
     /// Both waits are counted in time the main run loop turned (``StepBudget``): run 43621303643 failed the step as
     /// `no-suggestions` on attempts of 40 s and more in pictures that took 60 and 67 s.
     static func type(_ text: String, in window: UIWindow, until shown: RevealStep.Target) async throws {
+        _ = await HostedWindowCapture.settle(window)
         let root = try XCTUnwrap(window.rootViewController?.view)
         let clock = ContinuousClock()
+        KeyboardWatch.start()
+        let mark = KeyboardWatch.mark
         var focusBudget = StepBudget(BrowsingScenarios.focusDeadline)
         let fieldBudget = StepBudget(.seconds(3))
         var typedField: UISearchTextField?
@@ -685,11 +737,21 @@ enum LibraryScenarios {
         while held < 2 {
             let focused = field.isFirstResponder
             let showing = RevealStep.element(shown, in: window) != nil
+            let keyboardUp = GalleryScenarios.keyboardIsUp(over: window)
             guard !focusBudget.isSpent else {
-                throw focusBudget.failure(focused ? "no-suggestions" : "search-focus-not-held")
+                let reason: String
+                if !focused {
+                    reason = "search-focus-not-held"
+                } else if !showing {
+                    reason = "no-suggestions"
+                } else {
+                    let state = GalleryScenarios.keyboardState(over: window, focused: true, since: mark.announcements)
+                    reason = "no-keyboard:\(state)" + KeyboardWatch.editing(since: mark, in: window)
+                }
+                throw focusBudget.failure(reason)
             }
             focusBudget.look()
-            if focused && showing {
+            if focused && showing && keyboardUp {
                 held += 1
             } else {
                 held = 0
@@ -697,9 +759,81 @@ enum LibraryScenarios {
             }
             try await clock.sleep(for: .milliseconds(300))
             try await BrowsingScenarios.waitForRest(window)
+            if !field.isFirstResponder || !GalleryScenarios.keyboardIsUp(over: window) {
+                held = 0
+            }
         }
+        if let suggestionView = RevealStep.view(of: shown, in: window),
+           let list = enclosingScrollView(of: suggestionView) {
+            // SearchRootView's scroll view stays behind the suggestions overlay; naming the suggestions list as the
+            // page's top content scroll view stops the bar from drawing a scroll-edge hairline in some runs and not in
+            // others (zh-Hans and zh-Hant accessibility5 landscape, runs 44025665174 and 44137794244).
+            list.setContentOffset(CGPoint(x: list.contentOffset.x, y: -list.adjustedContentInset.top), animated: false)
+            for navigation in navigationControllers(in: window.rootViewController) {
+                guard let page = navigation.topViewController else { continue }
+                page.setContentScrollView(list, for: .top)
+                navigation.navigationBar.setNeedsLayout()
+                navigation.view.setNeedsLayout()
+                navigation.view.layoutIfNeeded()
+            }
+        }
+        window.layoutIfNeeded()
+        try await BrowsingScenarios.waitForRest(window)
         BrowsingScenarios.stopCaretBlink(in: window)
         try await BrowsingScenarios.freezeIndicators(window)
+    }
+
+    /// Waits for a pre-filled search field's clear button to appear and hold its frame (`search-results-*`), so a slow
+    /// bar pass neither omits the button nor captures it one pixel to the left.
+    static func awaitClearButtonIfNeeded(_ window: UIWindow) async throws {
+        guard let root = window.rootViewController?.view,
+              let field = firstView(of: UISearchTextField.self, in: root),
+              !(field.text ?? "").isEmpty
+        else { return }
+        let clock = ContinuousClock()
+        var budget = StepBudget(.seconds(3))
+        var previous: CGRect?
+        while !budget.isSpent {
+            budget.look()
+            field.layoutIfNeeded()
+            window.layoutIfNeeded()
+            if let button = clearButton(in: field) {
+                let frame = button.convert(button.bounds, to: window)
+                if frame == previous {
+                    try await BrowsingScenarios.waitForRest(window)
+                    return
+                }
+                previous = frame
+            } else {
+                previous = nil
+            }
+            try await clock.sleep(for: .milliseconds(100))
+        }
+    }
+
+    private static func clearButton(in view: UIView) -> UIButton? {
+        if let button = view as? UIButton, !button.isHidden, button.alpha > 0.99, !button.bounds.isEmpty {
+            return button
+        }
+        for subview in view.subviews {
+            if let match = clearButton(in: subview) { return match }
+        }
+        return nil
+    }
+
+    private static func enclosingScrollView(of view: UIView) -> UIScrollView? {
+        var current: UIView? = view
+        while let candidate = current {
+            if let scrollView = candidate as? UIScrollView { return scrollView }
+            current = candidate.superview
+        }
+        return nil
+    }
+
+    private static func navigationControllers(in controller: UIViewController?) -> [UINavigationController] {
+        guard let controller else { return [] }
+        let own = (controller as? UINavigationController).map({ [$0] }) ?? []
+        return own + controller.children.flatMap(navigationControllers(in:))
     }
 
     private static func firstView<View: UIView>(of type: View.Type, in view: UIView) -> View? {
@@ -724,6 +858,7 @@ extension ScenarioFactory {
         let step = interact
         return ScenarioFactory(signedIn: signedIn, cookies: cookies, make: make, prepare: prepare, interact: { window in
             try LibraryScenarios.restAtTop(window)
+            try await LibraryScenarios.awaitClearButtonIfNeeded(window)
             try await step?(window)
         }, minimumReads: minimumReads)
     }
