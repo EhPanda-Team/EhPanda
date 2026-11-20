@@ -166,7 +166,7 @@ PAL_ASSETS = json.loads((FIXTURES / "pal-release-assets.json").read_text(encodin
 PAL_PREFIX = "EhPanda-AltStorePAL-"
 PAL_SOURCE = {
     "name": "EhPanda",
-    "identifier": "app.ehpanda.altstorepal",
+    "identifier": "app.ehpanda.altstore.pal",
     "subtitle": "Subtitle.",
     "description": "Description.",
     "iconURL": "https://example.com/icon.png",
