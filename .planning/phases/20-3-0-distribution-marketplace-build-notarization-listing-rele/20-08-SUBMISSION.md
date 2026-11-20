@@ -108,11 +108,15 @@ So AltStore accepted the listed entitlements.
 
 ## Open
 
-- **`publish` does not follow the owner's rule yet.** It should read the entitlement keys from the marketplace
-  targets' entitlements files, and the privacy keys from their Info.plist files, in place of the encrypted variants.
-  The plan's design and its tests change with it.
+- **Closed (2026-11-21): `publish` follows the owner's rule.** `pal_publish.py publish` takes the version,
+  build, bundle ID, minimum iOS version and Apple ID from `manifest.json` (which must list exactly the ADP's
+  variants and name the marketplace ID), and the permissions from `--entitlements` and `--info-plist`, which
+  `deploy-pal.yml` passes and `test_workflows.py` holds to `project.pbxproj`'s CODE_SIGN_ENTITLEMENTS and
+  INFOPLIST_FILE. A usage description that names a build setting, or that two bundles word differently, is
+  refused. The variants are never read, `codesign` is no longer used, and the ADP fixture has the real layout
+  (opaque `variant/<publicId>.ipa`). Run on this ADP with `--dry-run`, it rebuilds `main`'s `AltStorePAL.json`
+  byte for byte.
 - **Install with `[]` not yet tried.** If AltStore refuses it, the rule needs another look.
-- **DIST-18-03:** the D-21 answer needs a `deploy-pal.yml` `submit` run, and the `publish` job cannot run against a
-  real ADP until the item above is settled.
+- **DIST-18-03:** the D-21 answer needs a `deploy-pal.yml` `submit` run.
 - **Not recorded:** the owner's copy-and-caption approval and the collaborator's App Store Connect entries (Task 3,
   steps 1 and 2).
