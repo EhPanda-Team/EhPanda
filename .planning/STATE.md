@@ -134,8 +134,10 @@ source_head: b5eca09d1
   `app.ehpanda.altstore.pal`. The four ADP files are `EhPanda-AltStorePAL-*` assets of the 3.0.0 release
   (re-downloaded, hashes equal), and the owner's install on iPhone worked. On `main` through #476 (merge
   `ec39cc9a8`, owner bypass of the code-owner review; #475 withdrawn), so https://ehpanda.app/AltStorePAL.json is
-  live. Record: `20-08-SUBMISSION.md`. Open: how `publish` gets entitlements now that the variants are encrypted
-  (owner decision pending), and the D-21 answer (no `deploy-pal.yml` run yet), so DIST-18-03 stays Pending.
+  live. Record: `20-08-SUBMISSION.md`. **Entitlements rule (owner decision, 2026-11-21):** the source lists only
+  the project's entitlements files and leaves out what Apple's signing adds, so 3.0.0 lists `[]` on `develop` and
+  `main`; no install with `[]` tried yet. Open: `publish` still reads the encrypted variants and must follow that
+  rule, and the D-21 answer (no `deploy-pal.yml` run yet), so DIST-18-03 stays Pending.
 - **`develop` re-signed (2026-11-21, owner decision).** `main` requires verified signatures, and two `develop`
   commits were unsigned: the dependency update and the gsd-core docs commit. Those two, and every commit after the
   first of them (22 in all), were signed again with their trees, authors, messages and dates kept. The dependency

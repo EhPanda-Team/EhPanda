@@ -58,6 +58,12 @@ tool is not changed here: where `publish` takes the entitlements from is open fo
 
 ## Entitlements
 
+**Amended 2026-11-21 (owner decision):** the source lists only the entitlements in the project's entitlements
+files, and leaves out the ones Apple's signing adds. For 3.0.0 that is `[]`: `App/EhPanda.entitlements` is empty
+and the share extension has none. `AltStorePAL.json` was changed to `[]` on `develop` and `main`. No install has
+been tried with `[]` yet; the install below listed the two signed keys. The table that follows is what the signed
+build carries, kept as the evidence.
+
 Read with `codesign -d --entitlements` from the signed 3.0.0 (163) archive, without the two keys AltStore excludes
 (`application-identifier`, `com.apple.developer.team-identifier`):
 
@@ -102,8 +108,10 @@ So AltStore accepted the listed entitlements.
 
 ## Open
 
-- **How `publish` gets entitlements and privacy keys** (owner decision). The variants cannot provide them. One
-  candidate is for the `submit` job to record them from its signed archive for `publish` to read.
+- **`publish` does not follow the owner's rule yet.** It should read the entitlement keys from the marketplace
+  targets' entitlements files, and the privacy keys from their Info.plist files, in place of the encrypted variants.
+  The plan's design and its tests change with it.
+- **Install with `[]` not yet tried.** If AltStore refuses it, the rule needs another look.
 - **DIST-18-03:** the D-21 answer needs a `deploy-pal.yml` `submit` run, and the `publish` job cannot run against a
   real ADP until the item above is settled.
 - **Not recorded:** the owner's copy-and-caption approval and the collaborator's App Store Connect entries (Task 3,
