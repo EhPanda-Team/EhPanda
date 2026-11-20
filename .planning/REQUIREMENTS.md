@@ -243,7 +243,7 @@ Deferred to a future milestone after 3.0 (owner decision; product lead decision)
 | VIS-18-01 | Phase 19 | Pending |
 | VIS-19-01 | Phase 19 | Pending |
 | MKT-18-01 | Phase 20 (promotional images and store screenshots; 384 export, selection and regeneration dropped 2026-11-06, owner decision) | Pending (the AltStore, SideStore, beta and PAL sources carry the owner's seven screenshots, 20-10 on 2026-11-10; the App Store Connect upload and any iPad set remain at 20-08) |
-| DIST-18-02 | Phase 20 | Pending (PAL source screenshots done at 20-10, 2026-11-10; PAL copy, `marketplaceID`, versions and listing URLs remain) |
+| DIST-18-02 | Phase 20 | Pending (PAL source screenshots done at 20-10, 2026-11-10; `marketplaceID`, the 3.0.0 version and the live source at https://ehpanda.app/AltStorePAL.json done at 20-08, 2026-11-21; the owner's approval of the PAL copy and the App Store Connect listing URLs are not recorded yet) |
 | DIST-18-03 | Phase 20 | Pending |
 | DEV-18-01 | Phase 20 | Pending |
 | ANALYTICS-02 | Phase 20 (last plan) | Pending |
@@ -256,7 +256,8 @@ Deferred to a future milestone after 3.0 (owner decision; product lead decision)
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-11-10 — 20-10 closed with the owner's seven iPhone screenshots (product lead decision): MKT-18-01 and DIST-18-02 rows note the progress and stay Pending; CAP-17-05 unchanged (not met as written).*
+*Last updated: 2026-11-21 — 20-08: the first AltStore PAL source is live (hand-made, owner decision); DIST-18-02 notes the progress and stays Pending; DIST-18-03 stays Pending (no `deploy-pal.yml` run, D-21 unanswered).*
+*Previously updated: 2026-11-10 — 20-10 closed with the owner's seven iPhone screenshots (product lead decision): MKT-18-01 and DIST-18-02 rows note the progress and stay Pending; CAP-17-05 unchanged (not met as written).*
 *Previously updated: 2026-11-07 — VIS-18-01 amended: three Dynamic Type sizes and a separate public baseline repository (owner decision). Previously 2026-11-06: Phase 19 is the screenshot check plus a daily live-parsing check: MKT-18-01's 384 export, final selection and regeneration dropped (owner decision; lead decision), its remaining part in Phase 20; CAP-17-01 and CAP-17-04 notes updated; VIS-18-01 amended; VIS-19-01 added in Phase 19 (owner decision; product lead decision); TAG-01 and TAG-02 added as v2 (owner decision); 45/45 mapped.*
 *Previously updated: 2026-11-05 — Plan 18-12 complete (its live report-page check verified by an agent per owner rule): AGE-18-01, CONSENT-18-01 and UGC-18-01 Complete. Marked by hand.*
 *Previously updated: 2026-11-05 — Phase 18 split into Phases 18 to 20 (owner decision): AGE-18-01 and CONSENT-18-01 in 18; VIS-18-01 and the moved CAP-17-02/03 and CAP-17-01/06 parts in 19; REL-18-01, DIST-18-02, DIST-18-03, DEV-18-01, ANALYTICS-02 and CAP-17-05 in 20; DIST-18-01, UGC-18-01 and MKT-18-01 split across two phases. Owner decisions of 2026-11-05 recorded as amendments; 44/44 mapped.*

@@ -6,8 +6,8 @@ current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing 
 status: executing
 stopped_at: Completed 20-14-PLAN.md (Release isolation scan, both flavors 0 findings; phase gate green)
 last_updated: "2026-11-17T15:10:53.851Z"
-last_activity: 2026-11-18
-last_activity_desc: "Quick task 261117-tyj completed: the compact Library picker remembers its last choice across launches (the sidebar does not), and a user-deleted gallery, singly or by folder, leaves the continued-download card's pages and galleries count. Earlier, 20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
+last_activity: 2026-11-21
+last_activity_desc: "20-08 recorded (20-08-SUBMISSION.md): Apple accepted 3.0.0 (163) for Notarization, the ADP is fetched and its variants are encrypted, and the hand-made AltStorePAL.json is live on main (owner decision); develop re-signed for main's signature rule. Earlier, quick task 261117-tyj completed: the compact Library picker remembers its last choice across launches (the sidebar does not), and a user-deleted gallery, singly or by folder, leaves the continued-download card's pages and galleries count. Earlier, 20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
 state_head: 93a0663762f5dffa6397dbb733cef91a47c4e4c2
 progress:
   total_phases: 21
@@ -131,8 +131,16 @@ source_head: b5eca09d1
   entitlements or privacy from them; the entitlements (`beta-reports-active`, `get-task-allow`) come from the
   signed build-163 archive (app and ShareExtension), the privacy key from `App/Info.plist`. The source was built
   with the publish filter and passes `check_source(pal=True)`. Owner decision: the source identifier is
-  `app.ehpanda.altstore.pal`. Open: the ADP assets on the 3.0.0 release, the owner's install test on iPhone, how
-  `publish` gets entitlements from now on (owner decision pending), and `20-08-SUBMISSION.md`.
+  `app.ehpanda.altstore.pal`. The four ADP files are `EhPanda-AltStorePAL-*` assets of the 3.0.0 release
+  (re-downloaded, hashes equal), and the owner's install on iPhone worked. On `main` through #476 (merge
+  `ec39cc9a8`, owner bypass of the code-owner review; #475 withdrawn), so https://ehpanda.app/AltStorePAL.json is
+  live. Record: `20-08-SUBMISSION.md`. Open: how `publish` gets entitlements now that the variants are encrypted
+  (owner decision pending), and the D-21 answer (no `deploy-pal.yml` run yet), so DIST-18-03 stays Pending.
+- **`develop` re-signed (2026-11-21, owner decision).** `main` requires verified signatures, and two `develop`
+  commits were unsigned: the dependency update and the gsd-core docs commit. Those two, and every commit after the
+  first of them (22 in all), were signed again with their trees, authors, messages and dates kept. The dependency
+  update's committer is now the owner. The 261117-tyj records point at the new hashes. Branches built on the old
+  commits (`fix/snapshot-scenarios`, `update-dependencies`) need rebasing onto the new `develop`.
 
 ## Phase 19 complete, with deferred items — 2026-11-11
 
