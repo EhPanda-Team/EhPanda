@@ -357,7 +357,17 @@ class PALTemplateTests(unittest.TestCase):
         self.assertEqual(app["developerName"], "EhPanda Team")  # D-24
         self.assertEqual(app["appPermissions"], {"entitlements": [], "privacy": {}})
         self.assertEqual(app.get("versions", []), [])
-        self.assertFalse((TOOLS.parent / "AltStorePAL.json").exists(), "only the first PAL publish creates it")
+
+    def test_the_published_pal_source_is_the_template_plus_what_a_publish_fills_in(self):
+        # The first AltStorePAL.json (3.0.0) was made by hand from the real ADP, with the publish filter and the
+        # entitlements of the signed build-163 archive, because the ADP's variants are encrypted.
+        published = json.loads((TOOLS.parent / "AltStorePAL.json").read_text(encoding="utf-8"))
+        self.assertEqual(languages.check_source(published, pal=True), [])
+        self.assertEqual({k: v for k, v in published.items() if k != "apps"},
+                         {k: v for k, v in PAL.items() if k != "apps"})
+        filled = {"marketplaceID", "appPermissions", "versions"}
+        self.assertEqual({k: v for k, v in published["apps"][0].items() if k not in filled},
+                         {k: v for k, v in PAL["apps"][0].items() if k not in filled})
 
     def test_the_pal_template_has_the_classic_metadata(self):
         # D-16: the website's copy, https://ehpanda.app and #557F72, as AltStore.json has them.

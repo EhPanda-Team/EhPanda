@@ -123,6 +123,16 @@ source_head: b5eca09d1
   published contact link is out of the 3.0 plan (ROADMAP Phase 20 item 4 and SC4, D-05, 20-07, 20-08 amended), and
   UGC-18-01 is marked complete. The App Store Connect Support URL is the GitHub repository page,
   https://github.com/EhPanda-Team/EhPanda (guideline 1.5 is a Notarization guideline; 1.2 is not).
+- **20-08: first PAL source by hand (2026-11-21, owner decision).** Apple accepted 3.0.0 (163) for Notarization,
+  submitted outside `deploy-pal.yml` (no run yet); the App Store Connect key is not available yet, so the first
+  `AltStorePAL.json` was made by hand. ADP `453ead28-2d2b-49d1-a398-5a06ca29186b`, fetched with
+  `pal_publish.py fetch`: `manifest.json` (`appleItemId` 6832942312, the `marketplaceID`), `signature` and
+  `variant/<uuid>.ipa` for iPad and iPhone. **The variants are encrypted**, so `pal_publish.py publish` cannot read
+  entitlements or privacy from them; the entitlements (`beta-reports-active`, `get-task-allow`) come from the
+  signed build-163 archive (app and ShareExtension), the privacy key from `App/Info.plist`. The source was built
+  with the publish filter and passes `check_source(pal=True)`. Owner decision: the source identifier is
+  `app.ehpanda.altstore.pal`. Open: the ADP assets on the 3.0.0 release, the owner's install test on iPhone, how
+  `publish` gets entitlements from now on (owner decision pending), and `20-08-SUBMISSION.md`.
 
 ## Phase 19 complete, with deferred items — 2026-11-11
 
