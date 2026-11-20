@@ -349,7 +349,7 @@ def pal_release(source, marketplace_id="6740000001", version="3.0.0", build="159
 class PALTemplateTests(unittest.TestCase):
     def test_the_pal_template_is_the_marketplace_app_with_no_versions(self):
         app = PAL["apps"][0]
-        self.assertEqual(PAL["identifier"], "app.ehpanda.altstorepal")
+        self.assertEqual(PAL["identifier"], "app.ehpanda.altstore.pal")
         self.assertIs(PAL["nsfw"], True)
         self.assertEqual(PAL["featuredApps"], ["app.ehpanda.store"])
         self.assertEqual(app["bundleIdentifier"], "app.ehpanda.store")
