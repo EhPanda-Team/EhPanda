@@ -12,24 +12,32 @@ Usage:
       ADP that is already on disk. Writes <dir>/adp/ (the files, byte for byte), <dir>/adp-files.json (the SHA-256
       of each) and, for a zip, <dir>/adp.zip.
   pal_publish.py publish --version <x.y.z> --adp <dir> --repo <owner/name> --notes <file>
-                         --marketplace-id <id> [--work <dir>] [--retry-delay <s>] [--dry-run]
-      run in a checkout whose `origin` is the repository: checks the fetched ADP against its hashes, finds the
-      release tagged <x.y.z> (it never creates one), uploads each ADP file as `EhPanda-AltStorePAL-<file name>`,
-      downloads every uploaded asset again and compares its hash, then adds the version to `AltStorePAL.json` on
-      `main` (or to the template if there is none yet) and pushes, retrying up to five times on a fresh `main`.
-      With --dry-run it stops after the checks and prints what it would upload and write; the source it would
-      write is left in <work>/AltStorePAL.json.
+                         --marketplace-id <id> [--entitlements <file>]... --info-plist <file>...
+                         [--work <dir>] [--retry-delay <s>] [--dry-run]
+      run in a checkout whose `origin` is the repository: checks the fetched ADP against its hashes and its
+      manifest, finds the release tagged <x.y.z> (it never creates one), uploads each ADP file as
+      `EhPanda-AltStorePAL-<file name>`, downloads every uploaded asset again and compares its hash, then adds the
+      version to `AltStorePAL.json` on `main` (or to the template if there is none yet) and pushes, retrying up to
+      five times on a fresh `main`. With --dry-run it stops after the checks and prints what it would upload and
+      write; the source it would write is left in <work>/AltStorePAL.json.
 
-An ADP is `manifest.json`, `signature` and one `.ipa` per variant, in any folders. AltStore asks that no file be
-changed, "DO NOT modify the manifest.json in any way", so every file is only ever copied as bytes and its hash is
-compared at download, at staging and after upload. `assetURLs` maps each file name without its extension to its
-asset's URL, which is how AltStore takes an ADP hosted on GitHub Releases.
+An ADP is `manifest.json`, `signature` and one `.ipa` per variant, in any folders (the real 3.0.0 ADP has them in
+`variant/`; 20-08). AltStore asks that no file be changed, "DO NOT modify the manifest.json in any way", so every
+file is only ever copied as bytes and its hash is compared at download, at staging and after upload. `assetURLs`
+maps each file name without its extension to its asset's URL, which is how AltStore takes an ADP hosted on GitHub
+Releases.
+
+Apple encrypts the variants, so nothing is read from them. The version, build, bundle ID, minimum iOS version and
+the app's Apple ID come from `manifest.json`. The source's permissions come from the project (owner decision, 20-08):
+the keys of each `--entitlements` file (a bundle's CODE_SIGN_ENTITLEMENTS) and the usage descriptions of each
+`--info-plist` file (a bundle's INFOPLIST_FILE). The entitlements Apple's signing adds, such as `get-task-allow`
+and `beta-reports-active`, are deliberately not listed.
 
 Environment:
   ALTSTORE_API_URL   AltStore's API (default https://api.altstore.io; tests point it at a local fake)
-  PAL_GH, PAL_CODESIGN, PAL_JQ, PAL_GIT   the tools to run (default gh, codesign, jq, git)
+  PAL_GH, PAL_JQ, PAL_GIT   the tools to run (default gh, jq, git)
 
-The standard library, `gh`, `codesign`, `jq` and `git` only. Nothing here talks to App Store Connect.
+The standard library, `gh`, `jq` and `git` only. Nothing here talks to App Store Connect.
 """
 
 import argparse
@@ -187,7 +195,7 @@ def check_files(relative_paths):
         names[name] = relative
         if adp_role(name) is None:
             raise PublishError(f"The ADP has an unexpected file {relative}: only manifest.json, signature and .ipa "
-                               f"variants are published (the ADP layout is checked at 20-08).")
+                               f"variants are published.")
     for required in ("manifest.json", "signature"):
         if required not in names:
             raise PublishError(f"The ADP has no {required}.")
@@ -204,8 +212,7 @@ def unpack_zip(archive_path, destination):
     try:
         archive = zipfile.ZipFile(archive_path)
     except zipfile.BadZipFile:
-        raise PublishError(f"{archive_path} is not a zip archive; AltStore's ADP download format is first seen at "
-                           f"20-08.") from None
+        raise PublishError(f"{archive_path} is not a zip archive, as AltStore's ADP download is.") from None
     with archive:
         members = [member for member in archive.infolist() if not member.is_dir()]
         for member in members:
@@ -271,51 +278,63 @@ def fetch(args):
     say(f"The ADP is in {adp}.")
 
 
-# The signed variant --------------------------------------------------------------------------------------------
+# The manifest --------------------------------------------------------------------------------------------------
+
+def manifest_facts(adp_dir, files, marketplace_id):
+    """The version's facts from Apple's manifest.json, the only readable record of the build: the variants are
+    encrypted. The manifest must list exactly the variants the ADP has, and be the app the marketplace ID names."""
+    try:
+        manifest = json.loads((adp_dir / "adp" / "manifest.json").read_bytes())
+    except (OSError, ValueError) as error:
+        raise PublishError(f"The ADP's manifest.json could not be read: {error}") from None
+    if not isinstance(manifest, dict):
+        raise PublishError("The ADP's manifest.json is not an object.")
+    facts = {"appleItemId": manifest.get("appleItemId"), "bundleId": manifest.get("bundleId"),
+             "shortVersionString": manifest.get("shortVersionString"), "bundleVersion": manifest.get("bundleVersion"),
+             "minimumSystemVersions.ios": (manifest.get("minimumSystemVersions") or {}).get("ios")}
+    for key, value in facts.items():
+        if not isinstance(value, str) or not value:
+            raise PublishError(f"The ADP's manifest.json has no {key}.")
+    if facts["appleItemId"] != marketplace_id:
+        raise PublishError(f"The ADP is the app {facts['appleItemId']}, not the marketplace ID {marketplace_id}.")
+    listed = {variant.get("assetPath") for variant in manifest.get("variants") or [] if isinstance(variant, dict)}
+    present = {relative for relative in files if relative.endswith(".ipa")}
+    if listed != present:
+        raise PublishError(f"The ADP's variants differ from its manifest's: it has {sorted(present)}, the manifest "
+                           f"lists {sorted(str(path) for path in listed)}.")
+    return facts
+
+
+# The project ---------------------------------------------------------------------------------------------------
 
 def read_plist(path, what):
     try:
-        return plistlib.loads(path.read_bytes())
+        value = plistlib.loads(pathlib.Path(path).read_bytes())
     except (OSError, plistlib.InvalidFileException, ValueError) as error:
         raise PublishError(f"{what} could not be read: {error}") from None
+    if not isinstance(value, dict):
+        raise PublishError(f"{what} is not a dictionary.")
+    return value
 
 
-def bundle_facts(ipa, work):
-    """The app's Info.plist facts, its privacy usage descriptions and the entitlement keys of the app and each
-    extension, read from the signed variant."""
-    unpacked = work / ipa.stem
-    with zipfile.ZipFile(ipa) as archive:
-        for member in archive.infolist():
-            if not safe_member(member.filename):
-                raise PublishError(f"{ipa.name} has an entry outside its folder: {member.filename}")
-        archive.extractall(unpacked)
-    apps = sorted((unpacked / "Payload").glob("*.app"))
-    if len(apps) != 1:
-        raise PublishError(f"{ipa.name} has {len(apps)} apps in Payload, not one.")
-    app = apps[0]
-    info = read_plist(app / "Info.plist", f"{ipa.name}'s Info.plist")
-    bundles = [app] + sorted(app.glob("PlugIns/*.appex")) + sorted(app.glob("Extensions/*.appex"))
-    privacy = {}
+def project_permissions(entitlement_files, info_plists):
+    """The source's permissions from the project (owner decision, 20-08): the keys of the bundles' entitlements
+    files, without the two AltStore does not want listed, and the usage descriptions of their Info.plist files.
+    A usage description must be the plain text the app shows: one that names a build setting, or that two bundles
+    word differently, is refused rather than guessed."""
     entitlements = set()
-    for bundle in bundles:
-        bundle_info = info if bundle == app else read_plist(bundle / "Info.plist", f"{bundle.name}'s Info.plist")
-        privacy.update({key: str(value) for key, value in bundle_info.items() if key.endswith("UsageDescription")})
-        result = run([tool("codesign"), "-d", "--entitlements", "-", "--xml", str(bundle)], check=False,
-                     binary=True)
-        if result.returncode != 0:
-            raise PublishError(f"The entitlements of {bundle.name} in {ipa.name} could not be read: "
-                               f"{result.stderr.decode(errors='replace').strip()}")
-        if result.stdout.strip():
-            granted = plistlib.loads(result.stdout)
-            if not isinstance(granted, dict):
-                raise PublishError(f"The entitlements of {bundle.name} are not a dictionary.")
-            entitlements |= set(granted)
-    facts = {key: info.get(key) for key in ("CFBundleIdentifier", "CFBundleShortVersionString", "CFBundleVersion",
-                                            "MinimumOSVersion")}
-    for key, value in facts.items():
-        if not isinstance(value, str) or not value:
-            raise PublishError(f"{ipa.name}'s Info.plist has no {key}.")
-    return facts, privacy, sorted(entitlements - UNLISTED_ENTITLEMENTS)
+    for path in entitlement_files:
+        entitlements |= set(read_plist(path, f"The entitlements file {path}"))
+    privacy = {}
+    for path in info_plists:
+        for key, value in read_plist(path, f"The Info.plist {path}").items():
+            if not key.endswith("UsageDescription"):
+                continue
+            if not isinstance(value, str) or not value or "$(" in value:
+                raise PublishError(f"{key} in {path} is not plain text ({value!r}); AltStore shows it as written.")
+            if privacy.setdefault(key, value) != value:
+                raise PublishError(f"{key} in {path} differs from another bundle's: {value!r}, not {privacy[key]!r}.")
+    return sorted(entitlements - UNLISTED_ENTITLEMENTS), dict(sorted(privacy.items()))
 
 
 # GitHub --------------------------------------------------------------------------------------------------------
@@ -444,22 +463,16 @@ def publish(args):
     adp_dir = pathlib.Path(args.adp)
     work = pathlib.Path(args.work)
     work.mkdir(parents=True, exist_ok=True)
-    for part in ("assets", "existing", "verify", "variants"):
+    for part in ("assets", "existing", "verify"):
         shutil.rmtree(work / part, ignore_errors=True)
         (work / part).mkdir()
 
     files = verified_adp(adp_dir)
     variants = sorted(relative for relative in files if relative.endswith(".ipa"))
-    facts = privacy = entitlements = None
-    for relative in variants:
-        variant_facts, variant_privacy, variant_entitlements = bundle_facts(adp_dir / "adp" / relative,
-                                                                            work / "variants")
-        if facts is not None and (variant_facts, variant_privacy, variant_entitlements) != \
-                (facts, privacy, entitlements):
-            raise PublishError(f"The variants differ in their Info.plist or entitlements ({relative}).")
-        facts, privacy, entitlements = variant_facts, variant_privacy, variant_entitlements
-    if facts["CFBundleShortVersionString"] != args.version:
-        raise PublishError(f"The ADP is version {facts['CFBundleShortVersionString']}, not {args.version}.")
+    facts = manifest_facts(adp_dir, files, args.marketplace_id)
+    if facts["shortVersionString"] != args.version:
+        raise PublishError(f"The ADP is version {facts['shortVersionString']}, not {args.version}.")
+    entitlements, privacy = project_permissions(args.entitlements, args.info_plist)
     try:
         notes = release_notes.read(args.notes)
     except release_notes.NotesError as error:
@@ -492,8 +505,8 @@ def publish(args):
         say(f"{name} is already up to date on the release.")
 
     def entry_for(urls):
-        return {"bundleIdentifier": facts["CFBundleIdentifier"], "version": args.version,
-                "buildVersion": facts["CFBundleVersion"], "minOSVersion": facts["MinimumOSVersion"],
+        return {"bundleIdentifier": facts["bundleId"], "version": args.version,
+                "buildVersion": facts["bundleVersion"], "minOSVersion": facts["minimumSystemVersions.ios"],
                 "date": release["published_at"], "notes": notes, "privacy": privacy, "entitlements": entitlements,
                 "marketplaceID": args.marketplace_id,
                 "size": (adp_dir / "adp" / variants[0]).stat().st_size,
@@ -561,6 +574,9 @@ def parse(argv):
     command.add_argument("--repo", required=True)
     command.add_argument("--notes", required=True)
     command.add_argument("--marketplace-id", required=True)
+    # Each bundle's CODE_SIGN_ENTITLEMENTS (a bundle may have none) and INFOPLIST_FILE, as deploy-pal.yml passes them.
+    command.add_argument("--entitlements", action="append", default=[])
+    command.add_argument("--info-plist", action="append", required=True)
     command.add_argument("--work", default="pal-publish-work")
     command.add_argument("--retry-delay", type=float, default=5)
     command.add_argument("--dry-run", action="store_true")

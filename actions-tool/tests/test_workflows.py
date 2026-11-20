@@ -635,7 +635,7 @@ PAL_PUBLISH_STEPS = [
 @unittest.skipUnless(RUBY, "ruby is not installed")
 class PalPublishWorkflowTests(unittest.TestCase):
     """`deploy-pal.yml`'s publish job (20-05; D-19, D-21): ADP ID, AltStore processing, the unchanged ADP as release
-    assets and the PAL source on `main`. Its first live run is 20-08, as a dry run first."""
+    assets and the PAL source on `main`, with the permissions from the project's files (owner decision, 20-08)."""
 
     @classmethod
     def setUpClass(cls):
@@ -687,6 +687,25 @@ class PalPublishWorkflowTests(unittest.TestCase):
                        "ReleaseNotes/", "--dry-run"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, publish)
+
+    def test_the_permissions_come_from_the_projects_files(self):
+        # Owner decision (20-08): the PAL source lists the project's entitlements and usage descriptions, never
+        # what signing adds. The files publish reads must be the ones the project builds with, and nothing may add
+        # an entitlements file or a usage description outside them.
+        publish = self.run_text("Publish to AltStore PAL")
+        project = (ROOT / "EhPanda.xcodeproj" / "project.pbxproj").read_text(encoding="utf-8")
+        self.assertEqual(set(re.findall(r"--entitlements (\S+)", publish)),
+                         set(re.findall(r"(?<![A-Z_])CODE_SIGN_ENTITLEMENTS = ([^;]+);", project)))
+        self.assertEqual(set(re.findall(r"--info-plist (\S+)", publish)),
+                         set(re.findall(r"(?<![A-Z_])INFOPLIST_FILE = ([^;]+);", project)))
+        overriders = sorted((ROOT / "Config").glob("*.xcconfig"))
+        overriders.append(ROOT / "actions-tool" / "marketplace-signing.sh")
+        for path in [ROOT / "EhPanda.xcodeproj" / "project.pbxproj", *overriders]:
+            with self.subTest(path=path.name):
+                self.assertNotRegex(path.read_text(encoding="utf-8"), r"INFOPLIST_KEY_\w*UsageDescription")
+        for path in overriders:
+            with self.subTest(path=path.name):
+                self.assertNotIn("CODE_SIGN_ENTITLEMENTS", path.read_text(encoding="utf-8"))
 
     def test_dry_run_is_passed_through(self):
         step = step_named(self.job, "Publish to AltStore PAL")

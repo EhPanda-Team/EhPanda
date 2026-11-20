@@ -342,12 +342,17 @@ jobs:
             dry_run=(--dry-run)
           fi
           # The release must exist already: the tool finds it by the version's tag and never creates one (D-19).
+          # The permissions come from the project, never from the encrypted variants (owner decision, 20-08): each
+          # bundle's CODE_SIGN_ENTITLEMENTS and INFOPLIST_FILE, held to project.pbxproj by test_workflows.py.
           python3 "$PAL_PUBLISH_TOOL_PATH" publish \
             --version "$VERSION" \
             --adp "$RUNNER_TEMP/adp" \
             --repo "$GITHUB_REPOSITORY" \
             --notes "ReleaseNotes/$VERSION.md" \
             --marketplace-id "$ASC_APP_ID" \
+            --entitlements App/EhPanda.entitlements \
+            --info-plist App/Info.plist \
+            --info-plist ShareExtension/Info.plist \
             --work "$RUNNER_TEMP/pal-publish" \
             "${dry_run[@]}"
           {

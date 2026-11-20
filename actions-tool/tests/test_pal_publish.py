@@ -3,12 +3,12 @@
 Nothing here reaches AltStore, App Store Connect or GitHub:
 - AltStore is a local `http.server` that answers `POST /adps` and `GET /adps/<id>` and serves the ADP zip;
 - `gh` is `fixtures/fake-gh/gh`, which keeps releases and their assets in a temporary directory and logs each call;
-- `codesign` is `fixtures/adp/fake-codesign`, which prints each bundle's `fake-entitlements.plist`;
 - `main` lives in a local bare repository, and the tool works in a clone of it.
 
-The ADP is synthetic (`fixtures/adp/`): `manifest.json` and `signature` with fixed bytes, and one variant IPA that the
-tests zip from `fixtures/adp/variant/EhPanda.app`. It follows AltStore's documented `assetURLs` example; the real
-layout is first seen at 20-08.
+The ADP is synthetic (`fixtures/adp/`) and has the layout of the real 3.0.0 ADP (20-08): `manifest.json`, with
+Apple's field names and fixed bytes, `signature`, and `variant/<publicId>.ipa`, whose bytes are opaque because Apple
+encrypts the variants. The entitlements and privacy keys come from the project's files, so the publish tests write
+a small project of their own.
 """
 
 import hashlib
@@ -31,7 +31,6 @@ TOOL = TOOLS / "pal_publish.py"
 FIXTURES = pathlib.Path(__file__).resolve().parent / "fixtures"
 ADP_FIXTURE = FIXTURES / "adp"
 FAKE_GH = FIXTURES / "fake-gh" / "gh"
-FAKE_CODESIGN = ADP_FIXTURE / "fake-codesign"
 NOTES = FIXTURES / "release-notes" / "9.9.9.md"
 sys.path.insert(0, str(TOOLS))
 
@@ -43,6 +42,9 @@ ADP_ID = "1a2b3c4d-0000-4000-8000-00000000adp1"
 VARIANT = "fb855afc-8ce8-39b7-877e-63444105c95c"
 MARKETPLACE_ID = "6448401697"
 PREFIX = "EhPanda-AltStorePAL-"
+VARIANT_PATH = f"variant/{VARIANT}.ipa"
+# Like Apple's encrypted variants, these bytes are no zip and nothing can be read from them.
+OPAQUE_VARIANT = b"".join(hashlib.sha256(bytes([index])).digest() for index in range(128))
 JQ = shutil.which("jq")
 GIT = shutil.which("git")
 
@@ -52,17 +54,19 @@ def sha256(path):
 
 
 def build_adp(directory):
-    """The synthetic ADP as a directory: manifest.json, signature and variants/<uuid>.ipa."""
+    """The synthetic ADP as a directory: manifest.json, signature and variant/<publicId>.ipa."""
     adp = pathlib.Path(directory)
-    (adp / "variants").mkdir(parents=True)
+    (adp / "variant").mkdir(parents=True)
     shutil.copyfile(ADP_FIXTURE / "manifest.json", adp / "manifest.json")
     shutil.copyfile(ADP_FIXTURE / "signature", adp / "signature")
-    app = ADP_FIXTURE / "variant" / "EhPanda.app"
-    with zipfile.ZipFile(adp / "variants" / f"{VARIANT}.ipa", "w", zipfile.ZIP_DEFLATED) as ipa:
-        for path in sorted(app.rglob("*")):
-            if path.is_file():
-                ipa.write(path, "Payload/EhPanda.app/" + path.relative_to(app).as_posix())
+    (adp / VARIANT_PATH).write_bytes(OPAQUE_VARIANT)
     return adp
+
+
+def write_plist(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(plistlib.dumps(value))
+    return path
 
 
 def zip_adp(adp, path):
@@ -126,7 +130,7 @@ class ToolTestCase(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.env = {key: value for key, value in os.environ.items()
                     if not key.startswith(("FAKE_GH_", "PAL_", "ALTSTORE_", "GIT_"))}
-        self.env.update({"PAL_CODESIGN": str(FAKE_CODESIGN), "PAL_GH": str(FAKE_GH)})
+        self.env.update({"PAL_GH": str(FAKE_GH)})
 
     def run_tool(self, *args, cwd=None):
         result = subprocess.run([sys.executable, str(TOOL), *args], capture_output=True, text=True, env=self.env,
@@ -158,12 +162,12 @@ class FetchTests(ToolTestCase):
         polls = [request for request in self.altstore.requests if request[1] == f"/adps/{ADP_ID}"]
         self.assertEqual(len(polls), 3)
         self.assertEqual(sha256(out / "adp.zip"), sha256(self.altstore.zip_path))
-        for name in ("manifest.json", "signature", f"variants/{VARIANT}.ipa"):
+        for name in ("manifest.json", "signature", VARIANT_PATH):
             with self.subTest(name=name):
                 self.assertEqual(sha256(out / "adp" / name), sha256(self.adp / name))
         hashes = json.loads((out / "adp-files.json").read_text())
         self.assertEqual(hashes, {name: sha256(self.adp / name)
-                                  for name in ("manifest.json", "signature", f"variants/{VARIANT}.ipa")})
+                                  for name in ("manifest.json", "signature", VARIANT_PATH)})
 
     def test_fetch_times_out_with_the_adp_id_and_altstores_status(self):
         self.altstore.statuses = [{"status": "processing"}]
@@ -185,7 +189,7 @@ class FetchTests(ToolTestCase):
                          json.loads((from_dir / "adp-files.json").read_text()))
 
     def test_an_adp_without_a_signature_or_a_variant_is_refused(self):
-        for missing in ("signature", f"variants/{VARIANT}.ipa", "manifest.json"):
+        for missing in ("signature", VARIANT_PATH, "manifest.json"):
             with self.subTest(missing=missing):
                 adp = build_adp(self.tmp / f"broken-{missing.replace('/', '-')}")
                 (adp / missing).unlink()
@@ -246,6 +250,25 @@ class PublishTests(ToolTestCase):
         result = self.run_tool("fetch", "--from", str(build_adp(self.tmp / "adp-source")), "--out", str(fetched))
         self.assertEqual(result.returncode, 0, self.output)
         self.fetched = fetched
+        # The project's files, as the workflow passes them: an entitlements file per bundle that has one, and each
+        # bundle's Info.plist. The identity keys are left out of the source, and a build setting is fine outside
+        # the usage descriptions.
+        project = self.tmp / "project"
+        self.app_entitlements = write_plist(project / "App" / "EhPanda.entitlements", {
+            "application-identifier": "TEAM.app.ehpanda.store", "com.apple.developer.team-identifier": "TEAM",
+            "com.apple.security.application-groups": ["group.app.ehpanda.store"]})
+        self.extension_entitlements = write_plist(project / "ShareExtension" / "ShareExtension.entitlements", {
+            "com.apple.security.application-groups": ["group.app.ehpanda.store"],
+            "keychain-access-groups": ["TEAM.app.ehpanda.store"]})
+        self.app_info = write_plist(project / "App" / "Info.plist", {
+            "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER)",
+            "NSPhotoLibraryAddUsageDescription": "Save images.", "NSCameraUsageDescription": "Scan codes."})
+        self.extension_info = write_plist(project / "ShareExtension" / "Info.plist", {
+            "CFBundleIdentifier": "$(PRODUCT_BUNDLE_IDENTIFIER).ShareExtension",
+            "NSCameraUsageDescription": "Scan codes."})
+        self.project_args = ["--entitlements", str(self.app_entitlements),
+                             "--entitlements", str(self.extension_entitlements),
+                             "--info-plist", str(self.app_info), "--info-plist", str(self.extension_info)]
 
     def git(self, *args, cwd=None):
         return subprocess.run([GIT, *args], capture_output=True, text=True, env=self.env, cwd=cwd,
@@ -259,10 +282,18 @@ class PublishTests(ToolTestCase):
              "browser_download_url": f"https://github.com/{REPO}/releases/download/{tag}/EhPanda-GitHub.ipa"}]}
         releases_path.write_text(json.dumps(releases))
 
-    def publish(self, *extra):
-        return self.run_tool("publish", "--version", VERSION, "--adp", str(self.fetched), "--repo", REPO,
-                             "--notes", str(NOTES), "--marketplace-id", MARKETPLACE_ID, "--work",
-                             str(self.tmp / "work"), "--retry-delay", "0", *extra, cwd=self.checkout)
+    def publish(self, *extra, project=None, marketplace_id=MARKETPLACE_ID, adp=None):
+        return self.run_tool("publish", "--version", VERSION, "--adp", str(adp or self.fetched), "--repo", REPO,
+                             "--notes", str(NOTES), "--marketplace-id", marketplace_id, "--work",
+                             str(self.tmp / "work"), "--retry-delay", "0",
+                             *(self.project_args if project is None else project), *extra, cwd=self.checkout)
+
+    def assert_refused_before_upload(self, result, *needles):
+        self.assertEqual(result.returncode, 1, self.output)
+        for needle in needles:
+            self.assertIn(needle, self.output)
+        self.assertEqual([call for call in self.gh_calls() if call[:2] == ["release", "upload"]], [])
+        self.assertNotIn("AltStorePAL.json", self.main_files())
 
     def gh_calls(self):
         if not self.gh_log.exists():
@@ -295,22 +326,57 @@ class PublishTests(ToolTestCase):
                                               "signature": base + f"{PREFIX}signature",
                                               VARIANT: base + f"{PREFIX}{VARIANT}.ipa"})
         self.assertEqual(entry["downloadURL"], entry["assetURLs"]["manifest"])
-        self.assertEqual(entry["size"], (self.fetched / "adp" / "variants" / f"{VARIANT}.ipa").stat().st_size)
+        self.assertEqual(entry["size"], (self.fetched / "adp" / VARIANT_PATH).stat().st_size)
         self.assertNotIn("sha256", entry)
         self.assertEqual((entry["version"], entry["buildVersion"], entry["minOSVersion"]), (VERSION, "159", "27.0"))
         self.assertEqual(entry["date"], "2026-11-20T08:00:00Z")
         self.assertEqual(set(entry["localizedDescriptions"]), set(languages.CODES))
 
-    def test_the_entitlements_and_privacy_come_from_the_signed_variant(self):
+    def test_the_entitlements_and_privacy_come_from_the_project_files(self):
+        # Owner decision (20-08): the project's entitlements files, not what Apple's signing adds; the variants are
+        # encrypted and are never read.
         self.assertEqual(self.publish().returncode, 0, self.output)
         permissions = self.main_source()["apps"][0]["appPermissions"]
-        expected = set()
-        for path in (ADP_FIXTURE / "variant").rglob("fake-entitlements.plist"):
-            expected |= set(plistlib.loads(path.read_bytes()))
-        expected -= {"application-identifier", "com.apple.developer.team-identifier"}
-        self.assertEqual(set(permissions["entitlements"]), expected)
-        self.assertEqual(len(permissions["entitlements"]), len(expected))
-        self.assertEqual(set(permissions["privacy"]), {"NSPhotoLibraryAddUsageDescription", "NSCameraUsageDescription"})
+        self.assertEqual(permissions["entitlements"],
+                         ["com.apple.security.application-groups", "keychain-access-groups"])
+        self.assertEqual(permissions["privacy"], {"NSCameraUsageDescription": "Scan codes.",
+                                                  "NSPhotoLibraryAddUsageDescription": "Save images."})
+
+    def test_a_project_without_an_entitlements_file_lists_none(self):
+        result = self.publish(project=["--info-plist", str(self.app_info), "--info-plist", str(self.extension_info)])
+        self.assertEqual(result.returncode, 0, self.output)
+        self.assertEqual(self.main_source()["apps"][0]["appPermissions"]["entitlements"], [])
+
+    def test_a_usage_description_that_differs_between_bundles_is_refused(self):
+        write_plist(self.extension_info, {"NSCameraUsageDescription": "Scan other codes."})
+        self.assert_refused_before_upload(self.publish(), "NSCameraUsageDescription", str(self.extension_info))
+
+    def test_a_usage_description_from_a_build_setting_is_refused(self):
+        write_plist(self.app_info, {"NSPhotoLibraryAddUsageDescription": "$(APP_NAME) saves images."})
+        self.assert_refused_before_upload(self.publish(), "NSPhotoLibraryAddUsageDescription", "$(")
+
+    def test_a_missing_project_file_is_refused(self):
+        self.app_entitlements.unlink()
+        self.assert_refused_before_upload(self.publish(), str(self.app_entitlements))
+
+    def test_a_marketplace_id_other_than_the_manifests_is_refused(self):
+        self.assert_refused_before_upload(self.publish(marketplace_id="1234567890"), "1234567890", MARKETPLACE_ID)
+
+    def test_a_variant_the_manifest_does_not_list_is_refused(self):
+        adp = build_adp(self.tmp / "extra-variant")
+        (adp / "variant" / "0b1c2d3e-0000-4000-8000-000000000000.ipa").write_bytes(OPAQUE_VARIANT[::-1])
+        fetched = self.tmp / "extra-fetched"
+        self.assertEqual(self.run_tool("fetch", "--from", str(adp), "--out", str(fetched)).returncode, 0, self.output)
+        self.assert_refused_before_upload(self.publish(adp=fetched), "0b1c2d3e-0000-4000-8000-000000000000")
+
+    def test_the_repositorys_files_give_the_published_permissions(self):
+        # The files deploy-pal.yml passes (test_workflows holds them to the project) give AltStorePAL.json's list.
+        import pal_publish
+        entitlements, privacy = pal_publish.project_permissions(
+            [ROOT / "App" / "EhPanda.entitlements"],
+            [ROOT / "App" / "Info.plist", ROOT / "ShareExtension" / "Info.plist"])
+        published = json.loads((ROOT / "AltStorePAL.json").read_text(encoding="utf-8"))["apps"][0]["appPermissions"]
+        self.assertEqual({"entitlements": entitlements, "privacy": privacy}, published)
 
     def test_the_manifest_bytes_never_change(self):
         original = sha256(ADP_FIXTURE / "manifest.json")
@@ -411,12 +477,11 @@ class PublishTests(ToolTestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn(f"{PREFIX}signature", self.output)
 
-    def test_a_variant_of_another_version_is_refused(self):
+    def test_an_adp_of_another_version_is_refused(self):
         result = self.run_tool("publish", "--version", "3.0.1", "--adp", str(self.fetched), "--repo", REPO,
                                "--notes", str(NOTES), "--marketplace-id", MARKETPLACE_ID,
-                               "--work", str(self.tmp / "work"), cwd=self.checkout)
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("3.0.0", self.output)
+                               "--work", str(self.tmp / "work"), *self.project_args, cwd=self.checkout)
+        self.assert_refused_before_upload(result, "3.0.0")
 
     def install_reject_hook(self, rejections):
         """A pre-receive hook that, for the first `rejections` pushes, lands another commit on main (as a

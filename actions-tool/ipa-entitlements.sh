@@ -2,7 +2,8 @@
 #
 # Prints the entitlement keys an unsigned app carries, as a sorted JSON array, for the add-version filter's
 # --argjson entitlements: AltStore refuses to install an IPA whose permissions differ from its source's, so a
-# source lists what the IPA really has, read the way actions-tool/pal_publish.py reads the signed PAL build.
+# source lists what the IPA really has. (The PAL source cannot do this: its variants are encrypted, so
+# actions-tool/pal_publish.py lists the project's entitlements files instead; owner decision, 20-08.)
 #
 # Usage: ipa-entitlements.sh <app>
 #
