@@ -8,7 +8,7 @@ stopped_at: Completed 20-14-PLAN.md (Release isolation scan, both flavors 0 find
 last_updated: "2026-11-17T15:10:53.851Z"
 last_activity: 2026-11-18
 last_activity_desc: "Quick task 261117-tyj completed: the compact Library picker remembers its last choice across launches (the sidebar does not), and a user-deleted gallery, singly or by folder, leaves the continued-download card's pages and galleries count. Earlier, 20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
-state_head: 9b79a2a121c16d803d4e10a87a77d1ee76bdc6c8
+state_head: 93a0663762f5dffa6397dbb733cef91a47c4e4c2
 progress:
   total_phases: 21
   completed_phases: 19
@@ -2212,7 +2212,7 @@ None yet.
 | 16 | Commit website screenshot recapture records and discard incomplete Phase 17 drafts | 2026-11-04 | 22b7a3b3e | — |
 | 261104-website-recapture | Regenerate ten website screenshots with no home indicator in capture launches | 2026-11-04 | 33dbf648b + capture policy | [261104-website-recapture](./quick/261104-website-recapture/SUMMARY.md) |
 | 16 | Replace agent names, chat message IDs, a page link and chat routes in planning records and comments with roles and plain wording | 2026-11-17 | — | — |
-| 261117-tyj | Fix the Library picker reset (remember the compact picker's choice) and the download card's galleries count (a user deletion leaves the session) | 2026-11-18 | 9b79a2a12 | [261117-tyj-fix-library-picker-reset-and-download-ca](./quick/261117-tyj-fix-library-picker-reset-and-download-ca/) |
+| 261117-tyj | Fix the Library picker reset (remember the compact picker's choice) and the download card's galleries count (a user deletion leaves the session) | 2026-11-18 | 93a066376 | [261117-tyj-fix-library-picker-reset-and-download-ca](./quick/261117-tyj-fix-library-picker-reset-and-download-ca/) |
 
 ### Roadmap Evolution
 

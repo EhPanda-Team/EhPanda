@@ -5,8 +5,8 @@ date: "2026-11-17"
 subsystem: library-picker-persistence, continued-download-session
 requirements: [A-1, A-2, B-1, B-2, B-3]
 commits: 3
-plan_head_before: 79f2af24b60b39e7cc3da89115c2c1a42dc6f867
-plan_head_after: 9b79a2a121c16d803d4e10a87a77d1ee76bdc6c8
+plan_head_before: 493ed2f4700cf369c65447c812b4419710ab0408
+plan_head_after: 93a0663762f5dffa6397dbb733cef91a47c4e4c2
 key-decisions:
   - "The compact Library picker's last group is remembered in its own optional record, never in the live selection (A-1, A-2)."
   - "A user-deleted gallery is withdrawn at the deletion boundary, not by the retirement reconcile (B-1, B-2)."
@@ -23,16 +23,16 @@ X, Y and N entirely, including inside the session start's client hop.
 
 | Task | Commit | Message |
 | ---- | ------ | ------- |
-| 1 | 75e2459d7 | Remember the Library picker choice |
-| 2 | c2941574e | Seed continued session before client start |
-| 3 | 9b79a2a12 | Drop deleted galleries from the session |
+| 1 | 02b8ea594 | Remember the Library picker choice |
+| 2 | 25e0a23f9 | Seed continued session before client start |
+| 3 | 93a066376 | Drop deleted galleries from the session |
 
-The lint-fix commit 79f2af24b (owner-approved, made by the orchestrator before this run resumed) is the baseline.
+The lint-fix commit 493ed2f47 (owner-approved, made by the orchestrator before this run resumed) is the baseline.
 
-## Baselines (HEAD 79f2af24b)
+## Baselines (HEAD 493ed2f47)
 
 - LINT: clean. `swiftlint lint --strict --quiet App AppPackage/Sources AppPackage/Tests EhPandaUITests ShareExtension`
-  exits 0 with empty output. The first attempt at the earlier HEAD (fc741bb94) had 7 pre-existing violations, which
+  exits 0 with empty output. The first attempt at the earlier HEAD (74d94c62f) had 7 pre-existing violations, which
   stopped the run until they were fixed.
 - BUILD: `TEST BUILD SUCCEEDED`. `warnings-baseline.txt` is empty only because the baseline build was fully
   incremental (nothing recompiled, so no warning was re-emitted). Builds that recompile show exactly three warnings,
@@ -87,8 +87,8 @@ All recorded from orchestrator rulings or forced by evidence; no design change.
    test stays exhaustive.
 4. **Tests and implementation for Task 1 were written together, not tests first.** The plan's red step would have
    been a compile failure only (the API under test did not exist).
-5. **Tolerated pre-existing lint violations first.** HEAD fc741bb94 had 7 SwiftLint violations; the run stopped and
-   the orchestrator fixed them in 79f2af24b before this run resumed.
+5. **Tolerated pre-existing lint violations first.** HEAD 74d94c62f had 7 SwiftLint violations; the run stopped and
+   the orchestrator fixed them in 493ed2f47 before this run resumed.
 6. **[Plan literal] Terminal pair after deleting the last gallery.** The plan said `"0 / 1 pages · 0 galleries"`.
    The real subtitle pluralizes one page as `"0 / 1 page · 0 galleries"`; the pair (0 of 1, zero galleries,
    `finishSuccesses == [true]`, no rejected updates) is exactly the plan's intent. The deletion suite pins the pair
@@ -123,14 +123,14 @@ after the removal succeeded (T-261117-tyj-04). Nothing was added to the broken-w
 
 ## Orchestrator verification (2026-11-18)
 
-- Hop-deletion discrimination, confirmed. On HEAD 9b79a2a12, with only the three seed statements of
+- Hop-deletion discrimination, confirmed. On HEAD 93a066376, with only the three seed statements of
   `ensureContinuedSession` moved back after `startContinuedSessionHeartbeat` (comments unchanged, so `file_length`
   holds), `testADeletionInsideTheClientStartHopLeavesTheSession()` failed (1 test, 1 failed: the first post-start
   pair and the later "2 / 4 pages · 1 gallery" expectation). Restored from git, it passed (1 test, 1 passed). Run on a
   project-named simulator created and deleted for the probe. An earlier probe attempt without the `()` suffix in
   `-only-testing` ran 0 tests; that result was discarded.
 - `final.xcresult` read directly: result Passed, 1867 total, 1858 passed, 0 failed, 9 expected failures.
-- Commits verified: 79f2af24b (lint baseline fix), 75e2459d7, c2941574e, 9b79a2a12, each signature G and +08:00 on
+- Commits verified: 493ed2f47 (lint baseline fix), 02b8ea594, 25e0a23f9, 93a066376, each signature G and +08:00 on
   both dates; working tree clean apart from this task folder.
 - Pre-existing, out of scope: the UITests target build reports Swift concurrency warnings (main-actor-isolated
   properties used from nonisolated contexts) in several `EhPandaUITests` files on lines this task did not touch.
