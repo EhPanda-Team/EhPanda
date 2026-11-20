@@ -116,10 +116,7 @@
         ]
       },
       "appPermissions": {
-        "entitlements": [
-          "beta-reports-active",
-          "get-task-allow"
-        ],
+        "entitlements": [],
         "privacy": {
           "NSPhotoLibraryAddUsageDescription": "We need this permission to save images to your photo library."
         }
