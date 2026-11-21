@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 """Publishes a notarized AltStore PAL build: the ADP, unchanged, as assets of the version's GitHub release, and the
-version in `AltStorePAL.json` on `main` (Phase 20 plan 20-05; DIST-18-02, DIST-18-03; D-19; Research §4, §5).
+version in `AltStorePAL.json` on `main` (Phase 20 plan 20-05; DIST-18-02, DIST-18-03; D-19, D-26; Research §4, §5).
+`.github/workflows/publish-pal.yml` runs it with the ADP ID the collaborator shares once Apple has accepted the
+version (owner decision, 2026-11-21).
 
 Usage:
-  pal_publish.py process --adp-id <id>
-      asks AltStore to process the ADP (`POST /adps`). Harmless when AltStore already processes it on its own
-      (marketplace notifications on).
   pal_publish.py fetch --adp-id <id> --out <dir> [--interval <s>] [--timeout <s>]
   pal_publish.py fetch --from <zip or directory> --out <dir>
       waits until AltStore's `GET /adps/<id>` has a `downloadURL`, downloads the ADP and unpacks it; or takes an
       ADP that is already on disk. Writes <dir>/adp/ (the files, byte for byte), <dir>/adp-files.json (the SHA-256
       of each) and, for a zip, <dir>/adp.zip.
-  pal_publish.py publish --version <x.y.z> --adp <dir> --repo <owner/name> --notes <file>
-                         --marketplace-id <id> [--entitlements <file>]... --info-plist <file>...
+  pal_publish.py publish --adp <dir> --repo <owner/name> --notes-dir <dir> --marketplace-id <id>
+                         [--entitlements <file>]... --info-plist <file>...
                          [--work <dir>] [--retry-delay <s>] [--dry-run]
       run in a checkout whose `origin` is the repository: checks the fetched ADP against its hashes and its
-      manifest, finds the release tagged <x.y.z> (it never creates one), uploads each ADP file as
+      manifest and takes the version from the manifest; checks `<notes-dir>/<version>.md` as `release_notes.py check`
+      does; refuses unless `AltStore.json` on `main` lists that version with the manifest's build (D-26: the PAL
+      build carries the Classic release's build number); finds the release tagged <version> (it never creates one),
+      uploads each ADP file as
       `EhPanda-AltStorePAL-<file name>`, downloads every uploaded asset again and compares its hash, then adds the
       version to `AltStorePAL.json` on `main` (or to the template if there is none yet) and pushes, retrying up to
       five times on a fresh `main`. With --dry-run it stops after the checks and prints what it would upload and
@@ -28,8 +30,9 @@ maps each file name without its extension to its asset's URL, which is how AltSt
 Releases.
 
 Apple encrypts the variants, so nothing is read from them. The version, build, bundle ID, minimum iOS version and
-the app's Apple ID come from `manifest.json`. The source's permissions come from the project (owner decision, 20-08):
-the keys of each `--entitlements` file (a bundle's CODE_SIGN_ENTITLEMENTS) and the usage descriptions of each
+the app's Apple ID come from `manifest.json`. The Apple ID must be `--marketplace-id`, and the bundle ID must be the
+PAL source's (`altstore-add-version.jq` refuses another). The source's permissions come from the project (owner
+decision, 20-08): the keys of each `--entitlements` file (a bundle's CODE_SIGN_ENTITLEMENTS) and the usage descriptions of each
 `--info-plist` file (a bundle's INFOPLIST_FILE). The entitlements Apple's signing adds, such as `get-task-allow`
 and `beta-reports-active`, are deliberately not listed.
 
@@ -67,6 +70,7 @@ DEFAULT_API_URL = "https://api.altstore.io"
 FILTER = TOOLS / "altstore-add-version.jq"
 TEMPLATE = TOOLS / "altstore-pal.template.json"
 SOURCE_NAME = "AltStorePAL.json"
+CLASSIC_SOURCE_NAME = "AltStore.json"
 ASSET_PREFIX = "EhPanda-AltStorePAL-"
 PUSH_ATTEMPTS = 5
 # AltStore does not want these listed (Make a Source, appPermissions); the filter drops them as well.
@@ -113,37 +117,28 @@ def origin(url):
     return parts.scheme, parts.hostname, parts.port
 
 
-def request_json(method, url, body=None):
-    data = None if body is None else json.dumps(body).encode()
-    request = urllib.request.Request(url, data=data, method=method,
+def request_json(url):
+    request = urllib.request.Request(url, method="GET",
                                      headers={"Accept": "application/json", "User-Agent": "EhPanda-pal-publish"})
-    if data is not None:
-        request.add_header("Content-Type", "application/json")
     try:
         with urllib.request.urlopen(request, timeout=60) as response:
             text = response.read().decode("utf-8", errors="replace")
     except urllib.error.HTTPError as error:
         detail = error.read().decode("utf-8", errors="replace")[:500]
-        raise PublishError(f"AltStore answered {method} {urllib.parse.urlsplit(url).path} with HTTP {error.code}: "
+        raise PublishError(f"AltStore answered GET {urllib.parse.urlsplit(url).path} with HTTP {error.code}: "
                            f"{detail}") from None
     except urllib.error.URLError as error:
-        raise PublishError(f"AltStore could not be reached ({method} {url}): {error.reason}") from None
+        raise PublishError(f"AltStore could not be reached (GET {url}): {error.reason}") from None
     try:
         return json.loads(text) if text.strip() else {}
     except json.JSONDecodeError:
-        raise PublishError(f"AltStore's reply to {method} {urllib.parse.urlsplit(url).path} is not JSON.") from None
-
-
-def process(args):
-    reply = request_json("POST", f"{api_url()}/adps", {"adpID": args.adp_id})
-    status = reply.get("status") if isinstance(reply, dict) else None
-    say(f"AltStore is processing ADP {args.adp_id}" + (f" (status: {status})." if status else "."))
+        raise PublishError(f"AltStore's reply to GET {urllib.parse.urlsplit(url).path} is not JSON.") from None
 
 
 def wait_for_download_url(adp_id, interval, timeout):
     deadline = time.monotonic() + timeout
     while True:
-        reply = request_json("GET", f"{api_url()}/adps/{urllib.parse.quote(adp_id, safe='')}")
+        reply = request_json(f"{api_url()}/adps/{urllib.parse.quote(adp_id, safe='')}")
         if not isinstance(reply, dict):
             raise PublishError(f"AltStore's status for ADP {adp_id} is not an object.")
         url = reply.get("downloadURL")
@@ -371,6 +366,33 @@ def version_key(version, build):
     return (numbers + [0, 0, 0, 0])[:4] + (builds + [0])[:1]
 
 
+def check_classic_release(main_path, facts):
+    """D-26: the PAL build carries the Classic release's version and build number, so `AltStore.json` on `main` must
+    already list the manifest's version with the manifest's build."""
+    classic_path = main_path / CLASSIC_SOURCE_NAME
+    version = facts["shortVersionString"]
+    build = facts["bundleVersion"]
+    if not classic_path.exists():
+        raise PublishError(f"main has no {CLASSIC_SOURCE_NAME}; release {version} on GitHub and AltStore Classic "
+                           f"before AltStore PAL (D-26).")
+    try:
+        source = json.loads(classic_path.read_text(encoding="utf-8"))
+        if not isinstance(source, dict):
+            raise ValueError("it is not an object")
+    except (OSError, ValueError) as error:
+        raise PublishError(f"{CLASSIC_SOURCE_NAME} on main could not be read: {error}") from None
+    versions = (source.get("apps") or [{}])[0].get("versions") or []
+    listed = next((entry for entry in versions if entry.get("version") == version), None)
+    if listed is None:
+        raise PublishError(f"{CLASSIC_SOURCE_NAME} on main does not list {version}; release it on GitHub and "
+                           f"AltStore Classic before AltStore PAL (D-26).")
+    if listed.get("buildVersion") != build:
+        raise PublishError(f"The ADP is {version} ({build}), but {CLASSIC_SOURCE_NAME} on main lists {version} "
+                           f"({listed.get('buildVersion')}); the PAL build carries the Classic release's build number "
+                           f"(D-26).")
+    say(f"{CLASSIC_SOURCE_NAME} on main lists {version} ({build}), the ADP's build.")
+
+
 def build_source(source_path, entry, out_path):
     source = json.loads(source_path.read_text(encoding="utf-8"))
     new_key = version_key(entry["version"], entry["buildVersion"])
@@ -456,8 +478,6 @@ def verified_adp(adp_dir):
 
 
 def publish(args):
-    if not VERSION.match(args.version):
-        raise PublishError(f"{args.version!r} is not a version like 3.0.0.")
     if not re.fullmatch(r"[0-9]+", args.marketplace_id or ""):
         raise PublishError("The marketplace ID must be the app's Apple ID (digits): set ALTSTORE_PAL_MARKETPLACE_ID.")
     adp_dir = pathlib.Path(args.adp)
@@ -470,15 +490,19 @@ def publish(args):
     files = verified_adp(adp_dir)
     variants = sorted(relative for relative in files if relative.endswith(".ipa"))
     facts = manifest_facts(adp_dir, files, args.marketplace_id)
-    if facts["shortVersionString"] != args.version:
-        raise PublishError(f"The ADP is version {facts['shortVersionString']}, not {args.version}.")
+    version = facts["shortVersionString"]
+    if not VERSION.match(version):
+        raise PublishError(f"The ADP's manifest.json gives the version {version!r}, not one like 3.0.0.")
     entitlements, privacy = project_permissions(args.entitlements, args.info_plist)
     try:
-        notes = release_notes.read(args.notes)
+        notes = release_notes.read(pathlib.Path(args.notes_dir) / f"{version}.md")
     except release_notes.NotesError as error:
         raise PublishError(str(error)) from None
+    main_path = (work / "main").resolve()
+    fresh = fresh_main(main_path)
+    check_classic_release(main_path, facts)
 
-    release = find_release(args.repo, args.version)
+    release = find_release(args.repo, version)
     existing = {asset["name"]: asset for asset in release.get("assets") or []}
 
     # Stage each file under its asset name: a byte copy, checked against the fetched hash.
@@ -497,15 +521,15 @@ def publish(args):
         if name not in existing:
             to_upload.append(name)
             continue
-        gh("release", "download", args.version, "--repo", args.repo, "--pattern", name, "--dir",
+        gh("release", "download", version, "--repo", args.repo, "--pattern", name, "--dir",
            str(work / "existing"))
         if sha256(work / "existing" / name) != digest:
-            raise PublishError(f"The release {args.version} already has an asset {name} with other bytes; remove it "
+            raise PublishError(f"The release {version} already has an asset {name} with other bytes; remove it "
                                f"by hand if it is stale (this tool never replaces an asset).")
         say(f"{name} is already up to date on the release.")
 
     def entry_for(urls):
-        return {"bundleIdentifier": facts["bundleId"], "version": args.version,
+        return {"bundleIdentifier": facts["bundleId"], "version": version,
                 "buildVersion": facts["bundleVersion"], "minOSVersion": facts["minimumSystemVersions.ios"],
                 "date": release["published_at"], "notes": notes, "privacy": privacy, "entitlements": entitlements,
                 "marketplaceID": args.marketplace_id,
@@ -516,9 +540,8 @@ def publish(args):
         return adp_role(pathlib.PurePosixPath(relative).name)
 
     planned = {name: (existing[name]["browser_download_url"] if name in existing
-                      else asset_url(args.repo, args.version, name)) for name in staged}
+                      else asset_url(args.repo, version, name)) for name in staged}
     preview_source = work / SOURCE_NAME
-    fresh = fresh_main((work / "main").resolve())
     build_source(fresh if fresh.exists() else TEMPLATE, entry_for(planned), preview_source)
 
     if args.dry_run:
@@ -529,18 +552,18 @@ def publish(args):
         return
 
     if to_upload:
-        gh("release", "upload", args.version, *[str(work / "assets" / name) for name in to_upload],
+        gh("release", "upload", version, *[str(work / "assets" / name) for name in to_upload],
            "--repo", args.repo)
-        say(f"Uploaded {', '.join(to_upload)} to the release {args.version}.")
+        say(f"Uploaded {', '.join(to_upload)} to the release {version}.")
 
     # Every asset is downloaded again: what AltStore will fetch must be the ADP's bytes.
-    uploaded = {asset["name"]: asset for asset in find_release(args.repo, args.version).get("assets") or []}
+    uploaded = {asset["name"]: asset for asset in find_release(args.repo, version).get("assets") or []}
     urls = {}
     for name, (relative, digest) in sorted(staged.items()):
         if name not in uploaded:
-            raise PublishError(f"The release {args.version} has no asset {name} after the upload.")
+            raise PublishError(f"The release {version} has no asset {name} after the upload.")
         target = work / "verify" / name
-        gh("release", "download", args.version, "--repo", args.repo, "--pattern", name, "--dir", str(work / "verify"))
+        gh("release", "download", version, "--repo", args.repo, "--pattern", name, "--dir", str(work / "verify"))
         if sha256(target) != digest:
             raise PublishError(f"The uploaded asset {name} changed: its SHA-256 is {sha256(target)}, the ADP's "
                                f"{relative} is {digest}. {SOURCE_NAME} is not updated; remove the asset by hand "
@@ -557,9 +580,6 @@ def parse(argv):
     parser = argparse.ArgumentParser(description="Publishes a notarized ADP to AltStore PAL.")
     commands = parser.add_subparsers(dest="command", required=True)
 
-    command = commands.add_parser("process")
-    command.add_argument("--adp-id", required=True)
-
     command = commands.add_parser("fetch")
     origin_group = command.add_mutually_exclusive_group(required=True)
     origin_group.add_argument("--adp-id")
@@ -569,12 +589,11 @@ def parse(argv):
     command.add_argument("--timeout", type=float, default=3600)
 
     command = commands.add_parser("publish")
-    command.add_argument("--version", required=True)
     command.add_argument("--adp", required=True)
     command.add_argument("--repo", required=True)
-    command.add_argument("--notes", required=True)
+    command.add_argument("--notes-dir", required=True)
     command.add_argument("--marketplace-id", required=True)
-    # Each bundle's CODE_SIGN_ENTITLEMENTS (a bundle may have none) and INFOPLIST_FILE, as deploy-pal.yml passes them.
+    # Each bundle's CODE_SIGN_ENTITLEMENTS (a bundle may have none) and INFOPLIST_FILE, as publish-pal.yml passes them.
     command.add_argument("--entitlements", action="append", default=[])
     command.add_argument("--info-plist", action="append", required=True)
     command.add_argument("--work", default="pal-publish-work")
@@ -589,7 +608,7 @@ def main(argv):
         print(f"::error::{args.adp_id!r} is not an ADP ID.", file=sys.stderr)
         return 1
     try:
-        {"process": process, "fetch": fetch, "publish": publish}[args.command](args)
+        {"fetch": fetch, "publish": publish}[args.command](args)
     except PublishError as error:
         print(f"::error::{error}", file=sys.stderr)
         return 1

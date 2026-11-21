@@ -1,0 +1,117 @@
+# Publish AltStore PAL: puts an accepted AltStore PAL build on the PAL source (Phase 20, DIST-18-02, DIST-18-03;
+# owner decision, 2026-11-21).
+#
+# Started by hand on main only, after Apple has accepted the version the collaborator submitted. Its one input is the
+# ADP ID the collaborator shares, a bare UUID; by then AltStore has processed the package. actions-tool/pal_publish.py
+# fetches the ADP from AltStore, takes the version, build, bundle ID and Apple ID from its manifest.json, refuses
+# unless AltStore.json on main lists that version with the same build (D-26), attaches the ADP unchanged to that
+# version's existing GitHub release (D-19; it never creates one) and adds the version to AltStorePAL.json on main. It
+# can be dispatched again; `dry_run` (default true) stops it before any upload or commit.
+#
+# It holds no App Store Connect key and runs in no GitHub environment. It reads:
+#   DEPLOY_KEY                   secret: the repository's deploy key. Main's ruleset lets only deploy keys push, so
+#                                pal_publish.py pushes AltStorePAL.json through it, as deploy.yml's Deploy job pushes
+#                                its sources
+#   ALTSTORE_PAL_MARKETPLACE_ID  variable: the app's Apple ID in App Store Connect, the PAL source's marketplaceID
+name: Publish AltStore PAL
+on:
+  workflow_dispatch:
+    inputs:
+      adp_id:
+        description: 'The ADP ID the collaborator shares, a bare UUID such as 453ead28-2d2b-49d1-a398-5a06ca29186b'
+        required: true
+        type: string
+      dry_run:
+        description: 'Check everything and print the plan, but upload and commit nothing'
+        required: false
+        type: boolean
+        default: true
+concurrency:
+  group: publish-pal
+  cancel-in-progress: false
+env:
+  PAL_PUBLISH_TOOL_PATH: './actions-tool/pal_publish.py'
+  RELEASE_NOTES_DIR: './ReleaseNotes'
+
+jobs:
+  Publish:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    # contents: the release's assets. The push to main goes through the deploy key.
+    permissions:
+      contents: write
+    env:
+      ADP_ID: ${{ inputs.adp_id }}
+      MARKETPLACE_ID: ${{ vars.ALTSTORE_PAL_MARKETPLACE_ID }}
+    steps:
+      - name: Refuse to run off main
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [[ "$REF_TYPE" != "branch" ]]; then
+            echo "::error::Publish AltStore PAL runs on the main branch only, not on a tag."
+            exit 1
+          fi
+          if [[ "$REF_NAME" != "main" ]]; then
+            echo "::error::Publish AltStore PAL runs on main only. Start it on main."
+            exit 1
+          fi
+      - name: Check the ADP ID
+        run: |
+          # A bare UUID, as AltStore shows it, checked before any request (owner decision, 2026-11-21).
+          if [[ ! "$ADP_ID" =~ ^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$ ]]; then
+            echo "::error::The ADP ID must be a bare UUID such as 453ead28-2d2b-49d1-a398-5a06ca29186b, as AltStore shows it, not a URL."
+            exit 1
+          fi
+      - name: Checkout
+        uses: actions/checkout@v7
+        # Main's ruleset lets only deploy keys past and refuses the job's token, so the checkout carries the
+        # repository's deploy key, as deploy.yml's Deploy job does: pal_publish.py pushes AltStorePAL.json to main
+        # through it.
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+      - name: Modify git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Fetch the ADP
+        run: |
+          # AltStore has processed the ADP by the time its ID is shared; the short wait only covers a slow answer.
+          python3 "$PAL_PUBLISH_TOOL_PATH" fetch --adp-id "$ADP_ID" --out "$RUNNER_TEMP/adp" --interval 30 --timeout 600
+      - name: Publish to AltStore PAL
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          dry_run=()
+          if [[ "$DRY_RUN" != "false" ]]; then
+            dry_run=(--dry-run)
+          fi
+          # The version and build come from the ADP's manifest.json. The tool checks ReleaseNotes/<version>.md and
+          # that AltStore.json on main lists the same build (D-26). The release must exist already: the tool finds it
+          # by the version's tag and never creates one (D-19). The permissions come from the project, never from the
+          # encrypted variants (owner decision, 20-08): each bundle's CODE_SIGN_ENTITLEMENTS and INFOPLIST_FILE, held to
+          # project.pbxproj by test_workflows.py.
+          python3 "$PAL_PUBLISH_TOOL_PATH" publish \
+            --adp "$RUNNER_TEMP/adp" \
+            --repo "$GITHUB_REPOSITORY" \
+            --notes-dir "$RELEASE_NOTES_DIR" \
+            --marketplace-id "$MARKETPLACE_ID" \
+            --entitlements App/EhPanda.entitlements \
+            --info-plist App/Info.plist \
+            --info-plist ShareExtension/Info.plist \
+            --work "$RUNNER_TEMP/pal-publish" \
+            "${dry_run[@]}"
+          {
+            if [[ "$DRY_RUN" != "false" ]]; then
+              echo "### AltStore PAL: dry run"
+              echo ""
+              echo "ADP \`$ADP_ID\`: nothing was uploaded or committed. Run Publish AltStore PAL again with dry_run off to publish."
+            else
+              echo "### AltStore PAL published"
+              echo ""
+              echo "ADP \`$ADP_ID\` is on its version's GitHub release, and AltStorePAL.json on main lists it."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

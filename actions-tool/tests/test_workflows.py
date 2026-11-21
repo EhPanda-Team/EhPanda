@@ -1,5 +1,6 @@
-"""The release workflows' shape: the steps a release relies on stay in place (Phase 20 D-03, D-19; REL-18-01), and
-the AltStore PAL submit job's (20-04; D-07, D-21, D-26) and publish job's (20-05).
+"""The release workflows' shape: the steps a release relies on stay in place (Phase 20 D-03, D-19; REL-18-01),
+deploy.yml's AltStore PAL upload job (20-04, amended 2026-11-21; D-07, D-21, D-26) and publish-pal.yml (20-05,
+amended 2026-11-21; D-19, D-26).
 
 YAML is read through Ruby's standard library (`ruby -ryaml -rjson`), because PyYAML is not installed on the
 machines that run these tests. YAML 1.1 reads the `on:` key as `true`; only the PAL tests read triggers.
@@ -7,6 +8,7 @@ machines that run these tests. YAML 1.1 reads the `on:` key as `true`; only the 
 
 import ast
 import json
+import os
 import pathlib
 import re
 import shutil
@@ -32,14 +34,18 @@ FORBIDDEN = [
 ]
 
 
-# Phase 19's screenshot check is OFF in the release workflows for 3.0 (owner decision): none of deploy.yml,
-# deploy-beta.yml and deploy-pal.yml calls snapshot-gate.yml or reads the `aggregate` check. The workflow and
-# actions-tool/require-snapshot-gate.sh stay in the repository (pull requests and manual dispatch still use them).
+# Phase 19's screenshot check is OFF in the release workflows for 3.0 (owner decision): neither deploy.yml (its
+# release job and its AltStore PAL job) nor deploy-beta.yml calls snapshot-gate.yml or reads the `aggregate` check.
+# The workflow and actions-tool/require-snapshot-gate.sh stay in the repository (pull requests and manual dispatch
+# still use them).
 GATE_CHECK = "aggregate"
 GATE_SCRIPT = "./actions-tool/require-snapshot-gate.sh"
-RELEASE_WORKFLOWS = ("deploy.yml", "deploy-beta.yml", "deploy-pal.yml")
+RELEASE_WORKFLOWS = ("deploy.yml", "deploy-beta.yml")
 GATE_MENTIONS = ("snapshot-gate.yml", "require-snapshot-gate", "REQUIRE_SNAPSHOT_GATE", "SNAPSHOT_GATE_CHECK",
                  "Require the screenshot check")
+# The one job a release job waits for: deploy.yml's AltStore PAL job runs after the release (owner decision,
+# 2026-11-21).
+RELEASE_NEEDS = {("deploy.yml", "AltStorePAL"): "Deploy"}
 
 
 def load(path):
@@ -84,13 +90,14 @@ class DeployWorkflowTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.deploy = load(WORKFLOWS / "deploy.yml")
+        cls.release = cls.deploy["jobs"]["Deploy"]
         cls.env = cls.deploy.get("env", {})
 
     def run_text(self, name):
-        return expand(code(step_named(self.deploy, name).get("run", "")), self.env)
+        return expand(code(step_named(self.release, name).get("run", "")), self.env)
 
     def test_the_build_number_is_checked_before_the_build(self):
-        self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, "Xcode archive"))
+        self.assertLess(step_index(self.release, "Check build number"), step_index(self.release, "Xcode archive"))
 
     def test_it_is_only_ever_started_by_hand(self):
         # Owner decision: merging a pull request or pushing to main never releases; the release
@@ -108,8 +115,8 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertEqual(self.deploy["jobs"]["Deploy"]["if"], "github.event_name == 'workflow_dispatch'")
 
     def test_a_release_dispatched_off_main_fails_before_it_builds_anything(self):
-        guard = step_named(self.deploy, "Refuse to run off main")
-        self.assertEqual(step_index(self.deploy, "Refuse to run off main"), 0)
+        guard = step_named(self.release, "Refuse to run off main")
+        self.assertEqual(step_index(self.release, "Refuse to run off main"), 0)
         self.assertEqual(guard["env"], {"REF_TYPE": "${{ github.ref_type }}", "REF_NAME": "${{ github.ref_name }}"})
         run = guard["run"]
         self.assertIn('"$REF_TYPE" != "branch"', run)
@@ -120,16 +127,16 @@ class DeployWorkflowTests(unittest.TestCase):
     def test_the_release_is_named_by_the_notes_files_title(self):
         self.assertIn('title="$(python3 "./actions-tool/release_notes.py" title "$notes_path")"', self.run_text("Retrieve data"))
         self.assertIn('echo "title=$title"', self.run_text("Retrieve data"))
-        release = step_named(self.deploy, "Release to GitHub")
+        release = step_named(self.release, "Release to GitHub")
         self.assertEqual(release["with"]["name"], "${{ steps.retrieve-data.outputs.title }}")
-        validate = step_named(self.deploy, "Validate data")
+        validate = step_named(self.release, "Validate data")
         self.assertEqual(validate["env"]["RELEASE_TITLE"], "${{ steps.retrieve-data.outputs.title }}")
         self.assertIn('[[ ! -z "$RELEASE_TITLE" ]] || exit 1', validate["run"])
 
     def test_the_sources_are_pushed_to_main_with_the_deploy_key(self):
         # Main's rule lets only deploy keys past, and GitHub refuses GitHub Actions on that list, so the checkout
         # carries the repository's deploy key and the source commit is pushed with it.
-        checkout = step_named(self.deploy, "Checkout")
+        checkout = step_named(self.release, "Checkout")
         self.assertEqual(checkout["with"], {"ssh-key": "${{ secrets.DEPLOY_KEY }}"})
         self.assertIn("git push origin HEAD", [line.strip() for line in
                                                self.run_text("Commit update AltStore.json and SideStore.json").splitlines()])
@@ -137,7 +144,7 @@ class DeployWorkflowTests(unittest.TestCase):
     def test_the_release_tag_is_moved_onto_the_source_update_commit(self):
         # Owner request: the tag softprops/action-gh-release creates on main's HEAD ends up on the commit that
         # updates the store sources, which is the commit users' clones and the release page point at.
-        step = step_named(self.deploy, "Commit update AltStore.json and SideStore.json")
+        step = step_named(self.release, "Commit update AltStore.json and SideStore.json")
         self.assertEqual(step["env"]["RELEASE_VERSION"], "${{ steps.retrieve-data.outputs.version }}")
         lines = [line.strip() for line in self.run_text("Commit update AltStore.json and SideStore.json").splitlines()]
         self.assertEqual(lines[0], "set -euo pipefail")
@@ -162,7 +169,7 @@ class DeployWorkflowTests(unittest.TestCase):
 
     def test_discord_is_posted_with_wait_and_the_message_id_is_logged(self):
         # So a later post can edit the message. The URL gets `wait=true` whether or not the secret has a query.
-        run = code(step_named(self.deploy, "Post release notes")["run"])
+        run = code(step_named(self.release, "Post release notes")["run"])
         self.assertIn("*\\?*", run)
         self.assertIn('&wait=true', run)
         self.assertIn('?wait=true', run)
@@ -179,8 +186,8 @@ class DeployWorkflowTests(unittest.TestCase):
 
     def test_the_screenshot_gate_is_off_for_3_0(self):
         # Owner decision: the release no longer waits for, or reads, the screenshot check.
-        self.assertEqual(list(self.deploy["jobs"]), ["Deploy"])
-        job = self.deploy["jobs"]["Deploy"]
+        self.assertEqual(list(self.deploy["jobs"]), ["Deploy", "AltStorePAL"])
+        job = self.release
         self.assertNotIn("needs", job)
         self.assertNotIn("uses", job)
         self.assertEqual([step.get("name") for step in job["steps"]][:2], ["Refuse to run off main", "Checkout"])
@@ -189,7 +196,7 @@ class DeployWorkflowTests(unittest.TestCase):
             self.assertNotIn(name, self.env)
         # Only what the release itself needs.
         self.assertEqual(job["permissions"], {"contents": "write"})
-        self.assertLess(step_index(self.deploy, "Check build number"), step_index(self.deploy, "Check release notes"))
+        self.assertLess(step_index(self.release, "Check build number"), step_index(self.release, "Check release notes"))
 
     def test_the_build_number_check_reads_mains_classic_side_sources(self):
         run = self.run_text("Check build number")
@@ -209,7 +216,7 @@ class DeployWorkflowTests(unittest.TestCase):
         # Owner decision: Telegram and Discord end with the GitHub release link. A release whose notes
         # carry another link (3.0.0 ends with https://ehpanda.app, owner decision) carries it in its notes file.
         self.assertNotIn("WEBSITE_URL", self.env)
-        step = step_named(self.deploy, "Post release notes")
+        step = step_named(self.release, "Post release notes")
         self.assertEqual(step["env"]["RELEASE_URL"], "${{ steps.release.outputs.url }}")
         run = code(step["run"])
         self.assertIn('telegram "$RELEASE_NOTES_PATH" "$RELEASE_URL"', run)
@@ -220,7 +227,7 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertIn("release_notes.py\" check", self.run_text("Retrieve data"))
 
     def test_the_sources_point_at_the_releases_own_assets(self):
-        update = step_named(self.deploy, "Update AltStore.json and SideStore.json")
+        update = step_named(self.release, "Update AltStore.json and SideStore.json")
         self.assertEqual(update["env"]["RELEASE_ASSETS"], "${{ steps.release.outputs.assets }}")
         run = expand(update["run"], self.env)
         self.assertIn(".browser_download_url", run)
@@ -229,7 +236,7 @@ class DeployWorkflowTests(unittest.TestCase):
     def test_the_sources_list_the_permissions_of_the_ipa(self):
         # AltStore refuses an install whose IPA asks for permissions the source does not list: both lists come from
         # the build (usage descriptions replace the old ones in the filter; entitlements are read from the app).
-        update = step_named(self.deploy, "Update AltStore.json and SideStore.json")
+        update = step_named(self.release, "Update AltStore.json and SideStore.json")
         run = expand(update["run"], self.env)
         self.assertIn('entitlements="$(bash "./actions-tool/ipa-entitlements.sh" "/tmp/action-builds/Payload/EhPanda.app")"', run)
         self.assertIn('--argjson entitlements "$entitlements"', run)
@@ -239,14 +246,14 @@ class DeployWorkflowTests(unittest.TestCase):
         self.assertIn("add_version", run)
 
     def test_the_sources_keep_their_history(self):
-        update = step_named(self.deploy, "Update AltStore.json and SideStore.json")
+        update = step_named(self.release, "Update AltStore.json and SideStore.json")
         run = expand(update["run"], self.env)
         self.assertIn("--argjson releaseVersions null", run)
         self.assertIn('-f "./actions-tool/altstore-add-version.jq"', run)
         self.assertIn("(.apps[0].versions | length) >= 1", run)
 
     def test_the_release_step_is_the_only_tag_maker(self):
-        release = step_named(self.deploy, "Release to GitHub")
+        release = step_named(self.release, "Release to GitHub")
         self.assertTrue(release["uses"].startswith("softprops/action-gh-release@"))
         self.assertEqual(release["id"], "release")
         self.assertEqual(release["with"]["tag_name"], "${{ steps.retrieve-data.outputs.version }}")
@@ -388,13 +395,14 @@ class ReleasesDoNotTestTests(unittest.TestCase):
     """Owner decision: a release neither runs the test suite nor waits for the Test workflow. Tests are test.yml's
     job, on every branch push; a release is built from a commit the owner has already seen pass."""
 
-    # workflow file -> its release job
-    RELEASES = {"deploy.yml": "Deploy", "deploy-beta.yml": "Deploy", "deploy-pal.yml": "submit"}
-    PERMISSIONS = {"deploy.yml": {"contents": "write"}, "deploy-beta.yml": {"contents": "write"},
-                   "deploy-pal.yml": {"contents": "read"}}
+    # (workflow file, release job) -> that job's permissions
+    RELEASES = {("deploy.yml", "Deploy"): {"contents": "write"},
+                ("deploy.yml", "AltStorePAL"): {"contents": "read"},
+                ("deploy-beta.yml", "Deploy"): {"contents": "write"},
+                ("publish-pal.yml", "Publish"): {"contents": "write"}}
 
     def test_no_release_runs_tests_or_waits_on_them(self):
-        for name in self.RELEASES:
+        for name in sorted({name for name, _ in self.RELEASES}):
             with self.subTest(workflow=name):
                 text = (WORKFLOWS / name).read_text(encoding="utf-8")
                 body = code(text)
@@ -409,9 +417,9 @@ class ReleasesDoNotTestTests(unittest.TestCase):
         self.assertFalse((ROOT / "actions-tool" / "require-passing-tests.sh").exists())
 
     def test_no_release_job_may_read_workflow_runs(self):
-        for name, job_name in self.RELEASES.items():
-            with self.subTest(workflow=name):
-                self.assertEqual(load(WORKFLOWS / name)["jobs"][job_name]["permissions"], self.PERMISSIONS[name])
+        for (name, job_name), permissions in self.RELEASES.items():
+            with self.subTest(workflow=name, job=job_name):
+                self.assertEqual(load(WORKFLOWS / name)["jobs"][job_name]["permissions"], permissions)
 
     def test_the_test_workflow_runs_the_feature_tests_on_every_branch_push(self):
         # `xcodebuild clean test -testPlan FeatureTests` on iPhone Air, iOS 27.0, on every push to a branch.
@@ -425,9 +433,12 @@ class ReleasesDoNotTestTests(unittest.TestCase):
                          {"push": {"branches": ["**"]}, "workflow_dispatch": None})
 
 
-PAL_STEPS = [
+PAL_SECRETS = ["APP_STORE_CONNECT_KEY_ID", "APP_STORE_CONNECT_ISSUER_ID", "APP_STORE_CONNECT_PRIVATE_KEY", "DISTRIBUTION_CERTIFICATE", "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP",
+               "PROVISIONING_PROFILE_SHARE_EXTENSION", "APPLE_TEAM_ID"]
+PAL_VARIABLES = ["ALTSTORE_PAL_MARKETPLACE_ID", "APP_STORE_CONNECT_KEY_ROLE"]
+PAL_UPLOAD_STEPS = [
     "Checkout",
-    "Check version",
+    "Read the version",
     "Write App Store Connect key",
     "Check build number",
     "Install iOS 27 Platform",
@@ -437,82 +448,57 @@ PAL_STEPS = [
     "Verify analytics credentials",
     "Verify marketplace build",
     "Export and upload",
-    "Wait for the build",
-    "Ensure the notarization version",
-    "Attach the build",
-    "Submit for notarization",
     "Upload the call record",
     "Tear down signing",
 ]
-PAL_SECRETS = ["APP_STORE_CONNECT_KEY_ID", "APP_STORE_CONNECT_ISSUER_ID", "APP_STORE_CONNECT_PRIVATE_KEY", "DISTRIBUTION_CERTIFICATE", "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP",
-               "PROVISIONING_PROFILE_SHARE_EXTENSION", "APPLE_TEAM_ID"]
-PAL_VARIABLES = ["ALTSTORE_PAL_MARKETPLACE_ID", "APP_STORE_CONNECT_KEY_ROLE"]
 
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
-class PalWorkflowTests(unittest.TestCase):
-    """`deploy-pal.yml`'s submit job (20-04; D-07, D-21, D-26). It is dispatched by hand only: the first live run is
-    20-08, after the Classic release, with the owner's OK at the time."""
+class PalUploadJobTests(unittest.TestCase):
+    """deploy.yml's `AltStorePAL` job (20-04, amended 2026-11-21; D-07, D-21, D-26): after the release it archives the
+    marketplace build on its own, verifies and uploads it, and stops there (owner decision)."""
 
     @classmethod
     def setUpClass(cls):
-        cls.path = WORKFLOWS / "deploy-pal.yml"
+        cls.path = WORKFLOWS / "deploy.yml"
         cls.text = cls.path.read_text(encoding="utf-8")
-        cls.pal = load(cls.path)
-        cls.env = cls.pal.get("env", {})
-        cls.job = cls.pal["jobs"]["submit"]
+        cls.deploy = load(cls.path)
+        cls.env = cls.deploy.get("env", {})
+        cls.job = cls.deploy["jobs"]["AltStorePAL"]
 
     def run_text(self, name):
         return expand(code(step_named(self.job, name).get("run", "")), {**self.env, **self.job.get("env", {})})
 
-    def test_it_is_only_ever_dispatched_by_hand(self):
-        # YAML 1.1 reads the `on` key as true.
-        triggers = self.pal.get("on", self.pal.get("true"))
-        self.assertEqual(list(triggers), ["workflow_dispatch"])
-        inputs = triggers["workflow_dispatch"]["inputs"]
-        self.assertEqual(set(inputs), {"version", "mode", "dry_run"})
-        self.assertTrue(inputs["version"]["required"])
-        self.assertEqual(inputs["mode"]["type"], "choice")
-        self.assertEqual(inputs["mode"]["options"], ["submit", "publish"])
-        # A live publish is always a deliberate choice.
-        self.assertEqual(inputs["dry_run"]["type"], "boolean")
-        self.assertIs(inputs["dry_run"]["default"], True)
-        self.assertEqual(set(self.pal["jobs"]), {"submit", "publish"})
-        for word in ("push:", "pull_request", "schedule:", "release:", "workflow_run", "tags:"):
-            with self.subTest(word=word):
-                self.assertNotIn(word, code(self.text))
-
-    def test_the_submit_job_runs_in_the_protected_environment(self):
+    def test_it_runs_after_a_successful_release_in_the_protected_environment(self):
+        self.assertEqual(self.job["needs"], "Deploy")
+        self.assertNotIn("if", self.job)
         environment = self.job["environment"]
         name = environment["name"] if isinstance(environment, dict) else environment
         self.assertEqual(name, "pal-notarization")
-        self.assertEqual(self.job["if"].replace(" ", ""), "inputs.mode=='submit'")
         self.assertEqual(self.job["permissions"], {"contents": "read"})
         self.assertIn("timeout-minutes", self.job)
+        self.assertEqual(self.job["concurrency"], {"group": "pal-upload", "cancel-in-progress": False})
 
     def test_the_steps_run_in_order(self):
-        names = [step.get("name") for step in self.job["steps"]]
-        self.assertEqual(names, PAL_STEPS)
-
-    def test_the_screenshot_gate_is_off_for_3_0(self):
-        # Owner decision: the submission no longer reads the screenshot check on the dispatched commit.
-        names = [step.get("name") for step in self.job["steps"]]
-        self.assertEqual(names[0], "Checkout")
-        self.assertNotIn("Require the screenshot check", names)
-        self.assertNotIn("needs", self.job)
-        for name in ("SNAPSHOT_GATE_CHECK", "REQUIRE_SNAPSHOT_GATE_SCRIPT_PATH"):
-            self.assertNotIn(name, self.env)
+        self.assertEqual([step.get("name") for step in self.job["steps"]], PAL_UPLOAD_STEPS)
 
     def test_the_checkout_cannot_push(self):
         checkout = step_named(self.job, "Checkout")
         self.assertTrue(checkout["uses"].startswith("actions/checkout@"))
         self.assertIs(checkout["with"]["persist-credentials"], False)
 
-    def test_the_version_must_be_the_projects(self):
-        run = self.run_text("Check version")
-        self.assertIn("MARKETING_VERSION", run)
-        self.assertIn("EhPanda.xcodeproj/project.pbxproj", run)
-        self.assertEqual(self.job["env"]["VERSION"], "${{ inputs.version }}")
+    def test_the_version_is_the_projects(self):
+        version = step_named(self.job, "Read the version")
+        self.assertEqual(version["id"], "version")
+        run = self.run_text("Read the version")
+        for needle in ("MARKETING_VERSION", "EhPanda.xcodeproj/project.pbxproj", "ALTSTORE_PAL_MARKETPLACE_ID",
+                       'echo "version=', "GITHUB_OUTPUT"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, run)
+        for name in ("Check build number", "Verify marketplace build", "Export and upload"):
+            with self.subTest(step=name):
+                self.assertEqual(step_named(self.job, name)["env"]["VERSION"], "${{ steps.version.outputs.version }}")
+        self.assertNotIn("inputs.", json.dumps(self.job))
 
     def test_the_build_number_is_checked_against_the_pal_source_and_app_store_connect(self):
         run = self.run_text("Check build number")
@@ -530,13 +516,22 @@ class PalWorkflowTests(unittest.TestCase):
     def test_the_build_number_is_checked_before_the_build(self):
         self.assertLess(step_index(self.job, "Check build number"), step_index(self.job, "Xcode archive"))
 
-    def test_the_archive_is_signed_with_the_generated_xcconfig(self):
+    def test_it_archives_the_marketplace_build_on_its_own(self):
         run = self.run_text("Xcode archive")
         self.assertIn("xcodebuild archive", run)
         self.assertIn('-xcconfig "$MARKETPLACE_XCCONFIG"', run)
+        self.assertIn('-archivePath "/tmp/action-builds/EhPanda-AltStorePAL.xcarchive"', run)
         self.assertNotIn("CODE_SIGNING_ALLOWED=NO", run)
         self.assertNotIn("Config/Marketplace.xcconfig", run)
         self.assertIn("marketplace-signing.sh\" setup", self.run_text("Set up signing"))
+        # Never the Classic archive: not reused, not re-signed.
+        self.assertNotEqual(self.job["env"]["PAL_ARCHIVE_PATH"], self.env["ARCHIVE_PATH"])
+        for step in self.job["steps"]:
+            with self.subTest(step=step.get("name")):
+                run = expand(code(step.get("run", "")), {**self.env, **self.job.get("env", {})})
+                self.assertNotIn(self.env["ARCHIVE_PATH"], run)
+                self.assertNotIn(self.env["PAYLOAD_PATH"], run)
+                self.assertFalse(step.get("uses", "").startswith("actions/download-artifact@"))
 
     def test_nothing_asks_xcode_to_make_signing_records(self):
         # D-07: no automatic signing, so Xcode never creates or downloads a profile, certificate or App ID.
@@ -561,19 +556,36 @@ class PalWorkflowTests(unittest.TestCase):
             with self.subTest(flag=flag):
                 self.assertIn(flag, run)
 
-    def test_the_submission_goes_through_the_client(self):
-        for name, command in (("Wait for the build", "wait-build"), ("Ensure the notarization version", "ensure-version"),
-                              ("Attach the build", "attach-build"), ("Submit for notarization", "submit")):
+    def test_it_uploads_and_stops(self):
+        # Owner decision, 2026-11-21: the collaborator creates the version, attaches the build and submits it. The
+        # one call the client still makes is the build-number check before the archive.
+        text = "\n".join(self.run_text(step["name"]) for step in self.job["steps"] if "run" in step)
+        self.assertEqual(re.findall(r'actions-tool/asc\.py" ([\w-]+)', text), ["check-build"])
+        for needle in ("wait-build", "ensure-version", "attach-build", "adp-id", "reviewSubmission",
+                       "appStoreVersions", "NOTARIZATION", "pal_publish.py"):
+            with self.subTest(needle=needle):
+                self.assertNotIn(needle, text)
+        names = [step.get("name") for step in self.job["steps"]]
+        for name in ("Wait for the build", "Ensure the notarization version", "Attach the build",
+                     "Submit for notarization"):
             with self.subTest(step=name):
-                self.assertIn(f"actions-tool/asc.py\" {command}", self.run_text(name))
-        self.assertIn("NOTARIZATION", self.text)
-        self.assertIn("reviewType", self.text)
+                self.assertNotIn(name, names)
+
+    def test_the_summary_hands_over_to_the_collaborator(self):
+        run = self.run_text("Export and upload")
+        for needle in ("GITHUB_STEP_SUMMARY", "collaborator", "Publish AltStore PAL"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, run)
+        self.assertLess(run.index("xcodebuild -exportArchive"), run.index("GITHUB_STEP_SUMMARY"))
+        self.assertEqual(step_named(self.job, "Export and upload")["env"]["BUILD_NUMBER"],
+                         "${{ steps.build-number.outputs.build }}")
 
     def test_the_call_record_is_kept_even_when_a_step_fails(self):
         upload = step_named(self.job, "Upload the call record")
         self.assertTrue(upload["uses"].startswith("actions/upload-artifact@"))
         self.assertEqual(upload["if"], "always()")
         self.assertIn("asc-calls.jsonl", upload["with"]["path"])
+        self.assertEqual(upload["with"]["name"], "asc-call-record-${{ steps.version.outputs.version }}-upload")
         self.assertIn("asc-calls.jsonl", self.run_text("Write App Store Connect key"))
 
     def test_the_signing_material_is_always_removed(self):
@@ -601,92 +613,141 @@ class PalWorkflowTests(unittest.TestCase):
                     self.assertNotRegex(code(run), rf"(echo|printf)[^\n|]*\$\{{?{name}\b(?![^\n]*base64)")
         self.assertNotIn("secrets.", json.dumps(self.job.get("env", {})))
 
-    def test_the_tests_and_checks_see_no_signing_secret(self):
-        for name in ("Check version", "Install iOS 27 Platform", "Verify analytics credentials"):
+    def test_the_checks_see_no_signing_secret(self):
+        for name in ("Read the version", "Install iOS 27 Platform", "Verify analytics credentials"):
             with self.subTest(step=name):
                 self.assertNotIn("secrets.", json.dumps(step_named(self.job, name).get("env", {})))
 
     def test_the_header_lists_every_secret_and_variable(self):
         header = "\n".join(line for line in self.text.splitlines() if line.startswith("#"))
-        used = set(re.findall(r"\$\{\{\s*(?:secrets|vars)\.(\w+)", self.text)) - {"GITHUB_TOKEN"}
+        used = set(re.findall(r"(?:secrets|vars)\.(\w+)", json.dumps(self.job))) - {"GITHUB_TOKEN"}
         for name in set(PAL_SECRETS) | set(PAL_VARIABLES) | used:
             with self.subTest(name=name):
                 self.assertIn(name, header)
         self.assertTrue(set(PAL_SECRETS) <= used)
-        self.assertIn("pal-notarization", header)
-        self.assertIn("D-07", header)
-        self.assertIn("D-26", header)
+        self.assertTrue(set(PAL_VARIABLES) <= used)
+        for needle in ("pal-notarization", "D-07", "D-21", "D-26", "publish-pal.yml"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, header)
 
 
-PAL_PUBLISH_STEPS = [
+PUBLISH_STEPS = [
+    "Refuse to run off main",
+    "Check the ADP ID",
     "Checkout",
     "Modify git config",
-    "Check version",
-    "Write App Store Connect key",
-    "Read the ADP ID",
-    "Ask AltStore to process the ADP",
     "Fetch the ADP",
     "Publish to AltStore PAL",
-    "Upload the call record",
-    "Remove the API key",
 ]
+GOOD_ADP_IDS = ["453ead28-2d2b-49d1-a398-5a06ca29186b", "453EAD28-2D2B-49D1-A398-5A06CA29186B"]
+BAD_ADP_IDS = ["", "https://api.altstore.io/adps/453ead28-2d2b-49d1-a398-5a06ca29186b",
+               "453ead28-2d2b-49d1-a398-5a06ca29186b\n", " 453ead28-2d2b-49d1-a398-5a06ca29186b",
+               "453ead28-2d2b-49d1-a398", "453ead28-2d2b-49d1-a398-5a06ca29186b-",
+               "453ead28_2d2b_49d1_a398_5a06ca29186b", "../etc/passwd"]
 
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
-class PalPublishWorkflowTests(unittest.TestCase):
-    """`deploy-pal.yml`'s publish job (20-05; D-19, D-21): ADP ID, AltStore processing, the unchanged ADP as release
-    assets and the PAL source on `main`, with the permissions from the project's files (owner decision, 20-08)."""
+class PublishWorkflowTests(unittest.TestCase):
+    """publish-pal.yml (20-05, amended 2026-11-21; D-19, D-26): the ADP ID alone, the unchanged ADP as release assets
+    and the PAL source on `main`, pushed with the deploy key, with the permissions from the project's files (owner
+    decision, 20-08)."""
 
     @classmethod
     def setUpClass(cls):
-        cls.path = WORKFLOWS / "deploy-pal.yml"
+        cls.path = WORKFLOWS / "publish-pal.yml"
         cls.text = cls.path.read_text(encoding="utf-8")
-        cls.pal = load(cls.path)
-        cls.env = cls.pal.get("env", {})
-        cls.job = cls.pal["jobs"]["publish"]
+        cls.document = load(cls.path)
+        cls.env = cls.document.get("env", {})
+        cls.job = cls.document["jobs"]["Publish"]
 
     def run_text(self, name):
-        # The workflow's paths are put in; the job's $VERSION and $ASC_APP_ID are kept, as the shell sees them.
+        # The workflow's paths are put in; the job's $ADP_ID and $MARKETPLACE_ID are kept, as the shell sees them.
         return expand(code(step_named(self.job, name).get("run", "")), self.env)
 
-    def test_the_publish_job_runs_in_the_protected_environment(self):
-        environment = self.job["environment"]
-        name = environment["name"] if isinstance(environment, dict) else environment
-        self.assertEqual(name, "pal-notarization")
-        self.assertEqual(self.job["if"].replace(" ", ""), "inputs.mode=='publish'")
-        self.assertEqual(self.job["permissions"], {"contents": "write"})
-        self.assertIn("timeout-minutes", self.job)
-        self.assertNotIn("needs", self.job)
+    def test_it_is_dispatched_by_hand_with_the_adp_id_and_dry_run_only(self):
+        self.assertEqual(self.document["name"], "Publish AltStore PAL")
+        # YAML 1.1 reads the `on` key as true.
+        triggers = self.document.get("on", self.document.get("true"))
+        self.assertEqual(list(triggers), ["workflow_dispatch"])
+        inputs = triggers["workflow_dispatch"]["inputs"]
+        self.assertEqual(set(inputs), {"adp_id", "dry_run"})
+        self.assertIs(inputs["adp_id"]["required"], True)
+        self.assertEqual(inputs["adp_id"]["type"], "string")
+        self.assertEqual(inputs["dry_run"]["type"], "boolean")
+        self.assertIs(inputs["dry_run"]["default"], True)
+        self.assertEqual(list(self.document["jobs"]), ["Publish"])
+        for word in ("push:", "pull_request", "schedule:", "release:", "workflow_run", "tags:"):
+            with self.subTest(word=word):
+                self.assertNotIn(word, code(self.text))
+
+    def test_it_runs_on_main_only(self):
+        guard = step_named(self.job, "Refuse to run off main")
+        self.assertEqual(step_index(self.job, "Refuse to run off main"), 0)
+        self.assertEqual(guard["env"], {"REF_TYPE": "${{ github.ref_type }}", "REF_NAME": "${{ github.ref_name }}"})
+        run = guard["run"]
+        self.assertIn('"$REF_TYPE" != "branch"', run)
+        self.assertIn('"$REF_NAME" != "main"', run)
+        self.assertEqual(run.count("::error::"), 2)
+        self.assertEqual(run.count("exit 1"), 2)
 
     def test_the_steps_run_in_order(self):
-        self.assertEqual([step.get("name") for step in self.job["steps"]], PAL_PUBLISH_STEPS)
+        self.assertEqual([step.get("name") for step in self.job["steps"]], PUBLISH_STEPS)
 
-    def test_the_version_and_notes_are_checked_first(self):
-        run = self.run_text("Check version")
-        self.assertIn("[0-9]+", run)
-        self.assertIn("ALTSTORE_PAL_MARKETPLACE_ID", run)
-        self.assertIn("actions-tool/release_notes.py\" check", run)
-        self.assertEqual(self.job["env"]["VERSION"], "${{ inputs.version }}")
-        self.assertEqual(self.job["env"]["ASC_APP_ID"], "${{ vars.ALTSTORE_PAL_MARKETPLACE_ID }}")
+    def test_the_adp_id_must_be_a_uuid_before_any_request(self):
+        self.assertEqual(step_index(self.job, "Check the ADP ID"), 1)
+        self.assertLess(step_index(self.job, "Check the ADP ID"), step_index(self.job, "Checkout"))
+        self.assertLess(step_index(self.job, "Check the ADP ID"), step_index(self.job, "Fetch the ADP"))
+        self.assertEqual(self.job["env"]["ADP_ID"], "${{ inputs.adp_id }}")
+        run = step_named(self.job, "Check the ADP ID")["run"]
+        self.assertNotIn("${{", run)
+        for value in GOOD_ADP_IDS + BAD_ADP_IDS:
+            with self.subTest(adp_id=value):
+                result = subprocess.run(["bash", "-c", run], capture_output=True, text=True, timeout=30,
+                                        env={"PATH": os.environ.get("PATH", ""), "ADP_ID": value})
+                if value in GOOD_ADP_IDS:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                else:
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    self.assertIn("::error::", result.stdout)
 
-    def test_the_adp_id_comes_from_app_store_connect(self):
-        run = self.run_text("Read the ADP ID")
-        self.assertIn('actions-tool/asc.py" adp-id --app "$ASC_APP_ID" --version "$VERSION"', run)
-        self.assertIn("GITHUB_OUTPUT", run)
-        self.assertIn("asc-calls.jsonl", self.run_text("Write App Store Connect key"))
+    def test_the_push_to_main_uses_the_deploy_key(self):
+        # Main's ruleset (pull requests and signed commits, with only the deploy key on its bypass list; checked
+        # 2026-11-21) refuses a push with the job's token.
+        checkout = step_named(self.job, "Checkout")
+        self.assertEqual(checkout["with"], {"ssh-key": "${{ secrets.DEPLOY_KEY }}"})
+        tool = (ROOT / "actions-tool" / "pal_publish.py").read_text(encoding="utf-8")
+        self.assertIn('"push", "origin", "HEAD:refs/heads/main"', tool)
+        self.assertLess(step_index(self.job, "Modify git config"), step_index(self.job, "Publish to AltStore PAL"))
 
-    def test_altstore_processes_then_the_adp_is_fetched_and_published(self):
-        self.assertIn('actions-tool/pal_publish.py" process --adp-id "$ADP_ID"',
-                      self.run_text("Ask AltStore to process the ADP"))
+    def test_it_holds_no_app_store_connect_key_and_no_environment(self):
+        self.assertNotIn("environment", self.job)
+        self.assertNotIn("environment", self.document)
+        document = json.dumps(self.document)
+        for needle in ("APP_STORE_CONNECT", "asc.py", "pal-notarization", "marketplace-signing", "xcodebuild", "ASC_"):
+            with self.subTest(needle=needle):
+                self.assertNotIn(needle, document)
+        self.assertEqual(set(re.findall(r"(?:secrets|vars)\.(\w+)", code(self.text))),
+                         {"DEPLOY_KEY", "ALTSTORE_PAL_MARKETPLACE_ID"})
+
+    def test_the_header_lists_its_secret_and_variable(self):
+        header = "\n".join(line for line in self.text.splitlines() if line.startswith("#"))
+        for needle in ("DEPLOY_KEY", "ALTSTORE_PAL_MARKETPLACE_ID", "D-19", "D-26"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, header)
+
+    def test_the_adp_is_fetched_then_published_from_its_own_manifest(self):
         fetch = self.run_text("Fetch the ADP")
         self.assertIn('actions-tool/pal_publish.py" fetch --adp-id "$ADP_ID"', fetch)
         self.assertIn("--timeout", fetch)
         publish = self.run_text("Publish to AltStore PAL")
-        self.assertIn('actions-tool/pal_publish.py" publish', publish)
-        for needle in ('--version "$VERSION"', '--repo "$GITHUB_REPOSITORY"', '--marketplace-id "$ASC_APP_ID"',
-                       "ReleaseNotes/", "--dry-run"):
+        for needle in ('actions-tool/pal_publish.py" publish', '--repo "$GITHUB_REPOSITORY"',
+                       '--marketplace-id "$MARKETPLACE_ID"', '--notes-dir "./ReleaseNotes"', "--dry-run"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, publish)
+        self.assertNotIn("--version", publish)
+        self.assertNotIn("--notes ", publish)
+        self.assertNotRegex(code(self.text), r'pal_publish\.py"?\s+process')
+        self.assertEqual(self.job["env"]["MARKETPLACE_ID"], "${{ vars.ALTSTORE_PAL_MARKETPLACE_ID }}")
 
     def test_the_permissions_come_from_the_projects_files(self):
         # Owner decision (20-08): the PAL source lists the project's entitlements and usage descriptions, never
@@ -724,25 +785,17 @@ class PalPublishWorkflowTests(unittest.TestCase):
         for step in self.job["steps"]:
             run = code(step.get("run", ""))
             with self.subTest(step=step.get("name")):
-                for needle in ("xcodebuild", "setup", "check-build", "wait-build", "ensure-version",
-                               "attach-build", " submit", "package-channel.sh"):
+                for needle in ("xcodebuild", "marketplace-signing.sh", "asc.py", "package-channel.sh",
+                               "check-build-number.sh"):
                     self.assertNotIn(needle, expand(run, self.env))
                 self.assertNotRegex(run, r"\bgit\s+(tag|push)\b")
                 self.assertNotRegex(run, r"\bgh\s+release\b")
                 self.assertNotIn("action-gh-release", step.get("uses", ""))
-        for name in ("DISTRIBUTION_CERTIFICATE", "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP", "PROVISIONING_PROFILE_SHARE_EXTENSION", "APPLE_TEAM_ID"):
+        self.assertEqual(self.job["permissions"], {"contents": "write"})
+        for name in ("DISTRIBUTION_CERTIFICATE", "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP",
+                     "PROVISIONING_PROFILE_SHARE_EXTENSION", "APPLE_TEAM_ID"):
             with self.subTest(secret=name):
                 self.assertNotIn(name, json.dumps(self.job))
-
-    def test_the_call_record_is_kept_and_the_key_removed(self):
-        upload = step_named(self.job, "Upload the call record")
-        self.assertEqual(upload["if"], "always()")
-        self.assertIn("asc-calls.jsonl", upload["with"]["path"])
-        self.assertIn("publish", upload["with"]["name"])
-        teardown = step_named(self.job, "Remove the API key")
-        self.assertEqual(teardown["if"], "always()")
-        self.assertIn('marketplace-signing.sh" teardown', self.run_text("Remove the API key"))
-        self.assertEqual(self.job["steps"][-1]["name"], "Remove the API key")
 
     def test_secrets_reach_steps_only_through_env(self):
         for step in self.job["steps"]:
@@ -767,7 +820,7 @@ class GateOffTests(unittest.TestCase):
             for name, job in document["jobs"].items():
                 with self.subTest(workflow=workflow, job=name):
                     self.assertNotIn("uses", job)
-                    self.assertNotIn("needs", job)
+                    self.assertEqual(job.get("needs"), RELEASE_NEEDS.get((workflow, name)))
                     for step in job.get("steps", []):
                         self.assertNotIn("require-snapshot-gate", step.get("run", ""))
 

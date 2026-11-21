@@ -1,9 +1,11 @@
-"""The AltStore PAL publish tool (`pal_publish.py`) against fakes (Phase 20 plan 20-05; D-19; Research §4, §5).
+"""The AltStore PAL publish tool (`pal_publish.py`) against fakes (Phase 20 plan 20-05, amended
+2026-11-21; D-19, D-26; Research §4, §5).
 
 Nothing here reaches AltStore, App Store Connect or GitHub:
-- AltStore is a local `http.server` that answers `POST /adps` and `GET /adps/<id>` and serves the ADP zip;
+- AltStore is a local `http.server` that answers `GET /adps/<id>` and serves the ADP zip;
 - `gh` is `fixtures/fake-gh/gh`, which keeps releases and their assets in a temporary directory and logs each call;
-- `main` lives in a local bare repository, and the tool works in a clone of it.
+- `main` lives in a local bare repository, and the tool works in a clone of it;
+- `main` carries an `AltStore.json` that lists the fixture's 3.0.0 (159), as the Classic release would (D-26).
 
 The ADP is synthetic (`fixtures/adp/`) and has the layout of the real 3.0.0 ADP (20-08): `manifest.json`, with
 Apple's field names and fixed bytes, `signature`, and `variant/<publicId>.ipa`, whose bytes are opaque because Apple
@@ -77,6 +79,10 @@ def zip_adp(adp, path):
     return path
 
 
+def classic_source(versions):
+    return json.dumps({"apps": [{"bundleIdentifier": "app.ehpanda", "versions": versions}]}, indent=2) + "\n"
+
+
 class FakeAltStore:
     """`GET /adps/<id>` answers the replies in `statuses` in turn (the last one repeats); a reply's
     `downloadURL` of "ZIP" becomes this server's URL for `zip_path`."""
@@ -97,12 +103,6 @@ class FakeAltStore:
                 self.send_header("Content-Length", str(len(body)))
                 self.end_headers()
                 self.wfile.write(body)
-
-            def do_POST(self):
-                length = int(self.headers.get("Content-Length") or 0)
-                body = json.loads(self.rfile.read(length) or b"null")
-                fake.requests.append(("POST", self.path, body))
-                self.reply(200, b'{"status":"processing"}')
 
             def do_GET(self):
                 fake.requests.append(("GET", self.path, None))
@@ -147,11 +147,6 @@ class FetchTests(ToolTestCase):
         self.env["ALTSTORE_API_URL"] = self.altstore.base_url
         self.adp = build_adp(self.tmp / "adp-source")
         self.altstore.zip_path = zip_adp(self.adp, self.tmp / "adp.zip")
-
-    def test_process_asks_altstore_to_process_the_adp(self):
-        result = self.run_tool("process", "--adp-id", ADP_ID)
-        self.assertEqual(result.returncode, 0, self.output)
-        self.assertEqual(self.altstore.requests, [("POST", "/adps", {"adpID": ADP_ID})])
 
     def test_fetch_waits_for_the_download_url_then_downloads_the_adp_unchanged(self):
         self.altstore.statuses = [{"status": "processing"}, {"status": "processing"},
@@ -241,7 +236,8 @@ class PublishTests(ToolTestCase):
         seed = self.tmp / "seed"
         self.git("clone", "-q", self.bare.as_uri(), str(seed))
         (seed / "README.md").write_text("seed\n")
-        self.git("-C", str(seed), "add", "README.md")
+        (seed / "AltStore.json").write_text(classic_source([{"version": VERSION, "buildVersion": "159"}]))
+        self.git("-C", str(seed), "add", "README.md", "AltStore.json")
         self.git("-C", str(seed), "commit", "-q", "-m", "seed")
         self.git("-C", str(seed), "push", "-q", "origin", "HEAD:refs/heads/main")
         self.checkout = self.tmp / "checkout"
@@ -269,10 +265,36 @@ class PublishTests(ToolTestCase):
         self.project_args = ["--entitlements", str(self.app_entitlements),
                              "--entitlements", str(self.extension_entitlements),
                              "--info-plist", str(self.app_info), "--info-plist", str(self.extension_info)]
+        self.notes_dir = self.tmp / "notes"
+        self.notes_dir.mkdir()
+        shutil.copyfile(NOTES, self.notes_dir / f"{VERSION}.md")
 
     def git(self, *args, cwd=None):
         return subprocess.run([GIT, *args], capture_output=True, text=True, env=self.env, cwd=cwd,
                               check=True).stdout
+
+    def replace_on_main(self, name, text):
+        """Changes one file on main: writes `text` to it, or removes it when `text` is None."""
+        checkout = str(self.checkout)
+        self.git("-C", checkout, "pull", "-q", "--ff-only", "origin", "main")
+        if text is None:
+            self.git("-C", checkout, "rm", "-q", name)
+        else:
+            (self.checkout / name).write_text(text)
+            self.git("-C", checkout, "add", name)
+        self.git("-C", checkout, "commit", "-q", "-m", f"change {name}")
+        self.git("-C", checkout, "push", "-q", "origin", "HEAD:refs/heads/main")
+
+    def adp_with_manifest(self, name, **changes):
+        """The fetched fixture ADP with some manifest fields changed."""
+        adp = build_adp(self.tmp / name)
+        manifest = json.loads((ADP_FIXTURE / "manifest.json").read_text())
+        manifest.update(changes)
+        (adp / "manifest.json").write_text(json.dumps(manifest))
+        fetched = self.tmp / f"{name}-fetched"
+        result = self.run_tool("fetch", "--from", str(adp), "--out", str(fetched))
+        self.assertEqual(result.returncode, 0, self.output)
+        return fetched
 
     def make_release(self, tag=VERSION):
         releases_path = self.gh_state / "releases.json"
@@ -283,8 +305,8 @@ class PublishTests(ToolTestCase):
         releases_path.write_text(json.dumps(releases))
 
     def publish(self, *extra, project=None, marketplace_id=MARKETPLACE_ID, adp=None):
-        return self.run_tool("publish", "--version", VERSION, "--adp", str(adp or self.fetched), "--repo", REPO,
-                             "--notes", str(NOTES), "--marketplace-id", marketplace_id, "--work",
+        return self.run_tool("publish", "--adp", str(adp or self.fetched), "--repo", REPO,
+                             "--notes-dir", str(self.notes_dir), "--marketplace-id", marketplace_id, "--work",
                              str(self.tmp / "work"), "--retry-delay", "0",
                              *(self.project_args if project is None else project), *extra, cwd=self.checkout)
 
@@ -370,7 +392,7 @@ class PublishTests(ToolTestCase):
         self.assert_refused_before_upload(self.publish(adp=fetched), "0b1c2d3e-0000-4000-8000-000000000000")
 
     def test_the_repositorys_files_give_the_published_permissions(self):
-        # The files deploy-pal.yml passes (test_workflows holds them to the project) give AltStorePAL.json's list.
+        # The files publish-pal.yml passes (test_workflows holds them to the project) give AltStorePAL.json's list.
         import pal_publish
         entitlements, privacy = pal_publish.project_permissions(
             [ROOT / "App" / "EhPanda.entitlements"],
@@ -477,11 +499,36 @@ class PublishTests(ToolTestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn(f"{PREFIX}signature", self.output)
 
-    def test_an_adp_of_another_version_is_refused(self):
-        result = self.run_tool("publish", "--version", "3.0.1", "--adp", str(self.fetched), "--repo", REPO,
-                               "--notes", str(NOTES), "--marketplace-id", MARKETPLACE_ID,
-                               "--work", str(self.tmp / "work"), *self.project_args, cwd=self.checkout)
-        self.assert_refused_before_upload(result, "3.0.0")
+    def test_a_manifest_version_that_is_not_a_release_version_is_refused(self):
+        adp = self.adp_with_manifest("bad-version", shortVersionString="3.0")
+        self.assert_refused_before_upload(self.publish(adp=adp), "'3.0'", "not one like 3.0.0")
+
+    def test_a_manifest_of_another_bundle_is_refused(self):
+        adp = self.adp_with_manifest("other-bundle", bundleId="app.ehpanda")
+        self.assert_refused_before_upload(self.publish(adp=adp), "bundle identifier mismatch", "app.ehpanda.store")
+
+    def test_the_notes_are_the_manifest_versions_file(self):
+        with self.subTest("missing"):
+            shutil.copyfile(NOTES, self.notes_dir / "9.9.9.md")
+            (self.notes_dir / f"{VERSION}.md").unlink()
+            self.assert_refused_before_upload(self.publish(), str(self.notes_dir / f"{VERSION}.md"))
+        with self.subTest("incomplete"):
+            (self.notes_dir / f"{VERSION}.md").write_text("# 3.0.0\n\n## English\n\nNew.\n")
+            self.assert_refused_before_upload(self.publish(), f"{VERSION}.md")
+
+    def test_a_version_the_classic_source_does_not_list_is_refused(self):
+        self.replace_on_main("AltStore.json", classic_source([{"version": "2.8.1", "buildVersion": "158"}]))
+        self.assert_refused_before_upload(self.publish(), "AltStore.json", "does not list 3.0.0", "D-26")
+
+    def test_a_build_other_than_the_classic_releases_is_refused(self):
+        self.replace_on_main("AltStore.json", classic_source([{"version": VERSION, "buildVersion": "163"}]))
+        for label, extra in (("live", []), ("dry run", ["--dry-run"])):
+            with self.subTest(label):
+                self.assert_refused_before_upload(self.publish(*extra), "3.0.0 (159)", "3.0.0 (163)", "D-26")
+
+    def test_main_without_the_classic_source_is_refused(self):
+        self.replace_on_main("AltStore.json", None)
+        self.assert_refused_before_upload(self.publish(), "main has no AltStore.json", "D-26")
 
     def install_reject_hook(self, rejections):
         """A pre-receive hook that, for the first `rejections` pushes, lands another commit on main (as a
@@ -531,6 +578,11 @@ class SourceTextTests(unittest.TestCase):
         self.assertNotRegex(text, r"json\.dumps?\(.*manifest")
         self.assertNotIn("release create", text)
         self.assertNotIn("--clobber", text)
+
+    def test_the_tool_only_reads_from_altstore(self):
+        text = TOOL.read_text(encoding="utf-8")
+        self.assertNotIn("POST", text)
+        self.assertNotIn('add_parser("process")', text)
 
 
 if __name__ == "__main__":

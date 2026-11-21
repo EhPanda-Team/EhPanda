@@ -2,6 +2,33 @@ name: Deploy
 # Started by hand on main only, after the release pull request is merged (owner decision). Merging or
 # pushing to main never releases. The title and notes come from ReleaseNotes/<version>.md (owner
 # decision), so nothing is typed in or read from a pull request.
+#
+# Two jobs. `Deploy` makes the release: the archive, the GitHub release, AltStore.json and SideStore.json on main,
+# and the Telegram and Discord posts. `AltStorePAL` then builds the AltStore PAL flavor (DIST-18-03) from the same
+# commit: its own archive with Config/Marketplace.xcconfig, signed by Xcode through the generated signing xcconfig,
+# with the release's version and build number (D-26). It uploads that build to App Store Connect and stops (owner
+# decision, 2026-11-21): the collaborator creates the version with review type Notarization, adds the build and
+# submits it in App Store Connect. Once Apple accepts it, publish-pal.yml publishes the package.
+#
+# `AltStorePAL` runs in the GitHub environment `pal-notarization`, whose required reviewer gives the owner's OK for
+# each run (D-07). Its secrets are the only place the signing material and the API key exist:
+#   APP_STORE_CONNECT_KEY_ID              the App Store Connect API key's ID
+#   APP_STORE_CONNECT_ISSUER_ID           the key's issuer ID
+#   APP_STORE_CONNECT_PRIVATE_KEY         the key's .p8 file, as text
+#   DISTRIBUTION_CERTIFICATE              the Apple Distribution certificate and its private key, a base64 .p12
+#   DISTRIBUTION_CERTIFICATE_PASSWORD     the .p12's password
+#   PROVISIONING_PROFILE_APP              the App Store Connect profile for app.ehpanda.store, base64
+#   PROVISIONING_PROFILE_SHARE_EXTENSION  the App Store Connect profile for app.ehpanda.store.ShareExtension, base64
+#   APPLE_TEAM_ID                         the team that owns the certificate and the profiles
+# Its variables:
+#   ALTSTORE_PAL_MARKETPLACE_ID           the app's Apple ID in App Store Connect (also the PAL source's marketplaceID)
+#   APP_STORE_CONNECT_KEY_ROLE            the key's role as recorded when it was made (D-21; written to the call record)
+# The PAL archive also reads the repository secrets TELEMETRYDECK_APP_ID and TELEMETRYDECK_SALT, as Deploy's archive
+# does.
+#
+# Nothing here creates an App ID, certificate, profile or key: signing is manual with the profiles above, and
+# actions-tool/asc.py refuses every endpoint outside its allow-list (D-07). Its calls are recorded with the key's ID
+# and role and uploaded as an artifact (D-21); the upload uses the same key.
 on:
   workflow_dispatch:
 env:
@@ -74,7 +101,7 @@ jobs:
           set -euo pipefail
           # The sources as published on main: AltStore and SideStore compare against those. A beta's
           # build counts too, because the beta source lists it. AltStorePAL.json is left out; the PAL
-          # build has its own check in its own workflow.
+          # build has its own check in the AltStorePAL job below.
           published_path="$RUNNER_TEMP/published"
           mkdir -p "$published_path"
           git fetch --no-tags --depth 1 origin main
@@ -320,3 +347,200 @@ jobs:
             --data-binary "@$discord_payload")"
           discord_id="$(printf '%s' "$discord_message" | jq -r .id)"
           echo "Discord message id: $discord_id"
+
+  # The AltStore PAL build (DIST-18-03), after the release and from the same commit. Upload only (owner decision,
+  # 2026-11-21); the header lists its environment and secrets.
+  AltStorePAL:
+    needs: Deploy
+    runs-on: xcode-27
+    environment: pal-notarization
+    timeout-minutes: 120
+    # One upload at a time: queue, never cancel.
+    concurrency:
+      group: pal-upload
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      ASC_APP_ID: ${{ vars.ALTSTORE_PAL_MARKETPLACE_ID }}
+      APP_STORE_CONNECT_KEY_ROLE: ${{ vars.APP_STORE_CONNECT_KEY_ROLE }}
+      ALTSTORE_PAL_JSON_PATH: './AltStorePAL.json'
+      ASC_TOOL_PATH: './actions-tool/asc.py'
+      SIGNING_SCRIPT_PATH: './actions-tool/marketplace-signing.sh'
+      # The marketplace flavor (Config/Marketplace.xcconfig, included by the generated signing xcconfig).
+      MARKETPLACE_BUNDLE_ID: 'app.ehpanda.store'
+      MARKETPLACE_URL_SCHEME: 'ehpanda-marketplace'
+      # Its own archive: the Classic archive is never reused or re-signed (owner decision).
+      PAL_ARCHIVE_PATH: '/tmp/action-builds/EhPanda-AltStorePAL.xcarchive'
+      PAL_EXPORT_PATH: '/tmp/action-builds/EhPanda-AltStorePAL-export'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # Snapshot gate off for 3.0 (owner decision); restore by re-adding the snapshot-gate job and the require step
+      # (see git history of this commit).
+      - name: Read the version
+        id: version
+        run: |
+          set -euo pipefail
+          [[ "$ASC_APP_ID" =~ ^[0-9]+$ ]] || { echo "::error::The ALTSTORE_PAL_MARKETPLACE_ID variable is not set to the app's Apple ID."; exit 1; }
+          # The release's version, read from the project as Deploy's build gets it: every app and extension
+          # target carries the same MARKETING_VERSION; test targets carry 1.0.
+          versions="$(grep -Eo 'MARKETING_VERSION = [0-9]+\.[0-9]+\.[0-9]+;' EhPanda.xcodeproj/project.pbxproj | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | sort -u)"
+          [[ "$versions" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::The project's targets do not share one MARKETING_VERSION: '$(tr '\n' ' ' <<< "$versions")'."; exit 1; }
+          echo "version=$versions" >> "$GITHUB_OUTPUT"
+          echo "The project is version $versions."
+      - name: Write App Store Connect key
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          bash "$SIGNING_SCRIPT_PATH" api-key
+          # D-21: every App Store Connect call of this run is appended here and uploaded at the end.
+          echo "ASC_CALL_RECORD=$RUNNER_TEMP/asc-calls.jsonl" >> "$GITHUB_ENV"
+      - name: Check build number
+        id: build-number
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          # The PAL source as published on main. The Classic sources are not compared: the PAL build carries the
+          # Classic release's build number (D-26).
+          published_path="$RUNNER_TEMP/published"
+          mkdir -p "$published_path"
+          git fetch --no-tags --depth 1 origin main
+          if git cat-file -e "FETCH_HEAD:${ALTSTORE_PAL_JSON_PATH#./}" 2>/dev/null; then
+            git show "FETCH_HEAD:${ALTSTORE_PAL_JSON_PATH#./}" > "$published_path/$(basename "$ALTSTORE_PAL_JSON_PATH")"
+          fi
+          # Every app and extension target carries the same build number; test targets carry 1.
+          build_version="$(grep -Eo 'CURRENT_PROJECT_VERSION = [0-9]+;' EhPanda.xcodeproj/project.pbxproj | grep -Eo '[0-9]+' | sort -n | tail -1)"
+          bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$published_path"/*.json
+          # Build numbers are single-use in App Store Connect, uploaded or not (Research pitfall 2).
+          python3 "$ASC_TOOL_PATH" check-build --app "$ASC_APP_ID" --version "$VERSION" --build "$build_version"
+          echo "build=$build_version" >> "$GITHUB_OUTPUT"
+      - name: Install iOS 27 Platform
+        uses: nick-fields/retry@v4
+        with:
+          retry_on: error
+          max_attempts: 10
+          timeout_minutes: 999
+          command: xcodebuild -downloadPlatform iOS
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Set up signing
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          DISTRIBUTION_CERTIFICATE: ${{ secrets.DISTRIBUTION_CERTIFICATE }}
+          DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE_APP: ${{ secrets.PROVISIONING_PROFILE_APP }}
+          PROVISIONING_PROFILE_SHARE_EXTENSION: ${{ secrets.PROVISIONING_PROFILE_SHARE_EXTENSION }}
+        run: bash "$SIGNING_SCRIPT_PATH" setup
+      - name: Xcode archive
+        env:
+          TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
+          TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
+        run: |
+          set -euo pipefail
+          # The generated xcconfig includes Config/Marketplace.xcconfig and selects each target's profile. The
+          # channel stamp is a build setting there: a signed build is never stamped afterwards.
+          xcodebuild archive \
+            -skipMacroValidation \
+            -skipPackagePluginValidation \
+            -scheme "$SCHEME_NAME" \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$PAL_ARCHIVE_PATH" \
+            -xcconfig "$MARKETPLACE_XCCONFIG" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $MARKETPLACE_KEYCHAIN" \
+            GCC_OPTIMIZATION_LEVEL=s \
+            SWIFT_OPTIMIZATION_LEVEL=-O \
+            TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID" \
+            TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT"
+      - name: Verify analytics credentials
+        run: |
+          app_info_plist="$PAL_ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
+          app_id="$(plutil -extract TelemetryDeckAppID raw -o - "$app_info_plist")"
+          salt="$(plutil -extract TelemetryDeckSalt raw -o - "$app_info_plist")"
+          [[ ! -z "$app_id" ]] || exit 1
+          [[ ! -z "$salt" ]] || exit 1
+      - name: Verify marketplace build
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          BUILD_NUMBER: ${{ steps.build-number.outputs.build }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          app_path="$PAL_ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app"
+          extension_path="$app_path/PlugIns/ShareExtension.appex"
+          app_info_plist="$app_path/Info.plist"
+          extension_info_plist="$extension_path/Info.plist"
+          bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$app_info_plist")"
+          extension_bundle_id="$(plutil -extract CFBundleIdentifier raw -o - "$extension_info_plist")"
+          display_name="$(plutil -extract CFBundleDisplayName raw -o - "$app_info_plist")"
+          url_scheme="$(plutil -extract CFBundleURLTypes.0.CFBundleURLSchemes.0 raw -o - "$app_info_plist")"
+          extension_url_scheme="$(plutil -extract EhPandaURLScheme raw -o - "$extension_info_plist")"
+          channel="$(plutil -extract EhPandaDistributionChannel raw -o - "$app_info_plist")"
+          version="$(plutil -extract CFBundleShortVersionString raw -o - "$app_info_plist")"
+          build_version="$(plutil -extract CFBundleVersion raw -o - "$app_info_plist")"
+
+          [[ "$bundle_id" == "$MARKETPLACE_BUNDLE_ID" ]] || { echo "::error::The app is $bundle_id, not $MARKETPLACE_BUNDLE_ID."; exit 1; }
+          [[ "$extension_bundle_id" == "$MARKETPLACE_BUNDLE_ID.ShareExtension" ]] || { echo "::error::The share extension is $extension_bundle_id."; exit 1; }
+          [[ "$display_name" == "EhPanda" ]] || { echo "::error::The marketplace build is named '$display_name', not 'EhPanda'."; exit 1; }
+          [[ "$url_scheme" == "$MARKETPLACE_URL_SCHEME" ]] || { echo "::error::The marketplace build registers '$url_scheme', not $MARKETPLACE_URL_SCHEME."; exit 1; }
+          [[ "$extension_url_scheme" == "$url_scheme" ]] || { echo "::error::The share extension hands off to $extension_url_scheme, not $url_scheme."; exit 1; }
+          [[ "$channel" == "altstorePAL" ]] || { echo "::error::The build is stamped '$channel', not altstorePAL."; exit 1; }
+          [[ "$version" == "$VERSION" ]] || { echo "::error::The build is version $version, not $VERSION."; exit 1; }
+          [[ "$build_version" == "$BUILD_NUMBER" ]] || { echo "::error::The build is number $build_version, not $BUILD_NUMBER."; exit 1; }
+          [[ -f "$app_path/PrivacyInfo.xcprivacy" ]] || { echo "::error::The app has no PrivacyInfo.xcprivacy."; exit 1; }
+
+          codesign --verify --deep --strict "$app_path"
+          for bundle in "$app_path" "$extension_path"; do
+            details="$(codesign -dvv "$bundle" 2>&1)"
+            grep -q '^Authority=Apple Distribution: ' <<< "$details" || { echo "::error::$(basename "$bundle") is not signed by an Apple Distribution certificate."; exit 1; }
+            grep -qx "TeamIdentifier=$APPLE_TEAM_ID" <<< "$details" || { echo "::error::$(basename "$bundle") is not signed by APPLE_TEAM_ID."; exit 1; }
+            [[ -f "$bundle/embedded.mobileprovision" ]] || { echo "::error::$(basename "$bundle") has no provisioning profile."; exit 1; }
+            entitlements="$RUNNER_TEMP/entitlements.plist"
+            codesign -d --entitlements - --xml "$bundle" > "$entitlements" 2>/dev/null
+            if [[ "$(plutil -extract get-task-allow raw -o - "$entitlements" 2>/dev/null || echo false)" != "false" ]]; then
+              echo "::error::$(basename "$bundle") is signed for debugging (get-task-allow)."
+              exit 1
+            fi
+          done
+          bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$RUNNER_TEMP/published"/*.json
+      - name: Export and upload
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ steps.build-number.outputs.build }}
+        run: |
+          set -euo pipefail
+          # destination upload: xcodebuild signs the export with the profiles named in the export options and
+          # sends it to App Store Connect with the API key.
+          xcodebuild -exportArchive \
+            -archivePath "$PAL_ARCHIVE_PATH" \
+            -exportOptionsPlist "$MARKETPLACE_EXPORT_OPTIONS" \
+            -exportPath "$PAL_EXPORT_PATH" \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$APP_STORE_CONNECT_KEY_ID" \
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID"
+          # Upload only (owner decision, 2026-11-21): the version, the build's attachment and the submission are
+          # the collaborator's steps in App Store Connect.
+          {
+            echo "### AltStore PAL $VERSION ($BUILD_NUMBER) uploaded"
+            echo ""
+            echo "The collaborator now creates version $VERSION in App Store Connect with review type Notarization, adds this build and submits it. Once Apple accepts it, run Publish AltStore PAL with the ADP ID."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the call record
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: asc-call-record-${{ steps.version.outputs.version }}-upload
+          path: ${{ runner.temp }}/asc-calls.jsonl
+          if-no-files-found: ignore
+      - name: Tear down signing
+        if: always()
+        run: bash "$SIGNING_SCRIPT_PATH" teardown
