@@ -260,3 +260,7 @@ None. No new network endpoint, auth path or file access is introduced. The only 
 - Created files exist: `AppPackage/Sources/AnalyticsClient/Reducer+ErrorSignals.swift` and
   `AppPackage/Tests/AnalyticsClientTests/ErrorSignalReducerTests.swift`.
 - Commits `2d5b8efa1`, `070180421` and `5308210f4` are ancestors of HEAD.
+
+## Correction (2026-11-21, quick task 261121-m6q)
+
+The claim above that a pushed screen's fetch "reaches the real network" under the test host is wrong. The test network guard (`AppPackage/Sources/TestNetworkGuard`) fails every unstubbed request offline at once. The defect was that reducers built their requests inline, so a test could not choose the outcome, and the guard's failure raised `errorSurfaced` at a moment that raced `skipInFlightEffects`. Quick task 261121-m6q routed those fetches through `GalleryClient` and removed the three `.errorSurfaced` filters.
