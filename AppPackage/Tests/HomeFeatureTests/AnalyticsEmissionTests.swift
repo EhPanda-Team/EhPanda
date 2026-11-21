@@ -21,8 +21,9 @@ import Testing
 //
 // Each store is torn down with `skipInFlightEffects` alone: the Home-level emission is merged with a
 // `.send` presentation action, so flushing in-flight effects records the signal while leaving the
-// buffered presentation action unprocessed. That keeps a pushed sub-screen's network fetch from
-// firing (those requests take no injectable session — see HomePresentationLifecycleTests).
+// buffered presentation action unprocessed. It does NOT stop a pushed sub-screen's network fetch
+// from running (those requests take no injectable session — see HomePresentationLifecycleTests), so
+// the two destination sweeps filter out `.errorSurfaced` before asserting.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
@@ -44,7 +45,12 @@ struct AnalyticsEmissionTests {
         await store.send(.sectionTapped(type))
         await store.skipInFlightEffects(strict: false)
 
-        expectNoDifference(recorded.value, [.homeSectionViewed(Self.expectedSection(for: type))])
+        // The pushed screen's own fetch reaches the network under the test host, so its outcome is not asserted.
+        let nonErrorSignals = recorded.value.filter({ signal in
+            if case .errorSurfaced = signal { return false }
+            return true
+        })
+        expectNoDifference(nonErrorSignals, [.homeSectionViewed(Self.expectedSection(for: type))])
     }
 
     // The misc-grid destinations: sweeping `HomeMiscGridType.allCases` proves the other three
@@ -59,7 +65,12 @@ struct AnalyticsEmissionTests {
         await store.send(.miscTapped(type))
         await store.skipInFlightEffects(strict: false)
 
-        expectNoDifference(recorded.value, [.homeSectionViewed(Self.expectedSection(for: type))])
+        // The pushed screen's own fetch reaches the network under the test host, so its outcome is not asserted.
+        let nonErrorSignals = recorded.value.filter({ signal in
+            if case .errorSurfaced = signal { return false }
+            return true
+        })
+        expectNoDifference(nonErrorSignals, [.homeSectionViewed(Self.expectedSection(for: type))])
     }
 
     // MARK: Gallery detail push (HomeReducer)
@@ -188,6 +199,50 @@ struct AnalyticsEmissionTests {
             await store.skipInFlightEffects(strict: false)
 
             expectNoDifference(recorded.value, [.quickSearchPanelOpened(.watched)])
+        }
+    }
+
+    // MARK: Inline errors (sub-screen reducers)
+
+    @MainActor
+    @Test
+    func aFailedFrontPageFetchRecordsOneErrorSignalNamingFrontPage() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        await withDependencies {
+            $0.defaultAppStorage = UserDefaults.inMemory
+        } operation: {
+            let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
+                $0.analyticsClient = .recording(into: recorded)
+                $0.defaultAppStorage = UserDefaults.inMemory
+                $0.hapticsClient = .noop
+            }
+            store.exhaustivity = .off(showSkippedAssertions: false)
+
+            await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
+            await store.finish()
+
+            expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .frontPage)])
+        }
+    }
+
+    @MainActor
+    @Test
+    func aFailedFrontPageFooterFetchRecordsOneErrorSignalNamingFrontPage() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        await withDependencies {
+            $0.defaultAppStorage = UserDefaults.inMemory
+        } operation: {
+            let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
+                $0.analyticsClient = .recording(into: recorded)
+                $0.defaultAppStorage = UserDefaults.inMemory
+                $0.hapticsClient = .noop
+            }
+            store.exhaustivity = .off(showSkippedAssertions: false)
+
+            await store.send(.fetchMoreGalleriesDone(.failure(.parseFailed)))
+            await store.finish()
+
+            expectNoDifference(recorded.value, [.errorSurfaced(.parseFailed, screen: .frontPage)])
         }
     }
 }

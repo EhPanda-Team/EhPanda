@@ -110,8 +110,12 @@ extension AnalyticsSignal {
 
         // MARK: Errors and account
 
-        case .errorSurfaced(let kind):
-            .error(id: kind.rawValue, category: kind.category, parameters: [:])
+        case .errorSurfaced(let kind, let screen):
+            .error(
+                id: kind.rawValue,
+                category: kind.category,
+                parameters: [ParameterKey.errorScreen: screen.rawValue]
+            )
 
         case .loginFailed(let failureKind):
             .signal(
@@ -253,6 +257,7 @@ private enum ParameterKey {
     static let readingPagesRead = "Reading.pagesRead"
     static let readingDuration = "Reading.duration"
     static let downloadOutcome = "Download.outcome"
+    static let errorScreen = "Error.screen"
     static let accountLoginFailureKind = "Account.loginFailureKind"
     static let analyticsLevel = "Analytics.level"
     static let analyticsFrom = "Analytics.from"

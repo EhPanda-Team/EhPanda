@@ -231,6 +231,8 @@ public struct FrontPageReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
+        .signalsErrors(of: \.loadingState.failed, on: .frontPage)
+        .signalsErrors(of: \.footerLoadingState.failed, on: .frontPage)
     }
 }
 

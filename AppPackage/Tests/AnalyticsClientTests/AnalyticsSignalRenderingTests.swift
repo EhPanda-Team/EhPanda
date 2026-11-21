@@ -104,8 +104,8 @@ struct AnalyticsSignalRenderingTests {
         // identifier is the closed `AppErrorKind` spelling and the free-form `message:` parameter
         // the preset also offers is never reached. The sentinel rides in the error's payload.
         SignalRenderingFixture(
-            signal: .errorSurfaced(.init(.copyrightClaim(sentinel))),
-            rendered: .error(id: "copyrightClaim", category: .appState, parameters: [:])
+            signal: .errorSurfaced(.init(.copyrightClaim(sentinel)), screen: .reading),
+            rendered: .error(id: "copyrightClaim", category: .appState, parameters: ["Error.screen": "reading"])
         ),
         SignalRenderingFixture(
             signal: .loginFailed(.captchaRequired),

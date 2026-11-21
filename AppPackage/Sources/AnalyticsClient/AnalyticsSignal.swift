@@ -49,7 +49,8 @@ public enum AnalyticsSignal: Equatable, Sendable {
 
     // MARK: Errors and account
 
-    case errorSurfaced(AppErrorKind)
+    /// An error toast or a rendered inline error state turned on. Carries the error's kind and screen only.
+    case errorSurfaced(AppErrorKind, screen: ErrorScreen)
     case loginFailed(LoginFailureKind)
     case cloudflareChallengeEncountered
 

@@ -91,6 +91,31 @@ public enum DownloadOutcome: String, CaseIterable, Equatable, Sendable {
     case updated
 }
 
+/// The screen an error was shown on.
+///
+/// One case per screen that renders an inline error, plus `deepLink` for the error toasts that deep-link and
+/// clipboard handling raise. A closed spelling rather than a screen name, so no free-form name can travel
+/// (D-06, D-09).
+public enum ErrorScreen: String, CaseIterable, Equatable, Sendable {
+    case deepLink
+    case home
+    case frontPage
+    case popular
+    case watched
+    case toplists
+    case history
+    case favorites
+    case search
+    case detail
+    case detailSearch
+    case archives
+    case torrents
+    case folderManager
+    case downloadInspector
+    case reading
+    case ehSetting
+}
+
 /// Why a login attempt did not succeed.
 ///
 /// `other` exists so an unclassified failure still lands somewhere countable. It is a bucket for

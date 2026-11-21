@@ -51,6 +51,18 @@ struct AnalyticsVocabularyTests {
     }
 
     @Test
+    func errorScreenSpellsEveryCase() {
+        #expect(ErrorScreen.allCases.count == 17)
+        #expect(
+            ErrorScreen.allCases.map(\.rawValue) == [
+                "deepLink", "home", "frontPage", "popular", "watched", "toplists", "history", "favorites",
+                "search", "detail", "detailSearch", "archives", "torrents", "folderManager", "downloadInspector",
+                "reading", "ehSetting"
+            ]
+        )
+    }
+
+    @Test
     func loginFailureKindSpellsEveryCase() {
         #expect(LoginFailureKind.allCases.count == 5)
         #expect(
@@ -135,6 +147,7 @@ struct AnalyticsVocabularyTests {
         #expect(Set(AppTab.allCases.map(\.rawValue)).count == AppTab.allCases.count)
         #expect(Set(SearchSurface.allCases.map(\.rawValue)).count == SearchSurface.allCases.count)
         #expect(Set(DownloadOutcome.allCases.map(\.rawValue)).count == DownloadOutcome.allCases.count)
+        #expect(Set(ErrorScreen.allCases.map(\.rawValue)).count == ErrorScreen.allCases.count)
         #expect(Set(LoginFailureKind.allCases.map(\.rawValue)).count == LoginFailureKind.allCases.count)
         #expect(Set(ReportOutcome.allCases.map(\.rawValue)).count == ReportOutcome.allCases.count)
         #expect(Set(UnblockSurface.allCases.map(\.rawValue)).count == UnblockSurface.allCases.count)

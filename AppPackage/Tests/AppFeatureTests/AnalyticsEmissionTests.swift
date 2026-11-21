@@ -18,7 +18,7 @@ import UserDefaultsClient
 // Exact-sequence proof for every AppFeature emission site. Each case drives a reducer through a
 // store whose analytics client is a `LockIsolated`-backed spy — `.noop` with its `send` closure
 // replaced by a collector — and asserts the *sequence* of recorded signals, not merely that
-// something was recorded. The three zero-signal cases are what protect the metrics from
+// something was recorded. The zero-signal cases are what protect the metrics from
 // double-counting and scroll-to-top inflation, so they are asserted explicitly (T-14-13).
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
@@ -104,29 +104,73 @@ struct AnalyticsEmissionTests {
 
     @MainActor
     @Test
-    func aDiagnosticsCarryingErrorToastRecordsOneErrorSignalOfTheExpectedKind() async {
+    func anUnsupportedDeepLinkRecordsOneErrorSignalOnTheDeepLinkScreen() async throws {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        let errorInfo = ErrorInfo(error: .parseFailed, context: [.action: "test"])
+        let url = try #require(URL(string: "https://example.com/not-a-gallery"))
+        let errorInfo = ErrorInfo(error: .unsupportedDeepLink, context: .unsupportedLink(url: url))
         let store = makePresentationStore(analyticsClient: .recording(into: recorded))
-        store.exhaustivity = .off(showSkippedAssertions: false)
 
-        await store.send(.setToast(.error(errorInfo)))
+        await store.send(.handleDeepLink(url)) {
+            $0.toast = .error(errorInfo)
+        }
         await store.finish()
 
-        expectNoDifference(recorded.value, [.errorSurfaced(.parseFailed)])
+        expectNoDifference(recorded.value, [.errorSurfaced(.unsupportedDeepLink, screen: .deepLink)])
     }
 
+    // The signal follows the toast turning into an error toast, so a second unsupported link while the first
+    // toast is still shown is not a new error on screen; once the toast is dismissed, the next one is.
     @MainActor
     @Test
-    func aCaptionOnlyErrorToastRecordsNothing() async {
+    func anErrorToastIsCountedOncePerAppearance() async throws {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let url = try #require(URL(string: "https://example.com/not-a-gallery"))
+        let errorInfo = ErrorInfo(error: .unsupportedDeepLink, context: .unsupportedLink(url: url))
         let store = makePresentationStore(analyticsClient: .recording(into: recorded))
-        store.exhaustivity = .off(showSkippedAssertions: false)
 
-        await store.send(.setToast(.error(caption: "a caption with no diagnostics")))
+        await store.send(.handleDeepLink(url)) {
+            $0.toast = .error(errorInfo)
+        }
+        await store.send(.handleDeepLink(url))
+        await store.finish()
+        expectNoDifference(recorded.value, [.errorSurfaced(.unsupportedDeepLink, screen: .deepLink)])
+
+        await store.send(.toast(.dismiss)) {
+            $0.toast = nil
+        }
+        await store.send(.handleDeepLink(url)) {
+            $0.toast = .error(errorInfo)
+        }
         await store.finish()
 
-        expectNoDifference(recorded.value, [])
+        expectNoDifference(
+            recorded.value,
+            [
+                .errorSurfaced(.unsupportedDeepLink, screen: .deepLink),
+                .errorSurfaced(.unsupportedDeepLink, screen: .deepLink)
+            ]
+        )
+    }
+
+    // The loading toast the fetch put up sends nothing; the error toast replacing it sends one signal.
+    @MainActor
+    @Test
+    func aDeepLinkGalleryThatFailsToLoadRecordsOneErrorSignalOfItsKind() async throws {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let url = try #require(URL(string: "https://e-hentai.org/g/123/token/"))
+        var initialState = PresentationFeature.State()
+        initialState.toast = .loading()
+        let store = makePresentationStore(
+            analyticsClient: .recording(into: recorded),
+            initialState: initialState
+        )
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleryDone(url: url, result: .failure(.networkingFailed)))
+        await store.finish()
+
+        #expect(store.state.toast?.errorInfo?.error == .networkingFailed)
+        expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .deepLink)])
     }
 
     @MainActor
@@ -197,9 +241,12 @@ private extension AnalyticsEmissionTests {
     }
 
     @MainActor
-    func makePresentationStore(analyticsClient: AnalyticsClient) -> TestStoreOf<PresentationFeature> {
+    func makePresentationStore(
+        analyticsClient: AnalyticsClient,
+        initialState: PresentationFeature.State = .init()
+    ) -> TestStoreOf<PresentationFeature> {
         TestStore(
-            initialState: PresentationFeature.State(),
+            initialState: initialState,
             reducer: PresentationFeature.init,
             withDependencies: {
                 $0.analyticsClient = analyticsClient

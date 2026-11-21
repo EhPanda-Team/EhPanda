@@ -53,7 +53,6 @@ struct PresentationFeature {
         case presentSetting
         case presentNewDawn(Greeting)
         case presentGalleryDetail(gallery: Gallery, downloaded: DownloadedGallery?)
-        case setToast(AppAlertState<Never>)
 
         case detectClipboardURL
         case detailDismissalCompleted
@@ -92,9 +91,10 @@ struct PresentationFeature {
 
             case .presentErrorInfo(let errorInfo):
                 // Deliberately emits no analytics signal. This is the user drilling into a toast whose
-                // error was already counted at `.setToast`; emitting here would double-count every error
-                // a curious user inspects and skew the distribution toward errors with interesting
-                // details. Do not add one here for symmetry with the other presentation cases (T-14-13).
+                // error was already counted when the toast turned into an error toast; emitting here would
+                // double-count every error a curious user inspects and skew the distribution toward errors
+                // with interesting details. Do not add one here for symmetry with the other presentation
+                // cases (T-14-13).
                 state.destination = .errorInfo(errorInfo)
                 return .none
 
@@ -133,17 +133,6 @@ struct PresentationFeature {
                         ))
                     })
                 )
-
-            case .setToast(let config):
-                state.toast = config
-                // The centralized user-visible error surface (D-05 family 4). Only a toast carrying
-                // diagnostics is a classifiable error worth counting; a caption-only toast has no
-                // `AppError` and emits nothing. The payload is the `AppError` case alone, through
-                // `AppErrorKind` — never `ErrorInfo`'s per-incident String diagnostics (D-06, D-09).
-                guard let errorInfo = config.errorInfo else { return .none }
-                return .run(operation: { _ in
-                    analyticsClient.send(.errorSurfaced(AppErrorKind(errorInfo.error)))
-                })
 
             case .detectClipboardURL:
                 let currentChangeCount = clipboardClient.changeCount()
@@ -266,6 +255,7 @@ struct PresentationFeature {
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$gallery, action: \.gallery, destination: GallerySheetFeature.init)
         .ifLet(\.$toast, action: \.toast)
+        .signalsErrors(of: \.toast?.errorInfo?.error, on: .deepLink)
     }
 }
 
