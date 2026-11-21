@@ -160,6 +160,7 @@ public struct ReadingView: View {
             autoPlayHandler: autoPlayHandler,
             title: "\(max(Int(store.sliderValue), 1)) / \(store.gallery.pageCount)",
             isLandscape: isLandscape,
+            forcesVerticalReading: store.forcesVerticalReading,
             dismissAction: { store.send(.onPerformDismiss) },
             navigateSettingAction: { store.send(.presentReadingSetting) },
             reloadAllImagesAction: { store.send(.reloadAllWebImages) },

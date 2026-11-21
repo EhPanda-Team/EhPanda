@@ -184,6 +184,16 @@ extension AppAlertState where Action == Never {
             message: caption.map({ TextState($0) })
         )
     }
+
+    /// A success toast whose title names the change, for one the app made on its own, where the plain Success title
+    /// would not say what happened. The caption says why.
+    public static func success(title: LocalizedStringResource, caption: LocalizedStringResource) -> Self {
+        .init(
+            style: .toast(icon: .success, autoHide: true),
+            title: TextState(localized: title),
+            message: TextState(localized: caption)
+        )
+    }
     public static var savedToPhotoLibrary: Self {
         .success(caption: .savedToPhotoLibrary)
     }

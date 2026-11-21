@@ -1114,6 +1114,7 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.liveTextTranslation),
             .module(.readingFeature),
+            .module(.readingSettingFeature),
             .module(.downloadClient),
             .module(.hapticsClient),
             .targetDependency(.sharing)

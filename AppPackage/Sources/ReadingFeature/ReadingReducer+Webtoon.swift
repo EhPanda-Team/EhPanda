@@ -1,6 +1,8 @@
+import AppComponents
 import AppModels
 import AppTools
 import ComposableArchitecture
+import ReadingSettingFeature
 import Sharing
 
 // MARK: - Webtoon detection (D-04 to D-07)
@@ -19,11 +21,20 @@ extension ReadingReducer {
         }
     }
 
-    /// Records the verdict for the session and in the browsing history, through the same upsert as the reading
-    /// progress (D-07), so the gallery is checked only once. A gallery the history cannot key keeps its verdict for
-    /// the session.
+    /// Records the verdict for the session, for the reading settings if they are open, and in the browsing history
+    /// through the same upsert as the reading progress (D-07), so the gallery is checked only once. A verdict that
+    /// turns the reader vertical mid-session says so in a toast (D-06); one that leaves the direction as it was (no
+    /// webtoon, or a user who already reads vertically) shows none. A gallery the history cannot key keeps its verdict
+    /// for the session.
     private func record(isWebtoon: Bool, in state: inout State) {
+        let direction = state.readingSetting.readingDirection
         state.isWebtoon = isWebtoon
+        if state.destination?.is(\.readingSetting) == true {
+            state.destination?.modify(\.readingSetting) { $0.galleryIsWebtoon = isWebtoon }
+        }
+        if state.readingSetting.readingDirection != direction {
+            state.toast = .success(title: .webtoonToastTitle, caption: .webtoonToastMessage)
+        }
         let gid = state.gallery.id
         let token = state.gallery.token
         guard gid.isValidGID else { return }

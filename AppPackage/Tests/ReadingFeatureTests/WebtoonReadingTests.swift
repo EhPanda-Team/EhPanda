@@ -1,9 +1,11 @@
 import AnalyticsClient
+import AppComponents
 import AppModels
 import ComposableArchitecture
 import Foundation
 import HapticsClient
 @testable import ReadingFeature
+import ReadingSettingFeature
 import Sharing
 import Testing
 
@@ -144,6 +146,7 @@ struct WebtoonReadingTests {
             $0.webImageLoadSuccessIndices.insert(6)
             $0.pageSizes[6] = KnownPageSize(pixelSize: tall, source: .decodedImage)
             $0.isWebtoon = true
+            $0.toast = .success(title: .webtoonToastTitle, caption: .webtoonToastMessage)
         }
 
         let layout = store.state.containerDataSource(setting: store.state.readingSetting, isLandscape: true)
@@ -293,5 +296,99 @@ struct WebtoonReadingTests {
         #expect(store.state.isWebtoon == false)
         #expect(store.state.readingSetting.readingDirection == .rightToLeft)
         await store.finish()
+    }
+
+    // MARK: Saying why (D-03, D-06)
+
+    // A user who already reads vertically sees nothing change, so the verdict shows no toast.
+    @MainActor
+    @Test
+    func aVerdictThatChangesNothingShowsNoToast() async throws {
+        let suiteName = "reading-webtoon-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let state = try makeState(
+            setting: Setting(alwaysReadsWebtoonsVertically: true), page: 5, tallPages: [4, 5], defaults: defaults
+        )
+        let store = makeStore(state, defaults: defaults)
+        let tall = try Self.tallSize()
+
+        await store.send(.onWebImageSucceeded(6, pixelSize: tall)) {
+            $0.imageURLLoadingStates[6] = .idle
+            $0.webImageLoadSuccessIndices.insert(6)
+            $0.pageSizes[6] = KnownPageSize(pixelSize: tall, source: .decodedImage)
+            $0.isWebtoon = true
+        }
+
+        #expect(store.state.toast == nil)
+        await store.finish()
+    }
+
+    // The reader opens its settings on a recorded webtoon: their direction picker is locked.
+    @MainActor
+    @Test
+    func theSettingsOfARecordedWebtoonLockTheirDirectionPicker() async throws {
+        let suiteName = "reading-webtoon-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        seedVerdict(true, gid: validGID, in: defaults)
+        let state = try makeState(
+            gid: validGID, setting: Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true),
+            page: 5, tallPages: [], defaults: defaults
+        )
+        let store = makeStore(state, defaults: defaults)
+        store.exhaustivity = .off
+
+        await store.send(.presentReadingSetting)
+
+        let readingSetting = try #require(store.state.destination?.readingSetting)
+        #expect(readingSetting.galleryIsWebtoon)
+        #expect(readingSetting.locksDirection)
+        await store.finish()
+    }
+
+    // A verdict that lands while the settings are open locks their picker there and then, and the switch it makes
+    // says so in a toast.
+    @MainActor
+    @Test
+    func aVerdictWhileTheSettingsAreOpenLocksTheirPicker() async throws {
+        let suiteName = "reading-webtoon-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let setting = Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true)
+        let state = try makeState(setting: setting, page: 5, tallPages: [4, 5], defaults: defaults)
+        let store = makeStore(state, defaults: defaults)
+        store.exhaustivity = .off
+        let tall = try Self.tallSize()
+
+        await store.send(.presentReadingSetting)
+        #expect(store.state.destination?.readingSetting?.galleryIsWebtoon == false)
+        #expect(store.state.destination?.readingSetting?.locksDirection == false)
+        await store.send(.onWebImageSucceeded(6, pixelSize: tall))
+
+        #expect(store.state.destination?.readingSetting?.galleryIsWebtoon == true)
+        #expect(store.state.destination?.readingSetting?.locksDirection == true)
+        #expect(store.state.toast == .success(title: .webtoonToastTitle, caption: .webtoonToastMessage))
+        await store.finish()
+    }
+
+    // The Setting tab opens the editor with no gallery, so its picker is never locked; the reader's editor locks it
+    // only while the option is on.
+    @Test
+    func onlyTheReadersSettingsOfAWebtoonLockTheDirection() throws {
+        let suiteName = "reading-webtoon-\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suiteName))
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        withDependencies {
+            $0.defaultAppStorage = defaults
+        } operation: {
+            let settingTab = ReadingSettingReducer.State()
+            let reader = ReadingSettingReducer.State(galleryIsWebtoon: true)
+            settingTab.$setting.withLock({ $0.alwaysReadsWebtoonsVertically = true })
+            #expect(!settingTab.locksDirection)
+            #expect(reader.locksDirection)
+            reader.$setting.withLock({ $0.alwaysReadsWebtoonsVertically = false })
+            #expect(!reader.locksDirection)
+        }
     }
 }
