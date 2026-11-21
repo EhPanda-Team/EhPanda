@@ -44,13 +44,28 @@ struct HeaderSection: View {
     // 16pt at default (.large); scales with Dynamic Type relative to the nearest text style (.callout, 16pt).
     @ScaledMetric(relativeTo: .callout) private var actionIconFontSize: CGFloat = 16
     private var actionIconFont: Font { .system(size: actionIconFontSize, weight: .semibold) }
+    // The download and favourite glyphs are drawn larger than `.callout` so the three buttons' glyphs read as one
+    // size (owner decision, 2026-11-21): the Read button's book is a solid shape on a solid button, and the outline
+    // glyphs beside it look smaller at the same point size. Measured ink at `.callout`: cloud 20 x 18 pt, heart
+    // 16 x 14.75, book 18.5 x 14.5. The heart's factor applies to `heart` and `heart.fill` alike, so it keeps its
+    // size when tapped. Both multiply `actionIconFontSize`, so they scale with Dynamic Type exactly as the book
+    // does; every glass circle keeps `actionIconButtonSize`.
+    private static let downloadIconScale: CGFloat = 1.1
+    private static let heartIconScale: CGFloat = 1.15
+    private var downloadIconFont: Font {
+        .system(size: actionIconFontSize * Self.downloadIconScale, weight: .semibold)
+    }
+    private var heartIconFont: Font {
+        .system(size: actionIconFontSize * Self.heartIconScale, weight: .semibold)
+    }
     // 10pt at default (.large); scales with Dynamic Type relative to the nearest text style (.caption2, 11pt).
     @ScaledMetric(relativeTo: .caption2) private var progressCenterSymbolSize: CGFloat = 10
-    // 2.5pt / 3pt at default (.large). The ring is drawn inside the download button, so it scales on
-    // the button's own metric: held at their literal values a 2.5pt stroke inset by 3pt reads as a
-    // hairline hugging the rim once the button is three times wider.
+    // 2.5pt thick and 4pt in from the button's edge at default (.large). The ring is drawn over the whole glass
+    // button (48pt at default: the 32pt label and the glass style's padding), so it traces the button's own circle
+    // instead of sitting as a smaller disc inside the label (owner decision, 2026-11-21). Both scale on the
+    // button's own metric, so the ring keeps its place and weight as the button grows.
     @ScaledMetric(relativeTo: .callout) private var progressRingLineWidth: CGFloat = 2.5
-    @ScaledMetric(relativeTo: .callout) private var progressRingInset: CGFloat = 3
+    @ScaledMetric(relativeTo: .callout) private var progressRingInset: CGFloat = 4
 
     private var title: String {
         var titledGallery = gallery
@@ -108,21 +123,23 @@ struct HeaderSection: View {
         Group {
             if let progress = activeDownloadProgress {
                 Button(action: downloadAction) {
-                    progressIndicator(
-                        progress: progress,
-                        isDeterminate: true,
-                        centerSymbol: activeDownloadIconSymbol
-                    )
+                    // Decorative: the button announces the status and the action through
+                    // `downloadButtonAccessibilityLabel`, so the glyph would only be read twice.
+                    Image(systemSymbol: activeDownloadIconSymbol)
+                        .font(actionIconFont)
+                        .foregroundStyle(downloadButtonTint)
+                        .frame(width: actionIconButtonSize, height: actionIconButtonSize)
+                        .contentShape(.circle)
+                        .accessibilityHidden(true)
                 }
                 .buttonStyle(.glass(.regular.interactive()))
                 .buttonBorderShape(.circle)
-            } else if let progress = queuedDownloadProgress {
+                .overlay {
+                    downloadProgressRing(fraction: progress)
+                }
+            } else if queuedDownloadProgress != nil {
                 Button(action: downloadAction) {
-                    progressIndicator(
-                        progress: progress,
-                        isDeterminate: false,
-                        centerSymbol: activeDownloadIconSymbol
-                    )
+                    queuedSpinner
                 }
                 .buttonStyle(.glass(.regular.interactive()))
                 .buttonBorderShape(.circle)
@@ -182,7 +199,7 @@ struct HeaderSection: View {
         Image(systemSymbol: downloadIconSymbol)
             // Reduce Motion's stand-in for the spin below: same state, no rotation (D-29).
             .symbolEffect(.pulse, isActive: showsMetadataPreparation && reduceMotion)
-            .font(actionIconFont)
+            .font(downloadIconFont)
             .foregroundStyle(canDownload ? downloadButtonTint : .secondary)
             .rotationEffect(.degrees(spinsDownloadIcon ? 360 : 0))
             .frame(width: actionIconButtonSize, height: actionIconButtonSize)
@@ -199,7 +216,7 @@ struct HeaderSection: View {
             // visibility, so the state travels as which control is present, not as label text.
             Label(.accessibilityAddToFavorites, systemSymbol: .heart)
                 .labelStyle(.iconOnly)
-                .font(actionIconFont)
+                .font(heartIconFont)
                 .frame(width: actionIconButtonSize, height: actionIconButtonSize)
         }
         .animation(.default) {
@@ -209,7 +226,7 @@ struct HeaderSection: View {
             Button(action: unfavorAction) {
                 Label(.favorited, systemSymbol: .heartFill)
                     .labelStyle(.iconOnly)
-                    .font(actionIconFont)
+                    .font(heartIconFont)
                     .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             }
             .accessibilityLabel(.accessibilityRemoveFromFavorites)
@@ -235,35 +252,34 @@ struct HeaderSection: View {
         .buttonBorderShape(.circle)
         .accessibilityFocused(readButtonFocus)
     }
-    private func progressIndicator(
-        progress: Double, isDeterminate: Bool, centerSymbol: SFSymbol
-    ) -> some View {
+    /// The download ring, drawn over the whole glass button rather than inside its label: a track in the tint at
+    /// 18 % and an arc in the tint from 12 o'clock clockwise for the pages saved, so an arc of 0 draws nothing. It
+    /// neither takes touches nor speaks: the button under it does both.
+    private func downloadProgressRing(fraction: Double) -> some View {
         Circle()
             .stroke(downloadButtonTint.opacity(0.18), lineWidth: progressRingLineWidth)
             .overlay {
                 Circle()
-                    .trim(from: 0, to: progress)
+                    .trim(from: 0, to: fraction)
                     .stroke(downloadButtonTint, style: .init(lineWidth: progressRingLineWidth, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                    .animation(.default, value: progress)
+                    .animation(.default, value: fraction)
             }
-            .padding(progressRingInset)
-            .animation(.default) {
-                $0.visible(isDeterminate)
-            }
-            .overlay {
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .tint(downloadButtonTint)
-                    .controlSize(.small)
-                    .animation(.default) {
-                        $0.visible(!isDeterminate)
-                    }
-            }
+            // The stroke is centred on its path, so the path sits half a line width past the inset.
+            .padding(progressRingInset + progressRingLineWidth / 2)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+    /// The queued state as shipped: a small spinner around the cloud glyph, inside the label.
+    private var queuedSpinner: some View {
+        ProgressView()
+            .progressViewStyle(.circular)
+            .tint(downloadButtonTint)
+            .controlSize(.small)
             .overlay {
                 // Decorative: the enclosing button already announces the status and the action
                 // through `downloadButtonAccessibilityLabel`, so the glyph would only be read twice.
-                Image(systemSymbol: centerSymbol)
+                Image(systemSymbol: downloadIconSymbol)
                     .font(.system(size: progressCenterSymbolSize, weight: .semibold))
                     .foregroundStyle(downloadButtonTint)
                     .accessibilityHidden(true)
