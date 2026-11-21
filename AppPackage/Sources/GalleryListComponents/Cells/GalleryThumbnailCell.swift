@@ -81,18 +81,7 @@ public struct GalleryThumbnailCell: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                if gallery.isFavorite {
-                    // The heart trails the rating; a row that is not a favorite is exactly the rating.
-                    HStack(spacing: 6) {
-                        if showsRating {
-                            rating
-                                .accessibilityIdentifier("gallery-grid-rating-\(gallery.id)")
-                        }
-                        Spacer(minLength: 0)
-                        GalleryFavoriteHeart(gallery: gallery)
-                            .font(.caption)
-                    }
-                } else if showsRating {
+                if showsRating {
                     rating
                         .accessibilityIdentifier("gallery-grid-rating-\(gallery.id)")
                 }
@@ -191,7 +180,7 @@ public struct GalleryThumbnailCell: View {
         )
     }
 
-    /// The cell's stat group, spread across it: page count (or the download badge) leading,
+    /// The cell's stat group, spread across it: page count (or the download badge) and a favorite's heart leading,
     /// language trailing. The flexible frame that spreads it lives here rather than inside the
     /// arrangement below, because inside a `ViewThatFits` candidate it would absorb the overflow
     /// and every candidate would then measure as fitting.
@@ -224,14 +213,14 @@ public struct GalleryThumbnailCell: View {
     @ContentBuilder private var pageCountAndLanguageArrangement: some View {
         if dynamicTypeSize <= .large {
             HStack(spacing: 10) {
-                pageCountOrDownloadBadge
+                pageCountWithFavoriteHeart
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 languageText
             }
         } else {
             AdaptiveStack(hSpaceBetween: true, vSpacing: pairSpacing) {
-                pageCountOrDownloadBadge
+                pageCountWithFavoriteHeart
 
                 languageText
             }
@@ -240,6 +229,19 @@ public struct GalleryThumbnailCell: View {
 
     private var languageText: Text? {
         (gallery.language?.value).map(Text.init)
+    }
+
+    /// A favorite's heart follows the page count (or download badge), 8 apart, in the line's own font and style
+    /// (design decision, 2026-11-21). A cell that is not a favorite is exactly the page count, as before.
+    @ContentBuilder private var pageCountWithFavoriteHeart: some View {
+        if gallery.isFavorite {
+            HStack(spacing: 8) {
+                pageCountOrDownloadBadge
+                GalleryFavoriteHeart(gallery: gallery)
+            }
+        } else {
+            pageCountOrDownloadBadge
+        }
     }
 
     @ContentBuilder private var pageCountOrDownloadBadge: some View {
