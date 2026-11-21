@@ -284,6 +284,14 @@ struct ActionSection: View {
         return didLogin
     }
 
+    /// Edit Rating once the site has the user's rating, Rate Gallery before (design decision, 2026-11-21). The
+    /// label reads the fetched page, not the row's `userRating`: a drag across the stars moves only the row's value,
+    /// so a first rating turns it into Edit Rating once the site has accepted it and the page has been fetched again,
+    /// never mid-gesture.
+    private var ratingButtonTitle: LocalizedStringResource {
+        galleryDetail.userRating > 0 ? .editRating : .rateGallery
+    }
+
     var body: some View {
         VStack {
             if dynamicTypeSize.isAccessibilitySize {
@@ -297,6 +305,8 @@ struct ActionSection: View {
             }
             if showUserRating {
                 HStack {
+                    // The user's own rating shows here and nowhere else, in the site's colour for it
+                    // (design decision, 2026-11-21).
                     RatingView(rating: Float(userRating) / 2)
                         .font(.system(size: userRatingSymbolSize))
                         .foregroundStyle(
@@ -318,7 +328,7 @@ struct ActionSection: View {
         Group {
             Button(action: showUserRatingAction) {
                 Label {
-                    Text(.rateGallery)
+                    Text(ratingButtonTitle)
                         .bold()
                 } icon: {
                     Image(systemSymbol: .squareAndPencil)
@@ -341,9 +351,14 @@ struct ActionSection: View {
     }
 }
 
-@MainActor private func previewActionSection(userRating: Int, showUserRating: Bool) -> some View {
-    ActionSection(
-        galleryDetail: .preview,
+@MainActor private func previewActionSection(
+    siteUserRating: Float, userRatingTint: UserRatingTint?, userRating: Int, showUserRating: Bool
+) -> some View {
+    var galleryDetail = GalleryDetail.preview
+    galleryDetail.userRating = siteUserRating
+    galleryDetail.userRatingTint = userRatingTint
+    return ActionSection(
+        galleryDetail: galleryDetail,
         userRating: userRating,
         showUserRating: showUserRating,
         showUserRatingAction: {},
@@ -357,7 +372,7 @@ struct ActionSection: View {
     withDependencies {
         $0.cookieClient = .previewLoggedIn
     } operation: {
-        previewActionSection(userRating: 0, showUserRating: false)
+        previewActionSection(siteUserRating: 0, userRatingTint: nil, userRating: 0, showUserRating: false)
     }
 }
 
@@ -365,7 +380,23 @@ struct ActionSection: View {
     withDependencies {
         $0.cookieClient = .previewLoggedIn
     } operation: {
-        previewActionSection(userRating: 7, showUserRating: true)
+        previewActionSection(siteUserRating: 0, userRatingTint: nil, userRating: 7, showUserRating: true)
+    }
+}
+
+#Preview("Actions (rated)") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewActionSection(siteUserRating: 3.5, userRatingTint: .green, userRating: 7, showUserRating: false)
+    }
+}
+
+#Preview("Actions (rated, rating shown)") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewActionSection(siteUserRating: 3.5, userRatingTint: .green, userRating: 7, showUserRating: true)
     }
 }
 
