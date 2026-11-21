@@ -68,10 +68,11 @@ struct HeaderSection: View {
     // button's own metric, so the ring keeps its place and weight as the button grows.
     @ScaledMetric(relativeTo: .callout) private var progressRingLineWidth: CGFloat = 2.5
     @ScaledMetric(relativeTo: .callout) private var progressRingInset: CGFloat = 4
-    // 4pt in from the Read button's edge and 3pt thick at default (.large); both scale with the button, which scales
-    // on the same metric, so the ring keeps its place at every size.
+    // 4pt in from the Read button's edge and 2.5pt thick at default (.large), the download ring's inset and stroke, so
+    // the two rings match (design decision, 2026-11-21). Both scale with the button, which scales on the same metric,
+    // so the ring keeps its place at every size.
     @ScaledMetric(relativeTo: .callout) private var readRingInset: CGFloat = 4
-    @ScaledMetric(relativeTo: .callout) private var readRingLineWidth: CGFloat = 3
+    @ScaledMetric(relativeTo: .callout) private var readRingLineWidth: CGFloat = 2.5
     /// The ring's length while the reader is on screen: the page it was opened at, kept until the cover has finished
     /// closing so the growth to the new page is seen whole. `nil` draws the current progress.
     @State private var heldReadFraction: Double?
