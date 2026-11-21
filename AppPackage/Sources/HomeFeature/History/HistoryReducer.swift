@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 public import AppModels
 import AppTools
@@ -228,5 +229,7 @@ public struct HistoryReducer: Sendable {
             }
         }
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
+        .signalsErrors(of: \.loadingState.failed, on: .history)
+        .signalsErrors(of: \.footerLoadingState.failed, on: .history)
     }
 }

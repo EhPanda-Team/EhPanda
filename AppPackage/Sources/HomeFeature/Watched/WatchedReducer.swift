@@ -297,6 +297,8 @@ public struct WatchedReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
+        .signalsErrors(of: \.loadingState.failed, on: .watched)
+        .signalsErrors(of: \.footerLoadingState.failed, on: .watched)
     }
 }
 

@@ -245,6 +245,132 @@ struct AnalyticsEmissionTests {
             expectNoDifference(recorded.value, [.errorSurfaced(.parseFailed, screen: .frontPage)])
         }
     }
+
+    @MainActor
+    @Test
+    func aFailedPopularFetchRecordsOneErrorSignalNamingPopular() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        await withDependencies {
+            $0.defaultAppStorage = UserDefaults.inMemory
+        } operation: {
+            let store = TestStore(initialState: .init(), reducer: PopularReducer.init) {
+                $0.analyticsClient = .recording(into: recorded)
+                $0.defaultAppStorage = UserDefaults.inMemory
+                $0.hapticsClient = .noop
+            }
+            store.exhaustivity = .off(showSkippedAssertions: false)
+
+            await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
+            await store.finish()
+
+            expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .popular)])
+        }
+    }
+
+    @MainActor
+    @Test
+    func failedWatchedListAndFooterFetchesRecordOneErrorSignalEach() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        await withDependencies {
+            $0.defaultAppStorage = UserDefaults.inMemory
+        } operation: {
+            let store = TestStore(initialState: .init(), reducer: WatchedReducer.init) {
+                $0.analyticsClient = .recording(into: recorded)
+                $0.cookieClient = .noop
+                $0.defaultAppStorage = UserDefaults.inMemory
+                $0.downloadClient = .noop
+                $0.hapticsClient = .noop
+            }
+            store.exhaustivity = .off(showSkippedAssertions: false)
+
+            await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
+            await store.finish()
+            await store.send(.fetchMoreGalleriesDone(.failure(.parseFailed)))
+            await store.finish()
+
+            expectNoDifference(
+                recorded.value,
+                [
+                    .errorSurfaced(.networkingFailed, screen: .watched),
+                    .errorSurfaced(.parseFailed, screen: .watched)
+                ]
+            )
+        }
+    }
+
+    // Each toplists type keeps its own state, so a second type failing is its own transition.
+    @MainActor
+    @Test
+    func failedToplistsFetchesRecordOneErrorSignalPerTypeAndFooter() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        await withDependencies {
+            $0.defaultAppStorage = UserDefaults.inMemory
+        } operation: {
+            let store = TestStore(initialState: .init(), reducer: ToplistsReducer.init) {
+                $0.analyticsClient = .recording(into: recorded)
+                $0.defaultAppStorage = UserDefaults.inMemory
+                $0.hapticsClient = .noop
+            }
+            store.exhaustivity = .off(showSkippedAssertions: false)
+
+            await store.send(.fetchGalleriesDone(type: .yesterday, result: .failure(.networkingFailed)))
+            await store.finish()
+            await store.send(.fetchGalleriesDone(type: .pastMonth, result: .failure(.networkingFailed)))
+            await store.finish()
+            await store.send(.fetchMoreGalleriesDone(type: .yesterday, result: .failure(.parseFailed)))
+            await store.finish()
+
+            expectNoDifference(
+                recorded.value,
+                [
+                    .errorSurfaced(.networkingFailed, screen: .toplists),
+                    .errorSurfaced(.networkingFailed, screen: .toplists),
+                    .errorSurfaced(.parseFailed, screen: .toplists)
+                ]
+            )
+        }
+    }
+
+    // An empty local history is shown as not found, and counts as its own kind (owner decision, 2026-11-21).
+    // Fetching again while it is still not found is no new transition.
+    @MainActor
+    @Test
+    func anEmptyHistoryRecordsOneNotFoundSignalNamingHistory() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        await withDependencies {
+            $0.defaultAppStorage = UserDefaults.inMemory
+        } operation: {
+            let store = TestStore(initialState: .init(), reducer: HistoryReducer.init) {
+                $0.analyticsClient = .recording(into: recorded)
+                $0.defaultAppStorage = UserDefaults.inMemory
+                $0.downloadClient = .noop
+            }
+            store.exhaustivity = .off(showSkippedAssertions: false)
+
+            await store.send(.fetchGalleries)
+            await store.finish()
+            await store.send(.fetchGalleries)
+            await store.finish()
+
+            expectNoDifference(recorded.value, [.errorSurfaced(.notFound, screen: .history)])
+        }
+    }
+
+    // Home shows only the popular block's failure; the front-page and toplists cards never show theirs.
+    @MainActor
+    @Test
+    func onlyTheHomePopularBlockFailureRecordsAnErrorSignal() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeHomeStore(analyticsClient: .recording(into: recorded))
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchPopularGalleriesDone(.failure(.networkingFailed)))
+        await store.send(.fetchFrontPageGalleriesDone(.failure(.networkingFailed)))
+        await store.send(.fetchToplistsGalleriesDone(index: 0, result: .failure(.networkingFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .home)])
+    }
 }
 
 // MARK: Expected mappings

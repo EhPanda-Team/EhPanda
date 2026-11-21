@@ -72,6 +72,29 @@ struct AnalyticsEmissionTests {
 
         expectNoDifference(recorded.value, [.quickSearchPanelOpened(.favorites)])
     }
+
+    // MARK: Inline errors
+
+    @MainActor
+    @Test
+    func failedFavoritesListAndFooterFetchesRecordOneErrorSignalEach() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeFavoritesStore(analyticsClient: .recording(into: recorded))
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleriesDone(index: 0, keyword: "", result: .failure(.networkingFailed)))
+        await store.finish()
+        await store.send(.fetchMoreGalleriesDone(index: 0, result: .failure(.parseFailed)))
+        await store.finish()
+
+        expectNoDifference(
+            recorded.value,
+            [
+                .errorSurfaced(.networkingFailed, screen: .favorites),
+                .errorSurfaced(.parseFailed, screen: .favorites)
+            ]
+        )
+    }
 }
 
 // MARK: Spy

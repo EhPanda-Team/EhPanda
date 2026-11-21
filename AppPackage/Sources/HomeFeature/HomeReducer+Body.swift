@@ -304,6 +304,8 @@ extension HomeReducer {
         }
         .forEach(\.path, action: \.path)
         .ifLet(\.$sheet, action: \.sheet, destination: HomeSheetFeature.init)
+        // The front-page and toplists card states are not observed: Home never shows their failure.
+        .signalsErrors(of: \.popularLoadingState.failed, on: .home)
     }
 
     private func presentSheet(

@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 @testable import FavoritesFeature
@@ -58,7 +59,9 @@ struct EmptyStateTests {
         state.rawGalleries[-1] = [.preview]
         state.rawLoadingState[-1] = .loading
         state.emptyFavoritesIndices = [-1]
-        let store = TestStore(initialState: state, reducer: FavoritesReducer.init)
+        let store = TestStore(initialState: state, reducer: FavoritesReducer.init) {
+            $0.analyticsClient = .noop
+        }
         await store.send(.fetchGalleriesDone(index: -1, keyword: Self.keyword, result: Self.emptyFavorites())) {
             $0.rawLoadingState[-1] = .failed(.notFound)
             $0.emptyFavoritesIndices = []
@@ -73,7 +76,9 @@ struct EmptyStateTests {
         var state = FavoritesReducer.State()
         state.rawGalleries[-1] = [.preview]
         state.rawLoadingState[-1] = .loading
-        let store = TestStore(initialState: state, reducer: FavoritesReducer.init)
+        let store = TestStore(initialState: state, reducer: FavoritesReducer.init) {
+            $0.analyticsClient = .noop
+        }
         await store.send(.performDateSeekDone(
             index: -1, result: .success(GalleriesResult(pageNumber: PageNumber(), galleries: []))
         )) {
@@ -90,7 +95,9 @@ struct EmptyStateTests {
         state.rawGalleries[-1] = []
         state.rawLoadingState[-1] = .loading
         state.emptyFavoritesIndices = [-1]
-        let store = TestStore(initialState: state, reducer: FavoritesReducer.init)
+        let store = TestStore(initialState: state, reducer: FavoritesReducer.init) {
+            $0.analyticsClient = .noop
+        }
         await store.send(.fetchGalleriesDone(index: -1, keyword: "", result: .failure(.networkingFailed))) {
             $0.rawLoadingState[-1] = .failed(.networkingFailed)
             $0.emptyFavoritesIndices = []

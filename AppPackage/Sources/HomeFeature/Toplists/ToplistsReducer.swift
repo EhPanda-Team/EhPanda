@@ -1,3 +1,4 @@
+import AnalyticsClient
 public import AppComponents
 public import AppModels
 import AppTools
@@ -229,5 +230,7 @@ public struct ToplistsReducer: Sendable {
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .signalsErrors(of: \.rawLoadingState, on: .toplists)
+        .signalsErrors(of: \.rawFooterLoadingState, on: .toplists)
     }
 }

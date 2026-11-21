@@ -31,4 +31,39 @@ extension Reducer {
             return .run(operation: { _ in analyticsClient.send(.errorSurfaced(kind, screen: screen)) })
         }
     }
+
+    /// Sends `errorSurfaced` for every key whose state turned into a failure.
+    ///
+    /// A dictionary holds one list's states per key (a toplists type, a favorites category, a reader page), and each
+    /// key's transition counts on its own: a key whose new value is `.failed` and differs from its old value sends one
+    /// signal, and a key that had no value before counts as different. The signals go out ordered by kind, so the
+    /// effect is deterministic.
+    public func signalsErrors<Key: Hashable>(
+        of loadingStates: @escaping (State) -> [Key: LoadingState],
+        on screen: ErrorScreen
+    ) -> some Reducer<State, Action> {
+        onChange(of: loadingStates) { oldStates, state in
+            let kinds = newlyFailedKinds(from: oldStates, to: loadingStates(state))
+            guard !kinds.isEmpty else { return .none }
+            @Dependency(\.analyticsClient) var analyticsClient
+            return .run(operation: { _ in
+                for kind in kinds {
+                    analyticsClient.send(.errorSurfaced(kind, screen: screen))
+                }
+            })
+        }
+    }
+}
+
+/// The kind of every key whose state turned into a failure, ordered by spelling, one entry per key.
+private func newlyFailedKinds<Key: Hashable>(
+    from oldStates: [Key: LoadingState],
+    to newStates: [Key: LoadingState]
+) -> [AppErrorKind] {
+    newStates
+        .compactMap({ key, newState in
+            guard let error = newState.failed, oldStates[key] != newState else { return nil }
+            return AppErrorKind(error)
+        })
+        .sorted(by: { $0.rawValue < $1.rawValue })
 }

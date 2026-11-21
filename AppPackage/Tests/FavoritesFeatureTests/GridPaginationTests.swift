@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 @testable import FavoritesFeature
@@ -49,7 +50,9 @@ struct GridPaginationTests {
         var state = FavoritesReducer.State()
         state.rawGalleries[-1] = [.preview]
         state.rawFooterLoadingState[-1] = .loading
-        let store = TestStore(initialState: state, reducer: FavoritesReducer.init)
+        let store = TestStore(initialState: state, reducer: FavoritesReducer.init) {
+            $0.analyticsClient = .noop
+        }
         await store.send(.fetchMoreGalleriesDone(index: -1, result: .failure(.networkingFailed))) {
             $0.rawFooterLoadingState[-1] = .failed(.networkingFailed)
         }

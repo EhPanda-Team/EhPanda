@@ -123,6 +123,7 @@ public struct PopularReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
+        .signalsErrors(of: \.loadingState.failed, on: .popular)
     }
 }
 

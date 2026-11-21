@@ -43,8 +43,11 @@ struct AnalyticsEmissionTests {
         await store.send(.fetchGalleriesDone(.failure(.notFound)))
         await store.skipInFlightEffects(strict: false)
 
+        // The failure also surfaces an error; the two signals' effects run concurrently, so each is asserted
+        // on its own rather than in one cross-signal order.
+        expectNoDifference(recorded.value.errorSignals, [.errorSurfaced(.notFound, screen: .search)])
         expectNoDifference(
-            recorded.value,
+            recorded.value.nonErrorSignals,
             [.searchPerformed(shape: SearchShape(keyword: Self.sentinelKeyword), resultCount: .zero)]
         )
     }
@@ -106,10 +109,43 @@ struct AnalyticsEmissionTests {
         await store.send(.fetchGalleriesDone(.failure(.notFound)))
         await store.skipInFlightEffects(strict: false)
 
+        expectNoDifference(recorded.value.errorSignals, [.errorSurfaced(.notFound, screen: .search)])
         expectNoDifference(
-            recorded.value,
+            recorded.value.nonErrorSignals,
             [.searchPerformed(shape: SearchShape(keyword: keyword), resultCount: .zero)]
         )
+    }
+
+    // MARK: Inline errors (SearchReducer)
+
+    @MainActor
+    @Test
+    func aFailedSearchRecordsOneErrorSignalNamingSearch() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeSearchStore(keyword: Self.sentinelKeyword, analyticsClient: .recording(into: recorded))
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value.errorSignals, [.errorSurfaced(.networkingFailed, screen: .search)])
+        expectNoDifference(
+            recorded.value.nonErrorSignals,
+            [.searchPerformed(shape: SearchShape(keyword: Self.sentinelKeyword), resultCount: .zero)]
+        )
+    }
+
+    @MainActor
+    @Test
+    func aFailedSearchFooterFetchRecordsOneErrorSignalNamingSearch() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeSearchStore(keyword: Self.sentinelKeyword, analyticsClient: .recording(into: recorded))
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchMoreGalleriesDone(.failure(.parseFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.parseFailed, screen: .search)])
     }
 
     // MARK: History keyword (SearchRootReducer)
@@ -270,6 +306,26 @@ private extension AnalyticsClient {
         var client = AnalyticsClient.noop
         client.send = { signal in recorded.withValue({ $0.append(signal) }) }
         return client
+    }
+}
+
+// MARK: Signal partition
+
+private extension [AnalyticsSignal] {
+    /// The `errorSurfaced` signals, in recorded order.
+    var errorSignals: [AnalyticsSignal] {
+        filter({ signal in
+            if case .errorSurfaced = signal { return true }
+            return false
+        })
+    }
+
+    /// Every other signal, in recorded order.
+    var nonErrorSignals: [AnalyticsSignal] {
+        filter({ signal in
+            if case .errorSurfaced = signal { return false }
+            return true
+        })
     }
 }
 

@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import CookieClient
@@ -22,6 +23,7 @@ struct SortSelectionTests {
                 initialState: state,
                 reducer: FavoritesReducer.init,
                 withDependencies: {
+                    $0.analyticsClient = .noop
                     $0.defaultAppStorage = appStorage
                     $0.cookieClient = .noop
                     $0.downloadClient = .noop

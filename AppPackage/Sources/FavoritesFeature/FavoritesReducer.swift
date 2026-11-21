@@ -404,6 +404,8 @@ public struct FavoritesReducer: Sendable {
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$toast, action: \.toast)
         .forEach(\.path, action: \.path)
+        .signalsErrors(of: \.rawLoadingState, on: .favorites)
+        .signalsErrors(of: \.rawFooterLoadingState, on: .favorites)
     }
 }
 
