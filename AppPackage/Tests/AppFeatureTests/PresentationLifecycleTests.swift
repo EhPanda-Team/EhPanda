@@ -14,9 +14,8 @@ import Testing
 // view's `onAppear`, so both must now carry the load send themselves — a miss here is a
 // permanently blank detail screen (T-11-10).
 //
-// `Gallery.preview` has no `galleryURL`, so the detail fetch short-circuits and these tests make no
-// network request. The remaining presentation effects are non-exhaustively skipped: the request
-// types take no injectable session, so they cannot be asserted end to end (see 11-07-SUMMARY.md).
+// `Gallery.preview` has no `galleryURL`, so the detail starts no fetch. These tests assert only that each route
+// sends the load; the remaining presentation effects are skipped non-exhaustively.
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).

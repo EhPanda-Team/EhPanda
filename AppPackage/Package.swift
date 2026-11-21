@@ -952,6 +952,7 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.dfClient),
             .module(.downloadClient),
+            .module(.galleryClient),
             .module(.downloadsFeature),
             .module(.fileClient),
             .module(.hapticsClient),

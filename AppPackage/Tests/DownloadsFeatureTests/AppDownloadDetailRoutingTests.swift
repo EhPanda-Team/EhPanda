@@ -8,6 +8,7 @@ import DetailFeature
 import DownloadClient
 import DownloadsFeature
 import Foundation
+import GalleryClient
 import HapticsClient
 import SettingFeature
 import SwiftUI
@@ -23,15 +24,19 @@ struct AppDownloadDetailRoutingTests: DownloadFeatureTestCase {
     func aRegularWindowPresentsTheDownloadModally() async {
         let download = sampleDownload(gid: "123456", title: "Completed Gallery", status: .completed)
         let store = makeStore(download: download, window: .init(horizontal: .regular, vertical: .regular))
+        store.dependencies.galleryClient.fetchGalleryDetail =
+            GalleryClient.failing(.networkingFailed).fetchGalleryDetail
 
         await store.send(.downloads(.galleryTapped(download.gid)))
         await store.receive(\.downloads.delegate.openGalleryDetail, download)
         await store.receive(\.presentation.presentGalleryDetail)
+        await store.receive(\.presentation.gallery.detail.fetchGalleryDetailDone)
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
         #expect(store.state.presentationState.gallery?.detail.downloadBadge?.status == .completed)
         #expect(store.state.downloadsState.path.isEmpty)
+        #expect(store.state.presentationState.gallery?.detail.loadingState == .failed(.networkingFailed))
     }
 
     @MainActor
@@ -39,18 +44,24 @@ struct AppDownloadDetailRoutingTests: DownloadFeatureTestCase {
         WindowSizeClasses(horizontal: .compact, vertical: .regular),
         WindowSizeClasses(horizontal: .regular, vertical: .compact)
     ])
-    func aWindowCompactInEitherDimensionPushesTheDownload(_ window: WindowSizeClasses) async {
+    func aWindowCompactInEitherDimensionPushesTheDownload(_ window: WindowSizeClasses) async throws {
         let download = sampleDownload(gid: "123456", title: "Completed Gallery", status: .completed)
         let store = makeStore(download: download, window: window)
+        store.dependencies.galleryClient.fetchGalleryDetail =
+            GalleryClient.failing(.networkingFailed).fetchGalleryDetail
 
         await store.send(.downloads(.galleryTapped(download.gid)))
         await store.receive(\.downloads.delegate.openGalleryDetail, download)
         await store.receive(\.downloads.pushGalleryDetail, download)
+        #expect(store.state.downloadsState.path.count == 1)
+        let id = try #require(store.state.downloadsState.path.ids.first)
+        await store.receive(\.downloads.path[id: id].detail.fetchGalleryDetailDone)
         await store.skipReceivedActions(strict: false)
         await store.skipInFlightEffects(strict: false)
 
         #expect(store.state.downloadsState.path.count == 1)
         #expect(store.state.presentationState.gallery == nil)
+        #expect(store.state.downloadsState.path.first?.detail?.loadingState == .failed(.networkingFailed))
     }
 }
 

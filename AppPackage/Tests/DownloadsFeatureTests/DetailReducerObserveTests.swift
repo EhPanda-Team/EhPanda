@@ -7,6 +7,7 @@ import CookieClient
 @testable import DetailFeature
 import DownloadClient
 import Foundation
+import GalleryClient
 import HapticsClient
 import ReadingFeature
 import Testing
@@ -27,12 +28,15 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
             continuationBox.value = continuation
         }
         let store = makeObserveTestStore(gallery: gallery, detail: detail, stream: stream)
+        store.dependencies.galleryClient.fetchGalleryDetail =
+            GalleryClient.failing(.networkingFailed).fetchGalleryDetail
         store.exhaustivity = .off
 
         await store.send(.onPresented) {
             $0.hasLoadedDownloadBadge = false
             $0.didRunLaunchAutomation = false
         }
+        await store.receive(\.fetchGalleryDetailDone)
         await store.skipReceivedActions(strict: false)
 
         continuationBox.value?.yield([
@@ -75,6 +79,7 @@ struct DetailReducerObserveTests: DownloadFeatureTestCase {
         }
 
         continuationBox.value?.finish()
+        #expect(store.state.loadingState == .failed(.networkingFailed))
     }
 
     @MainActor

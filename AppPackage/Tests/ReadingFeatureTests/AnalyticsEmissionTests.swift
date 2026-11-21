@@ -9,6 +9,7 @@ import HapticsClient
 @testable import ReadingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // Exact-sequence proof for the reader-session signal — this module's single emission site.
 //
@@ -166,23 +167,15 @@ struct AnalyticsEmissionTests {
 
         // The dismissal's session signal runs in its own effect, so it is asserted apart from the
         // error signals rather than in one cross-signal order.
-        let errorSignals = recorded.value.filter({ signal in
-            if case .errorSurfaced = signal { return true }
-            return false
-        })
         expectNoDifference(
-            errorSignals,
+            recorded.value.errorSignals,
             [
                 .errorSurfaced(.webImageFailed, screen: .reading),
                 .errorSurfaced(.networkingFailed, screen: .reading),
                 .errorSurfaced(.webImageFailed, screen: .reading)
             ]
         )
-        let sessionSignals = recorded.value.filter({ signal in
-            if case .readingSessionEnded = signal { return true }
-            return false
-        })
-        #expect(sessionSignals.count == 1)
+        #expect(recorded.value.nonErrorSignals.count == 1)
     }
 }
 

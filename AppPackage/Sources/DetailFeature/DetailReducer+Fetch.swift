@@ -3,6 +3,7 @@ import ComposableArchitecture
 import CookieClient
 import DownloadClient
 import Foundation
+import GalleryClient
 import HapticsClient
 import NetworkingFeature
 import UIKit
@@ -22,11 +23,7 @@ extension DetailReducer {
                 state.galleryVersionMetadata = nil
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await GalleryDetailRequest(
-                            gid: galleryID,
-                            galleryURL: galleryURL
-                        )
-                        .response()
+                        try await galleryClient.fetchGalleryDetail(galleryID, galleryURL)
                     }
                     await send(.fetchGalleryDetailDone(result))
                 }

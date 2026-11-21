@@ -9,6 +9,7 @@ import DetailFeature
 import DownloadClient
 @testable import DownloadsFeature
 import Foundation
+import GalleryClient
 import HapticsClient
 import ReadingFeature
 import Testing
@@ -54,6 +55,7 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
                 $0.cookieClient = .noop
                 $0.hapticsClient = .noop
                 $0.date = .constant(.init(timeIntervalSince1970: 0))
+                $0.galleryClient.fetchGalleryDetail = GalleryClient.failing(.networkingFailed).fetchGalleryDetail
             }
         )
         store.exhaustivity = .off
@@ -69,6 +71,8 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
         #expect(detailState.gallery.id == download.gid)
         #expect(detailState.downloadBadge?.status == .completed)
         #expect(detailState.shouldCheckForRemoteUpdates == true)
+        await store.receive(\.path[id: 0].detail.fetchGalleryDetailDone)
+        #expect(store.state.path.first?.detail?.loadingState == .failed(.networkingFailed))
     }
 
     @MainActor
@@ -93,16 +97,19 @@ struct DownloadsReducerActionTests: DownloadFeatureTestCase {
                 $0.cookieClient = .noop
                 $0.hapticsClient = .noop
                 $0.date = .constant(.init(timeIntervalSince1970: 0))
+                $0.galleryClient.fetchGalleryDetail = GalleryClient.failing(.networkingFailed).fetchGalleryDetail
             }
         )
         store.exhaustivity = .off
 
         await store.send(.pushGalleryDetail(download))
+        await store.receive(\.path[id: 0].detail.fetchGalleryDetailDone)
         #expect(store.state.path.count == 1)
 
         // A rapid second activation must not push a duplicate adjacent detail.
         await store.send(.pushGalleryDetail(download))
         #expect(store.state.path.count == 1)
+        #expect(store.state.path.first?.detail?.loadingState == .failed(.networkingFailed))
     }
 
     @MainActor

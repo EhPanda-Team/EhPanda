@@ -6,7 +6,9 @@ import DetailFeature
 import DownloadClient
 @testable import DownloadsFeature
 import Foundation
+import GalleryClient
 import Testing
+import TestingSupport
 
 // Two layers of proof for this module's five emission sites.
 //
@@ -235,21 +237,21 @@ struct AnalyticsEmissionTests: DownloadFeatureTestCase {
     func pushingAGalleryDetailRecordsOneSignalMatchingTheFixture() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
         let store = makeDownloadsStore(recorded: recorded)
+        store.dependencies.galleryClient.fetchGalleryDetail =
+            GalleryClient.failing(.networkingFailed).fetchGalleryDetail
         let fixture = Self.sentinelDownload()
         let expected = TagNamespaceCounts(tags: fixture.gallery.tags)
 
         await store.send(.pushGalleryDetail(fixture))
-        await store.skipInFlightEffects(strict: false)
+        await store.finish()
 
-        // The pushed Detail's own fetch reaches the network under the test host, so its outcome is not asserted.
-        let nonErrorSignals = recorded.value.filter({ signal in
-            if case .errorSurfaced = signal { return false }
-            return true
-        })
+        // The pushed Detail's fetch fails as stubbed. Its `errorSurfaced` and the open signal come from two
+        // concurrently running effects, so each partition is exact, with no order between them.
         expectNoDifference(
-            nonErrorSignals,
+            recorded.value.nonErrorSignals,
             [.galleryDetailOpened(category: fixture.gallery.category, tagNamespaces: expected)]
         )
+        expectNoDifference(recorded.value.errorSignals, [.errorSurfaced(.networkingFailed, screen: .detail)])
     }
 
     // Reflect over the whole recorded signal graph and prove the fixture's distinctive title, tag text
@@ -259,9 +261,11 @@ struct AnalyticsEmissionTests: DownloadFeatureTestCase {
     func pushedGalleryDetailSignalCarriesNoFixtureContent() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
         let store = makeDownloadsStore(recorded: recorded)
+        store.dependencies.galleryClient.fetchGalleryDetail =
+            GalleryClient.failing(.networkingFailed).fetchGalleryDetail
 
         await store.send(.pushGalleryDetail(Self.sentinelDownload()))
-        await store.skipInFlightEffects(strict: false)
+        await store.finish()
 
         #expect(recorded.value.isEmpty == false)
         let leaves = Mirror(reflecting: recorded.value).leafRenderings

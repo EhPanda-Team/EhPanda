@@ -7,6 +7,7 @@ public import ComposableArchitecture
 import CookieClient
 import DownloadClient
 public import Foundation
+import GalleryClient
 import HapticsClient
 public import NetworkingFeature
 public import ReadingFeature
@@ -244,6 +245,7 @@ public struct DetailReducer: Sendable {
     // emission sites live in `navigationReducer` and `downloadReducer`, both in other files.
     @Dependency(\.analyticsClient) var analyticsClient
     @Dependency(\.downloadClient) var downloadClient
+    @Dependency(\.galleryClient) var galleryClient
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient
     @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient

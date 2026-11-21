@@ -3,6 +3,7 @@ import AppModels
 import ComposableArchitecture
 import DownloadClient
 import Foundation
+import GalleryClient
 import NetworkingFeature
 import ReadingFeature
 
@@ -15,6 +16,7 @@ extension FavoritesReducer {
                 state.readingRequestID = requestID
                 return .run { send in
                     @Dependency(\.downloadClient) var downloadClient
+                    @Dependency(\.galleryClient) var galleryClient
                     let local: (download: DownloadedGallery, manifest: DownloadManifest)?
                     do {
                         local = try await downloadClient.loadManifest(gallery.id)
@@ -30,8 +32,7 @@ extension FavoritesReducer {
                         )
                     } else {
                         guard let galleryURL = gallery.galleryURL else { throw AppError.notFound }
-                        let response = try await GalleryDetailRequest(gid: gallery.id, galleryURL: galleryURL)
-                            .response()
+                        let response = try await galleryClient.fetchGalleryDetail(gallery.id, galleryURL)
                         var remote = ReadingReducer.State(
                             gallery: gallery,
                             previewConfig: response.galleryState.previewConfig ?? .normal(rows: 4),
