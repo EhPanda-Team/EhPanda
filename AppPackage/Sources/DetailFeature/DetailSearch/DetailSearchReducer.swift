@@ -3,6 +3,7 @@ public import AppModels
 import AppTools
 public import ComposableArchitecture
 public import FiltersFeature
+import GalleryClient
 import HapticsClient
 import NetworkingFeature
 public import QuickSearchFeature
@@ -67,6 +68,7 @@ public struct DetailSearchReducer: Sendable {
     }
 
     @Dependency(\.analyticsClient) private var analyticsClient
+    @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -122,12 +124,7 @@ public struct DetailSearchReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [lastKeyword = state.lastKeyword] send in
                     do throws(AppError) {
-                        let response = try await SearchGalleriesRequest(
-                            host: host,
-                            keyword: lastKeyword,
-                            filter: filter
-                        )
-                        .response()
+                        let response = try await galleryClient.fetchSearchGalleries(host, lastKeyword, filter)
                         await send(
                             .fetchGalleriesDone(.success((response.pageNumber, response.galleries)))
                         )
@@ -165,13 +162,9 @@ public struct DetailSearchReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [lastKeyword = state.lastKeyword] send in
                     do throws(AppError) {
-                        let response = try await MoreSearchGalleriesRequest(
-                            host: host,
-                            keyword: lastKeyword,
-                            filter: filter,
-                            lastID: lastID
+                        let response = try await galleryClient.fetchMoreSearchGalleries(
+                            host, lastKeyword, filter, lastID
                         )
-                        .response()
                         await send(
                             .fetchMoreGalleriesDone(
                                 .success((response.pageNumber, response.galleries))

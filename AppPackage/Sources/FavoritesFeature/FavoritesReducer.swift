@@ -8,6 +8,7 @@ public import DateSeekFeature
 public import DetailFeature
 import DownloadClient
 public import Foundation
+import GalleryClient
 import HapticsClient
 import IdentifiedCollections
 public import NetworkingFeature
@@ -123,6 +124,7 @@ public struct FavoritesReducer: Sendable {
     @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.downloadClient) private var downloadClient
+    @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -252,13 +254,7 @@ public struct FavoritesReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [index = state.favoritesIndex, keyword = state.keyword] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await FavoritesGalleriesRequest(
-                            host: host,
-                            favIndex: index,
-                            keyword: keyword,
-                            sortOrder: sortOrder
-                        )
-                        .response()
+                        try await galleryClient.fetchFavoritesGalleries(host, index, keyword, sortOrder)
                     }
                     await send(.fetchGalleriesDone(index: index, keyword: keyword, result: result))
                 }
@@ -305,14 +301,9 @@ public struct FavoritesReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [index = state.favoritesIndex, keyword = state.keyword] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await MoreFavoritesGalleriesRequest(
-                            host: host,
-                            favIndex: index,
-                            lastID: lastID,
-                            lastTimestamp: lastItemTimestamp,
-                            keyword: keyword
+                        try await galleryClient.fetchMoreFavoritesGalleries(
+                            host, index, lastID, lastItemTimestamp, keyword
                         )
-                        .response()
                     }
                     await send(.fetchMoreGalleriesDone(index: index, result: result))
                 }
@@ -363,7 +354,7 @@ public struct FavoritesReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [index = state.favoritesIndex] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await DateSeekGalleriesRequest(host: host, url: url).response()
+                        try await galleryClient.fetchDateSeekGalleries(host, url)
                     }
                     await send(.performDateSeekDone(index: index, result: result))
                 }

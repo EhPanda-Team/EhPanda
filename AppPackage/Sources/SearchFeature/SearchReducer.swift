@@ -6,6 +6,7 @@ public import DateSeekFeature
 import DownloadClient
 public import FiltersFeature
 import Foundation
+import GalleryClient
 import HapticsClient
 public import NetworkingFeature
 public import QuickSearchFeature
@@ -79,6 +80,7 @@ public struct SearchReducer: Sendable {
 
     @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.downloadClient) private var downloadClient
+    @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -147,12 +149,7 @@ public struct SearchReducer: Sendable {
                     historyEffect,
                     .run { [lastKeyword = state.lastKeyword] send in
                         let result = await Result.Swift::init { () async throws(AppError) in
-                            try await SearchGalleriesRequest(
-                                host: host,
-                                keyword: lastKeyword,
-                                filter: filter
-                            )
-                            .response()
+                            try await galleryClient.fetchSearchGalleries(host, lastKeyword, filter)
                         }
                         await send(.fetchGalleriesDone(result))
                     }
@@ -204,13 +201,7 @@ public struct SearchReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [lastKeyword = state.lastKeyword] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await MoreSearchGalleriesRequest(
-                            host: host,
-                            keyword: lastKeyword,
-                            filter: filter,
-                            lastID: lastID
-                        )
-                        .response()
+                        try await galleryClient.fetchMoreSearchGalleries(host, lastKeyword, filter, lastID)
                     }
                     await send(.fetchMoreGalleriesDone(result))
                 }
@@ -260,7 +251,7 @@ public struct SearchReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await DateSeekGalleriesRequest(host: host, url: url).response()
+                        try await galleryClient.fetchDateSeekGalleries(host, url)
                     }
                     await send(.performDateSeekDone(result))
                 }

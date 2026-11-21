@@ -4,8 +4,8 @@ import AppTools
 public import ComposableArchitecture
 import DetailFeature
 public import FiltersFeature
+import GalleryClient
 import HapticsClient
-import NetworkingFeature
 public import QuickSearchFeature
 public import Sharing
 
@@ -98,6 +98,7 @@ public struct SearchRootReducer: Sendable {
     }
 
     @Dependency(\.analyticsClient) private var analyticsClient
+    @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -249,11 +250,7 @@ public struct SearchRootReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await GalleriesMetadataRequest(
-                            host: host,
-                            gidList: pairs
-                        )
-                        .response()
+                        try await galleryClient.fetchGalleriesMetadata(host, pairs)
                     }
                     await send(.fetchHistoryGalleriesDone(result))
                 }
