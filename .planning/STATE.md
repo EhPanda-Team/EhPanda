@@ -5,10 +5,10 @@ current_phase: 20
 current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks"
 status: executing
 stopped_at: Completed 20-14-PLAN.md (Release isolation scan, both flavors 0 findings; phase gate green)
-last_updated: "2026-11-17T15:10:53.851Z"
+last_updated: "2026-11-21T05:57:23.170Z"
 last_activity: 2026-11-21
-last_activity_desc: "20-08 recorded (20-08-SUBMISSION.md): Apple accepted 3.0.0 (163) for Notarization, the ADP is fetched and its variants are encrypted, and the hand-made AltStorePAL.json is live on main (owner decision); develop re-signed for main's signature rule. Earlier, quick task 261117-tyj completed: the compact Library picker remembers its last choice across launches (the sidebar does not), and a user-deleted gallery, singly or by folder, leaves the continued-download card's pages and galleries count. Earlier, 20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
-state_head: 93a0663762f5dffa6397dbb733cef91a47c4e4c2
+last_activity_desc: "Quick task 261121-jps completed: Deploy now uploads the PAL build after the release (upload only; the collaborator creates the version and submits it), and Publish AltStore PAL takes only the ADP ID and pushes with the deploy key (owner decisions); deploy-pal.yml is gone. Earlier, 20-08 recorded (20-08-SUBMISSION.md): Apple accepted 3.0.0 (163) for Notarization, the ADP is fetched and its variants are encrypted, and the hand-made AltStorePAL.json is live on main (owner decision); develop re-signed for main's signature rule. Earlier, quick task 261117-tyj completed: the compact Library picker remembers its last choice across launches (the sidebar does not), and a user-deleted gallery, singly or by folder, leaves the continued-download card's pages and galleries count. Earlier, 20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
+state_head: 7020d896bcaeb87c2b3b27f6ced06919a08cf53b
 progress:
   total_phases: 21
   completed_phases: 19
@@ -1165,7 +1165,7 @@ See: .planning/PROJECT.md (updated 2026-11-05)
 Phase: 20 — 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks
 Plan: Not started (no plans yet)
 Status: Ready to discuss and plan; Phase 19 complete with deferred items
-Last activity: 2026-11-18 - Completed quick task 261117-tyj: Library picker reset and download card galleries count fixed
+Last activity: 2026-11-21 - Completed quick task 261121-jps: Split PAL CI into Deploy upload and ADP-ID publish
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
 validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); Phase 18.1 closed
@@ -2225,6 +2225,7 @@ None yet.
 | 261104-website-recapture | Regenerate ten website screenshots with no home indicator in capture launches | 2026-11-04 | 33dbf648b + capture policy | [261104-website-recapture](./quick/261104-website-recapture/SUMMARY.md) |
 | 16 | Replace agent names, chat message IDs, a page link and chat routes in planning records and comments with roles and plain wording | 2026-11-17 | — | — |
 | 261117-tyj | Fix the Library picker reset (remember the compact picker's choice) and the download card's galleries count (a user deletion leaves the session) | 2026-11-18 | 93a066376 | [261117-tyj-fix-library-picker-reset-and-download-ca](./quick/261117-tyj-fix-library-picker-reset-and-download-ca/) |
+| 261121-jps | Split PAL CI: Deploy uploads the PAL build, Publish AltStore PAL takes only the ADP ID | 2026-11-21 | 7020d896b | [261121-jps-split-pal-ci-into-deploy-upload-and-adp-](./quick/261121-jps-split-pal-ci-into-deploy-upload-and-adp-/) |
 
 ### Roadmap Evolution
 
