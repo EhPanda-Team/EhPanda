@@ -7,7 +7,7 @@ EhPanda.xcodeproj/project.xcworkspace/xcuserdata
 Config/LocalSigning.xcconfig
 Config/Analytics.local.xcconfig
 
-# AppPackage (local Swift package)
+# Swift package
 AppPackage/.build
 AppPackage/.swiftpm/xcode/xcuserdata
 AppPackage/.swiftpm/xcode/package.xcworkspace/xcuserdata
@@ -16,10 +16,12 @@ AppPackage/.swiftpm/xcode/package.xcworkspace/xcuserdata
 .planning/research/.cache
 .planning/config.json
 
-# Real marketing fixtures: local, licensed-for-capture gallery content; never committed or promoted to baselines
-.capture/marketing/
-
 # Local capture output and verification evidence
 /.capture/
+
+# Instructions
 /AIRBUILD.md
 /AGENTS.local.md
+
+# Python
+__pycache__
