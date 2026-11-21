@@ -1,5 +1,5 @@
-// Marketplace flavor — COMMITTED, used only by the AltStore PAL notarization workflow
-// (`.github/workflows/deploy-pal.yml`, Phase 20 plan 20-04):
+// Marketplace flavor — COMMITTED, used only by the AltStore PAL upload job
+// (`AltStorePAL` in `.github/workflows/deploy.yml`, Phase 20 plan 20-04):
 //
 //     xcodebuild archive -xcconfig Config/Marketplace.xcconfig ...
 //
