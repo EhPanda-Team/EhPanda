@@ -234,6 +234,10 @@ does not redo them.
     (D-07).
   - **Recorded at the test.** The test records which key type and role made each call, and whether creating the
     version, attaching the build and submitting worked with an App Manager key alone.
+  - *Amended 2026-11-21 (owner decision):* the workflow now only uploads the build. Its call record carries the key's
+    ID and role on the build-number check, and the upload uses the same key in the same job, so a run shows which key
+    uploaded the build. Creating the version, attaching the build and submitting are the collaborator's steps by hand,
+    so no run records whether an App Manager key alone can do them. DIST-18-03 stays Pending.
 
 - **D-22:** **The marketplace build keeps the current primary icon** (product lead decision, 2026-11-09; OQ-1
   option A). The panda holding a rose (`App/EhPanda.icon`, and `docs/altstore/appicon-512.png` for the listing) is
@@ -307,6 +311,9 @@ parallel with (a) to (c); the order below still holds for everything else. *Amen
   ADP yet.
 - **(c) Notarization CI job** (DIST-18-03): signed marketplace archive, upload, version with
   `reviewType: NOTARIZATION`, submit, poll, ADP, AltStore processing, release assets, PAL source update.
+  - *Amended 2026-11-21 (owner decision):* the CI uploads the signed build and stops. Creating the version with
+    `reviewType: NOTARIZATION`, attaching the build and submitting are the collaborator's steps by hand in App Store
+    Connect, and publishing takes only the ADP ID (Developer defaults, Notarization CI; D-21).
   - **Checkpoints (collaborator and owner, D-07), each at its own time:**
     - the App IDs, with the suffix confirmed;
     - the certificate and profiles;
@@ -383,6 +390,18 @@ These were not put to the owner (prep section 3).
     notifications are off), waits for AltStore's `downloadURL`, downloads the ADP unchanged, uploads it to the
     release (D-19) and commits the PAL source to `main`.
   - **The key test.** The workflow records D-21's App Manager key test result.
+  - *Amended 2026-11-21 (owner decision):* the split is now different. `deploy.yml` (Deploy) has a second job,
+    `AltStorePAL`, that runs after the release (`needs: Deploy`) in the `pal-notarization` environment, whose required
+    reviewer is the per-run OK (D-07). It builds its own archive with `Config/Marketplace.xcconfig` and the generated
+    signing xcconfig, signed by Xcode (the Classic archive is not reused or re-signed), checks that App Store Connect
+    has not seen the build number, verifies the build, uploads it and stops. The collaborator creates the version,
+    attaches the build and submits it by hand. A separate dispatch-only workflow, `publish-pal.yml` (Publish AltStore
+    PAL), takes only the ADP ID the collaborator shares (a bare UUID) and `dry_run`. It uses no App Store Connect key
+    and no environment, fetches the ADP from AltStore, takes the version and build from its manifest, refuses unless
+    `AltStore.json` on `main` lists the same build (D-26), attaches the ADP unchanged to that version's existing
+    GitHub release (D-19) and adds it to `AltStorePAL.json` on `main`, pushing with the repository's deploy key. It no
+    longer asks AltStore to process the ADP: AltStore has processed it by the time the ID is shared. `deploy-pal.yml`
+    is deleted.
 - **App Store Connect metadata** (description, screenshots, privacy policy URL, support URL, age rating, App Privacy):
   entered by hand by the collaborator, or with the owner's OK at the first submission. Later versions may set it
   through the API once the D-21 test shows the key can.

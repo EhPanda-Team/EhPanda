@@ -116,7 +116,13 @@ So AltStore accepted the listed entitlements.
   refused. The variants are never read, `codesign` is no longer used, and the ADP fixture has the real layout
   (opaque `variant/<publicId>.ipa`). Run on this ADP with `--dry-run`, it rebuilds `main`'s `AltStorePAL.json`
   byte for byte.
+  *Amended 2026-11-21 (owner decision):* `publish-pal.yml` passes them now, and `publish` takes the version from the
+  manifest instead of a `--version` input.
 - **Install with `[]` not yet tried.** If AltStore refuses it, the rule needs another look.
 - **DIST-18-03:** the D-21 answer needs a `deploy-pal.yml` `submit` run.
+  *Amended 2026-11-21 (owner decision):* `deploy-pal.yml` is gone. Deploy's `AltStorePAL` job uploads the build only,
+  and the collaborator creates the version, attaches the build and submits it by hand in App Store Connect. A run's
+  call record can show which key uploaded the build; it cannot answer whether an App Manager key alone can create the
+  version, attach the build and submit. DIST-18-03 stays Pending.
 - **Not recorded:** the owner's copy-and-caption approval and the collaborator's App Store Connect entries (Task 3,
   steps 1 and 2).

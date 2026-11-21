@@ -165,6 +165,7 @@ Owner decisions 2026-11-02 and 2026-11-03. Every requirement here applies to eve
 - [ ] **DIST-18-03**: Automate notarization and publishing.
   - Submission for notarization runs through the collaborator's App Store Connect account. Test and record whether an App Manager API key can create the version and submit. A CI job submits for notarization, waits for the ADP and publishes it to the PAL source. Account setup, keys and the first submission are a collaborator and owner checkpoint; agents never create Apple-service records on their own.
   - *Phase 20 (split 2026-11-05).*
+  - *Amended 2026-11-21 (owner decision):* the CI uploads the build only (the `AltStorePAL` job of `deploy.yml`, after the GitHub release). The collaborator creates the version, attaches the build and submits it for notarization by hand in App Store Connect, and `publish-pal.yml` takes the ADP ID and publishes it to the PAL source. So a workflow run can show which key uploaded the build, but it no longer tests whether an App Manager key can create the version and submit. Still Pending.
 - [ ] **DEV-18-01**: Run the two outstanding real-device checks on owner hardware.
   - The iPad Gallery Detail stall (deferred in Phase 16) on a Release build, and continued background downloads (Phase 15) on an iPhone.
   - *Phase 20 (split 2026-11-05).*
@@ -256,7 +257,8 @@ Deferred to a future milestone after 3.0 (owner decision; product lead decision)
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-11-21 — 20-08: the first AltStore PAL source is live (hand-made, owner decision); DIST-18-02 notes the progress and stays Pending; DIST-18-03 stays Pending (no `deploy-pal.yml` run, D-21 unanswered).*
+*Last updated: 2026-11-21 — quick 261121-jps: DIST-18-03 amended (owner decision): the CI uploads the PAL build only, the collaborator creates, attaches and submits by hand, and `publish-pal.yml` publishes by ADP ID; it stays Pending.*
+*Previously updated: 2026-11-21 — 20-08: the first AltStore PAL source is live (hand-made, owner decision); DIST-18-02 notes the progress and stays Pending; DIST-18-03 stays Pending (no `deploy-pal.yml` run, D-21 unanswered).*
 *Previously updated: 2026-11-10 — 20-10 closed with the owner's seven iPhone screenshots (product lead decision): MKT-18-01 and DIST-18-02 rows note the progress and stay Pending; CAP-17-05 unchanged (not met as written).*
 *Previously updated: 2026-11-07 — VIS-18-01 amended: three Dynamic Type sizes and a separate public baseline repository (owner decision). Previously 2026-11-06: Phase 19 is the screenshot check plus a daily live-parsing check: MKT-18-01's 384 export, final selection and regeneration dropped (owner decision; lead decision), its remaining part in Phase 20; CAP-17-01 and CAP-17-04 notes updated; VIS-18-01 amended; VIS-19-01 added in Phase 19 (owner decision; product lead decision); TAG-01 and TAG-02 added as v2 (owner decision); 45/45 mapped.*
 *Previously updated: 2026-11-05 — Plan 18-12 complete (its live report-page check verified by an agent per owner rule): AGE-18-01, CONSENT-18-01 and UGC-18-01 Complete. Marked by hand.*
