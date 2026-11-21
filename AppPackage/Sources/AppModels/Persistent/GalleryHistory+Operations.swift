@@ -12,6 +12,12 @@ extension Array where Element == GalleryHistoryEntry {
         first { $0.gid == gid }?.readingProgress ?? 0
     }
 
+    /// The webtoon verdict the reader recorded for `gid` (D-07), or `nil` when the gallery has no history entry or was
+    /// never checked.
+    public func isWebtoon(gid: String) -> Bool? {
+        first { $0.gid == gid }?.isWebtoon
+    }
+
     /// Records that `gid` was just opened: stamps its recency with `date`, moves it to the front,
     /// fills in a previously-missing token, and preserves any saved reading progress. Inserts a
     /// fresh entry when the gallery is new to the history. A non-numeric gid, or a new gallery with
@@ -32,6 +38,22 @@ extension Array where Element == GalleryHistoryEntry {
     /// link that jumps straight to a page before the detail screen records the open. A non-numeric
     /// gid, or a new entry with no token, is rejected (an in-place update keeps its stored token).
     public mutating func updateReadingProgress(gid: String, token: String, progress: Int, date: Date) {
+        updateEntry(gid: gid, token: token, date: date) { $0.readingProgress = progress }
+    }
+
+    /// Records the reader's webtoon verdict for `gid` (D-07) through the same upsert as the reading progress: in
+    /// place, leaving the entry's recency, position and resume page untouched, or as a fresh front entry stamped
+    /// `date` when the gallery has no history yet. A non-numeric gid, or a new entry with no token, is rejected.
+    public mutating func recordWebtoonVerdict(gid: String, token: String, isWebtoon: Bool, date: Date) {
+        updateEntry(gid: gid, token: token, date: date) { $0.isWebtoon = isWebtoon }
+    }
+
+    /// The upsert behind `updateReadingProgress` and `recordWebtoonVerdict`: applies `update` to `gid`'s entry in
+    /// place, or to a fresh front entry stamped `date` when the gallery has no history yet. A non-numeric gid, or a
+    /// new entry with no token, is rejected (an in-place update keeps its stored token).
+    private mutating func updateEntry(
+        gid: String, token: String, date: Date, _ update: (inout GalleryHistoryEntry) -> Void
+    ) {
         guard Int(gid) != nil else { return }
         if let index = firstIndex(where: { $0.gid == gid }) {
             // In-place mutation is what keeps the entry's recency and position untouched; `removeAll`
@@ -41,13 +63,12 @@ extension Array where Element == GalleryHistoryEntry {
             precondition(indices.contains(index), "firstIndex returned an index outside the collection")
             // reason: bounds are precondition-checked immediately above.
             // swiftlint:disable:next unchecked_subscript_index_access
-            self[index].readingProgress = progress
+            update(&self[index])
         } else {
             guard !token.isEmpty else { return }
-            insert(
-                GalleryHistoryEntry(gid: gid, token: token, lastOpenDate: date, readingProgress: progress),
-                at: 0
-            )
+            var entry = GalleryHistoryEntry(gid: gid, token: token, lastOpenDate: date)
+            update(&entry)
+            insert(entry, at: 0)
         }
     }
 

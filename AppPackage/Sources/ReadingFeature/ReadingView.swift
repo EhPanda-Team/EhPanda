@@ -29,9 +29,10 @@ public struct ReadingView: View {
     #endif
 
     @Bindable var store: StoreOf<ReadingReducer>
-    // Write handle backing the reader's own controls (e.g. the ControlPanel slider). The reading-setting
-    // sheet owns its own `@Shared(.setting)`; other reads go through `store.setting`. Same underlying
-    // storage — the model clamps keep every write safe.
+    // Write handle backing the reader toolbar's two-page controls. The reading-setting sheet owns its own
+    // `@Shared(.setting)`. The reader lays its pages out and turns them with `store.readingSetting`, which reads a
+    // webtoon vertically (D-02), and reads every other value through `store.setting`. Same underlying storage — the
+    // model clamps keep every write safe.
     @Shared(.setting) private var setting: Setting
 
     @State private var liveTextHandler = LiveTextHandler()
@@ -92,6 +93,9 @@ public struct ReadingView: View {
         }
         .onChange(of: store.setting.readingOrientation) {
             store.send(.readingOrientationPreferencesChanged)
+        }
+        .onChange(of: store.setting.alwaysReadsWebtoonsVertically) {
+            store.send(.webtoonReadingPreferenceChanged)
         }
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).readingSetting
@@ -238,7 +242,7 @@ public struct ReadingView: View {
                 showsPanel: $store.showsPanel,
                 showsSliderPreview: $store.showsSliderPreview,
                 sliderValue: $store.sliderValue,
-                isReversed: setting.readingDirection == .rightToLeft,
+                isReversed: store.readingSetting.readingDirection == .rightToLeft,
                 containerSize: gestureHandler.containerSize,
                 usesHalfWidth: usesHalfWidth,
                 showsCloseButton: !usesHalfWidth || deviceState == .pad,
@@ -271,13 +275,13 @@ public struct ReadingView: View {
     private var pages: some View {
         let placement = store.position.placement
         Group {
-            switch store.setting.readingDirection {
+            switch store.readingSetting.readingDirection {
             case .vertical:
                 AdvancedList(
                     placement: placement,
                     command: store.position.issued,
                     data: store.state.containerDataSource(
-                        setting: store.setting,
+                        setting: store.readingSetting,
                         isLandscape: isLandscape
                     ),
                     id: \.self,
@@ -301,7 +305,7 @@ public struct ReadingView: View {
     // index space of `PageHandler.mapToPager` (in dual-page mode the element values are
     // non-uniform reading pages, so positions, not elements, are the ids).
     private func horizontalPagingList(placement: PagerCommand) -> some View {
-        let setting = store.setting
+        let setting = store.readingSetting
         let pageCount = store.gallery.pageCount
         let isLandscape = isLandscape
         let pageHandler = pageHandler
@@ -350,8 +354,8 @@ public struct ReadingView: View {
             // Page: a change of direction or of the positions laid out builds a new pager.
             .onChange(
                 of: PagerLayout(
-                    direction: store.setting.readingDirection,
-                    positions: store.state.containerDataSource(setting: store.setting, isLandscape: isLandscape)
+                    direction: store.readingSetting.readingDirection,
+                    positions: store.state.containerDataSource(setting: store.readingSetting, isLandscape: isLandscape)
                 )
             ) {
                 store.send(.pagerRebuilt)
@@ -366,7 +370,7 @@ public struct ReadingView: View {
                 }
             }
             .onChange(of: autoPlayHandler.tickCount) {
-                let setting = store.setting
+                let setting = store.readingSetting
                 let dataSource = store.state.containerDataSource(setting: setting, isLandscape: isLandscape)
                 let position = pageHandler.mapToPager(
                     index: store.position.displayedPage, setting: setting, isLandscape: isLandscape
@@ -382,7 +386,7 @@ public struct ReadingView: View {
     }
 
     @ContentBuilder private func imageStack(index: Int) -> some View {
-        let setting = store.setting
+        let setting = store.readingSetting
         let imageStackConfig = store.state.imageContainerConfigs(
             index: index,
             setting: setting,
@@ -430,7 +434,7 @@ extension ReadingView {
     func turnPage(by offset: Int) {
         store.send(.turn(toPage: pageHandler.page(
             turningFrom: store.position.displayedPage, by: offset, pageCount: store.gallery.pageCount,
-            setting: store.setting, isLandscape: isLandscape
+            setting: store.readingSetting, isLandscape: isLandscape
         )))
     }
     private func reportPhaseChange(_ motion: PagerMotion, generation: Int) {

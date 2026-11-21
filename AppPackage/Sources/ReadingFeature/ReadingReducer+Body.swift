@@ -45,6 +45,7 @@ extension ReadingReducer {
             sessionReducer
             positionReducer
             imageFetchReducer
+            webtoonReducer
         }
         .haptics(
             unwrapping: \.destination,

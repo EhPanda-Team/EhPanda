@@ -78,4 +78,51 @@ struct GalleryHistoryOperationsTests {
         #expect(history.first?.token == "stored")        // in-place update keeps stored token
         #expect(history.first?.readingProgress == 7)
     }
+
+    // D-07: the webtoon verdict goes through the same upsert as the reading progress.
+    @Test
+    func recordWebtoonVerdictInsertsAResolvableFrontEntry() {
+        var history = [GalleryHistoryEntry(gid: "1", token: "t1", lastOpenDate: date)]
+        history.recordWebtoonVerdict(gid: "42", token: "tok", isWebtoon: true, date: date)
+        #expect(history.map(\.gid) == ["42", "1"])
+        #expect(history.first?.token == "tok")
+        #expect(history.first?.isWebtoon == true)
+        #expect(history.first?.readingProgress == 0)
+    }
+
+    @Test
+    func recordWebtoonVerdictRejectsUnresolvableEntries() {
+        var history = [GalleryHistoryEntry]()
+        history.recordWebtoonVerdict(gid: "junk", token: "tok", isWebtoon: true, date: date)
+        history.recordWebtoonVerdict(gid: "42", token: "", isWebtoon: true, date: date)
+        #expect(history.isEmpty)
+    }
+
+    @Test
+    func recordWebtoonVerdictInPlaceKeepsEverythingElse() {
+        let later = date.addingTimeInterval(60)
+        var history = [
+            GalleryHistoryEntry(gid: "1", token: "t1", lastOpenDate: later),
+            GalleryHistoryEntry(gid: "42", token: "stored", lastOpenDate: date, readingProgress: 7)
+        ]
+        history.recordWebtoonVerdict(gid: "42", token: "ignored", isWebtoon: false, date: later)
+        #expect(history.map(\.gid) == ["1", "42"])
+        #expect(history.last == GalleryHistoryEntry(
+            gid: "42", token: "stored", lastOpenDate: date, readingProgress: 7, isWebtoon: false
+        ))
+    }
+
+    @Test
+    func reopeningAGalleryKeepsItsVerdict() {
+        var history = [GalleryHistoryEntry(gid: "42", token: "tok", lastOpenDate: date, isWebtoon: true)]
+        history.recordGalleryOpen(gid: "42", token: "tok", date: date.addingTimeInterval(60))
+        #expect(history.isWebtoon(gid: "42") == true)
+    }
+
+    @Test
+    func aGalleryNeverCheckedHasNoVerdict() {
+        let history = [GalleryHistoryEntry(gid: "42", token: "tok", lastOpenDate: date)]
+        #expect(history.isWebtoon(gid: "42") == nil)
+        #expect(history.isWebtoon(gid: "7") == nil)
+    }
 }

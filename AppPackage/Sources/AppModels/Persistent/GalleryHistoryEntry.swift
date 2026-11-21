@@ -1,10 +1,10 @@
 public import Foundation
 
 /// A single browsing-history record, pairing a gallery's recency (`lastOpenDate`) with its
-/// resume position (`readingProgress`) in one lightweight value.
+/// resume position (`readingProgress`) and its webtoon verdict (`isWebtoon`) in one lightweight value.
 ///
-/// Only the minimal identity (`gid`/`token`), the recency key and the resume page are
-/// persisted — never a gallery snapshot. The History screen re-fetches display metadata
+/// Only the minimal identity (`gid`/`token`), the recency key, the resume page and the webtoon
+/// verdict are persisted — never a gallery snapshot. The History screen re-fetches display metadata
 /// from the site's `gdata` API on demand, keeping persisted website content at zero.
 ///
 /// The manual `init(from:)` decodes strictly: a blank identity or an unknown `schemaVersion`
@@ -19,12 +19,14 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable, S
         gid: String,
         token: String,
         lastOpenDate: Date,
-        readingProgress: Int = 0
+        readingProgress: Int = 0,
+        isWebtoon: Bool? = nil
     ) {
         self.gid = gid
         self.token = token
         self.lastOpenDate = lastOpenDate
         self.readingProgress = readingProgress
+        self.isWebtoon = isWebtoon
     }
     public var id: String { gid }
     /// This model's schema history (oldest → newest); see `SchemaVersioned` / `VersionedSchema`.
@@ -44,6 +46,10 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable, S
     public var token: String
     public var lastOpenDate: Date
     public var readingProgress: Int
+    /// Whether the reader found the gallery to be a webtoon, every sampled page extremely tall (D-05, D-07); `nil` =
+    /// not checked yet. Recorded once, so a gallery is checked only once while it stays in the history. Optional, so
+    /// entries written before it existed decode as not checked, with no schema change.
+    public var isWebtoon: Bool?
 }
 
 // MARK: Manually decode
@@ -55,6 +61,7 @@ extension GalleryHistoryEntry {
         token = try container.decode(String.self, forKey: .token)
         lastOpenDate = try container.decode(Date.self, forKey: .lastOpenDate)
         readingProgress = try container.decode(Int.self, forKey: .readingProgress)
+        isWebtoon = try container.decodeIfPresent(Bool.self, forKey: .isWebtoon)
         guard !gid.isEmpty, !token.isEmpty else {
             throw DecodingError.dataCorrupted(.init(
                 codingPath: container.codingPath,

@@ -24,6 +24,11 @@ public struct ReadingSettingView: View {
                 }
                 .pickerStyle(.menu)
 
+                Toggle(
+                    .alwaysReadWebtoonsVertically,
+                    isOn: Binding(store.sharedSetting.alwaysReadsWebtoonsVertically)
+                )
+
                 Picker(.preloadLimit, selection: Binding(store.sharedSetting.prefetchLimit)) {
                     ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
                         Text(.RLocalizable.pages(count: value)).tag(value)
