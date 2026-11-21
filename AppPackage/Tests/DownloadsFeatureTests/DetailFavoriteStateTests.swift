@@ -102,13 +102,11 @@ struct DetailFavoriteStateTests {
         detail.favoriteTagIndex = 6
         detail.favoriteTagName = "Favorites 6"
         detail.userRating = 3.5
-        detail.userRatingTint = .green
         await store.send(.fetchGalleryDetailDone(.success(response(for: detail))))
         await store.skipReceivedActions(strict: false)
         #expect(store.state.gallery.favoriteTagIndex == 6)
         #expect(store.state.gallery.favoriteTagName == "Favorites 6")
         #expect(store.state.gallery.hasRated)
-        #expect(store.state.gallery.userRatingTint == .green)
     }
 
     @MainActor
@@ -120,12 +118,10 @@ struct DetailFavoriteStateTests {
         detail.favoriteTagIndex = nil
         detail.favoriteTagName = nil
         detail.userRating = 0
-        detail.userRatingTint = nil
         await store.send(.fetchGalleryDetailDone(.success(response(for: detail))))
         await store.skipReceivedActions(strict: false)
         #expect(store.state.gallery.favoriteTagIndex == nil)
         #expect(store.state.gallery.favoriteTagName == nil)
         #expect(store.state.gallery.hasRated == false)
-        #expect(store.state.gallery.userRatingTint == nil)
     }
 }

@@ -118,9 +118,6 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
     public var isExpunged: Bool = false
     /// Whether the signed-in user has rated the gallery themselves (the list's star class is not plain `ir`).
     public var hasRated: Bool = false
-    /// The colour the site draws that rating in (`irr`, `irg`, `irb`); the list's stars take it. `nil` when the
-    /// gallery is not rated or the colour is unknown, and for a gallery built from the `gdata` API (History).
-    public var userRatingTint: UserRatingTint?
     /// The user's favorites slot (0...9) holding the gallery, `nil` when it is not a favorite or unknown.
     public var favoriteTagIndex: Int?
     /// The name of that favorites slot as the site shows it.
@@ -135,7 +132,7 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case gid, token, title, jpnTitle, rating, tags, category, uploader, pageCount, postedDate
         case coverURL, galleryURL, lastOpenDate
-        case isExpunged, hasRated, userRatingTint, favoriteTagIndex, favoriteTagName
+        case isExpunged, hasRated, favoriteTagIndex, favoriteTagName
     }
 
     public init(from decoder: any Decoder) throws {
@@ -155,7 +152,6 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         lastOpenDate = try container.decodeIfPresent(Date.self, forKey: .lastOpenDate)
         isExpunged = try container.decodeIfPresent(Bool.self, forKey: .isExpunged) ?? false
         hasRated = try container.decodeIfPresent(Bool.self, forKey: .hasRated) ?? false
-        userRatingTint = try container.decodeIfPresent(UserRatingTint.self, forKey: .userRatingTint)
         favoriteTagIndex = try container.decodeIfPresent(Int.self, forKey: .favoriteTagIndex)
         favoriteTagName = try container.decodeIfPresent(String.self, forKey: .favoriteTagName)
     }
@@ -176,7 +172,6 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         lastOpenDate: Date? = nil,
         isExpunged: Bool = false,
         hasRated: Bool = false,
-        userRatingTint: UserRatingTint? = nil,
         favoriteTagIndex: Int? = nil,
         favoriteTagName: String? = nil
     ) {
@@ -195,7 +190,6 @@ public struct Gallery: Identifiable, Codable, Equatable, Hashable, Sendable {
         self.lastOpenDate = lastOpenDate
         self.isExpunged = isExpunged
         self.hasRated = hasRated
-        self.userRatingTint = userRatingTint
         self.favoriteTagIndex = favoriteTagIndex
         self.favoriteTagName = favoriteTagName
     }

@@ -11,8 +11,6 @@ extension Parser {
         public let uploader: String?
         /// The row's star class is not plain `ir`: the signed-in user has rated the gallery.
         public let hasRated: Bool
-        /// The colour class (`irr`, `irg`, `irb`) of that rating; nil for the plain average.
-        public let userRatingTint: UserRatingTint?
         /// The posted date is struck through: the site expunged the gallery.
         public let isExpunged: Bool
         /// The favorites slot the row's date box is bordered in, when the colour is a known one.

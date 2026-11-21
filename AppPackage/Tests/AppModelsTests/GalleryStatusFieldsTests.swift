@@ -18,13 +18,11 @@ struct GalleryStatusFieldsTests {
         var gallery = Gallery.preview
         gallery.isExpunged = true
         gallery.hasRated = true
-        gallery.userRatingTint = .blue
         gallery.favoriteTagIndex = 4
         gallery.favoriteTagName = "Read later"
         let restored = try JSONDecoder().decode(Gallery.self, from: JSONEncoder().encode(gallery))
         #expect(restored.isExpunged)
         #expect(restored.hasRated)
-        #expect(restored.userRatingTint == .blue)
         #expect(restored.favoriteTagIndex == 4)
         #expect(restored.favoriteTagName == "Read later")
     }
@@ -46,17 +44,17 @@ struct GalleryStatusFieldsTests {
         #expect(gallery.title == Gallery.preview.title)
     }
 
-    // The rating's colour came after the other marks (the designer): JSON with `hasRated` but no colour decodes
-    // rated and without one.
+    // Builds that kept the list's rating colour wrote it into the JSON. The model has no such key any more, so it is
+    // ignored and the rest decodes (design decision, 2026-11-21).
     @Test
-    func jsonWrittenBeforeTheRatingColourExistedStillDecodes() throws {
+    func jsonThatStillCarriesTheListRatingColourDecodes() throws {
         var rated = Gallery.preview
         rated.hasRated = true
         var old = try object(of: rated)
-        old.removeValue(forKey: "userRatingTint")
+        old["userRatingTint"] = "blue"
         let gallery = try decode(old)
         #expect(gallery.hasRated)
-        #expect(gallery.userRatingTint == nil)
+        #expect(gallery.title == Gallery.preview.title)
     }
 
     @Test
@@ -64,13 +62,6 @@ struct GalleryStatusFieldsTests {
         // Absent keys default; a present key of the wrong type is a corrupt blob and fails the decode.
         var corrupt = try object(of: .preview)
         corrupt["hasRated"] = "yes"
-        #expect(throws: (any Error).self) { try decode(corrupt) }
-    }
-
-    @Test
-    func aRatingColourTheModelDoesNotKnowIsRejected() throws {
-        var corrupt = try object(of: .preview)
-        corrupt["userRatingTint"] = "purple"
         #expect(throws: (any Error).self) { try decode(corrupt) }
     }
 

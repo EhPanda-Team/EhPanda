@@ -164,8 +164,8 @@ extension DetailReducer {
                 }
                 .cancellable(id: CancelID.unfavorGallery(state.cancellationGalleryID))
 
-            // A gesture the site accepted is shown at once (the heart's colour, the stars'); the detail page the
-            // success then refetches confirms it.
+            // A gesture the site accepted is applied at once (the favorite button's colour, the rated mark); the
+            // detail page the success then refetches confirms it.
             case .rateGalleryDone(let result):
                 if case .success = result {
                     state.gallery.hasRated = true

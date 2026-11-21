@@ -125,7 +125,7 @@ struct DescriptionSection: View {
 
     @ContentBuilder private func item(for info: DescScrollInfo) -> some View {
         if info.isRating {
-            DescScrollRatingItem(title: info.title, rating: info.rating, userRatingTint: galleryDetail.userRatingTint)
+            DescScrollRatingItem(title: info.title, rating: info.rating)
         } else {
             DescScrollItem(
                 title: info.title,
@@ -199,8 +199,6 @@ extension DescriptionSection {
 
         let title: LocalizedStringResource
         let rating: Float
-        /// Set when the user has rated the gallery: the site then draws the stars in that rating's colour.
-        let userRatingTint: UserRatingTint?
 
         var body: some View {
             VStack(spacing: 3) {
@@ -223,7 +221,6 @@ extension DescriptionSection {
                 // from the text above, so the drawn stars stay out of its combined element.
                 RatingView(rating: rating)
                     .font(.caption)
-                    .foregroundStyle(userRatingTint.map({ AnyShapeStyle($0.color) }) ?? AnyShapeStyle(.foreground))
                     .accessibilityHidden(true)
             }
             // One element for the column: the caption-sized star group on its own was a 13-point

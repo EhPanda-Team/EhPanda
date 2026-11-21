@@ -54,21 +54,11 @@ struct GalleryStatusParserTests: TestHelper {
         #expect(try galleries(filename).filter(\.hasRated).count == 3, "\(filename)")
     }
 
-    // The list row keeps the colour the site draws the user's rating in, as the detail page does (the designer):
-    // every rated row of the fixtures is `irb`.
-    @Test(arguments: favorites)
-    func aRatedRowCarriesTheColourOfItsStarClass(_ filename: HTMLFilename) throws {
-        let rows = try galleries(filename)
-        #expect(rows.filter(\.hasRated).allSatisfy({ $0.userRatingTint == .blue }), "\(filename)")
-        #expect(rows.filter({ !$0.hasRated }).allSatisfy({ $0.userRatingTint == nil }), "\(filename)")
-    }
-
     @Test(arguments: withoutMarks)
     func pagesWithNothingToMarkMarkNothing(_ filename: HTMLFilename) throws {
         let rows = try galleries(filename)
         #expect(rows.isEmpty == false, "\(filename)")
         #expect(rows.allSatisfy({ !$0.isFavorite && !$0.isExpunged && !$0.hasRated }), "\(filename)")
-        #expect(rows.allSatisfy({ $0.userRatingTint == nil }), "\(filename)")
     }
 
     @Test
@@ -89,23 +79,12 @@ struct GalleryStatusParserTests: TestHelper {
         #expect(try galleries(html: rewritten).filter(\.hasRated).count == 3)
     }
 
-    @Test(arguments: [("irr", UserRatingTint.red), ("irg", .green), ("irb", .blue)])
-    func everyUserRatingClassGivesTheRowItsColour(_ userClass: String, _ tint: UserRatingTint) throws {
-        let html = try htmlString(filename: .favoritesCompactList)
-        let rewritten = html
-            .replacing(#"class="ir irb""#, with: #"class="ir \#(userClass)""#)
-        let rated = try galleries(html: rewritten).filter(\.hasRated)
-        #expect(rated.count == 3)
-        #expect(rated.allSatisfy({ $0.userRatingTint == tint }))
-    }
-
     @Test
     func thePlainAverageStarClassIsNotARating() throws {
         let html = try htmlString(filename: .favoritesCompactList)
         let rewritten = html.replacing(#"class="ir irb""#, with: #"class="ir""#)
         let rows = try galleries(html: rewritten)
         #expect(rows.contains(where: \.hasRated) == false)
-        #expect(rows.allSatisfy({ $0.userRatingTint == nil }))
     }
 
     @Test

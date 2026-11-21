@@ -10,9 +10,10 @@ public enum UserRatingTint: String, Codable, Equatable, Sendable {
 }
 
 extension UserRatingTint {
-    /// The colour the stars of this rating are drawn in, in the list and on the detail page alike (the designer).
-    /// The system's plain colours are too light on the white light-mode row (`.green` is about 2.2:1), so light mode
-    /// takes darker values; dark mode takes the system's dark ones.
+    /// The colour the stars of this rating are drawn in, in the detail page's open rating row, the one place the
+    /// user's own rating shows (design decision, 2026-11-21). The system's plain colours are too light on the white
+    /// light-mode row (`.green` is about 2.2:1), so light mode takes darker values; dark mode takes the system's dark
+    /// ones.
     public var color: Color {
         Color(uiColor: UIColor { traits in
             traits.userInterfaceStyle == .dark ? darkColor : lightColor
