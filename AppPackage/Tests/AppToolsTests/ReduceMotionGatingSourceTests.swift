@@ -36,9 +36,13 @@ import Testing
 /// card already skipped its first fade under Reduce Motion, and the owner approved extending that to
 /// a late palette (17-05-PLAN.md, 2026-10-08).
 ///
-/// The first launch (Phase 18 UI-SPEC C-1) is the other: its step change slides and its handover to the
+/// The first launch (Phase 18 UI-SPEC C-1) is another: its step change slides and its handover to the
 /// app crossfades, and under Reduce Motion the spec turns the slide into a dissolve and shortens both
 /// crossfades from 0.35s and 0.3s to 0.2s. The crossfades still run; only their length reads the value.
+///
+/// The Detail header's download ring is a third: while a download waits its turn the ring's track is twelve dashes,
+/// and when the download starts they cross-fade into the solid track over 0.3s, an opacity change D-29 would leave
+/// ungated. The owner's design for the ring switches the track at once under Reduce Motion (2026-11-21).
 ///
 /// Comment moderation (Phase 18 UI-SPEC C-4, C-6, C-8) animates a Block or Unblock with `.default` and with none
 /// under Reduce Motion: in the comments list every row of the author collapses or expands, a height change D-29
@@ -123,6 +127,8 @@ struct ReduceMotionGatingSourceTests {
         "AppFeature/FirstLaunch/FirstLaunchGateView.swift": 2,
         "AppFeature/RootView.swift": 1,
         "DetailFeature/Comments/CommentsView.swift": 2,
+        // The download ring's dashed track switches at once under Reduce Motion (owner decision, 2026-11-21).
+        "DetailFeature/DetailView+HeaderSection.swift": 1,
         "DetailFeature/DetailView+Subviews.swift": 2,
         "DetailFeature/DetailView.swift": 3,
         "DetailFeature/FolderManager/FolderManagerView.swift": 1,
@@ -140,7 +146,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/WaveForm.swift": 1,
         "SystemNotification/View+Toast.swift": 1
     ]
-    private static let expectedTernaryPredicateTotal = 36
+    private static let expectedTernaryPredicateTotal = 37
 
     /// The deep-linked comment scroll and the reader's page jump.
     private static let expectedWithAnimationGateTotal = 2
@@ -154,7 +160,8 @@ struct ReduceMotionGatingSourceTests {
         "AppFeature/FirstLaunch/FirstLaunchGateView.swift": 3,
         "AppFeature/RootView.swift": 2,
         "DetailFeature/Comments/CommentsView.swift": 3,
-        "DetailFeature/DetailView+HeaderSection.swift": 3,
+        // The read, the spin and the pulse it composes, and the ring track's ternary.
+        "DetailFeature/DetailView+HeaderSection.swift": 4,
         "DetailFeature/DetailView+Subviews.swift": 3,
         "DetailFeature/DetailView.swift": 4,
         "DetailFeature/FolderManager/FolderManagerView.swift": 2,
@@ -173,7 +180,7 @@ struct ReduceMotionGatingSourceTests {
         "SettingFeature/WaveForm.swift": 6,
         "SystemNotification/View+Toast.swift": 3
     ]
-    private static let expectedGateMentionTotal = 80
+    private static let expectedGateMentionTotal = 81
 
     /// `.contentTransition(.numericText…)` sites across the tree; every one stays ungated (D-29).
     private static let expectedNumericTextTotal = 11

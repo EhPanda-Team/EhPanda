@@ -58,8 +58,6 @@ struct HeaderSection: View {
     private var heartIconFont: Font {
         .system(size: actionIconFontSize * Self.heartIconScale, weight: .semibold)
     }
-    // 10pt at default (.large); scales with Dynamic Type relative to the nearest text style (.caption2, 11pt).
-    @ScaledMetric(relativeTo: .caption2) private var progressCenterSymbolSize: CGFloat = 10
     // 2.5pt thick and 4pt in from the button's edge at default (.large). The ring is drawn over the whole glass
     // button (48pt at default: the 32pt label and the glass style's padding), so it traces the button's own circle
     // instead of sitting as a smaller disc inside the label (owner decision, 2026-11-21). Both scale on the
@@ -121,7 +119,9 @@ struct HeaderSection: View {
     }
     private var downloadButton: some View {
         Group {
-            if let progress = activeDownloadProgress {
+            // Queued, downloading and paused are one button, so when a download starts the dashed track cross-fades
+            // and the arc grows instead of one button replacing another.
+            if let ring = downloadRing {
                 Button(action: downloadAction) {
                     // Decorative: the button announces the status and the action through
                     // `downloadButtonAccessibilityLabel`, so the glyph would only be read twice.
@@ -135,14 +135,8 @@ struct HeaderSection: View {
                 .buttonStyle(.glass(.regular.interactive()))
                 .buttonBorderShape(.circle)
                 .overlay {
-                    downloadProgressRing(fraction: progress)
+                    downloadProgressRing(fraction: ring.fraction, isWaiting: ring.isWaiting)
                 }
-            } else if queuedDownloadProgress != nil {
-                Button(action: downloadAction) {
-                    queuedSpinner
-                }
-                .buttonStyle(.glass(.regular.interactive()))
-                .buttonBorderShape(.circle)
             } else if downloadBadge == nil {
                 Menu {
                     Section {
@@ -253,38 +247,35 @@ struct HeaderSection: View {
         .accessibilityFocused(readButtonFocus)
     }
     /// The download ring, drawn over the whole glass button rather than inside its label: a track in the tint at
-    /// 18 % and an arc in the tint from 12 o'clock clockwise for the pages saved, so an arc of 0 draws nothing. It
-    /// neither takes touches nor speaks: the button under it does both.
-    private func downloadProgressRing(fraction: Double) -> some View {
-        Circle()
-            .stroke(downloadButtonTint.opacity(0.18), lineWidth: progressRingLineWidth)
-            .overlay {
-                Circle()
-                    .trim(from: 0, to: fraction)
-                    .stroke(downloadButtonTint, style: .init(lineWidth: progressRingLineWidth, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .animation(.default, value: fraction)
-            }
-            // The stroke is centred on its path, so the path sits half a line width past the inset.
-            .padding(progressRingInset + progressRingLineWidth / 2)
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
-    }
-    /// The queued state as shipped: a small spinner around the cloud glyph, inside the label.
-    private var queuedSpinner: some View {
-        ProgressView()
-            .progressViewStyle(.circular)
-            .tint(downloadButtonTint)
-            .controlSize(.small)
-            .overlay {
-                // Decorative: the enclosing button already announces the status and the action
-                // through `downloadButtonAccessibilityLabel`, so the glyph would only be read twice.
-                Image(systemSymbol: downloadIconSymbol)
-                    .font(.system(size: progressCenterSymbolSize, weight: .semibold))
-                    .foregroundStyle(downloadButtonTint)
-                    .accessibilityHidden(true)
-            }
-            .frame(width: actionIconButtonSize, height: actionIconButtonSize)
+    /// 18 % and an arc in the tint from 12 o'clock clockwise for the pages saved, so an arc of 0 draws nothing.
+    /// While the download waits its turn the track is twelve dashes (``DownloadRingDashes``); when it starts they
+    /// cross-fade into the solid track over 0.3s while the arc grows from where it is, one view throughout. Under
+    /// Reduce Motion the track switches at once (owner decision, 2026-11-21), a deliberate exception to D-29, which
+    /// leaves an opacity change ungated. It neither takes touches nor speaks: the button under it does both.
+    private func downloadProgressRing(fraction: Double, isWaiting: Bool) -> some View {
+        ZStack {
+            Circle()
+                .stroke(downloadButtonTint.opacity(0.18), lineWidth: progressRingLineWidth)
+                .visible(!isWaiting)
+            DownloadRingDashes()
+                .stroke(
+                    downloadButtonTint.opacity(0.18),
+                    style: .init(lineWidth: progressRingLineWidth, lineCap: .butt)
+                )
+                .visible(isWaiting)
+        }
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: isWaiting)
+        .overlay {
+            Circle()
+                .trim(from: 0, to: fraction)
+                .stroke(downloadButtonTint, style: .init(lineWidth: progressRingLineWidth, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .animation(.default, value: fraction)
+        }
+        // The stroke is centred on its path, so the path sits half a line width past the inset.
+        .padding(progressRingInset + progressRingLineWidth / 2)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
     private var bottomActionRow: some View {
         HeaderActionsLayout {
@@ -294,21 +285,19 @@ struct HeaderSection: View {
             readButton
         }
     }
-    private var queuedDownloadProgress: Double? {
-        downloadBadge?.status == .queued ? 0 : nil
-    }
-    private var activeDownloadProgress: Double? {
+    /// The download ring of a queued, downloading or paused gallery. The arc is the pages already saved, the queued
+    /// state included, so a resumed download keeps its arc while it waits its turn; `isWaiting` is the queued state,
+    /// whose track is dashed. `nil` for every other state, which shows a glyph.
+    private var downloadRing: (fraction: Double, isWaiting: Bool)? {
         guard let badge = downloadBadge,
-              [.active, .inactive].contains(badge.status)
+              [.queued, .active, .inactive].contains(badge.status)
         else { return nil }
-        return badge.progress.fraction
+        return (fraction: badge.progress.fraction, isWaiting: badge.status == .queued)
     }
+    /// The glyph inside the download ring is the action a tap performs: pause while the download is queued or
+    /// running, play to resume a paused one.
     private var activeDownloadIconSymbol: SFSymbol {
-        switch downloadBadge?.status {
-        case .inactive: return .playFill
-        case .active: return .pauseFill
-        default: return downloadIconSymbol
-        }
+        downloadBadge?.status == .inactive ? .playFill : .pauseFill
     }
     /// Three lines at every size until the reader expands the title, then none — the designed
     /// behaviour, restored (owner decision, 2026-09-03).
@@ -341,7 +330,6 @@ struct HeaderSection: View {
             return downloadNeedsRepair
                 ? .wrenchAndScrewdriver
                 : .exclamationmarkCircle
-        case .inactive: return .playFill
         default: return .icloudAndArrowDown
         }
     }
@@ -427,7 +415,13 @@ extension HeaderSection {
         let progress = badge.progress
         switch badge.status {
         case .queued:
-            return String(localized: .accessibilityQueued)
+            let queued = progress.completedPageCount == 0
+                ? String(localized: .accessibilityQueued)
+                : String(localized: .accessibilityQueuedProgress(
+                    completed: progress.completedPageCount, total: progress.displayPageCount
+                ))
+            return [queued, String(localized: .accessibilityPauseAction)]
+                .joined(separator: ". ")
         case .active:
             let downloading = String(localized: .accessibilityDownloading(
                 completed: progress.completedPageCount, total: progress.displayPageCount
@@ -452,6 +446,38 @@ extension HeaderSection {
                 ? String(localized: .accessibilityRepair)
                 : String(localized: .accessibilityRetry)
         }
+    }
+}
+
+// MARK: DownloadRingDashes
+/// The download ring's track while the download waits its turn: twelve dashes on the circle inscribed in the rect,
+/// each covering 60 % of its 30-degree segment, the first starting at 12 o'clock and running clockwise (the
+/// design's dash pattern, 5 on and 3.333 off over a path length of 100). Stroked with butt caps, so the gaps stay
+/// open at every size. A shape rather than a dashed `StrokeStyle`: a dash pattern is given in points, so it would
+/// need the ring's measured circumference to land twelve whole dashes, where the shape divides whatever circle it
+/// is given.
+private struct DownloadRingDashes: Shape {
+    private static let dashCount = 12
+    private static let dashShare = 0.6
+
+    func path(in rect: CGRect) -> Path {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height) / 2
+        let segment = 360 / Double(Self.dashCount)
+        var path = Path()
+        for index in 0..<Self.dashCount {
+            // Each dash is its own subpath, so no line joins one dash to the next; a positive delta runs clockwise
+            // in SwiftUI's y-down space.
+            var dash = Path()
+            dash.addRelativeArc(
+                center: center,
+                radius: radius,
+                startAngle: .degrees(-90 + segment * Double(index)),
+                delta: .degrees(segment * Self.dashShare)
+            )
+            path.addPath(dash)
+        }
+        return path
     }
 }
 
@@ -505,6 +531,36 @@ extension HeaderSection {
             readButtonFocus: $readButtonFocused,
             downloadBadge: .init(
                 status: .active,
+                progress: .init(completedPageCount: 47, pageCount: 114)
+            )
+        )
+    }
+}
+
+#Preview("Queued") {
+    @Previewable @AccessibilityFocusState var readButtonFocused: Bool
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewHeaderSection(
+            readButtonFocus: $readButtonFocused,
+            downloadBadge: .init(
+                status: .queued,
+                progress: .init(completedPageCount: 0, pageCount: 114)
+            )
+        )
+    }
+}
+
+#Preview("Queued, resumed") {
+    @Previewable @AccessibilityFocusState var readButtonFocused: Bool
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewHeaderSection(
+            readButtonFocus: $readButtonFocused,
+            downloadBadge: .init(
+                status: .queued,
                 progress: .init(completedPageCount: 47, pageCount: 114)
             )
         )
