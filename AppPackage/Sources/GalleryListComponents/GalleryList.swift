@@ -328,6 +328,10 @@ private struct DetailList: View {
 private struct GridList: View {
     @Binding private var scrollPositionID: String?
     @ScaledMetric(relativeTo: .callout) private var minCellWidth: CGFloat = 180
+    /// The gap between grid rows, and the space above and below the notice. The notice is the grid's header, not a
+    /// caption of the first covers, so the grid's own row gap sets it off on both sides (owner decision,
+    /// 2026-11-21). A fixed 16 at every text size, like the row gap it matches, so not a `@ScaledMetric`.
+    private static let rowSpacing: CGFloat = 16
     private let galleryFocus: AccessibilityFocusState<String?>.Binding
 
     private let galleries: [Gallery]
@@ -372,47 +376,56 @@ private struct GridList: View {
 
     var body: some View {
         ScrollView {
-            if let notice {
-                ListNoticeView(notice: notice)
-                    .padding(.horizontal)
-                    .modifier(NoticeBottomReporter(bottom: noticeBottom))
-            }
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: minCellWidth), spacing: 12, alignment: .top)], spacing: 16
-            ) {
-                ForEach(galleries) { gallery in
-                    Button {
-                        navigateAction?(gallery)
-                    } label: {
-                        GalleryThumbnailCell(
-                            gallery: gallery,
-                            translateAction: translateAction,
-                            downloadBadge: downloadBadges[gallery.gid],
-                            showsRating: showsRating
-                        )
-                        .tint(.primary)
-                        .multilineTextAlignment(.leading)
-                    }
-                    .buttonStyle(.borderless)
-                    .modifier(GalleryReadInteraction(
-                        detailAction: { navigateAction?(gallery) },
-                        readAction: readAction.map { action in { action(gallery) } }
-                    ))
-                    .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
-                    .accessibilityFocused(galleryFocus, equals: gallery.id)
-                    .onScrollVisibilityChange(threshold: 0.1) { isVisible in
-                        guard isVisible, gallery == galleries.last else { return }
-                        fetchMoreAction?()
-                    }
+            VStack(spacing: Self.rowSpacing) {
+                if let notice {
+                    ListNoticeView(notice: notice)
+                        .padding(.horizontal)
+                        .modifier(NoticeBottomReporter(bottom: noticeBottom))
+                        // After the reporter, so the bottom it reports stays the label's own.
+                        .padding(.top, Self.rowSpacing)
                 }
+                grid
             }
-            .scrollTargetLayout()
-            .padding(.horizontal)
             if let pageNumber, pageNumber.hasNextPage() {
                 FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
             }
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .scrollPosition(id: $scrollPositionID, anchor: .top)
+    }
+
+    private var grid: some View {
+        LazyVGrid(
+            columns: [GridItem(.adaptive(minimum: minCellWidth), spacing: 12, alignment: .top)],
+            spacing: Self.rowSpacing
+        ) {
+            ForEach(galleries) { gallery in
+                Button {
+                    navigateAction?(gallery)
+                } label: {
+                    GalleryThumbnailCell(
+                        gallery: gallery,
+                        translateAction: translateAction,
+                        downloadBadge: downloadBadges[gallery.gid],
+                        showsRating: showsRating
+                    )
+                    .tint(.primary)
+                    .multilineTextAlignment(.leading)
+                }
+                .buttonStyle(.borderless)
+                .modifier(GalleryReadInteraction(
+                    detailAction: { navigateAction?(gallery) },
+                    readAction: readAction.map { action in { action(gallery) } }
+                ))
+                .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
+                .accessibilityFocused(galleryFocus, equals: gallery.id)
+                .onScrollVisibilityChange(threshold: 0.1) { isVisible in
+                    guard isVisible, gallery == galleries.last else { return }
+                    fetchMoreAction?()
+                }
+            }
+        }
+        .scrollTargetLayout()
+        .padding(.horizontal)
     }
 }
