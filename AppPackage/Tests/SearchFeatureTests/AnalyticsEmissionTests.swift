@@ -9,6 +9,7 @@ import NetworkingFeature
 import QuickSearchFeature
 @testable import SearchFeature
 import Testing
+import TestingSupport
 
 // Exact-sequence proof for the search family's emission sites. Each case drives its reducer through a
 // store whose analytics client is a `LockIsolated`-backed spy — `.noop` with its `send` closure
@@ -306,26 +307,6 @@ private extension AnalyticsClient {
         var client = AnalyticsClient.noop
         client.send = { signal in recorded.withValue({ $0.append(signal) }) }
         return client
-    }
-}
-
-// MARK: Signal partition
-
-private extension [AnalyticsSignal] {
-    /// The `errorSurfaced` signals, in recorded order.
-    var errorSignals: [AnalyticsSignal] {
-        filter({ signal in
-            if case .errorSurfaced = signal { return true }
-            return false
-        })
-    }
-
-    /// Every other signal, in recorded order.
-    var nonErrorSignals: [AnalyticsSignal] {
-        filter({ signal in
-            if case .errorSurfaced = signal { return false }
-            return true
-        })
     }
 }
 

@@ -5,8 +5,8 @@ import AppTools
 public import ComposableArchitecture
 import DownloadClient
 import Foundation
+import GalleryClient
 import HapticsClient
-import NetworkingFeature
 import Resources
 public import Sharing
 
@@ -75,6 +75,7 @@ public struct HistoryReducer: Sendable {
     }
 
     @Dependency(\.downloadClient) private var downloadClient
+    @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -147,11 +148,7 @@ public struct HistoryReducer: Sendable {
                 state.loadingState = .loading
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await GalleriesMetadataRequest(
-                            host: host,
-                            gidList: pairs
-                        )
-                        .response()
+                        try await galleryClient.fetchGalleriesMetadata(host, pairs)
                     }
                     await send(.fetchGalleriesDone(result: result, endIndex: end))
                 }
@@ -188,11 +185,7 @@ public struct HistoryReducer: Sendable {
                 state.footerLoadingState = .loading
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await GalleriesMetadataRequest(
-                            host: host,
-                            gidList: pairs
-                        )
-                        .response()
+                        try await galleryClient.fetchGalleriesMetadata(host, pairs)
                     }
                     await send(.fetchMoreGalleriesDone(result: result, endIndex: end))
                 }

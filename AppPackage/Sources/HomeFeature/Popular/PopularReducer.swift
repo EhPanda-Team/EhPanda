@@ -3,8 +3,8 @@ public import AppModels
 import AppTools
 public import ComposableArchitecture
 public import FiltersFeature
+import GalleryClient
 import HapticsClient
-import NetworkingFeature
 public import Sharing
 
 @Reducer
@@ -52,6 +52,7 @@ public struct PopularReducer: Sendable {
     }
 
     @Dependency(\.analyticsClient) private var analyticsClient
+    @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -95,7 +96,7 @@ public struct PopularReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await PopularGalleriesRequest(host: host, filter: filter).response()
+                        try await galleryClient.fetchPopularGalleries(host, filter)
                     }
                     await send(.fetchGalleriesDone(result))
                 }

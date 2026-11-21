@@ -13,10 +13,10 @@ import Testing
 // load effects fire on the navigation transition rather than on a view callback, and that the guards
 // which used to live in the views keep a re-presentation from refetching.
 //
-// Only History is exercised end to end through the stack: its `fetchGalleries` reads local browsing
-// history, so an empty history settles without a network request. The other sub-pages fetch over the
-// network from a request type that takes no injectable session, so their presentation actions are
-// asserted directly against a populated state instead (see 11-07-SUMMARY.md).
+// Only History is exercised end to end through the stack: its `fetchGalleries` reads local browsing history, so an
+// empty history settles as not found without starting a fetch. The other sub-pages' presentation guards are
+// asserted directly against a populated state; their fetches go through `GalleryClient`, whose test value reports
+// any fetch a test does not stub.
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).

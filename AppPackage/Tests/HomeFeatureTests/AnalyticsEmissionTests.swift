@@ -5,10 +5,12 @@ import CookieClient
 import CustomDump
 import DownloadClient
 import Foundation
+import GalleryClient
 import HapticsClient
 @testable import HomeFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // Exact-sequence proof for every HomeFeature emission site. Each case drives its reducer through a
 // store whose analytics client is a `LockIsolated`-backed spy — `.noop` with its `send` closure
@@ -19,11 +21,15 @@ import Testing
 // list, so a sixth Home destination both fails to compile at the expected-mapping switch and adds an
 // unmatched argument to the sweep — a new screen cannot ship silently unmeasured (T-14-14).
 //
-// Each store is torn down with `skipInFlightEffects` alone: the Home-level emission is merged with a
-// `.send` presentation action, so flushing in-flight effects records the signal while leaving the
-// buffered presentation action unprocessed. It does NOT stop a pushed sub-screen's network fetch
-// from running (those requests take no injectable session — see HomePresentationLifecycleTests), so
-// the two destination sweeps filter out `.errorSurfaced` before asserting.
+// Most cases end with `skipInFlightEffects(strict: false)`, which only stops the test store from tracking the
+// effects still running: it neither cancels them nor waits for them. A destination tap merges its section signal
+// with the pushed screen's presentation action, and that action is reduced inside `send`, so a screen that loads
+// when presented has started its fetch by the time `send` returns. The two destination sweeps therefore decide
+// that fetch's outcome through the gallery client (`homeDestinationFetchesFailing`: it fails with
+// `.networkingFailed`) and wait with `finish()`, so the pushed screen's `errorSurfaced` is part of the exact
+// expectation. History needs no stub, because an empty local history shows as not found without a fetch, and
+// neither does Watched, which fetches nothing while logged out. The pushed screen's signal and the section signal
+// come from two concurrently running effects, so each partition is asserted exactly, with no order between them.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
@@ -40,17 +46,15 @@ struct AnalyticsEmissionTests {
     func tappingASectionDestinationRecordsOneHomeSectionSignal(_ type: HomeSectionType) async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
         let store = makeHomeStore(analyticsClient: .recording(into: recorded))
+        store.dependencies.galleryClient = .homeDestinationFetchesFailing
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.sectionTapped(type))
-        await store.skipInFlightEffects(strict: false)
+        await store.finish()
 
-        // The pushed screen's own fetch reaches the network under the test host, so its outcome is not asserted.
-        let nonErrorSignals = recorded.value.filter({ signal in
-            if case .errorSurfaced = signal { return false }
-            return true
-        })
-        expectNoDifference(nonErrorSignals, [.homeSectionViewed(Self.expectedSection(for: type))])
+        // Two concurrently running effects send these signals: each partition is exact, with no order between them.
+        expectNoDifference(recorded.value.nonErrorSignals, [.homeSectionViewed(Self.expectedSection(for: type))])
+        expectNoDifference(recorded.value.errorSignals, Self.expectedErrorSignals(for: type))
     }
 
     // The misc-grid destinations: sweeping `HomeMiscGridType.allCases` proves the other three
@@ -60,17 +64,15 @@ struct AnalyticsEmissionTests {
     func tappingAMiscDestinationRecordsOneHomeSectionSignal(_ type: HomeMiscGridType) async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
         let store = makeHomeStore(analyticsClient: .recording(into: recorded))
+        store.dependencies.galleryClient = .homeDestinationFetchesFailing
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.miscTapped(type))
-        await store.skipInFlightEffects(strict: false)
+        await store.finish()
 
-        // The pushed screen's own fetch reaches the network under the test host, so its outcome is not asserted.
-        let nonErrorSignals = recorded.value.filter({ signal in
-            if case .errorSurfaced = signal { return false }
-            return true
-        })
-        expectNoDifference(nonErrorSignals, [.homeSectionViewed(Self.expectedSection(for: type))])
+        // Two concurrently running effects send these signals: each partition is exact, with no order between them.
+        expectNoDifference(recorded.value.nonErrorSignals, [.homeSectionViewed(Self.expectedSection(for: type))])
+        expectNoDifference(recorded.value.errorSignals, Self.expectedErrorSignals(for: type))
     }
 
     // MARK: Gallery detail push (HomeReducer)
@@ -396,6 +398,31 @@ private extension AnalyticsEmissionTests {
             return .watched
         case .history:
             return .history
+        }
+    }
+
+    static func expectedErrorSignals(for type: HomeSectionType) -> [AnalyticsSignal] {
+        switch type {
+        case .frontPage:
+            // Front Page loads when presented, and its stubbed fetch fails.
+            return [.errorSurfaced(.networkingFailed, screen: .frontPage)]
+        case .toplists:
+            // Toplists loads when presented, and its stubbed fetch fails.
+            return [.errorSurfaced(.networkingFailed, screen: .toplists)]
+        }
+    }
+
+    static func expectedErrorSignals(for type: HomeMiscGridType) -> [AnalyticsSignal] {
+        switch type {
+        case .popular:
+            // Popular loads when presented, and its stubbed fetch fails.
+            return [.errorSurfaced(.networkingFailed, screen: .popular)]
+        case .watched:
+            // Watched is logged out, so it fetches nothing.
+            return []
+        case .history:
+            // An empty local history shows as not found without a fetch.
+            return [.errorSurfaced(.notFound, screen: .history)]
         }
     }
 }

@@ -6,6 +6,7 @@ import CookieClient
 public import DateSeekFeature
 import DownloadClient
 public import FiltersFeature
+import GalleryClient
 import HapticsClient
 public import NetworkingFeature
 public import QuickSearchFeature
@@ -78,6 +79,7 @@ public struct WatchedReducer: Sendable {
     @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.cookieClient) private var cookieClient
     @Dependency(\.downloadClient) private var downloadClient
+    @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -156,12 +158,7 @@ public struct WatchedReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [keyword = state.keyword] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await WatchedGalleriesRequest(
-                            host: host,
-                            filter: filter,
-                            keyword: keyword
-                        )
-                        .response()
+                        try await galleryClient.fetchWatchedGalleries(host, filter, keyword)
                     }
                     await send(.fetchGalleriesDone(result))
                 }
@@ -197,13 +194,7 @@ public struct WatchedReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [keyword = state.keyword] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await MoreWatchedGalleriesRequest(
-                            host: host,
-                            filter: filter,
-                            lastID: lastID,
-                            keyword: keyword
-                        )
-                        .response()
+                        try await galleryClient.fetchMoreWatchedGalleries(host, filter, lastID, keyword)
                     }
                     await send(.fetchMoreGalleriesDone(result))
                 }
@@ -253,7 +244,7 @@ public struct WatchedReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await DateSeekGalleriesRequest(host: host, url: url).response()
+                        try await galleryClient.fetchDateSeekGalleries(host, url)
                     }
                     await send(.performDateSeekDone(result))
                 }

@@ -3,8 +3,8 @@ public import AppComponents
 public import AppModels
 import AppTools
 public import ComposableArchitecture
+import GalleryClient
 import HapticsClient
-import NetworkingFeature
 import Resources
 import UIKit
 
@@ -85,6 +85,7 @@ public struct ToplistsReducer: Sendable {
         )
     }
 
+    @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -159,12 +160,7 @@ public struct ToplistsReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [type = state.type] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await ToplistsGalleriesRequest(
-                            host: host,
-                            catIndex: type.categoryIndex,
-                            pageNum: pageNum
-                        )
-                        .response()
+                        try await galleryClient.fetchToplistsGalleries(host, type.categoryIndex, pageNum)
                     }
                     await send(.fetchGalleriesDone(type: type, result: result))
                 }
@@ -197,12 +193,7 @@ public struct ToplistsReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { [type = state.type] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await MoreToplistsGalleriesRequest(
-                            host: host,
-                            catIndex: type.categoryIndex,
-                            pageNum: pageNum
-                        )
-                        .response()
+                        try await galleryClient.fetchMoreToplistsGalleries(host, type.categoryIndex, pageNum)
                     }
                     await send(.fetchMoreGalleriesDone(type: type, result: result))
                 }

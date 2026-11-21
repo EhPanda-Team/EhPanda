@@ -6,6 +6,7 @@ import CookieClient
 import DetailFeature
 import DownloadClient
 import Foundation
+import GalleryClient
 @testable import HomeFeature
 import SwiftUI
 import Testing
@@ -51,6 +52,7 @@ struct HomeDuoPresentationTests {
         let store = homeStore(device: device) {
             if case .duo = device { $0.viewportSize = CGSize(width: 669, height: 951) }
         }
+        store.dependencies.galleryClient = .homeDestinationFetchesFailing
         store.exhaustivity = .off
         await store.send(.sectionTapped(section))
         #expect(store.state.sheet == nil)
@@ -58,7 +60,11 @@ struct HomeDuoPresentationTests {
         case .frontPage: #expect(store.state.path.last?.frontPage != nil)
         case .toplists: #expect(store.state.path.last?.toplists != nil)
         }
-        await store.skipInFlightEffects(strict: false)
+        await store.finish()
+        // The test store's `state` advances to an effect-sent action's state only when that action is received, so the
+        // buffered done actions are processed before the outcome is asserted.
+        await store.skipReceivedActions(strict: false)
+        #expect(Self.loadingState(of: store.state.path.last) == Self.expectedLoadingState(for: section))
     }
 
     @MainActor
@@ -67,6 +73,7 @@ struct HomeDuoPresentationTests {
         let store = homeStore(device: device) {
             if case .duo = device { $0.viewportSize = CGSize(width: 669, height: 951) }
         }
+        store.dependencies.galleryClient = .homeDestinationFetchesFailing
         store.exhaustivity = .off
         await store.send(.miscTapped(section))
         #expect(store.state.sheet == nil)
@@ -75,7 +82,11 @@ struct HomeDuoPresentationTests {
         case .watched: #expect(store.state.path.last?.watched != nil)
         case .history: #expect(store.state.path.last?.history != nil)
         }
-        await store.skipInFlightEffects(strict: false)
+        await store.finish()
+        // The test store's `state` advances to an effect-sent action's state only when that action is received, so the
+        // buffered done actions are processed before the outcome is asserted.
+        await store.skipReceivedActions(strict: false)
+        #expect(Self.loadingState(of: store.state.path.last) == Self.expectedLoadingState(for: section))
     }
 
     @MainActor
@@ -127,6 +138,7 @@ struct HomeDuoPresentationTests {
     @Test(arguments: HomeSectionType.allCases)
     func sectionListsPresentOnTheOppositeSide(_ section: HomeSectionType) async throws {
         let store = homeStore(device: .duo(.partiallyOpen))
+        store.dependencies.galleryClient = .homeDestinationFetchesFailing
         store.exhaustivity = .off
 
         await store.send(.sectionTapped(section))
@@ -140,13 +152,18 @@ struct HomeDuoPresentationTests {
             #expect(sheet.root.toplists != nil)
         }
         #expect(store.state.path.isEmpty)
-        await store.skipInFlightEffects(strict: false)
+        await store.finish()
+        // The test store's `state` advances to an effect-sent action's state only when that action is received, so the
+        // buffered done actions are processed before the outcome is asserted.
+        await store.skipReceivedActions(strict: false)
+        #expect(Self.loadingState(of: store.state.sheet?.root) == Self.expectedLoadingState(for: section))
     }
 
     @MainActor
     @Test(arguments: HomeMiscGridType.allCases)
     func otherListsPresentOnTheRight(_ section: HomeMiscGridType) async throws {
         let store = homeStore(device: .duo(.partiallyOpen))
+        store.dependencies.galleryClient = .homeDestinationFetchesFailing
         store.exhaustivity = .off
 
         await store.send(.miscTapped(section))
@@ -158,7 +175,11 @@ struct HomeDuoPresentationTests {
         case .history: #expect(sheet.root.history != nil)
         }
         #expect(store.state.path.isEmpty)
-        await store.skipInFlightEffects(strict: false)
+        await store.finish()
+        // The test store's `state` advances to an effect-sent action's state only when that action is received, so the
+        // buffered done actions are processed before the outcome is asserted.
+        await store.skipReceivedActions(strict: false)
+        #expect(Self.loadingState(of: store.state.sheet?.root) == Self.expectedLoadingState(for: section))
     }
 
     @MainActor
@@ -290,6 +311,44 @@ struct HomeDuoPresentationTests {
                 $0.date = .constant(.init(timeIntervalSince1970: 0))
                 $0.downloadClient = .noop
             }
+        }
+    }
+}
+
+private extension HomeDuoPresentationTests {
+    static func loadingState(of screen: HomePath.State?) -> LoadingState? {
+        switch screen {
+        case .frontPage(let list)?: list.loadingState
+        case .popular(let list)?: list.loadingState
+        case .toplists(let list)?: list.loadingState
+        case .watched(let list)?: list.loadingState
+        case .history(let list)?: list.loadingState
+        case .gallery?, nil: nil
+        }
+    }
+
+    static func loadingState(of root: HomeSheetFeature.RootFeature.State?) -> LoadingState? {
+        switch root {
+        case .frontPage(let list)?: list.loadingState
+        case .popular(let list)?: list.loadingState
+        case .toplists(let list)?: list.loadingState
+        case .watched(let list)?: list.loadingState
+        case .history(let list)?: list.loadingState
+        case .gallery?, nil: nil
+        }
+    }
+
+    static func expectedLoadingState(for section: HomeSectionType) -> LoadingState {
+        switch section {
+        case .frontPage, .toplists: .failed(.networkingFailed)
+        }
+    }
+
+    static func expectedLoadingState(for section: HomeMiscGridType) -> LoadingState {
+        switch section {
+        case .popular: .failed(.networkingFailed)
+        case .watched: .idle
+        case .history: .failed(.notFound)
         }
     }
 }

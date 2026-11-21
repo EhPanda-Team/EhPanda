@@ -91,6 +91,7 @@ enum Module: String {
     case favoritesFeature = "FavoritesFeature"
     case fileClient = "FileClient"
     case filtersFeature = "FiltersFeature"
+    case galleryClient = "GalleryClient"
     case galleryListComponents = "GalleryListComponents"
     case hapticsClient = "HapticsClient"
     case homeFeature = "HomeFeature"
@@ -425,6 +426,16 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher)
         ]
     ),
+    // The gallery list and detail fetches reducers start, behind one dependency so a test decides their outcome.
+    // Outside `NetworkingFeature`, only this module, `HomeClient` and the download client build those requests.
+    .target(
+        module: .galleryClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.networkingFeature),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
     .target(
         module: .networkingFeature,
         dependencies: [
@@ -710,6 +721,7 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.downloadClient),
             .module(.filtersFeature),
+            .module(.galleryClient),
             .module(.galleryListComponents),
             .module(.hapticsClient),
             .module(.libraryClient),
@@ -837,6 +849,7 @@ let targets: [PackageDescription.Target] = [
     .target(
         module: .testingSupport,
         dependencies: [
+            .module(.analyticsClient),
             .targetDependency(.kanna)
         ],
         resources: [.process(.resources)]
@@ -898,8 +911,10 @@ let targets: [PackageDescription.Target] = [
             .module(.detailFeature),
             .module(.deviceClient),
             .module(.downloadClient),
+            .module(.galleryClient),
             .module(.filtersFeature),
             .module(.hapticsClient),
+            .module(.testingSupport),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ]
@@ -1117,7 +1132,8 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .module(.cookieClient),
             .module(.downloadClient),
-            .module(.hapticsClient)
+            .module(.hapticsClient),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(

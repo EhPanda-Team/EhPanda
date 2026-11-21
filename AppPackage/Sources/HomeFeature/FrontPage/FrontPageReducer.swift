@@ -5,6 +5,7 @@ public import ComposableArchitecture
 public import DateSeekFeature
 public import FiltersFeature
 import Foundation
+import GalleryClient
 import HapticsClient
 public import NetworkingFeature
 public import Sharing
@@ -70,6 +71,7 @@ public struct FrontPageReducer: Sendable {
     }
 
     @Dependency(\.analyticsClient) private var analyticsClient
+    @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
 
     public init() {}
@@ -115,7 +117,7 @@ public struct FrontPageReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await FrontPageGalleriesRequest(host: host, filter: filter).response()
+                        try await galleryClient.fetchFrontPageGalleries(host, filter)
                     }
                     await send(.fetchGalleriesDone(result))
                 }
@@ -151,12 +153,7 @@ public struct FrontPageReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await MoreFrontPageGalleriesRequest(
-                            host: host,
-                            filter: filter,
-                            lastID: lastID
-                        )
-                        .response()
+                        try await galleryClient.fetchMoreFrontPageGalleries(host, filter, lastID)
                     }
                     await send(.fetchMoreGalleriesDone(result))
                 }
@@ -192,7 +189,7 @@ public struct FrontPageReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await DateSeekGalleriesRequest(host: host, url: url).response()
+                        try await galleryClient.fetchDateSeekGalleries(host, url)
                     }
                     await send(.performDateSeekDone(result))
                 }
