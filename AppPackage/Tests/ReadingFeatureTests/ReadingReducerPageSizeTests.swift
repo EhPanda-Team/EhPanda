@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import Foundation
@@ -132,12 +133,15 @@ struct ReadingReducerPageSizeTests {
             originalSizes: [1: original, 2: original]
         )
         let batchRange = state.previewConfig.batchRange(index: 1)
-        let store = TestStore(initialState: state, reducer: ReadingReducer.init)
+        let store = TestStore(initialState: state, reducer: ReadingReducer.init) {
+            $0.analyticsClient = .noop
+        }
 
         await store.send(.fetchMPVKeysDone(index: 1, result: .success(imageList))) {
             for page in batchRange {
                 $0.imageURLLoadingStates[page] = .failed(.notFound)
             }
+            $0.surfacedErrorKinds = [.notFound]
         }
     }
 }

@@ -244,6 +244,93 @@ struct AnalyticsEmissionTests {
 
         expectNoDifference(recorded.value, [.quickSearchPanelOpened(.detailSearch)])
     }
+
+    // MARK: Inline errors
+
+    @MainActor
+    @Test
+    func aFailedDetailFetchRecordsOneErrorSignalNamingDetail() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeDetailStore(analyticsClient: .recording(into: recorded))
+
+        await store.send(.fetchGalleryDetailDone(.failure(.networkingFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .detail)])
+    }
+
+    @MainActor
+    @Test
+    func failedDetailSearchListAndFooterFetchesRecordOneErrorSignalEach() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeDetailSearchStore(analyticsClient: .recording(into: recorded))
+
+        await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
+        await store.finish()
+        await store.send(.fetchMoreGalleriesDone(.failure(.parseFailed)))
+        await store.finish()
+
+        expectNoDifference(
+            recorded.value,
+            [
+                .errorSurfaced(.networkingFailed, screen: .detailSearch),
+                .errorSurfaced(.parseFailed, screen: .detailSearch)
+            ]
+        )
+    }
+
+    @MainActor
+    @Test
+    func aFailedArchiveFetchRecordsOneErrorSignalNamingArchives() async throws {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let galleryURL = try #require(URL(string: "https://example.com/g/42/abc123/"))
+        let store = TestStore(initialState: ArchivesReducer.State(), reducer: ArchivesReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchArchiveDone(gid: "42", galleryURL: galleryURL, result: .failure(.networkingFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .archives)])
+    }
+
+    @MainActor
+    @Test
+    func aFailedTorrentsFetchRecordsOneErrorSignalNamingTorrents() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = TestStore(initialState: TorrentsReducer.State(), reducer: TorrentsReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleryTorrentsDone(.failure(.networkingFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .torrents)])
+    }
+
+    // Previews never shows its loading state's failure, so it is not observed.
+    @MainActor
+    @Test
+    func aFailedPreviewsFetchRecordsNothing() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = TestStore(
+            initialState: PreviewsReducer.State(gallery: .preview),
+            reducer: PreviewsReducer.init
+        ) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchPreviewURLsDone(.failure(.networkingFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [])
+    }
 }
 
 // MARK: Spy

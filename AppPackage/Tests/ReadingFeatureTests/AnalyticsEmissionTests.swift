@@ -140,6 +140,50 @@ struct AnalyticsEmissionTests {
 
         expectNoDifference(recorded, [.readingSessionEnded(pagesRead: .twoToFive, duration: expected)])
     }
+
+    // MARK: Page errors
+
+    // One host or network failure can fail every page, so a kind is counted once per presentation
+    // (owner decision, 2026-11-21); the preview strip's failures are never shown and never counted.
+    @MainActor
+    @Test
+    func pageErrorsAreRecordedOncePerKindPerPresentation() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeReadingStore(recorded: recorded, now: LockIsolated(Self.origin))
+
+        await store.send(.onPresented)
+        await store.skipReceivedActions(strict: false)
+        await store.send(.onWebImageFailed(1))
+        await store.send(.onWebImageFailed(2))
+        await store.send(.fetchThumbnailURLsDone(index: 5, result: .failure(.networkingFailed)))
+        await store.send(.onWebImageFailed(3))
+        await store.send(.fetchPreviewURLsDone(index: 1, result: .failure(.parseFailed)))
+        await store.send(.onPerformDismiss)
+        await store.send(.onPresented)
+        await store.skipReceivedActions(strict: false)
+        await store.send(.onWebImageFailed(11))
+        await store.skipInFlightEffects(strict: false)
+
+        // The dismissal's session signal runs in its own effect, so it is asserted apart from the
+        // error signals rather than in one cross-signal order.
+        let errorSignals = recorded.value.filter({ signal in
+            if case .errorSurfaced = signal { return true }
+            return false
+        })
+        expectNoDifference(
+            errorSignals,
+            [
+                .errorSurfaced(.webImageFailed, screen: .reading),
+                .errorSurfaced(.networkingFailed, screen: .reading),
+                .errorSurfaced(.webImageFailed, screen: .reading)
+            ]
+        )
+        let sessionSignals = recorded.value.filter({ signal in
+            if case .readingSessionEnded = signal { return true }
+            return false
+        })
+        #expect(sessionSignals.count == 1)
+    }
 }
 
 // MARK: Spy

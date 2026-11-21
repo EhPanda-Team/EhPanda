@@ -1,3 +1,4 @@
+import AnalyticsClient
 public import AppComponents
 public import AppModels
 import ClipboardClient
@@ -137,6 +138,7 @@ public struct TorrentsReducer: Sendable {
         )
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$toast, action: \.toast)
+        .signalsErrors(of: \.loadingState.failed, on: .torrents)
     }
 }
 

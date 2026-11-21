@@ -271,6 +271,7 @@ public struct DownloadInspectorReducer: Sendable {
             }
         }
         .ifLet(\.$toast, action: \.toast)
+        .signalsErrors(of: \.loadingState.failed, on: .downloadInspector)
     }
 }
 

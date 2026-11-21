@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 public import AppModels
 public import ComposableArchitecture
@@ -197,5 +198,6 @@ public struct FolderManagerReducer: Sendable {
             }
         }
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
+        .signalsErrors(of: \.loadingState.failed, on: .folderManager)
     }
 }

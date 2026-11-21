@@ -1,3 +1,4 @@
+import AnalyticsClient
 public import AppComponents
 public import AppModels
 import AppTools
@@ -165,5 +166,6 @@ public struct ArchivesReducer: Sendable {
             }
         }
         .ifLet(\.$toast, action: \.toast)
+        .signalsErrors(of: \.loadingState.failed, on: .archives)
     }
 }

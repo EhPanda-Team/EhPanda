@@ -215,6 +215,8 @@ public struct DetailSearchReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
+        .signalsErrors(of: \.loadingState.failed, on: .detailSearch)
+        .signalsErrors(of: \.footerLoadingState.failed, on: .detailSearch)
     }
 }
 

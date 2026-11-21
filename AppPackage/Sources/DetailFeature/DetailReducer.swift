@@ -259,16 +259,20 @@ public struct DetailReducer: Sendable {
 extension DetailReducer {
     @ReducerBuilder<State, Action>
     var detailBody: some Reducer<State, Action> {
-        BindingReducer()
-        Scope(\.moderation, action: \.moderation, CommentModerationFeature.init)
-        navigationReducer
-        uiReducer
-        syncReducer
-        downloadReducer
-        fetchReducer
-        galleryOpsReducer
-            .ifLet(\.$destination, action: \.destination)
-            .ifLet(\.$alert, action: \.alert)
+        // Combined so the error observer sees writes from every Detail sub-reducer, not just the last one.
+        CombineReducers {
+            BindingReducer()
+            Scope(\.moderation, action: \.moderation, CommentModerationFeature.init)
+            navigationReducer
+            uiReducer
+            syncReducer
+            downloadReducer
+            fetchReducer
+            galleryOpsReducer
+                .ifLet(\.$destination, action: \.destination)
+                .ifLet(\.$alert, action: \.alert)
+        }
+        .signalsErrors(of: \.loadingState.failed, on: .detail)
     }
 }
 

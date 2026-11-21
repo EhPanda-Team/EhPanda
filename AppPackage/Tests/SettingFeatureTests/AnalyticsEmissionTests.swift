@@ -170,6 +170,28 @@ struct AnalyticsEmissionTests {
         #expect(leaves.contains(where: { $0.contains(Self.sentinelUsername) }) == false)
         #expect(leaves.contains(where: { $0.contains(Self.sentinelPassword) }) == false)
     }
+
+    // MARK: E-Hentai settings
+
+    // The page shows the fetch's failure; a failed submit or profile action leaves the page as it was,
+    // so neither is counted.
+    @MainActor
+    @Test
+    func onlyAFailedSettingsFetchRecordsAnErrorSignal() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = TestStore(initialState: EhSettingReducer.State(), reducer: EhSettingReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchEhSettingDone(.failure(.networkingFailed)))
+        await store.send(.submitChangesDone(.failure(.networkingFailed)))
+        await store.send(.performActionDone(.failure(.parseFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .ehSetting)])
+    }
 }
 
 // MARK: Spy

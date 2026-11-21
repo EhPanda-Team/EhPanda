@@ -1,4 +1,4 @@
-import AnalyticsClient
+public import AnalyticsClient
 public import AppComponents
 import AppLaunchAutomationClient
 public import AppModels
@@ -70,6 +70,9 @@ public struct ReadingReducer: Sendable {
         public var visitedPages = Set<Int>()
         // Noun form, not `...At` — the repository's `date_property_at_suffix` rule is error severity.
         public var sessionStartDate: Date?
+        /// The error kinds already sent in this presentation. One network or host failure can fail every page of a
+        /// gallery, and the owner chose one signal per kind per reading session (2026-11-21).
+        public var surfacedErrorKinds = Set<AppErrorKind>()
 
         public var webImageLoadSuccessIndices = Set<Int>()
         public var imageURLLoadingStates = [Int: LoadingState]()

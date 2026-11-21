@@ -58,6 +58,8 @@ extension ReadingReducer {
         )
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$toast, action: \.toast)
+        // `previewLoadingStates` is not observed: no view shows its failure.
+        .signalsErrors(of: \.imageURLLoadingStates, on: .reading, oncePerKindIn: \.surfacedErrorKinds)
     }
 
     var lifecycleReducer: some ReducerOf<Self> {
@@ -113,8 +115,10 @@ extension ReadingReducer {
                 let gid = state.gallery.id
                 // Session tracking starts here and emits nothing: the signal is sent once at
                 // dismissal, where both facts are known. Seed the visited set with the page the
-                // reader opens on, which a resumed session makes non-zero.
+                // reader opens on, which a resumed session makes non-zero. The per-kind error
+                // de-duplication starts here too, so each presentation counts its errors afresh.
                 state.sessionStartDate = date.now
+                state.surfacedErrorKinds = []
                 state.visitedPages = [state.readingProgress]
                 // The reducer owns the first fetch. A page's own `.onAppear` is the only other
                 // trigger, and it never fires for the programmatic non-zero initial position of a

@@ -53,6 +53,33 @@ extension Reducer {
             })
         }
     }
+
+    /// Sends `errorSurfaced` once per kind for the keys whose state turned into a failure, remembering the kinds sent
+    /// in `surfacedKinds`.
+    ///
+    /// It exists for the reader, where one network or host failure can fail every page of a gallery, and the owner
+    /// chose one signal per kind per reading session (2026-11-21). A kind already in the set is skipped; every other
+    /// kind is sent once and inserted into the set in the same reduce. Emptying the set starts counting afresh.
+    public func signalsErrors<Key: Hashable>(
+        of loadingStates: @escaping (State) -> [Key: LoadingState],
+        on screen: ErrorScreen,
+        oncePerKindIn surfacedKinds: WritableKeyPath<State, Set<AppErrorKind>>
+    ) -> some Reducer<State, Action> {
+        onChange(of: loadingStates) { oldStates, state in
+            var kinds = [AppErrorKind]()
+            for kind in newlyFailedKinds(from: oldStates, to: loadingStates(state)) {
+                guard state[keyPath: surfacedKinds].insert(kind).inserted else { continue }
+                kinds.append(kind)
+            }
+            guard !kinds.isEmpty else { return .none }
+            @Dependency(\.analyticsClient) var analyticsClient
+            return .run(operation: { [kinds] _ in
+                for kind in kinds {
+                    analyticsClient.send(.errorSurfaced(kind, screen: screen))
+                }
+            })
+        }
+    }
 }
 
 /// The kind of every key whose state turned into a failure, ordered by spelling, one entry per key.

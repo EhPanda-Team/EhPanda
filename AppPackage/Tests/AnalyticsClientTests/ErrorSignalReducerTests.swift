@@ -204,6 +204,83 @@ struct ErrorSignalReducerTests {
 
         #expect(recorded.value.isEmpty)
     }
+
+    // MARK: Once-per-kind form
+
+    @MainActor
+    @Test
+    func twoKeysFailingWithOneKindRecordOneSignalAndRememberTheKind() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeStore(recording: recorded)
+
+        await store.send(.pageStatesChanged([1: .failed(.networkingFailed), 2: .failed(.networkingFailed)])) {
+            $0.pageStates = [1: .failed(.networkingFailed), 2: .failed(.networkingFailed)]
+            $0.surfacedKinds = [.networkingFailed]
+        }
+        await store.finish()
+
+        #expect(recorded.value == [.errorSurfaced(.networkingFailed, screen: .reading)])
+    }
+
+    @MainActor
+    @Test
+    func aKindAlreadySentRecordsNothingAndANewKindRecordsOnce() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeStore(recording: recorded)
+
+        await store.send(.pageStatesChanged([1: .failed(.networkingFailed)])) {
+            $0.pageStates = [1: .failed(.networkingFailed)]
+            $0.surfacedKinds = [.networkingFailed]
+        }
+        await store.send(.pageStatesChanged([1: .failed(.networkingFailed), 2: .failed(.networkingFailed)])) {
+            $0.pageStates = [1: .failed(.networkingFailed), 2: .failed(.networkingFailed)]
+        }
+        let threePages: [Int: LoadingState] = [
+            1: .failed(.networkingFailed), 2: .failed(.networkingFailed), 3: .failed(.webImageFailed)
+        ]
+        await store.send(.pageStatesChanged(threePages)) {
+            $0.pageStates = threePages
+            $0.surfacedKinds = [.networkingFailed, .webImageFailed]
+        }
+        await store.finish()
+
+        #expect(
+            recorded.value == [
+                .errorSurfaced(.networkingFailed, screen: .reading),
+                .errorSurfaced(.webImageFailed, screen: .reading)
+            ]
+        )
+    }
+
+    // Emptying the set is what a new reading session does. A failure re-assigned unchanged is still no
+    // transition, so only a page newly failing records the kind again.
+    @MainActor
+    @Test
+    func emptyingTheSetLetsAKindRecordAgainOnItsNextTransition() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = makeStore(recording: recorded)
+
+        await store.send(.pageStatesChanged([1: .failed(.networkingFailed)])) {
+            $0.pageStates = [1: .failed(.networkingFailed)]
+            $0.surfacedKinds = [.networkingFailed]
+        }
+        await store.send(.surfacedKindsEmptied) {
+            $0.surfacedKinds = []
+        }
+        await store.send(.pageStatesChanged([1: .failed(.networkingFailed)]))
+        await store.send(.pageStatesChanged([1: .failed(.networkingFailed), 2: .failed(.networkingFailed)])) {
+            $0.pageStates = [1: .failed(.networkingFailed), 2: .failed(.networkingFailed)]
+            $0.surfacedKinds = [.networkingFailed]
+        }
+        await store.finish()
+
+        #expect(
+            recorded.value == [
+                .errorSurfaced(.networkingFailed, screen: .reading),
+                .errorSurfaced(.networkingFailed, screen: .reading)
+            ]
+        )
+    }
 }
 
 // MARK: Fixture
@@ -211,12 +288,16 @@ struct ErrorSignalReducerTests {
 private struct FixtureState: Equatable {
     var loadingState: LoadingState = .idle
     var loadingStates = [Int: LoadingState]()
+    var pageStates = [Int: LoadingState]()
+    var surfacedKinds = Set<AppErrorKind>()
     var unrelated = 0
 }
 
 private enum FixtureAction {
     case loadingStateChanged(LoadingState)
     case loadingStatesChanged([Int: LoadingState])
+    case pageStatesChanged([Int: LoadingState])
+    case surfacedKindsEmptied
     case unrelatedChanged(Int)
 }
 
@@ -232,6 +313,12 @@ private extension ErrorSignalReducerTests {
                 case .loadingStatesChanged(let loadingStates):
                     state.loadingStates = loadingStates
 
+                case .pageStatesChanged(let pageStates):
+                    state.pageStates = pageStates
+
+                case .surfacedKindsEmptied:
+                    state.surfacedKinds = []
+
                 case .unrelatedChanged(let unrelated):
                     state.unrelated = unrelated
                 }
@@ -239,6 +326,7 @@ private extension ErrorSignalReducerTests {
             }
             .signalsErrors(of: \.loadingState.failed, on: .search)
             .signalsErrors(of: \.loadingStates, on: .toplists)
+            .signalsErrors(of: \.pageStates, on: .reading, oncePerKindIn: \.surfacedKinds)
         } withDependencies: {
             $0.analyticsClient = .recording(into: recorded)
         }

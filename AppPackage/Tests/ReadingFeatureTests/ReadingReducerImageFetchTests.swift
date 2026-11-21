@@ -50,6 +50,7 @@ struct ReadingReducerImageFetchTests {
             )
         ) {
             $0.imageURLLoadingStates[1] = .failed(.notFound)
+            $0.surfacedErrorKinds = [.notFound]
         }
         await store.finish()
 

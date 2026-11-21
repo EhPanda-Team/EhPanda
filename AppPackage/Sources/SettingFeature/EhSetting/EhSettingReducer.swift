@@ -1,3 +1,4 @@
+import AnalyticsClient
 import AppComponents
 import ApplicationClient
 public import AppModels
@@ -198,6 +199,8 @@ public struct EhSettingReducer: Sendable {
         )
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
+        // `submittingState` is not observed: the page never shows its failure.
+        .signalsErrors(of: \.loadingState.failed, on: .ehSetting)
     }
 }
 

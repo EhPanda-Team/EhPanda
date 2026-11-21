@@ -2,6 +2,7 @@ import AnalyticsClient
 import AppModels
 import AppTools
 import ComposableArchitecture
+import DetailFeature
 import DownloadClient
 @testable import DownloadsFeature
 import Foundation
@@ -240,8 +241,13 @@ struct AnalyticsEmissionTests: DownloadFeatureTestCase {
         await store.send(.pushGalleryDetail(fixture))
         await store.skipInFlightEffects(strict: false)
 
+        // The pushed Detail's own fetch reaches the network under the test host, so its outcome is not asserted.
+        let nonErrorSignals = recorded.value.filter({ signal in
+            if case .errorSurfaced = signal { return false }
+            return true
+        })
         expectNoDifference(
-            recorded.value,
+            nonErrorSignals,
             [.galleryDetailOpened(category: fixture.gallery.category, tagNamespaces: expected)]
         )
     }
@@ -262,6 +268,45 @@ struct AnalyticsEmissionTests: DownloadFeatureTestCase {
         #expect(leaves.contains(where: { $0.contains(Self.sentinelTitle) }) == false)
         #expect(leaves.contains(where: { $0.contains(Self.sentinelTagText) }) == false)
         #expect(leaves.contains(where: { $0.contains(Self.sentinelFolderName) }) == false)
+    }
+
+    // MARK: Inline errors
+
+    // A blank name normalizes to nothing, so the folder manager shows its invalid-name failure without
+    // reaching the download client.
+    @MainActor
+    @Test
+    func anInvalidFolderNameRecordsOneErrorSignalNamingTheFolderManager() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = TestStore(initialState: FolderManagerReducer.State(), reducer: FolderManagerReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.downloadClient = .noop
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.createFolder)
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.fileOperationFailed, screen: .folderManager)])
+    }
+
+    @MainActor
+    @Test
+    func aFailedInspectionLoadRecordsOneErrorSignalNamingTheInspector() async {
+        let recorded = LockIsolated<[AnalyticsSignal]>([])
+        let store = TestStore(
+            initialState: DownloadInspectorReducer.State(gid: "1"),
+            reducer: DownloadInspectorReducer.init
+        ) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.downloadClient = .noop
+        }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.loadInspectionDone(store.state.inspectionRequestID, .failure(.networkingFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .downloadInspector)])
     }
 }
 
