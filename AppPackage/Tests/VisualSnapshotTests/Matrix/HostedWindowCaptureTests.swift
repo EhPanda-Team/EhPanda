@@ -75,7 +75,7 @@ final class HostedWindowCaptureTests: XCTestCase {
     @MainActor
     func testReadingASettledGlassPageDoesNotChangeIt() async throws {
         let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
-        let reads = ScenarioCatalog.firstLaunchMinimumReads
+        let reads = BrowsingScenarios.firstLaunchMinimumReads
         for style in [UIUserInterfaceStyle.light, .dark] {
             let hosted = HostedWindowCapture.host(BrowsingScenarios.analyticsChoice(nil), in: window, style: style)
             defer { hosted.dispose() }

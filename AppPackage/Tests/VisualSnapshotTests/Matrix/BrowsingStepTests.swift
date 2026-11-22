@@ -14,7 +14,7 @@ final class BrowsingStepTests: XCTestCase {
     @MainActor
     func testEveryScenarioSettlesOnAtLeastSixReads() {
         XCTAssertGreaterThanOrEqual(HostedWindowCapture.minimumReads, 6)
-        XCTAssertEqual(ScenarioCatalog.firstLaunchMinimumReads, HostedWindowCapture.minimumReads)
+        XCTAssertEqual(BrowsingScenarios.firstLaunchMinimumReads, HostedWindowCapture.minimumReads)
         XCTAssertFalse(ScenarioCatalog.states.isEmpty)
         for state in ScenarioCatalog.states {
             XCTAssertGreaterThanOrEqual(state.factory.minimumReads, 6, state.id)

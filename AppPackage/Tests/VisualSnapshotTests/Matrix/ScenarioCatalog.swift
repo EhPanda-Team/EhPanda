@@ -35,9 +35,9 @@ struct ScenarioFactory {
     }
 }
 
-/// One group file's registrations and the plan that fills it (19-02): `ScenarioCatalog+Browsing.swift` (19-05),
-/// `+Library.swift` (19-06), `+Gallery.swift` (19-07) and `+Settings.swift` (19-08), so those plans never edit the
-/// same file. The states not yet moved into a `Snapshots/` provider (19-18) are still registered here.
+/// One group file's registrations and the plan that fills it (19-02): `ScenarioCatalog+Gallery.swift` (19-07) and
+/// `+Settings.swift` (19-08). The states not yet moved into a `Snapshots/` provider (19-18) are still registered
+/// here.
 struct ScenarioGroup {
     let plan: String
     let factories: [String: ScenarioFactory]
@@ -49,14 +49,31 @@ enum ScenarioCatalog {
     /// listed here; `ScenarioInventoryTests` fails until the inventory and the list agree.
     static var providers: [any SnapshotProvider.Type] {
         [
+            AgeWallViewSnapshot.self,
+            AnalyticsChoiceViewSnapshot.self,
+            LibraryViewSnapshot.self,
+            HomeViewSnapshot.self,
+            FrontPageViewSnapshot.self,
+            PopularViewSnapshot.self,
+            WatchedViewSnapshot.self,
+            ToplistsViewSnapshot.self,
+            HistoryViewSnapshot.self,
+            SearchRootViewSnapshot.self,
+            SearchViewSnapshot.self,
+            QuickSearchViewSnapshot.self,
+            FiltersViewSnapshot.self,
+            DateSeekPickerViewSnapshot.self,
+            FavoritesViewSnapshot.self,
+            DownloadsViewSnapshot.self,
+            DownloadInspectorViewSnapshot.self,
+            DetailViewSnapshot.self,
+            GallerySheetViewSnapshot.self,
             SettingViewSnapshot.self
         ]
     }
 
     static var groups: [ScenarioGroup] {
         [
-            ScenarioGroup(plan: "19-05", factories: browsing),
-            ScenarioGroup(plan: "19-06", factories: library),
             ScenarioGroup(plan: "19-07", factories: gallery),
             ScenarioGroup(plan: "19-08", factories: settings)
         ]
