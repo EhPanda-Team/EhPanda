@@ -716,7 +716,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 18/29 | Complete with deferred items; follow-up plans 19-18 to 19-29 planned | 2026-11-11 |
+| 19. Visual Regression & Daily Live-Parsing Check | 18/30 | Complete with deferred items; follow-up plans 19-18 to 19-29 planned | 2026-11-11 |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 8/14 | In Progress |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1491,7 +1491,7 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 18/29 plans executed; phase complete 2026-11-11 with deferred items (follow-up plans 19-18 to 19-29 added 2026-11-22 for the owner's full-page capture design and pre-check fixes; 19-12 Task 2 and 19-13 run again after 19-29): 19-12 and 19-13 are not executed, and the hosted parts of 19-10 (green gate run) and 19-17 (controlled regression) are owed (owner decision); security: four threats accepted-deferred (owner decision); success criteria 2, 3 and 4 are not proven until those run, see `19-VERIFICATION.md` (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
+**Plans**: 18/30 plans executed; phase complete 2026-11-11 with deferred items (follow-up plans 19-18 to 19-30 added 2026-11-22 and 2026-11-23 for the owner's full-page capture design and pre-check fixes; 19-12 Task 2 and 19-13 run again after 19-29): 19-12 and 19-13 are not executed, and the hosted parts of 19-10 (green gate run) and 19-17 (controlled regression) are owed (owner decision); security: four threats accepted-deferred (owner decision); success criteria 2, 3 and 4 are not proven until those run, see `19-VERIFICATION.md` (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
@@ -1538,6 +1538,7 @@ Plans:
 - [x] 19-18-PLAN.md — harness A: `SnapshotProvider` and one `*ViewSnapshot.swift` per view, a pure move proven against the old pictures and `baseline2` — done 2026-11-22; the move changes no picture (controlled old-versus-new capture); a fresh simulator's first iPad capture differs, an input for 19-27 ([summary](phases/19-visual-regression-marketing-export/19-18-SUMMARY.md), [proof](phases/19-visual-regression-marketing-export/19-18-MOVE-PROOF.md))
 - [x] 19-19-PLAN.md — harness B: the tall window with the Phase 17 remedies and the `page-height` check (tracer heights on `settings-root`) — done 2026-11-22; pictures shorter than the screen unchanged; slicing proven on synthetic pages only (a real page is owed); the local iPad turn now runs on the capturing device, serial for that one UI test (owner approval); iPad form sheets do not grow with the window, for 19-26 ([summary](phases/19-visual-regression-marketing-export/19-19-SUMMARY.md), [record](phases/19-visual-regression-marketing-export/19-19-TALL-WINDOW.md))
 - [x] 19-20-PLAN.md — the measuring mode, `snapshot_heights.py`, the pre-check's committed-height check, D-08 and README — done 2026-11-23; found that 19-19's order runs the user step after growth, so pages made still only by that step time out (owner decision: split the steps into two kinds, a new plan), and that keyboard states cannot be covered ([summary](phases/19-visual-regression-marketing-export/19-20-SUMMARY.md), [probes](phases/19-visual-regression-marketing-export/19-20-PROBES.md))
+- [ ] 19-30-PLAN.md — the two step stages (owner decision 2026-11-23, 「把步驟拆成兩種」): stillness steps before growth, operating steps after it; `cannot-cover:keyboard`; the cache-confirmation popover proof and the dialogs presented on hosting *(runs between 19-20 and 19-21)*
 - [ ] 19-21-PLAN.md — app fixes C1, C2 and C11
 - [ ] 19-22-PLAN.md — app fixes C3, C5 and C16
 - [ ] 19-23-PLAN.md — the causes of C6 and C9 *(checkpoint: the owner decides C9's fixture and layout)*

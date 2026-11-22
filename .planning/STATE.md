@@ -416,7 +416,8 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   19-20 done 2026-11-23 (`a7b89ad93`..`f85d7368d`): the measuring mode and `snapshot_heights.py`. Its probes found
   that pages made still only by their user step time out, because 19-19 runs that step after growth; owner decision
   2026-11-23: 「把步驟拆成兩種」 (stillness steps run at screen size before growth, steps that operate the page after
-  it), implemented by a new plan before 19-21. Keyboard states cannot be covered (the keyboard inset grows with the
+  it), implemented by 19-30 (planned and checked 2026-11-23; 19-21 now depends on it, waves of 19-21 to 19-29 shifted by
+  one). Keyboard states cannot be covered (the keyboard inset grows with the
   window); whether they keep the screen height is the owner's decision in 19-26. Next: the new plan.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
@@ -1270,11 +1271,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 322/333 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 322/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 16 of 29 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22, 19-18 to 19-20 done); Phase 20
+5 of 5 plans complete. Phase 19 has 18 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22, 19-18 to 19-20 done); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
