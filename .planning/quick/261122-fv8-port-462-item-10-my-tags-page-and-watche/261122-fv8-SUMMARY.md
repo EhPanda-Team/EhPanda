@@ -21,8 +21,8 @@ key-files:
     - AppPackage/Sources/SettingFeature/MyTags/
 status: complete
 commits: 3
-plan_head_before: d3dd40af1fbd4d6a5d38f0c55376e10738739839
-plan_head_after: 73135957c7b5b846c7e0d2f7e5b039f73b7968a1
+plan_head_before: 825cf878b46af92baf90e904b882d63772c5e5d6
+plan_head_after: a5046d51014ecc81748126247ae3654c47a51384
 actuals:
   tasks: 3
   commits: 3
@@ -36,9 +36,9 @@ My Tags is read from every tag set into a cache on the user, every tag of an ena
 
 | Task | Hash | Subject | `%G?` | Dates |
 |------|------|---------|-------|-------|
-| 1 | 695bef546 | tags: highlight My Tags from a cached copy | G | 2026-11-22T13:49:30+08:00 (both) |
-| 2 | a16116403 | detail: add and remove a tag from My Tags | G | 2026-11-22T13:52:23+08:00 (both) |
-| 3 | 73135957c | settings: add the My Tags page | G | 2026-11-22T13:56:10+08:00 (both) |
+| 1 | 85ff14138 | tags: highlight My Tags from a cached copy | G | 2026-11-22T13:49:30+08:00 (both) |
+| 2 | eacf20bac | detail: add and remove a tag from My Tags | G | 2026-11-22T13:52:23+08:00 (both) |
+| 3 | a5046d510 | settings: add the My Tags page | G | 2026-11-22T13:56:10+08:00 (both) |
 
 Each body is the subject, one blank line and `Co-authored-by: dyphire <qimoge@gmail.com>`. Task 1 has 34 files, Task 2 17, Task 3 16 (Task 3 includes the tracked SCROLL-EDGE-INVENTORY.md, as the plan lists it).
 
@@ -60,7 +60,7 @@ Each body is the subject, one blank line and `Co-authored-by: dyphire <qimoge@gm
 1. **[Environment, owner-approved] Stale embedded TestingSupport bundle (Task 1 TEST).** The first `task1` run failed 5 `MyTagsParserTests` with `htmlDocumentNotFound`. `ParserFeatureTests.xctest/AppPackage_TestingSupport.bundle` in derived data was an old copy without the new fixtures. With the orchestrator's approval (option 1) I deleted the 8 `*.xctest/AppPackage_TestingSupport.bundle` directories under `.capture/dd-port-462/Build/Products/Debug-iphonesimulator/` and re-ran as `task1-rerun`, which passed. Used once; not needed for Tasks 2 and 3. No source or plan change.
 2. **[Tooling, no plan change] E-ASR8.** My applier script dropped the trailing blank line of E-ASR8's find block, leaving two blank lines before `// Echo-guard.` in `AccountSettingReducer.swift` (SwiftLint `vertical_whitespace` and a build warning). I removed the one extra blank line, which the plan's find text (it ends with a blank line, replaced by nothing) already specifies; lint and build are clean afterwards. A scan of every edit block found no other find ending in a blank line with a replacement of nothing.
 
-Otherwise the plan was executed exactly as written. The plan's per-task commit ledger (protocol 0c) was not written; `commits: 3` is measured with `git rev-list --count d3dd40af1..HEAD`.
+Otherwise the plan was executed exactly as written. The plan's per-task commit ledger (protocol 0c) was not written; `commits: 3` is measured with `git rev-list --count 825cf878b..HEAD`.
 
 ## Known Stubs
 
@@ -91,4 +91,4 @@ Planner's choices beyond CONTEXT (Design 1 to 11 of the plan, one line each):
 
 ## Self-Check: PASSED
 
-The three commits exist in `git log d3dd40af1..HEAD`, each `G` with +08:00 dates; the working tree is clean apart from the untracked plan directory; STATE.md and the PLAN are untouched.
+The three commits exist in `git log 825cf878b..HEAD`, each `G` with +08:00 dates; the working tree is clean apart from the untracked plan directory; STATE.md and the PLAN are untouched.

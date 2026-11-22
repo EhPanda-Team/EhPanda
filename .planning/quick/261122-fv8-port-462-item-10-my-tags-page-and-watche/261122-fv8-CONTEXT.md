@@ -1,6 +1,6 @@
 # Quick 261122-fv8: port #462 item (10), My Tags page and watched-tag highlight
 
-Contributions row item (10) in `.planning/STATE.md`. Branch `port/462` (tip `d3dd40af1` when this task started);
+Contributions row item (10) in `.planning/STATE.md`. Branch `port/462` (tip `825cf878b` when this task started);
 commits go on top, nothing on the branch is rewritten. Nothing is pushed. `.capture/merge-prep/pr-462-comment.md`
 belongs to the orchestrating session: never touch it.
 

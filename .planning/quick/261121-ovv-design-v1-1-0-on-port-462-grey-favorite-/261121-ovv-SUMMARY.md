@@ -40,8 +40,8 @@ actuals:
   tokens: 8900
   tasks: 4
   commits: 4
-plan_head_before: a5110244d5fcbd4df2e85289faadff65b8a67d62
-plan_head_after: b55d7eeec66141f93107acf9725ff83a390612a8
+plan_head_before: 61e891376376fe4ac437e453c2cb4caa7f418cf6
+plan_head_after: 93de62e7d59e84cd69fe1d2e60be2e88b995cd0a
 ---
 
 # Phase 261121-ovv Plan 01: Screens v1.1.0 design on port/462 Summary
@@ -54,12 +54,12 @@ All four are signed (`G`) with author and committer dates at +08:00. `git rev-li
 
 | Task | Hash | Message | Signature line |
 | ---- | ---- | ------- | -------------- |
-| 1 | 6496b2e59 | lists: grey favorite hearts on the count line | G 2026-11-21T17:18:30+08:00 2026-11-21T17:37:42+08:00 |
-| 2 | f6df17563 | lists, detail: stars in the plain colour | G 2026-11-21T18:16:44+08:00 2026-11-21T18:16:44+08:00 |
-| 3 | 435ee2e88 | detail: Edit Rating once the gallery is rated | G 2026-11-21T18:18:30+08:00 2026-11-21T18:18:30+08:00 |
-| 4 | b55d7eeec | detail: the Read ring's stroke is 2.5 pt | G 2026-11-21T18:59:06+08:00 2026-11-21T18:59:06+08:00 |
+| 1 | 98323626f | lists: grey favorite hearts on the count line | G 2026-11-21T17:18:30+08:00 2026-11-21T17:37:42+08:00 |
+| 2 | e47b3507a | lists, detail: stars in the plain colour | G 2026-11-21T18:16:44+08:00 2026-11-21T18:16:44+08:00 |
+| 3 | 0088f0ea6 | detail: Edit Rating once the gallery is rated | G 2026-11-21T18:18:30+08:00 2026-11-21T18:18:30+08:00 |
+| 4 | 93de62e7d | detail: the Read ring's stroke is 2.5 pt | G 2026-11-21T18:59:06+08:00 2026-11-21T18:59:06+08:00 |
 
-Plan base is `a5110244d` (the orchestrator rewrote the history below Task 1 during the run; see Deviations).
+Plan base is `61e891376` (the orchestrator rewrote the history below Task 1 during the run; see Deviations).
 
 ## Gates
 
@@ -74,7 +74,7 @@ Plan base is `a5110244d` (the orchestrator rewrote the history below Task 1 duri
 
 ## Deviations from Plan
 
-**1. [Orchestrator-fixed rebase defect] Task 2 TEST blocked at the first attempt.** The test target did not compile: `HeaderSectionDownloadLabelTests` built `HeaderSection(...)` without `readingProgress` and `isReaderOnScreen`. Task 2 TEST was blocked by a rebase defect in `HeaderSectionDownloadLabelTests`; fixed by the orchestrator in the introducing commits (fixup and autosquash, with two test-build warning fixes in `DetailReadingProgressTests` and `DetailFavoriteStateTests`). The history below Task 1 was rewritten, so the plan base `7268c40bc` became `a5110244d` and Task 1's `5994fb2a0` became `6496b2e59` (same content). Where the plan's gates name `7268c40bc`, I used `a5110244d`. The commit ledger was updated to the new base. I made no code decision of my own.
+**1. [Orchestrator-fixed rebase defect] Task 2 TEST blocked at the first attempt.** The test target did not compile: `HeaderSectionDownloadLabelTests` built `HeaderSection(...)` without `readingProgress` and `isReaderOnScreen`. Task 2 TEST was blocked by a rebase defect in `HeaderSectionDownloadLabelTests`; fixed by the orchestrator in the introducing commits (fixup and autosquash, with two test-build warning fixes in `DetailReadingProgressTests` and `DetailFavoriteStateTests`). The history below Task 1 was rewritten, so the plan base `7268c40bc` became `61e891376` and Task 1's `5994fb2a0` became `98323626f` (same content). Where the plan's gates name `7268c40bc`, I used `61e891376`. The commit ledger was updated to the new base. I made no code decision of my own.
 
 **2. Re-run of Task 2's build gate not repeated after the rewrite.** The orchestrator reported a clean `build-for-testing`; Task 2's test run (which builds everything) then passed. Tasks 3 and 4 each had a fresh build and lint.
 
@@ -119,22 +119,22 @@ Before this task, `port/462` was rebased from `4d98daab0` onto develop `02373e7d
 
 | Old | New | Commit |
 | --- | --- | ------ |
-| 712941ade | bc053ac0f | docs(state): mark the age wall and analytics choice as shipped in 3.0 (owner decision) |
-| 4b5a04b6c | 6ddd05d76 | favorites: read the sort order from the page's select and never overwrite it with nil |
-| de74c968a | cfaa218e2 | cache: cap the reader byte cache at 2 GiB and the Kingfisher and SDWebImage disk caches at 1 GiB |
-| b57a1ac0b | 59f92b42b | search: tag suggestions understand the ~tag and -tag prefixes |
-| 3e0db3fc7 | ddcb3a5e5 | about: credit dyphire among the code contributors |
-| cbeb137b8 | 84cb14038 | docs(quick-261113-h72): Port #462 (dyphire) part 1: favorites sort order, cache caps, tag prefixes |
-| 9b5234543 | 11d0516ac | search: tag suggestions in the saved search editor |
-| b1ceb1a29 | 05b651d34 | lists, detail: favorite slot, the user's own rating and expunged galleries |
-| 65937a9d0 | 82d50596b | lists: leave rows that are not favorites structurally unchanged |
-| b9175ef6c | 755ea993b | detail: the Read button shows the page the reader resumes at |
-| b40c94fd8 | 115b2b7aa | docs(quick-261113-h72): part 2 summary and the #462 progress row |
-| 30fab27a3 | 960271fc6 | cache: the owner's disk limits, 1 GiB reader cache, 512 MiB Kingfisher, 128 MiB SDWebImage |
-| 2b0476faa | 5e325037d | detail: the Read button shows reading progress as a ring, not a capsule |
-| 0ad794440 | 072521a80 | docs(quick-261113-h72): the Read button's progress ring replaces the capsule |
-| 0f96f02fc | d4d6e9021 | test: the Reduce Motion inventory counts the Read button's ring |
-| 30bcf9243 | c90cd8ad9 | detail: the Read button's ring grows once the reader has closed |
-| e8fe132c6 | 64e672fa7 | docs(quick-261113-h72): rebased hashes, the ring's timing and the CJK typing check |
-| b53da3062 | 1e475a437 | lists, detail: the user's rating in the site's own colour, set per appearance |
-| cc586344a | a5110244d | docs(quick-261113-h72): the user's rating colour per the designer |
+| 712941ade | 443417d76 | docs(state): mark the age wall and analytics choice as shipped in 3.0 (owner decision) |
+| 4b5a04b6c | 934dd92f7 | favorites: read the sort order from the page's select and never overwrite it with nil |
+| de74c968a | 4928d97fe | cache: cap the reader byte cache at 2 GiB and the Kingfisher and SDWebImage disk caches at 1 GiB |
+| b57a1ac0b | ee8aaafc0 | search: tag suggestions understand the ~tag and -tag prefixes |
+| 3e0db3fc7 | b1fcf1b1c | about: credit dyphire among the code contributors |
+| cbeb137b8 | 6edd33f07 | docs(quick-261113-h72): Port #462 (dyphire) part 1: favorites sort order, cache caps, tag prefixes |
+| 9b5234543 | e89e9e7c9 | search: tag suggestions in the saved search editor |
+| b1ceb1a29 | d999bad5f | lists, detail: favorite slot, the user's own rating and expunged galleries |
+| 65937a9d0 | 3689828d1 | lists: leave rows that are not favorites structurally unchanged |
+| b9175ef6c | bde36a197 | detail: the Read button shows the page the reader resumes at |
+| b40c94fd8 | 6f592229d | docs(quick-261113-h72): part 2 summary and the #462 progress row |
+| 30fab27a3 | ffc8f6d8c | cache: the owner's disk limits, 1 GiB reader cache, 512 MiB Kingfisher, 128 MiB SDWebImage |
+| 2b0476faa | 406e4a734 | detail: the Read button shows reading progress as a ring, not a capsule |
+| 0ad794440 | 3ca8208ff | docs(quick-261113-h72): the Read button's progress ring replaces the capsule |
+| 0f96f02fc | 1d84158fd | test: the Reduce Motion inventory counts the Read button's ring |
+| 30bcf9243 | 60e3f9288 | detail: the Read button's ring grows once the reader has closed |
+| e8fe132c6 | ca6799941 | docs(quick-261113-h72): rebased hashes, the ring's timing and the CJK typing check |
+| b53da3062 | 2c1eb289f | lists, detail: the user's rating in the site's own colour, set per appearance |
+| cc586344a | 61e891376 | docs(quick-261113-h72): the user's rating colour per the designer |
