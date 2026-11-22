@@ -30,7 +30,10 @@ extension DownloadCoordinator {
     public func indexedDownload(gid: String) async -> DownloadedGallery? {
         guard hasLoadedIndex else { return nil }
         guard let record = downloadIndex[gid] else { return nil }
-        return downloadedGallery(from: record)
+        return downloadedGallery(
+            from: record,
+            queuePlace: DownloadQueuePlace.places(forWaitingGIDs: waitingQueueGIDs())[gid]
+        )
     }
 
     public func indexedDownloads() async -> [DownloadedGallery] {
@@ -41,9 +44,10 @@ extension DownloadCoordinator {
     private func downloads(
         from records: [DownloadFolderRecord]
     ) async -> [DownloadedGallery] {
+        let waitingPlaces = DownloadQueuePlace.places(forWaitingGIDs: waitingQueueGIDs())
         return deduplicatedDownloadIndex(from: records).values
             .map {
-                downloadedGallery(from: $0)
+                downloadedGallery(from: $0, queuePlace: waitingPlaces[$0.manifest.gid])
             }
             .sorted(by: sortDownloadsByDisplayStatus)
     }
@@ -54,6 +58,20 @@ extension DownloadCoordinator {
         return await downloads(
             from: downloadIndex.values.filter({ gidSet.contains($0.manifest.gid) })
         )
+    }
+
+    /// The waiting downloads in the order the scheduler will start them: the persisted queue `nextQueuedDownload`
+    /// walks, without the entries that are not waiting (the active gallery, a gallery whose verification
+    /// failed, an entry with no indexed record), which keep their queue slots. Position 1 is the next to start.
+    /// It filters through `displayStatus(for:)`, the same derivation the list's waiting group comes from, so the
+    /// order the user sees and the order downloads run in come from one record and cannot diverge (A-1). The
+    /// list's waiting group and every badge's VoiceOver place read it.
+    func waitingQueueGIDs() -> [String] {
+        guard hasLoadedIndex else { return [] }
+        return queueStore.gids.filter({ gid in
+            guard let record = downloadIndex[gid] else { return false }
+            return displayStatus(for: record) == .queued
+        })
     }
 
     private func deduplicatedDownloadIndex(
@@ -72,7 +90,8 @@ extension DownloadCoordinator {
     }
 
     private func downloadedGallery(
-        from record: DownloadFolderRecord
+        from record: DownloadFolderRecord,
+        queuePlace: DownloadQueuePlace?
     ) -> DownloadedGallery {
         let gid = record.manifest.gid
         return DownloadedGallery(
@@ -84,7 +103,8 @@ extension DownloadCoordinator {
             modificationDate: record.modificationDate,
             displayStatus: displayStatus(for: record),
             lastError: verificationErrors[gid] ?? downloadErrors[gid],
-            runProgress: publishedRunProgress(gid: gid)
+            runProgress: publishedRunProgress(gid: gid),
+            queuePlace: queuePlace
         )
     }
 
@@ -114,12 +134,17 @@ extension DownloadCoordinator {
         return .inactive
     }
 
+    /// Status priority first; within the waiting group the queue position, so the list runs in the order
+    /// downloads will (A-1); every other group newest folder first.
     private func sortDownloadsByDisplayStatus(
         _ lhs: DownloadedGallery,
         _ rhs: DownloadedGallery
     ) -> Bool {
         if lhs.displayStatus != rhs.displayStatus {
             return lhs.displayStatus.sortPriority < rhs.displayStatus.sortPriority
+        }
+        if let lhsPlace = lhs.queuePlace, let rhsPlace = rhs.queuePlace {
+            return lhsPlace.position < rhsPlace.position
         }
         return (lhs.lastDownloadedDate ?? .distantPast)
             > (rhs.lastDownloadedDate ?? .distantPast)

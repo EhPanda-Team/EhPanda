@@ -15,6 +15,10 @@ public struct DownloadedGallery: Identifiable, Equatable, Sendable {
     /// between a run's announcement and its exit; it drives what is DISPLAYED and nothing else. See
     /// `DownloadRunProgress` for why the record cannot carry this itself.
     public let runProgress: DownloadRunProgress?
+    /// This gallery's place among the waiting downloads while its display status is `.queued`, and nil for every
+    /// other status. Derived from the persisted queue by the coordinator on each read (A-1); see
+    /// `DownloadQueuePlace`.
+    public let queuePlace: DownloadQueuePlace?
 
     public var gid: String { manifest.gid }
     public var host: GalleryHost { manifest.host }
@@ -39,7 +43,8 @@ public struct DownloadedGallery: Identifiable, Equatable, Sendable {
         modificationDate: Date?,
         displayStatus: DownloadDisplayStatus,
         lastError: DownloadFailure? = nil,
-        runProgress: DownloadRunProgress? = nil
+        runProgress: DownloadRunProgress? = nil,
+        queuePlace: DownloadQueuePlace? = nil
     ) {
         self.manifest = manifest
         self.folderURL = folderURL
@@ -50,5 +55,6 @@ public struct DownloadedGallery: Identifiable, Equatable, Sendable {
         self.lastDownloadedDate = modificationDate
         self.lastError = lastError
         self.runProgress = runProgress
+        self.queuePlace = queuePlace
     }
 }

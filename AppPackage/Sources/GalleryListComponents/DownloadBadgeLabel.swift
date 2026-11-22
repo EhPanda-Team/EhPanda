@@ -53,7 +53,17 @@ public struct DownloadBadgeLabel: View {
         }
     }
 
-    private var accessibilityText: String {
+    /// Internal rather than private so `DownloadBadgeAccessibilityTests` reads the exact string VoiceOver speaks.
+    var accessibilityText: String {
+        if badge.status == .queued, let position = badge.waitingPosition {
+            return String(
+                localized: LocalizedStringResource.downloadBadgeQueuedPositionAccessibility(
+                    position: position,
+                    completed: badge.progress.displayCompletedPageCount,
+                    total: badge.progress.displayPageCount
+                )
+            )
+        }
         let progress = LocalizedStringResource.downloadBadgeProgressAccessibility(
             completed: badge.progress.displayCompletedPageCount,
             total: badge.progress.displayPageCount

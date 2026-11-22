@@ -31,6 +31,7 @@ struct CaptureDownloadTests {
         expectNoDifference(index.downloads.map(\.badge.progress.completedPageCount), [2, Self.pageCount])
         expectNoDifference(index.downloads.map(\.pageCount), [Self.pageCount, Self.pageCount])
         expectNoDifference(index.downloads.map(\.runProgress), [.init(creditedPageIndices: [1, 2]), nil])
+        expectNoDifference(index.downloads.map(\.queuePlace), [nil, nil])
         let store = DownloadStore(rootURL: root)
         for download in index.downloads {
             let held = download.gid == "101" ? Set(1...2) : Set(1...Self.pageCount)
@@ -69,7 +70,30 @@ struct CaptureDownloadTests {
         expectNoDifference(index.downloads.map(\.displayStatus), [.queued, .updateAvailable, .inactive])
         expectNoDifference(index.downloads.map(\.badge.progress.completedPageCount), [0, Self.pageCount, 3])
         expectNoDifference(index.downloads.map(\.localPageURLs.count), [0, Self.pageCount, 3])
+        expectNoDifference(
+            index.downloads.map(\.queuePlace),
+            [DownloadQueuePlace(position: 1, waitingCount: 1), nil, nil]
+        )
         #expect(index.downloads.allSatisfy({ $0.runProgress == nil }))
+    }
+
+    /// A capture has no coordinator, so the waiting rows take their places from the selection's order (A-1).
+    @Test
+    func waitingDownloadsTakeTheirPlacesInTheSelectionsOrder() throws {
+        let fixture = try Self.fixture(downloads: [
+            .init(gallery: "101", status: .queued, completedPages: 0),
+            .init(gallery: "105", status: .queued, completedPages: 3),
+            .init(gallery: "104", status: .completed, completedPages: nil)
+        ])
+        let root = try makeTemporaryDirectory().appending(path: "Downloads", directoryHint: .isDirectory)
+
+        let index = try #require(try makeScene(fixture, scenarioID: "downloads").downloads).seed(into: root)
+
+        expectNoDifference(
+            index.downloads.map(\.queuePlace),
+            [DownloadQueuePlace(position: 1, waitingCount: 2), DownloadQueuePlace(position: 2, waitingCount: 2), nil]
+        )
+        expectNoDifference(index.downloads.map(\.badge.waitingPosition), [1, 2, nil])
     }
 
     /// Owner decision: a mocked complete download is its record and status alone. Its manifest marks

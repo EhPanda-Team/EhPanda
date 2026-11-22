@@ -501,8 +501,9 @@ private struct MarketingGalleries {
     /// The download folders `scenario` shows: the Downloads screen's galleries in the order it lists
     /// them; no other screen has downloads.
     ///
-    /// The screen lists rows by status, then by when their folder last changed, so the entries must
-    /// come in status order, and each folder is dated an hour before the one above it.
+    /// The screen lists rows by status: waiting rows in the queue's order, which a capture takes from the
+    /// entries' order, and every other group by when its folder last changed. So the entries must come in
+    /// status order, and each folder is dated an hour before the one above it.
     func downloads(
         for scenario: CaptureScenario,
         entries: [CaptureSelection.Download]
@@ -749,7 +750,8 @@ extension CaptureDownloads {
     ///
     /// The manifest is the only record of completeness, as in the app: a row is complete because its
     /// manifest holds every page's hash, and only being downloaded or waiting comes from the
-    /// simulated queue, so each row must read back as the status the selection gives it.
+    /// simulated queue, whose order is the waiting entries' order, so each row must read back as the status the
+    /// selection gives it.
     func seed(into root: URL) throws(CaptureFailure) -> CaptureDownloadIndex {
         let store = DownloadStore(rootURL: root)
         let scan: DownloadScanResult
@@ -762,9 +764,17 @@ extension CaptureDownloads {
             throw .storageUnavailable
         }
         let records = Dictionary(grouping: scan.records, by: \.manifest.gid)
+        let waitingPlaces = DownloadQueuePlace.places(forWaitingGIDs:
+            galleries.filter({ $0.status == .queued }).map(\.manifest.gid)
+        )
         var downloads = [DownloadedGallery]()
         for gallery in galleries {
-            downloads.append(try gallery.download(from: records[gallery.manifest.gid] ?? []))
+            downloads.append(
+                try gallery.download(
+                    from: records[gallery.manifest.gid] ?? [],
+                    queuePlace: waitingPlaces[gallery.manifest.gid]
+                )
+            )
         }
         return CaptureDownloadIndex(downloads: downloads, folders: scan.userFolders)
     }
@@ -809,9 +819,13 @@ extension CaptureDownloads {
 
 extension CaptureDownloads.Gallery {
     /// The row the app lists for this gallery's folder, found once among `records`, once it reads back
-    /// with every page it holds hashed, a file for each of those pages and nothing more, and its cover.
+    /// with every page it holds hashed, a file for each of those pages and nothing more, and its cover, and its
+    /// place among the waiting rows when it waits.
     /// A mocked folder reads back with every page hashed and no page file.
-    func download(from records: [DownloadFolderRecord]) throws(CaptureFailure) -> DownloadedGallery {
+    func download(
+        from records: [DownloadFolderRecord],
+        queuePlace: DownloadQueuePlace?
+    ) throws(CaptureFailure) -> DownloadedGallery {
         let gid = manifest.gid
         let heldPages = Set(pages.keys)
         let hashedPages = mocksPages ? Set(manifest.pages.keys) : heldPages
@@ -836,7 +850,8 @@ extension CaptureDownloads.Gallery {
             localPageURLs: record.localPageURLs,
             modificationDate: record.modificationDate,
             displayStatus: displayStatus,
-            runProgress: displayStatus == .active ? DownloadRunProgress(creditedPageIndices: heldPages) : nil
+            runProgress: displayStatus == .active ? DownloadRunProgress(creditedPageIndices: heldPages) : nil,
+            queuePlace: queuePlace
         )
     }
 
