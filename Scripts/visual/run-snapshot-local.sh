@@ -98,8 +98,12 @@ if [ "$DEVICE" = pad ]; then
     [ "$ORIENTATION" = landscape ] && TURN=testRotateToLandscape
     wait_for_host
     prepare_simulator
+    # The turn must act on the device that captures: a parallel-testing clone boots in portrait and turns itself, not
+    # this device. Serial for this one UI test only, approved by the owner on 2026-11-22; every other test stays
+    # parallel.
     if ! xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests \
         -destination "platform=iOS Simulator,id=$UDID" -collect-test-diagnostics never \
+        -parallel-testing-enabled NO \
         -only-testing:"EhPandaUITests/VisualCaptureOrientationUITests/$TURN" >"$OUT/orientation.log" 2>&1; then
         echo "Could not turn the iPad ($OUT/orientation.log)." >&2
         exit 1
