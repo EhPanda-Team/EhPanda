@@ -21,6 +21,7 @@ public enum SettingPath {
     case about(StaticSettingScreenReducer)
     case appIcon(AppIconReducer)
     case blockedUsers(BlockedUsersReducer)
+    case myTags(MyTagsFeature)
 }
 
 extension SettingPath.State: Equatable, Sendable {}
@@ -57,6 +58,7 @@ extension SettingPath.State {
         case .about: return "about"
         case .appIcon: return "appIcon"
         case .blockedUsers: return "blockedUsers"
+        case .myTags: return "myTags"
         }
     }
 }
@@ -75,6 +77,8 @@ extension SettingPath.State {
             return .ehSetting(.fetchEhSetting)
         case .appActivityLogs:
             return .appActivityLogs(.refreshAvailableRuns)
+        case .myTags:
+            return .myTags(.onPresented)
         case .appearance, .login, .download, .reading, .laboratory, .about, .appIcon, .blockedUsers:
             return nil
         }

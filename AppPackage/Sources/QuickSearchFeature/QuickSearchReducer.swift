@@ -40,6 +40,8 @@ public struct QuickSearchReducer: Sendable {
         }
 
         @Shared(.savedSearches) public var savedSearches: [SavedSearch]
+        @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
+        @SharedReader(.setting) public var setting: Setting
 
         public init() {}
 

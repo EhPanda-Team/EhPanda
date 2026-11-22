@@ -103,6 +103,8 @@ enum Module: String {
     case liveTextTranslation = "LiveTextTranslation"
     case logsClient = "LogsClient"
     case markdownExt = "MarkdownExt"
+    case myTagEditor = "MyTagEditor"
+    case myTagsClient = "MyTagsClient"
     case networkingFeature = "NetworkingFeature"
     case osLogExt = "OSLogExt"
     case parserFeature = "ParserFeature"
@@ -447,6 +449,28 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture)
         ]
     ),
+    // My Tags' Add Tag and Edit Tag, presented from Detail and the My Tags page (port of PR 462 item 10).
+    .target(
+        module: .myTagEditor,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.myTagsClient),
+            .module(.resources),
+            .module(.tagTranslationFeature),
+            .targetDependency(.composableArchitecture)
+        ],
+        resources: [.process(.resources)]
+    ),
+    // My Tags' reads and writes, behind one dependency so a test decides their outcome (port of PR 462 item 10).
+    .target(
+        module: .myTagsClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.networkingFeature),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
     .target(
         module: .networkingFeature,
         dependencies: [
@@ -685,6 +709,8 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.libraryClient),
             .module(.logsClient),
+            .module(.myTagEditor),
+            .module(.myTagsClient),
             .module(.networkingFeature),
             .module(.osLogExt),
             .module(.readingSettingFeature),
@@ -771,6 +797,8 @@ let targets: [PackageDescription.Target] = [
             .module(.galleryClient),
             .module(.galleryListComponents),
             .module(.hapticsClient),
+            .module(.myTagEditor),
+            .module(.myTagsClient),
             .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.readingFeature),
@@ -906,6 +934,7 @@ let targets: [PackageDescription.Target] = [
             .module(.userDefaultsClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.kingfisher),
+            .targetDependency(.sdWebImageSwiftUI),
             .targetDependency(.sharing)
         ]
     ),
@@ -979,6 +1008,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .module(.appComponents),
             .module(.logsClient),
+            .module(.myTagsClient),
             .module(.parserFeature),
             .module(.resources),
             .module(.settingFeature),
@@ -1003,6 +1033,8 @@ let targets: [PackageDescription.Target] = [
             .module(.fileClient),
             .module(.hapticsClient),
             .module(.logsClient),
+            .module(.myTagEditor),
+            .module(.myTagsClient),
             .module(.settingFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
@@ -1022,6 +1054,8 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.detailFeature),
             .module(.hapticsClient),
+            .module(.myTagEditor),
+            .module(.myTagsClient),
             .targetDependency(.composableArchitecture),
             .module(.appComponents),
             .module(.appLaunchAutomationClient),
@@ -1034,6 +1068,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .networkingFeatureTests,
         dependencies: [
+            .module(.testingSupport),
             .module(.appModels),
             .module(.networkingFeature),
             .module(.appTools),
@@ -1096,6 +1131,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .galleryListComponentsTests,
         dependencies: [
+            .module(.appModels),
             .module(.galleryListComponents)
         ]
     ),
@@ -1112,6 +1148,7 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.liveTextTranslation),
             .module(.readingFeature),
+            .module(.readingSettingFeature),
             .module(.downloadClient),
             .module(.hapticsClient),
             .targetDependency(.sharing)

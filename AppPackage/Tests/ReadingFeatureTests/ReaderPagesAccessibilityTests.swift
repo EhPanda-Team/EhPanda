@@ -62,6 +62,18 @@ struct ReaderPagesAccessibilityTests {
         #expect(ReaderPagesAccessibility.shownPages(at: 11, state: state, isLandscape: false).isEmpty)
     }
 
+    // A webtoon read vertically (D-02) lays out one page per position, even where the user's own setting shows
+    // spreads, so the element reads that one page.
+    @Test
+    func aWebtoonReadVerticallyReadsOnePageEvenInASpreadSetting() {
+        var state = Self.state(page: 4)
+        state.$setting.withLock({ $0.alwaysReadsWebtoonsVertically = true })
+        state.isWebtoon = true
+
+        #expect(ReaderPagesAccessibility.shownPages(at: 4, state: state, isLandscape: true) == [4])
+        #expect(state.setting.enableDualPageMode)
+    }
+
     // Next and previous turn by one position from the page the reader names, and reach the reducer
     // as its one turn intent, which sends the pager to the turn's page.
     @Test(arguments: [(step: 1, page: 5), (step: -1, page: 1)])

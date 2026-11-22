@@ -84,7 +84,11 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: titleInfo.url
+                    galleryURL: titleInfo.url,
+                    isExpunged: panelInfo.isExpunged,
+                    hasRated: panelInfo.hasRated,
+                    favoriteTagIndex: panelInfo.favoriteTagIndex,
+                    favoriteTagName: panelInfo.favoriteTagName
                 )
             )
         }
@@ -117,7 +121,11 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: titleInfo.url
+                    galleryURL: titleInfo.url,
+                    isExpunged: panelInfo.isExpunged,
+                    hasRated: panelInfo.hasRated,
+                    favoriteTagIndex: panelInfo.favoriteTagIndex,
+                    favoriteTagName: panelInfo.favoriteTagName
                 )
             )
         }
@@ -149,7 +157,11 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: titleInfo.url
+                    galleryURL: titleInfo.url,
+                    isExpunged: panelInfo.isExpunged,
+                    hasRated: panelInfo.hasRated,
+                    favoriteTagIndex: panelInfo.favoriteTagIndex,
+                    favoriteTagName: panelInfo.favoriteTagName
                 )
             )
         }
@@ -179,7 +191,11 @@ private extension Parser {
                     pageCount: panelInfo.pageCount,
                     postedDate: panelInfo.publishedDate,
                     coverURL: panelInfo.coverURL,
-                    galleryURL: titleInfo.url
+                    galleryURL: titleInfo.url,
+                    isExpunged: panelInfo.isExpunged,
+                    hasRated: panelInfo.hasRated,
+                    favoriteTagIndex: panelInfo.favoriteTagIndex,
+                    favoriteTagName: panelInfo.favoriteTagName
                 )
             )
         }
@@ -233,15 +249,41 @@ private extension Parser {
               let publishedDate = tmpPublishedDate,
               let pageCount = tmpPageCount
         else { throw AppError.parseFailed }
+        // The posted-date box (`#posted_<gid>`, or `#postedpop_<gid>` beside the cover) carries the favorites
+        // slot and the expunged mark. Searched relative to this row, never document-wide.
+        let postedNode = node.at_xpath(".//div[starts-with(@id, 'posted')]")
+        let favorite = parseFavoriteMark(postedNode: postedNode)
         return ThumbnailPanelInfo(
             coverURL: coverURL,
             category: category,
             rating: ratingResult.imgRating,
             publishedDate: publishedDate,
             pageCount: pageCount,
-            uploader: uploader
+            uploader: uploader,
+            hasRated: ratingResult.containsUserRating,
+            isExpunged: postedNode?.at_xpath(".//s") != nil,
+            favoriteTagIndex: favorite.index,
+            favoriteTagName: favorite.name
         )
     }
+
+    /// The favorites slot a row's posted-date box marks: a gallery in the user's favorites has the slot's name as
+    /// the box's `title` and the slot's colour as its `border-color` (`#000` for slot 0, `#f00` for slot 1, ...).
+    /// A gallery that is not a favorite has neither. A colour the app does not know keeps the name and has no slot.
+    static func parseFavoriteMark(postedNode: (any XMLElement)?) -> (index: Int?, name: String?) {
+        guard let postedNode, postedNode["onclick"]?.contains("popUp") == true,
+              let style = postedNode["style"], let title = postedNode["title"], !title.isEmpty
+        else { return (nil, nil) }
+        let colour = style.range(of: "border-color:#").flatMap { start in
+            style[start.upperBound...].prefix(while: { $0 != ";" })
+        }
+        return (colour.flatMap({ favoriteSlotsByBorderColour[$0.lowercased()] }), title)
+    }
+
+    /// The site's border colour of each favorites slot, slot 0 first.
+    private static let favoriteSlotsByBorderColour: [String: Int] = [
+        "000": 0, "f00": 1, "fa0": 2, "dd0": 3, "080": 4, "9f4": 5, "4bf": 6, "00f": 7, "508": 8, "e8e": 9
+    ]
 
     /// Extracts a gallery's title, URL and the two identifiers embedded in that URL.
     ///
@@ -292,22 +334,15 @@ private extension Parser {
                   let rawNamespace = titleComponents.first,
                   let rawContentText = titleComponents.last
             else { continue }
-            var contentTextColor: Color?
             var contentBackgroundColor: Color?
             let namespace = String(rawNamespace)
             let contentText = String(rawContentText)
-            if let style = tagLink["style"], let rangeB = style.range(of: ",#"),
-               let rangeA = style.range(of: "background:radial-gradient(#") {
-                let hex = String(style[rangeA.upperBound..<rangeB.lowerBound])
-                if hex.count == 6, let red = Int(hex.prefix(2), radix: 16),
-                   let green = Int(hex.prefix(4).suffix(2), radix: 16),
-                   let blue = Int(hex.suffix(2), radix: 16) {
+            // The gradient's last stop is the tag's colour (its first, on E-Hentai, is that colour darkened); it
+            // stands in for the tag's My Tags colour until the cached My Tags has loaded (design approved 2026-11-22).
+            if let style = tagLink["style"], let range = style.range(of: "background:radial-gradient(#") {
+                let stops = style[range.upperBound...].prefix(while: { $0 != ")" }).split(separator: ",#")
+                if let hex = stops.last, hex.count == 6, hex.allSatisfy(\.isHexDigit) {
                     contentBackgroundColor = .init(hex: .init(hex))
-                    if (.init(red) * 0.299 + .init(green) * 0.587 + .init(blue) * 0.114) > 151 {
-                        contentTextColor = .secondary
-                    } else {
-                        contentTextColor = .white
-                    }
                 }
             }
             if contentsByNamespace[namespace] == nil {
@@ -317,7 +352,6 @@ private extension Parser {
                 GalleryTag.Content(
                     rawNamespace: namespace, text: contentText,
                     isVotedUp: false, isVotedDown: false,
-                    textColor: contentTextColor,
                     backgroundColor: contentBackgroundColor,
                     voteStrength: tagVoteStrength(cssClasses: tagLink.className)
                 )

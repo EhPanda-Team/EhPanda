@@ -6,6 +6,7 @@ import CookieClient
 import FileClient
 import Foundation
 import LibraryClient
+import MyTagsClient
 import NetworkingFeature
 import OSLogExt
 
@@ -34,6 +35,16 @@ extension SettingReducer {
 
             case .path(.element(id: _, action: .account(.delegate(.pushBlockedUsers)))):
                 return present(&state, .blockedUsers(.init()))
+
+            // My Tags is read again on the host Account switches to (design approved 2026-11-22).
+            case .path(.element(id: _, action: .account(.delegate(.galleryHostChanged)))):
+                return .send(.fetchMyTags)
+
+            case .path(.element(id: _, action: .account(.delegate(.pushMyTags)))):
+                return present(&state, .myTags(.init()))
+
+            case .path(.element(id: _, action: .myTags(.delegate(.pushLogin)))):
+                return present(&state, .login(.init()))
 
             case .path(.element(id: _, action: .general(.delegate(.pushAppActivityLogs)))):
                 return present(&state, .appActivityLogs(.init()))
@@ -227,6 +238,24 @@ extension SettingReducer {
                 }
                 return .none
 
+            case .fetchMyTags:
+                guard cookieClient.didLogin else { return .none }
+                let host = state.setting.galleryHost
+                return .run { send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await myTagsClient.fetchMyTags(host)
+                    }
+                    await send(.fetchMyTagsDone(result))
+                }
+
+            // The cache keeps the tag sets and the set last chosen on My Tags; the edit API's credentials stay with
+            // the My Tags page, which fetches its own. A failed fetch keeps the cache it had.
+            case .fetchMyTagsDone(let result):
+                if case .success(let response) = result {
+                    state.$user.withLock({ $0.myTags = response.myTags.selecting($0.myTags?.selectedTagSetID) })
+                }
+                return .none
+
             // Login is a top-level stack element; it self-dismisses on success while Setting runs
             // the post-login setup.
             case .path(.element(id: _, action: .login(.loginDone))):
@@ -237,6 +266,7 @@ extension SettingReducer {
                     .send(.fetchIgneous),
                     .send(.fetchUserInfo),
                     .send(.fetchFavoriteCategories),
+                    .send(.fetchMyTags),
                     .send(.fetchEhProfileIndex)
                 )
 

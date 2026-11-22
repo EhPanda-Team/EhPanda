@@ -179,7 +179,9 @@ public struct QuickSearchView: View {
             submitAction: onTextFieldSubmitted,
             confirmAction: {
                 store.send(kind == .new ? .appendSavedSearch : .editSavedSearch)
-            }
+            },
+            tagTranslator: store.tagTranslator,
+            setting: store.setting
         )
     }
 }
@@ -192,17 +194,22 @@ extension QuickSearchView {
         private let focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding
         private let submitAction: () -> Void
         private let confirmAction: () -> Void
+        private let tagTranslator: TagTranslator
+        private let setting: Setting
 
         init(
             title: LocalizedStringResource, savedSearch: Binding<SavedSearch>,
             focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding,
-            submitAction: @escaping () -> Void, confirmAction: @escaping () -> Void
+            submitAction: @escaping () -> Void, confirmAction: @escaping () -> Void,
+            tagTranslator: TagTranslator, setting: Setting
         ) {
             self.title = title
             _savedSearch = savedSearch
             self.focusedField = focusedField
             self.submitAction = submitAction
             self.confirmAction = confirmAction
+            self.tagTranslator = tagTranslator
+            self.setting = setting
         }
 
         var body: some View {
@@ -216,6 +223,15 @@ extension QuickSearchView {
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
                         .focused(focusedField, equals: .content)
+                    // The editor's text is left as typed (`.textEditor`): rewriting it while a Chinese or
+                    // Japanese composition is open would break the composition.
+                    TagSuggestionView(
+                        keyword: $savedSearch.content,
+                        translations: tagTranslator.translations,
+                        showsImages: setting.showImagesInTags,
+                        isEnabled: setting.showTagsSearchSuggestion,
+                        source: .textEditor
+                    )
                 }
             }
             .scrollEdgeEffectStyle(.soft, for: .top)

@@ -11,6 +11,9 @@ struct ReadingToolbar: ToolbarContent {
     let autoPlayHandler: AutoPlayHandler
     let title: String
     let isLandscape: Bool
+    /// Whether the open gallery is a webtoon read vertically (D-02), which leaves the two-page controls nothing to
+    /// change: the menu is disabled, as the reading settings lock their direction picker (D-03).
+    let forcesVerticalReading: Bool
     let dismissAction: () -> Void
     let navigateSettingAction: () -> Void
     let reloadAllImagesAction: () -> Void
@@ -75,8 +78,9 @@ struct ReadingToolbar: ToolbarContent {
                     .disabled(!setting.usesHorizontalDualPages)
                 } label: {
                     Label(.dualPageMode, systemSymbol: .rectangleSplit2x1)
-                        .symbolVariant(setting.usesHorizontalDualPages ? .fill : .none)
+                        .symbolVariant(setting.usesHorizontalDualPages && !forcesVerticalReading ? .fill : .none)
                 }
+                .disabled(forcesVerticalReading)
             }
         }
         ToolbarItem(placement: .topBarTrailing) {

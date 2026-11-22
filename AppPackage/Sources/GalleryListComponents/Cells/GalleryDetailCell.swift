@@ -58,6 +58,7 @@ public struct GalleryDetailCell: View {
 private struct GalleryDetailCellContent: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @SharedReader(.setting) private var setting: Setting
+    @SharedReader(.user) private var user: User
 
     private let gallery: Gallery
     private let resolvedCoverURL: URL?
@@ -243,8 +244,10 @@ private struct GalleryDetailCellContent: View {
                     imageURL: translation?.valueImageURL,
                     showsImages: setting.showImagesInTags,
                     font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
-                    textColor: content.backgroundColor != nil ? content.textColor ?? .secondary : .secondary,
-                    backgroundColor: content.backgroundColor ?? tagColor
+                    // The chip keeps the cell's colours; a tag in My Tags carries its symbol instead (design approved
+                    // 2026-11-22).
+                    textColor: .secondary, backgroundColor: tagColor,
+                    myTag: content.myTagHighlight(in: user.myTags)
                 )
             }
         }
@@ -258,9 +261,22 @@ private struct GalleryDetailCellContent: View {
                     Text(.accessibilityRatingSummary(rating: gallery.rating.halfRounded))
                 }
 
-            pageCountOrDownloadBadge
+            pageCountWithFavoriteHeart
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// The heart precedes the page count of a favorite; a row that is not one is exactly the page count.
+    @ContentBuilder private var pageCountWithFavoriteHeart: some View {
+        if gallery.isFavorite {
+            HStack(spacing: 8) {
+                GalleryFavoriteHeart(gallery: gallery)
+                    .font(.footnote)
+                pageCountOrDownloadBadge
+            }
+        } else {
+            pageCountOrDownloadBadge
+        }
     }
 
     @ContentBuilder private var pageCountOrDownloadBadge: some View {
@@ -297,6 +313,8 @@ private struct GalleryDetailCellContent: View {
             CategoryLabel(text: gallery.category.value, color: gallery.color(host: setting.galleryHost))
 
             Text(gallery.formattedDateString)
+                // The site strikes the date of an expunged gallery through; so does the row.
+                .strikethrough(gallery.isExpunged)
                 .lineLimit(statLineLimit)
                 .font(.footnote)
                 .foregroundStyle(.secondary)

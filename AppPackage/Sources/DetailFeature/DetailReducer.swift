@@ -9,6 +9,8 @@ import DownloadClient
 public import Foundation
 import GalleryClient
 import HapticsClient
+public import MyTagEditor
+import MyTagsClient
 public import NetworkingFeature
 public import ReadingFeature
 public import SwiftUI
@@ -39,6 +41,8 @@ public struct DetailReducer: Sendable {
         @ReducerCaseIgnored case tagDetail(TagDetail)
         /// EhPanda's Report form, opened from a comment's Report in the strip (18.1 D-01).
         case reportForm(ReportFormFeature)
+        /// Add Tag, opened from a tag's Add to My Tags (design approved 2026-11-22).
+        case myTagEditor(MyTagEditorFeature)
     }
 
     public enum Alert: Equatable, Sendable {
@@ -59,15 +63,18 @@ public struct DetailReducer: Sendable {
         case postComment(String)
         case voteTag(String)
         case voteComment(String)
+        case myTags(String)
     }
 
     @ObservableState
     public struct State: Equatable {
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
-        @SharedReader(.user) public var user: User
+        // Shared, not read-only: Remove from My Tags writes the account's cached My Tags.
+        @Shared(.user) public var user: User
         @SharedReader(.setting) public var setting: Setting
         @Presents public var destination: Destination.State?
         @Presents public var alert: AppAlertState<Alert>?
+        @Presents public var toast: AppAlertState<Never>?
         public var moderation: CommentModerationFeature.State
         public var commentContent = ""
         public var postCommentFocused = false
@@ -100,6 +107,9 @@ public struct DetailReducer: Sendable {
         public var downloadFolders = [String]()
         public var isPreparingDownload = false
         public var hasLoadedDownloadBadge = false
+        /// The page the reader resumes at (the browsing history's saved page, 0 when the gallery was never read),
+        /// shown on the Read button. Refreshed when the screen is presented and when the reader closes.
+        public var readingProgress = 0
 
         var cancellationGalleryID: String {
             gid.isEmpty ? gallery.id : gid
@@ -224,13 +234,22 @@ public struct DetailReducer: Sendable {
         case fetchVersionMetadataIfNeeded
         case fetchVersionMetadataDone(Result<DownloadVersionMetadata?, AppError>)
         case rateGallery
+        case rateGalleryDone(Result<Void, AppError>)
         case favorGallery(Int)
+        case favorGalleryDone(Result<Void, AppError>, favIndex: Int)
         case unfavorGallery
+        case unfavorGalleryDone(Result<Void, AppError>)
         case postComment(URL)
         /// The editor's Post: sends the comment and closes the editor, or holds both for the posting warning.
         case postTapped
         case moderation(CommentModerationFeature.Action)
         case voteTag(tag: String, weight: Int)
+        /// A tag's Add to My Tags: opens Add Tag with the tag filled in, for the tag set last chosen on My Tags.
+        case addTagToMyTagsTapped(name: String)
+        /// A tag's Remove from My Tags: removes the tag from the tag set last chosen on My Tags, at once.
+        case removeTagFromMyTags(tagID: Int)
+        case removeTagFromMyTagsDone(Result<MyTagsPage, AppError>)
+        case toast(PresentationAction<Never>)
         /// A vote cast from a comment card's menu; the same vote the comments screen sends.
         case voteComment(commentID: String, vote: Int)
         case voteCommentDone(commentID: String, result: Result<GalleryCommentVoteResponse, AppError>)
@@ -248,6 +267,7 @@ public struct DetailReducer: Sendable {
     @Dependency(\.galleryClient) var galleryClient
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient
+    @Dependency(\.myTagsClient) var myTagsClient
     @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient
     @Dependency(\.date) var date
     @Dependency(\.commentFilterTerms) var commentFilterTerms
@@ -273,6 +293,8 @@ extension DetailReducer {
             galleryOpsReducer
                 .ifLet(\.$destination, action: \.destination)
                 .ifLet(\.$alert, action: \.alert)
+            myTagsReducer
+                .ifLet(\.$toast, action: \.toast)
         }
         .signalsErrors(of: \.loadingState.failed, on: .detail)
     }
@@ -304,6 +326,34 @@ extension DetailReducer {
 }
 
 extension DetailReducer.State {
+    /// Records the favorites slot the site just accepted (`nil` after an unfavorite) on the gallery and on its
+    /// detail, so the header's heart takes the slot's colour before the page is refetched.
+    mutating func setFavoriteSlot(_ slot: Int?) {
+        let name = slot.map { user.favoriteCategories?[$0] ?? "Favorites \($0)" }
+        gallery.favoriteTagIndex = slot
+        gallery.favoriteTagName = name
+        galleryDetail?.favoriteTagIndex = slot
+        galleryDetail?.favoriteTagName = name
+    }
+
+    /// Takes the favorite slot and the user's own rating from a freshly fetched detail page, which is the site's
+    /// word on both. The page names its slot and the parser reads the number off the slot's icon; a renamed slot
+    /// whose icon could not be read is found through the user's own folder names. A page that no longer says
+    /// favorite clears a slot kept from before.
+    mutating func applyFavoriteState(from detail: GalleryDetail) {
+        var resolved = detail
+        if detail.isFavorited, let name = detail.favoriteTagName {
+            resolved.favoriteTagIndex = detail.favoriteTagIndex ?? user.favoriteSlot(named: name)
+        } else {
+            resolved.favoriteTagIndex = nil
+            resolved.favoriteTagName = nil
+        }
+        galleryDetail = resolved
+        gallery.favoriteTagIndex = resolved.favoriteTagIndex
+        gallery.favoriteTagName = resolved.favoriteTagName
+        gallery.hasRated = detail.userRating > 0
+    }
+
     // Pre-populated from a local download so a downloaded gallery renders instantly and offline;
     // the live download observation keeps the state in sync afterwards. Shared by the Downloads
     // tab's inline push and the app-level modal presentation (iPad / deep link).

@@ -23,6 +23,14 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                // The picker keeps showing the user's own direction while a webtoon is read vertically; the footer
+                // says why it is locked and how to undo it (D-03).
+                .disabled(store.locksDirection)
+
+                Toggle(
+                    .alwaysReadWebtoonsVertically,
+                    isOn: Binding(store.sharedSetting.alwaysReadsWebtoonsVertically)
+                )
 
                 Picker(.preloadLimit, selection: Binding(store.sharedSetting.prefetchLimit)) {
                     ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
@@ -30,6 +38,10 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+            } footer: {
+                if store.locksDirection {
+                    Text(.directionLockedByWebtoon)
+                }
             }
             Section {
                 Toggle(.matchScreenOrientation, isOn: Binding(store.sharedSetting.readingOrientation.isEnabled))
@@ -68,7 +80,8 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
-                .disabled(store.setting.readingDirection != .vertical)
+                // Page spacing applies to the vertical strip, which a webtoon read vertically uses too.
+                .disabled(store.setting.readingDirection != .vertical && !store.locksDirection)
 
                 ScaleFactorRow(
                     scaleFactor: Binding(store.sharedSetting.maximumScaleFactor),

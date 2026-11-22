@@ -231,20 +231,30 @@ private let formURLEncodedAllowedCharacters: CharacterSet = {
     return allowed
 }()
 
-extension Dictionary where Key == String, Value == String {
-    /// Renders the pairs as an `application/x-www-form-urlencoded` body.
+extension Array where Element == URLQueryItem {
+    /// Renders the items, in their order, as an `application/x-www-form-urlencoded` body; a nil value is sent empty.
     ///
-    /// Each key and value is percent-encoded individually; the result is ready for `httpBody` and
-    /// must not be encoded again, which would double-escape every `%` it already contains.
-    public func dictString() -> String {
-        let pairs = map { key, value in
+    /// Each name and value is percent-encoded individually; the result is ready for `httpBody` and
+    /// must not be encoded again, which would double-escape every `%` it already contains. The order is kept and a
+    /// name may repeat, as a form's `name[]` fields do.
+    public func formURLEncodedString() -> String {
+        let pairs = map { item in
+            let value = item.value ?? ""
             // `addingPercentEncoding` is only Optional as a legacy of NSString and cannot fail for a
             // set this narrow; the raw component is a best-effort fallback rather than a silent path.
-            let encodedKey = key.addingPercentEncoding(withAllowedCharacters: formURLEncodedAllowedCharacters)
+            let encodedName = item.name.addingPercentEncoding(withAllowedCharacters: formURLEncodedAllowedCharacters)
             let encodedValue = value.addingPercentEncoding(withAllowedCharacters: formURLEncodedAllowedCharacters)
-            return (encodedKey ?? key) + "=" + (encodedValue ?? value)
+            return (encodedName ?? item.name) + "=" + (encodedValue ?? value)
         }
         return pairs.joined(separator: "&")
+    }
+}
+
+extension Dictionary where Key == String, Value == String {
+    /// Renders the pairs as an `application/x-www-form-urlencoded` body, in the dictionary's order, through
+    /// `formURLEncodedString()`.
+    public func dictString() -> String {
+        map({ URLQueryItem(name: $0.key, value: $0.value) }).formURLEncodedString()
     }
 }
 

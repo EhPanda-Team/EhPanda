@@ -47,6 +47,7 @@ extension DetailReducer {
                         state.previewConfig = config
                     }
                     state.userRating = Int(response.galleryDetail.userRating * 2)
+                    state.applyFavoriteState(from: response.galleryDetail)
                     if shouldRequestVersionMetadata(state: state) {
                         effects.append(.send(.fetchVersionMetadataIfNeeded))
                     }
@@ -132,7 +133,7 @@ extension DetailReducer {
                         )
                         .response()
                     }
-                    await send(.anyGalleryOpsDone(result))
+                    await send(.rateGalleryDone(result))
                 }
                 .cancellable(id: CancelID.rateGallery(state.cancellationGalleryID))
 
@@ -150,7 +151,7 @@ extension DetailReducer {
                         )
                         .response()
                     }
-                    await send(.anyGalleryOpsDone(result))
+                    await send(.favorGalleryDone(result, favIndex: favIndex))
                 }
                 .cancellable(id: CancelID.favorGallery(state.cancellationGalleryID))
 
@@ -159,9 +160,29 @@ extension DetailReducer {
                     let result = await Result.Swift::init { () async throws(AppError) in
                         try await UnfavorGalleryRequest(host: host, gid: galleryID).response()
                     }
-                    await send(.anyGalleryOpsDone(result))
+                    await send(.unfavorGalleryDone(result))
                 }
                 .cancellable(id: CancelID.unfavorGallery(state.cancellationGalleryID))
+
+            // A gesture the site accepted is applied at once (the favorite button's colour, the rated mark); the
+            // detail page the success then refetches confirms it.
+            case .rateGalleryDone(let result):
+                if case .success = result {
+                    state.gallery.hasRated = true
+                }
+                return .send(.anyGalleryOpsDone(result))
+
+            case .favorGalleryDone(let result, let favIndex):
+                if case .success = result {
+                    state.setFavoriteSlot(favIndex)
+                }
+                return .send(.anyGalleryOpsDone(result))
+
+            case .unfavorGalleryDone(let result):
+                if case .success = result {
+                    state.setFavoriteSlot(nil)
+                }
+                return .send(.anyGalleryOpsDone(result))
 
             case .postComment(let galleryURL):
                 guard !state.commentContent.isEmpty else { return .none }

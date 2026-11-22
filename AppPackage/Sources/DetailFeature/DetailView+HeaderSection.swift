@@ -33,6 +33,10 @@ struct HeaderSection: View {
     let createDefaultFolderAction: () -> Void
     let favorAction: (Int) -> Void
     let unfavorAction: () -> Void
+    /// The page the reader resumes at; 0 for a gallery that was never read.
+    let readingProgress: Int
+    /// Whether the reader's full-screen cover is on screen, from its presentation until it has finished closing.
+    let isReaderOnScreen: Bool
     let navigateReadingAction: () -> Void
     let readButtonFocus: AccessibilityFocusState<Bool>.Binding
     let navigateUploaderAction: () -> Void
@@ -64,6 +68,14 @@ struct HeaderSection: View {
     // button's own metric, so the ring keeps its place and weight as the button grows.
     @ScaledMetric(relativeTo: .callout) private var progressRingLineWidth: CGFloat = 2.5
     @ScaledMetric(relativeTo: .callout) private var progressRingInset: CGFloat = 4
+    // 4pt in from the Read button's edge and 2.5pt thick at default (.large), the download ring's inset and stroke, so
+    // the two rings match (design decision, 2026-11-21). Both scale with the button, which scales on the same metric,
+    // so the ring keeps its place at every size.
+    @ScaledMetric(relativeTo: .callout) private var readRingInset: CGFloat = 4
+    @ScaledMetric(relativeTo: .callout) private var readRingLineWidth: CGFloat = 2.5
+    /// The ring's length while the reader is on screen: the page it was opened at, kept until the cover has finished
+    /// closing so the growth to the new page is seen whole. `nil` draws the current progress.
+    @State private var heldReadFraction: Double?
 
     private var title: String {
         var titledGallery = gallery
@@ -199,6 +211,12 @@ struct HeaderSection: View {
             .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             .contentShape(.circle)
     }
+    /// The colour of the slot the gallery is favorited in: the detail page's own reading, else the one the list
+    /// row it was opened from carried; the accent colour when neither says which slot.
+    private var favoriteColor: Color {
+        Defaults.FavoriteColor.color(at: galleryDetail.favoriteTagIndex ?? gallery.favoriteTagIndex)
+            ?? Color.accentColor
+    }
     private var favoriteButton: some View {
         Menu {
             ForEach(0..<10) { index in
@@ -223,6 +241,8 @@ struct HeaderSection: View {
                     .font(heartIconFont)
                     .frame(width: actionIconButtonSize, height: actionIconButtonSize)
             }
+            // The heart takes the colour of the favorites slot the gallery is in.
+            .tint(favoriteColor)
             .accessibilityLabel(.accessibilityRemoveFromFavorites)
             .accessibilityAddTraits(.isSelected)
             .animation(.default) {
@@ -244,7 +264,60 @@ struct HeaderSection: View {
         }
         .buttonStyle(.glassProminent)
         .buttonBorderShape(.circle)
+        .overlay {
+            readProgressRing
+        }
+        .onChange(of: isReaderOnScreen, initial: true) { _, isReaderOnScreen in
+            holdReadProgressRing(isReaderOnScreen)
+        }
+        // The control stays "Read" for VoiceOver and Voice Control; the saved page and the total are its value.
+        .accessibilityValue(readButtonAccessibilityValue)
         .accessibilityFocused(readButtonFocus)
+    }
+    /// How far through the gallery the reader resumes, as a ring inside the Read button: a faint track and a solid arc
+    /// from 12 o'clock clockwise. A gallery that was never read has no ring. The arc grows to its new length once the
+    /// reader's cover has finished closing (see ``holdReadProgressRing(_:)``), unless Reduce Motion is on.
+    private var readProgressRing: some View {
+        Circle()
+            .stroke(.white.opacity(0.35), lineWidth: readRingLineWidth)
+            .overlay {
+                Circle()
+                    .trim(from: 0, to: drawnReadFraction)
+                    .stroke(.white, style: .init(lineWidth: readRingLineWidth, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+            // The stroke is centred on its path, so the path sits half a line width past the inset.
+            .padding(readRingInset + readRingLineWidth / 2)
+            // No ring at length 0. The track shows the moment the arc starts growing rather than fading in under it.
+            .animation(nil) {
+                $0.opacity(drawnReadFraction > 0 ? 1 : 0)
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+    private var drawnReadFraction: Double {
+        ReadProgress.drawnLength(fraction: readProgressFraction, held: heldReadFraction)
+    }
+    /// Holds the ring at its length while the reader is on screen and lets it go once the cover has finished closing,
+    /// so the arc grows from the length last drawn (0 for a gallery read for the first time) to the new page.
+    private func holdReadProgressRing(_ isReaderOnScreen: Bool) {
+        if isReaderOnScreen {
+            heldReadFraction = drawnReadFraction
+        } else if heldReadFraction != nil {
+            withAnimation(reduceMotion ? nil : ReadProgress.growth) {
+                heldReadFraction = nil
+            }
+        }
+    }
+    /// The gallery's page count: the detail page's once it is fetched, the row's until then.
+    private var readPageCount: Int {
+        galleryDetail.pageCount > 0 ? galleryDetail.pageCount : gallery.pageCount
+    }
+    private var readProgressFraction: Double? {
+        ReadProgress.fraction(page: readingProgress, pageCount: readPageCount)
+    }
+    private var readButtonAccessibilityValue: String {
+        ReadProgress.accessibilityValue(page: readingProgress, pageCount: readPageCount)
     }
     /// The download ring, drawn over the whole glass button rather than inside its label: a track in the tint at
     /// 18 % and an arc in the tint from 12 o'clock clockwise for the pages saved, so an arc of 0 draws nothing.
@@ -487,7 +560,8 @@ private struct DownloadRingDashes: Shape {
 @MainActor private func previewHeaderSection(
     readButtonFocus: AccessibilityFocusState<Bool>.Binding,
     downloadBadge: DownloadBadge? = nil,
-    downloadNeedsRepair: Bool = false
+    downloadNeedsRepair: Bool = false,
+    readingProgress: Int = 0
 ) -> some View {
     HeaderSection(
         gallery: .preview,
@@ -506,6 +580,8 @@ private struct DownloadRingDashes: Shape {
         createDefaultFolderAction: {},
         favorAction: { _ in },
         unfavorAction: {},
+        readingProgress: readingProgress,
+        isReaderOnScreen: false,
         navigateReadingAction: {},
         readButtonFocus: readButtonFocus,
         navigateUploaderAction: {}
@@ -590,5 +666,14 @@ private struct DownloadRingDashes: Shape {
             ),
             downloadNeedsRepair: true
         )
+    }
+}
+
+#Preview("Resumes at page 12 of 114") {
+    @Previewable @AccessibilityFocusState var readButtonFocused: Bool
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewHeaderSection(readButtonFocus: $readButtonFocused, readingProgress: 12)
     }
 }

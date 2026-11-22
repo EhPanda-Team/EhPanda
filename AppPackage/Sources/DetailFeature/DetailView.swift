@@ -4,11 +4,13 @@ import AppTools
 public import ComposableArchitecture
 import CookieClient
 import Kingfisher
+import MyTagEditor
 import ReadingFeature
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
 public import SwiftUI
+import SystemNotification
 import TagTranslationFeature
 
 public struct DetailView: View {
@@ -16,6 +18,8 @@ public struct DetailView: View {
     @AccessibilityFocusState private var readButtonFocused: Bool
     @State private var isHeaderVisible = true
     @State private var readingOrigin: ReadingOrigin?
+    /// From the reader's presentation until its cover has finished closing; the Read button's ring grows only after.
+    @State private var isReaderOnScreen = false
     // Internal (not private): the toolbar() extension in DetailView+Navigation.swift reads it too.
     @SharedReader(.didLogin) var didLogin: Bool
     @Bindable var store: StoreOf<DetailReducer>
@@ -48,7 +52,14 @@ public struct DetailView: View {
             .onChange(of: store.hasLoadedDownloadBadge) { _, _ in
                 runLaunchAutomationIfNeeded()
             }
+            // Raised with the reader's destination; lowered only by the cover's `onDismiss`, once it has closed.
+            .onChange(of: store.destination?.is(\.reading) == true) { _, isReading in
+                if isReading {
+                    isReaderOnScreen = true
+                }
+            }
             .appAlert($store.scope(\.$alert, action: \.alert))
+            .toast($store.scope(\.$toast, action: \.toast))
             .navigationTitle(navigationTitle)
             .toolbarTitleDisplayMode(.inline)
             .toolbar(removing: isHeaderVisible || store.galleryDetail == nil ? .title : nil)
@@ -96,6 +107,8 @@ private extension DetailView {
                     createDefaultFolderAction: { store.send(.createDefaultFolder) },
                     favorAction: { store.send(.favorGallery($0)) },
                     unfavorAction: { store.send(.unfavorGallery) },
+                    readingProgress: store.readingProgress,
+                    isReaderOnScreen: isReaderOnScreen,
                     navigateReadingAction: {
                         readingOrigin = .headerRead
                         store.send(.openReading)
@@ -143,7 +156,10 @@ private extension DetailView {
                 if !store.galleryTags.isEmpty {
                     TagsSection(
                         tags: store.galleryTags, showsImages: store.setting.showImagesInTags,
+                        myTags: store.user.myTags,
                         voteTagAction: { store.send(.voteTag(tag: $0, weight: $1)) },
+                        addToMyTagsAction: { store.send(.addTagToMyTagsTapped(name: $0)) },
+                        removeFromMyTagsAction: { store.send(.removeTagFromMyTags(tagID: $0)) },
                         navigateSearchAction: { store.send(.tagSearchTapped(keyword: $0, namespace: $1)) },
                         navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
                         translateAction: {
@@ -242,6 +258,11 @@ private extension DetailView {
                 ReportFormView(store: store)
                     .privacyMask()
             }
+            // Add Tag, from a tag's Add to My Tags (design approved 2026-11-22).
+            .sheet(item: $store.scope(\.$destination, action: \.destination).myTagEditor) { store in
+                MyTagEditorView(store: store)
+                    .privacyMask()
+            }
             .sheet(item: $store.destination.newDawn) { greeting in
                 NewDawnView(greeting: greeting.wrappedValue)
                     .privacyMask()
@@ -257,6 +278,7 @@ private extension DetailView {
             .fullScreenCover(
                 item: $store.scope(\.$destination, action: \.destination).reading,
                 onDismiss: {
+                    isReaderOnScreen = false
                     if readingOrigin == .headerRead {
                         readButtonFocused = true
                     }

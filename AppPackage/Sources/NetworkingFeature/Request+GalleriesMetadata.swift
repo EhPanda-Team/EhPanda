@@ -26,9 +26,11 @@ private struct GalleryMetadata: Decodable {
     let filecount: String?
     let rating: String?
     let tags: [String]?
+    /// Whether the site has expunged the gallery; absent on older responses, which reads as not expunged.
+    let expunged: Bool?
 
     private enum CodingKeys: String, CodingKey {
-        case gid, token, error, title, category, thumb, uploader, posted, filecount, rating, tags
+        case gid, token, error, title, category, thumb, uploader, posted, filecount, rating, tags, expunged
         case jpnTitle = "title_jpn"
     }
 
@@ -59,7 +61,8 @@ private struct GalleryMetadata: Decodable {
             galleryURL: host.url
                 .appending(path: "g")
                 .appending(path: String(gid))
-                .appending(path: token)
+                .appending(path: token),
+            isExpunged: expunged ?? false
         )
     }
 

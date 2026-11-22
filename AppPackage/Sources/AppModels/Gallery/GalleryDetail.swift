@@ -23,7 +23,10 @@ public struct GalleryDetail: Codable, Equatable, Sendable {
         pageCount: Int,
         sizeCount: Float,
         sizeType: String,
-        torrentCount: Int
+        torrentCount: Int,
+        favoriteTagIndex: Int? = nil,
+        favoriteTagName: String? = nil,
+        userRatingTint: UserRatingTint? = nil
     ) {
         self.gid = gid
         self.title = title
@@ -45,6 +48,9 @@ public struct GalleryDetail: Codable, Equatable, Sendable {
         self.sizeCount = sizeCount
         self.sizeType = sizeType
         self.torrentCount = torrentCount
+        self.favoriteTagIndex = favoriteTagIndex
+        self.favoriteTagName = favoriteTagName
+        self.userRatingTint = userRatingTint
     }
     public static let empty: Self = .init(
         gid: "", title: "", isFavorited: false,
@@ -106,6 +112,12 @@ public struct GalleryDetail: Codable, Equatable, Sendable {
     public var sizeCount: Float
     public var sizeType: String
     public var torrentCount: Int
+    /// The favorites slot (0...9) the gallery sits in, when the page says which.
+    public var favoriteTagIndex: Int?
+    /// The slot's name as the page shows it (nil when the gallery is not a favorite).
+    public var favoriteTagName: String?
+    /// The colour of the user's own rating on the page, when they have rated.
+    public var userRatingTint: UserRatingTint?
 }
 
 extension GalleryDetail: DateFormattable {

@@ -75,7 +75,6 @@ public struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
             text: String,
             isVotedUp: Bool,
             isVotedDown: Bool,
-            textColor: Color? = nil,
             backgroundColor: Color? = nil,
             voteStrength: VoteStrength? = nil
         ) {
@@ -83,7 +82,6 @@ public struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
             self.text = text
             self.isVotedUp = isVotedUp
             self.isVotedDown = isVotedDown
-            self.textColor = textColor
             self.backgroundColor = backgroundColor
             self.voteStrength = voteStrength
         }
@@ -105,7 +103,7 @@ public struct GalleryTag: Codable, Equatable, Hashable, Identifiable, Sendable {
         public let text: String
         public let isVotedUp: Bool
         public let isVotedDown: Bool
-        public let textColor: Color?
+        /// The tag's colour on a list page, which stands in for its My Tags colour until the cache has loaded.
         public let backgroundColor: Color?
         /// Nil preserves old cached records without inventing a vote strength.
         public let voteStrength: VoteStrength?

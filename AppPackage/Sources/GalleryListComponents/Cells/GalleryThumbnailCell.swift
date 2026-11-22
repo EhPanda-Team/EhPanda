@@ -15,6 +15,7 @@ public struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @SharedReader(.setting) private var setting: Setting
+    @SharedReader(.user) private var user: User
 
     /// At non-accessibility sizes, the badge's inward corner is cut into the cover rather than
     /// drawn by the badge itself, so it scales against the badge's own text style: a 15pt notch
@@ -70,8 +71,10 @@ public struct GalleryThumbnailCell: View {
                             imageURL: translation?.valueImageURL,
                             showsImages: setting.showImagesInTags,
                             font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
-                            textColor: content.backgroundColor != nil ? content.textColor ?? .secondary : .secondary,
-                            backgroundColor: content.backgroundColor ?? tagColor
+                            // The chip keeps the cell's colours; a tag in My Tags carries its symbol instead (design
+                            // approved 2026-11-22).
+                            textColor: .secondary, backgroundColor: tagColor,
+                            myTag: content.myTagHighlight(in: user.myTags)
                         )
                     }
                 }
@@ -178,7 +181,7 @@ public struct GalleryThumbnailCell: View {
         )
     }
 
-    /// The cell's stat group, spread across it: page count (or the download badge) leading,
+    /// The cell's stat group, spread across it: page count (or the download badge) and a favorite's heart leading,
     /// language trailing. The flexible frame that spreads it lives here rather than inside the
     /// arrangement below, because inside a `ViewThatFits` candidate it would absorb the overflow
     /// and every candidate would then measure as fitting.
@@ -211,14 +214,14 @@ public struct GalleryThumbnailCell: View {
     @ContentBuilder private var pageCountAndLanguageArrangement: some View {
         if dynamicTypeSize <= .large {
             HStack(spacing: 10) {
-                pageCountOrDownloadBadge
+                pageCountWithFavoriteHeart
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 languageText
             }
         } else {
             AdaptiveStack(hSpaceBetween: true, vSpacing: pairSpacing) {
-                pageCountOrDownloadBadge
+                pageCountWithFavoriteHeart
 
                 languageText
             }
@@ -227,6 +230,19 @@ public struct GalleryThumbnailCell: View {
 
     private var languageText: Text? {
         (gallery.language?.value).map(Text.init)
+    }
+
+    /// A favorite's heart follows the page count (or download badge), 8 apart, in the line's own font and style
+    /// (design decision, 2026-11-21). A cell that is not a favorite is exactly the page count, as before.
+    @ContentBuilder private var pageCountWithFavoriteHeart: some View {
+        if gallery.isFavorite {
+            HStack(spacing: 8) {
+                pageCountOrDownloadBadge
+                GalleryFavoriteHeart(gallery: gallery)
+            }
+        } else {
+            pageCountOrDownloadBadge
+        }
     }
 
     @ContentBuilder private var pageCountOrDownloadBadge: some View {

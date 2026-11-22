@@ -45,6 +45,7 @@ extension ReadingReducer {
             sessionReducer
             positionReducer
             imageFetchReducer
+            webtoonReducer
         }
         .haptics(
             unwrapping: \.destination,
@@ -76,7 +77,9 @@ extension ReadingReducer {
                 return .none
 
             case .presentReadingSetting:
-                state.destination = .readingSetting(.init())
+                // The editor locks its direction picker for a webtoon read vertically, and is kept current should the
+                // verdict land while it is open (webtoonReducer, D-03).
+                state.destination = .readingSetting(.init(galleryIsWebtoon: state.isWebtoon == true))
                 return .none
 
             case .toggleShowsPanel:

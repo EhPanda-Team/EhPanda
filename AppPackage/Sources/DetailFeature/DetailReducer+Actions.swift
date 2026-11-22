@@ -22,6 +22,14 @@ extension DetailReducer {
             case .destination(.presented(.reading(.onPerformDismiss))):
                 return .send(.destination(.dismiss))
 
+            // The reader flushed its page into the history before this dismissal reached the host, so the Read
+            // button's page is read back now rather than left at where the screen opened.
+            case .destination(.dismiss):
+                if case .reading = state.destination {
+                    state.readingProgress = savedReadingProgress(of: state.gallery)
+                }
+                return .none
+
             case .destination:
                 return .none
 
@@ -112,6 +120,12 @@ extension DetailReducer {
         }
     }
 
+    /// The page the browsing history has saved for `gallery`; 0 when it was never read.
+    private func savedReadingProgress(of gallery: Gallery) -> Int {
+        @Shared(.galleryHistory) var galleryHistory
+        return galleryHistory.readingProgress(gid: gallery.id)
+    }
+
     // Presentation-driven lifecycle: every host sends `.onPresented` in the same state transition
     // that installs this screen (a stack push or the app-level modal), replacing the former view
     // `onAppear`. Presentation fires once per screen instead of once per appearance, so the
@@ -122,6 +136,7 @@ extension DetailReducer {
         state.hasLoadedDownloadBadge = false
         state.didRunLaunchAutomation = false
         state.localPreviewURLs = .init()
+        state.readingProgress = savedReadingProgress(of: state.gallery)
         // The gallery is already seeded from the pushing context, so we record the visit and fetch
         // the (always network-sourced) detail directly.
         return .merge(

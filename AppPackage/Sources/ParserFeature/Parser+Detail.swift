@@ -58,6 +58,7 @@ extension Parser {
             let isFavorited = gdfNode
                 .at_xpath("//a [@id='favoritelink']")?
                 .text?.contains("Add to Favorites") == false
+            let favorite = isFavorited ? parseFavoriteSlot(gdfNode: gdfNode) : (index: nil, name: nil)
             let gjText = link.at_xpath("//h1 [@id='gj']")?.text
             let jpnTitle = gjText?.isEmpty != false ? nil : gjText
             let parentURLString = infoPanel.parentURL.isValidURL ? infoPanel.parentURL : ""
@@ -84,7 +85,10 @@ extension Parser {
                 pageCount: pageCount,
                 sizeCount: sizeCount,
                 sizeType: infoPanel.sizeType,
-                torrentCount: arcAndTor.torrentCount
+                torrentCount: arcAndTor.torrentCount,
+                favoriteTagIndex: favorite.index,
+                favoriteTagName: favorite.name,
+                userRatingTint: ratingResult.containsUserRating ? ratingResult.userRatingTint : nil
             )
             tmpGalleryState = GalleryState(
                 gid: gid,
@@ -121,6 +125,31 @@ extension Parser {
 
 // MARK: Helpers
 private extension Parser {
+    /// The favorites slot of a favorited gallery: its name is the favorite link's text, and its number is where
+    /// the icon in `#fav` sits in the site's sprite (19 points per slot from -2), or else the number in the
+    /// site-default name `Favorites N`. A renamed slot with no icon keeps the name and leaves the number to the
+    /// user's own folder names.
+    static func parseFavoriteSlot(gdfNode: any XMLElement) -> (index: Int?, name: String?) {
+        let rawName = gdfNode.at_xpath(".//a[@id='favoritelink']")?.text
+        let name = rawName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let name, !name.isEmpty else { return (nil, nil) }
+        let style = gdfNode.at_xpath(".//div[@id='fav']//div[@style]")?["style"]
+        let spriteSlot = style.flatMap(favoriteSlot(fromSpriteStyle:))
+        return (spriteSlot ?? User.defaultFavoriteSlot(named: name), name)
+    }
+
+    /// `background-position:0px -21px` is slot 1; the first slot sits at -2 and each next one 19 points lower.
+    static func favoriteSlot(fromSpriteStyle style: String) -> Int? {
+        guard let range = style.range(of: "background-position:") else { return nil }
+        let offsets = style[range.upperBound...].prefix(while: { $0 != ";" })
+            .split(separator: " ")
+            .compactMap({ Int($0.replacing("px", with: "")) })
+        guard let vertical = offsets.last else { return nil }
+        let steps = -vertical - 2
+        guard steps >= 0, steps % 19 == 0, steps / 19 < 10 else { return nil }
+        return steps / 19
+    }
+
     static func parsePreviewMode(doc: any HTMLDocument) throws -> String {
         if doc.at_xpath("//div [@class='gt100']") != nil {
             return "gt100"
@@ -177,7 +206,6 @@ private extension Parser {
                         rawNamespace: namespace, text: text,
                         isVotedUp: aClass == "tup",
                         isVotedDown: aClass == "tdn",
-                        textColor: nil,
                         backgroundColor: nil,
                         voteStrength: tagVoteStrength(cssClasses: divLink.className)
                     )

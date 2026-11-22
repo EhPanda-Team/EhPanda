@@ -37,6 +37,8 @@ struct HeaderSectionDownloadLabelTests {
                 createDefaultFolderAction: {},
                 favorAction: { _ in },
                 unfavorAction: {},
+                readingProgress: 0,
+                isReaderOnScreen: false,
                 navigateReadingAction: {},
                 readButtonFocus: $readFocus,
                 navigateUploaderAction: {}

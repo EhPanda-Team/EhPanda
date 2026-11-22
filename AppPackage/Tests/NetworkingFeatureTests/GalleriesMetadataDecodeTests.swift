@@ -125,4 +125,31 @@ struct GalleriesMetadataDecodeTests {
         )
         #expect(galleries.isEmpty)
     }
+
+    // The `gdata` entry says whether the site expunged the gallery; a History row built from it shows the
+    // posted date struck through like a list row does.
+    @Test
+    func theExpungedFlagIsCarriedToTheGallery() throws {
+        func entry(gid: Int, expunged: String) -> String {
+            """
+            {
+              "gid": \(gid), "token": "t\(gid)", "title": "T\(gid)", "category": "Manga",
+              "thumb": "https://example.com/\(gid).jpg", "uploader": "u", "posted": "1600000000",
+              "filecount": "1", "rating": "3.0", "tags": []\(expunged)
+            }
+            """
+        }
+        let json = """
+        { "gmetadata": [
+          \(entry(gid: 1, expunged: #", "expunged": true"#)),
+          \(entry(gid: 2, expunged: #", "expunged": false"#)),
+          \(entry(gid: 3, expunged: ""))
+        ] }
+        """
+        let galleries = try GalleriesMetadataRequest.galleries(
+            fromResponseData: Data(json.utf8),
+            host: .ehentai
+        )
+        #expect(galleries.map(\.isExpunged) == [true, false, false])
+    }
 }

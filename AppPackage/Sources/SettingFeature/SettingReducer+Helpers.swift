@@ -42,6 +42,7 @@ extension SettingReducer {
                 .send(.fetchUserInfo),
                 .send(.fetchGreeting),
                 .send(.fetchFavoriteCategories),
+                .send(.fetchMyTags),
                 .send(.fetchEhProfileIndex)
             ])
         }

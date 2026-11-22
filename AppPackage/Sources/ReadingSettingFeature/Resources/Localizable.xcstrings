@@ -42,6 +42,47 @@
         }
       }
     },
+    "always_read_webtoons_vertically": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always Read Webtoons Vertically"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webtoons immer vertikal lesen"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webtoonは常に縦読みで表示"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹툰은 항상 위에서 아래로 읽기"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "条漫一律垂直阅读"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "條漫一律垂直閱讀"
+          }
+        }
+      }
+    },
     "automatic_layout": {
       "extractionState": "manual",
       "localizations": {
@@ -161,6 +202,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "方向"
+          }
+        }
+      }
+    },
+    "direction_locked_by_webtoon": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This gallery is a webtoon, so it is read vertically. To use the direction you chose, turn off Always Read Webtoons Vertically."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Galerie ist ein Webtoon und wird daher vertikal gelesen. Deaktiviere „Webtoons immer vertikal lesen“, um die von dir gewählte Leserichtung zu verwenden."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このギャラリーはWebtoonのため、縦読みで表示しています。選んだ方向で読むには、「Webtoonは常に縦読みで表示」をオフにしてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 갤러리는 웹툰이므로 위에서 아래로 읽습니다. 선택한 방향으로 읽으려면 ‘웹툰은 항상 위에서 아래로 읽기’를 꺼 주세요."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此画廊是条漫，因此以垂直方向阅读。若要使用你选择的方向，请关闭“条漫一律垂直阅读”。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此畫廊是條漫，因此以垂直方向閱讀。若要使用你選擇的方向，請關閉「條漫一律垂直閱讀」。"
           }
         }
       }

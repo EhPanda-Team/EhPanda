@@ -62,14 +62,16 @@ struct ReaderPagesAccessibility: ViewModifier {
         Self.shownPages(at: page, state: store.state, isLandscape: isLandscape)
     }
 
-    /// The pages the position `page` lies in shows, in page order: one, or two in a spread.
+    /// The pages the position `page` lies in shows, in page order: one, or two in a spread. The layout is the one the
+    /// reader reads with (`readingSetting`), so a webtoon read vertically shows one page per position.
     static func shownPages(at page: Int, state: ReadingReducer.State, isLandscape: Bool) -> [Int] {
-        let dataSource = state.containerDataSource(setting: state.setting, isLandscape: isLandscape)
-        let pagerIndex = PageHandler().mapToPager(index: page, setting: state.setting, isLandscape: isLandscape)
+        let setting = state.readingSetting
+        let dataSource = state.containerDataSource(setting: setting, isLandscape: isLandscape)
+        let pagerIndex = PageHandler().mapToPager(index: page, setting: setting, isLandscape: isLandscape)
         guard dataSource.indices.contains(pagerIndex) else { return [] }
         let config = state.imageContainerConfigs(
             index: dataSource[pagerIndex],
-            setting: state.setting,
+            setting: setting,
             isLandscape: isLandscape
         )
         return [
@@ -113,7 +115,7 @@ struct ReaderPagesAccessibility: ViewModifier {
     /// announced as VoiceOver announces a scroll view's page; a turn the bounds stop announces the same position
     /// again, which VoiceOver reports as the border.
     private func scroll(toward edge: Edge) {
-        let step = switch (store.setting.readingDirection, edge) {
+        let step = switch (store.readingSetting.readingDirection, edge) {
         case (.vertical, .bottom), (.leftToRight, .trailing), (.rightToLeft, .leading): 1
         case (.vertical, .top), (.leftToRight, .leading), (.rightToLeft, .trailing): -1
         default: 0

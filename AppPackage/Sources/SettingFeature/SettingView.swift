@@ -102,6 +102,9 @@ public struct SettingView: View {
 
         case .blockedUsers(let blockedUsersStore):
             BlockedUsersView(store: blockedUsersStore)
+
+        case .myTags(let myTagsStore):
+            MyTagsView(store: myTagsStore)
         }
     }
 }

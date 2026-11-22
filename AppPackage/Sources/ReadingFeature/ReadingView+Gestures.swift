@@ -9,7 +9,7 @@ extension ReadingView {
             .onEnded { value in
                 gestureHandler.onSingleTapGestureEnded(
                     location: value.location,
-                    readingDirection: store.setting.readingDirection,
+                    readingDirection: store.readingSetting.readingDirection,
                     setPageIndexOffsetAction: {
                         // The offset sign arrives RTL-corrected from GestureHandler
                         // (`onSingleTapGestureEnded`) — no re-inversion here.

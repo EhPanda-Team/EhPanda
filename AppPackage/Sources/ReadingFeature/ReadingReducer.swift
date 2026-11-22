@@ -92,6 +92,9 @@ public struct ReadingReducer: Sendable {
         /// Every page's size the reader has learned this session. Nothing clears it: reloading a page loads the same
         /// image, so the size the page had still sizes it while it reloads.
         var pageSizes = [Int: KnownPageSize]()
+        /// The open gallery's webtoon verdict (D-07): seeded from the browsing history, decided once from the known
+        /// page sizes while the user reads webtoons vertically (`webtoonReducer`), and `nil` until then.
+        var isWebtoon: Bool?
 
         public var mpvKey: String?
         public var mpvImageKeys = [Int: String]()
@@ -120,11 +123,13 @@ public struct ReadingReducer: Sendable {
             if case .local(let download, let manifest) = contentSource {
                 ReadingReducer().applyLocalSource(state: &self, download: download, manifest: manifest)
             }
-            // Seed the resume page synchronously from the persisted browsing history so the pager is
-            // built at the right page from the start (no post-render jump), and a flush before the first
-            // page turn rewrites that position. No history opens on the first page.
+            // Seed the resume page and the webtoon verdict synchronously from the persisted browsing history, so the
+            // pager is built at the right page and in the right direction from the start (no post-render jump or
+            // switch), and a flush before the first page turn rewrites that position. No history opens on the first
+            // page, in the user's own direction.
             @Shared(.galleryHistory) var galleryHistory
             position = ReaderPosition(page: galleryHistory.readingProgress(gid: self.gallery.id))
+            isWebtoon = galleryHistory.isWebtoon(gid: self.gallery.id)
         }
 
         /// The committed page, which is what the reader saves as its progress. Setting it commits a page without
@@ -145,8 +150,26 @@ public struct ReadingReducer: Sendable {
         /// in, which is what the pager reports once it shows that position.
         func landingPage(of page: Int) -> Int {
             PageHandler().landingPage(
-                of: page, pageCount: gallery.pageCount, setting: setting, isLandscape: layoutIsLandscape ?? false
+                of: page, pageCount: gallery.pageCount, setting: readingSetting,
+                isLandscape: layoutIsLandscape ?? false
             )
+        }
+
+        /// Whether the open gallery is read vertically whatever the user's direction (D-02): the user reads webtoons
+        /// vertically and the gallery is one.
+        var forcesVerticalReading: Bool {
+            setting.forcesVerticalReading(galleryIsWebtoon: isWebtoon == true)
+        }
+
+        /// The setting the reader lays its pages out and turns them with: the user's own, read vertically while
+        /// `forcesVerticalReading` (D-02). Every read of the direction in the reader goes through it, so a webtoon
+        /// never half-switches: the pager or the strip, the spreads, the page maps, tap-to-turn, auto-play, the slider
+        /// and VoiceOver's stepping all follow it. Writes still go to `setting`, whose direction this never changes.
+        var readingSetting: Setting {
+            guard forcesVerticalReading else { return setting }
+            var readingSetting = setting
+            readingSetting.readingDirection = .vertical
+            return readingSetting
         }
 
         /// Builds the pages anew, which starts a new pager generation placed on the page the reader names.
@@ -243,6 +266,10 @@ public struct ReadingReducer: Sendable {
         case presentReadingSetting
         case layoutChanged(isLandscape: Bool, supportsAutomaticLayout: Bool)
         case readingOrientationPreferencesChanged
+        /// The user turned "always read webtoons vertically" on or off. The reading settings write it straight to the
+        /// shared setting, so the view reports it, and the reader decides on the open gallery at once if it can
+        /// (`webtoonReducer`, D-06).
+        case webtoonReadingPreferenceChanged
 
         case toggleShowsPanel
         case onPerformDismiss

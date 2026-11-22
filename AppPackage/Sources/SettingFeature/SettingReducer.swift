@@ -7,6 +7,7 @@ import FileClient
 public import Foundation
 import HapticsClient
 import LibraryClient
+import MyTagsClient
 import ReadingSettingFeature
 public import Sharing
 
@@ -113,6 +114,8 @@ public struct SettingReducer: Sendable {
         case fetchEhProfileIndexDone(host: GalleryHost, result: Result<VerifyEhProfileResponse, AppError>)
         case fetchFavoriteCategories
         case fetchFavoriteCategoriesDone(Result<[Int: String], AppError>)
+        case fetchMyTags
+        case fetchMyTagsDone(Result<MyTagsResponse, AppError>)
         case igneousRefreshed
     }
 
@@ -121,6 +124,7 @@ public struct SettingReducer: Sendable {
     @Dependency(\.cookieClient) var cookieClient
     @Dependency(\.fileClient) var fileClient
     @Dependency(\.dfClient) var dfClient
+    @Dependency(\.myTagsClient) var myTagsClient
 
     public init() {}
 

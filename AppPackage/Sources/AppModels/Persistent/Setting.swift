@@ -21,6 +21,7 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         displayJapaneseTitle: Bool = true,
         readingDirection: ReadingDirection = .vertical,
         readingOrientation: ReadingOrientationPreferences = .init(),
+        alwaysReadsWebtoonsVertically: Bool = false,
         prefetchLimit: Int = 10,
         enableDualPageMode: Bool = false,
         exceptCover: Bool = false,
@@ -45,6 +46,7 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         self.displayJapaneseTitle = displayJapaneseTitle
         self.readingDirection = readingDirection
         self.readingOrientation = readingOrientation
+        self.alwaysReadsWebtoonsVertically = alwaysReadsWebtoonsVertically
         self.prefetchLimit = prefetchLimit
         self.enableDualPageMode = enableDualPageMode
         self.exceptCover = exceptCover
@@ -117,6 +119,9 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         orientationReadingPreferences = try container.decodeIfPresent(
             ReadingOrientationPreferences.self, forKey: .orientationReadingPreferences
         )
+        webtoonVerticalReadingPreference = try container.decodeIfPresent(
+            Bool.self, forKey: .webtoonVerticalReadingPreference
+        )
         exceptCover = try container.decode(Bool.self, forKey: .exceptCover)
         contentDividerHeight = try container.decode(Double.self, forKey: .contentDividerHeight)
         maximumScaleFactor = try container.decode(Double.self, forKey: .maximumScaleFactor)
@@ -143,7 +148,7 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
         case prefetchLimit, enableDualPageMode, orientationReadingPreferences, exceptCover
         case contentDividerHeight, maximumScaleFactor, doubleTapScaleFactor, downloadThreadLimit
         case downloadAllowCellular, downloadAutoRetryFailedPages, ageDeclarationVersion, analyticsLevel
-        case bypassSNIFiltering
+        case bypassSNIFiltering, webtoonVerticalReadingPreference
     }
     // A self-validating field: it rejects a newer/downgrade blob on decode (see `SchemaVersion`), which
     // fails the whole decode so Sharing resets to the key default. Synthesized Codable is otherwise
@@ -189,6 +194,23 @@ public struct Setting: Codable, Equatable, Sendable, MigratableModel {
     public var readingOrientation: ReadingOrientationPreferences {
         get { orientationReadingPreferences ?? .init() }
         set { orientationReadingPreferences = newValue }
+    }
+
+    // Optional storage keeps settings written before the webtoon option decodable; an absent value reads as off.
+    private var webtoonVerticalReadingPreference: Bool?
+
+    /// Reads a gallery the reader finds to be a webtoon vertically, whatever `readingDirection` says, and never
+    /// writes that direction (D-01, D-02). Off by default; turning it on is also what turns the detection on.
+    public var alwaysReadsWebtoonsVertically: Bool {
+        get { webtoonVerticalReadingPreference ?? false }
+        set { webtoonVerticalReadingPreference = newValue }
+    }
+
+    /// Whether a gallery is read vertically whatever `readingDirection` says: the user reads webtoons vertically and
+    /// the gallery is one (D-02). The reader reads it so and the reading settings lock their direction picker for it
+    /// (D-03); both ask here, so the two cannot disagree.
+    public func forcesVerticalReading(galleryIsWebtoon: Bool) -> Bool {
+        alwaysReadsWebtoonsVertically && galleryIsWebtoon
     }
 
     /// Enabling the toolbar's two-page option also selects a horizontal reading direction.

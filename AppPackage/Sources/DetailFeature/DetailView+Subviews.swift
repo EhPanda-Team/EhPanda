@@ -284,6 +284,14 @@ struct ActionSection: View {
         return didLogin
     }
 
+    /// Edit Rating once the site has the user's rating, Rate Gallery before (design decision, 2026-11-21). The
+    /// label reads the fetched page, not the row's `userRating`: a drag across the stars moves only the row's value,
+    /// so a first rating turns it into Edit Rating once the site has accepted it and the page has been fetched again,
+    /// never mid-gesture.
+    private var ratingButtonTitle: LocalizedStringResource {
+        galleryDetail.userRating > 0 ? .editRating : .rateGallery
+    }
+
     var body: some View {
         VStack {
             if dynamicTypeSize.isAccessibilitySize {
@@ -297,8 +305,13 @@ struct ActionSection: View {
             }
             if showUserRating {
                 HStack {
+                    // The user's own rating shows here and nowhere else, in the site's colour for it
+                    // (design decision, 2026-11-21).
                     RatingView(rating: Float(userRating) / 2)
                         .font(.system(size: userRatingSymbolSize))
+                        .foregroundStyle(
+                            galleryDetail.userRatingTint.map({ AnyShapeStyle($0.color) }) ?? AnyShapeStyle(.foreground)
+                        )
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged(updateRatingAction)
@@ -315,7 +328,7 @@ struct ActionSection: View {
         Group {
             Button(action: showUserRatingAction) {
                 Label {
-                    Text(.rateGallery)
+                    Text(ratingButtonTitle)
                         .bold()
                 } icon: {
                     Image(systemSymbol: .squareAndPencil)
@@ -338,9 +351,14 @@ struct ActionSection: View {
     }
 }
 
-@MainActor private func previewActionSection(userRating: Int, showUserRating: Bool) -> some View {
-    ActionSection(
-        galleryDetail: .preview,
+@MainActor private func previewActionSection(
+    siteUserRating: Float, userRatingTint: UserRatingTint?, userRating: Int, showUserRating: Bool
+) -> some View {
+    var galleryDetail = GalleryDetail.preview
+    galleryDetail.userRating = siteUserRating
+    galleryDetail.userRatingTint = userRatingTint
+    return ActionSection(
+        galleryDetail: galleryDetail,
         userRating: userRating,
         showUserRating: showUserRating,
         showUserRatingAction: {},
@@ -354,7 +372,7 @@ struct ActionSection: View {
     withDependencies {
         $0.cookieClient = .previewLoggedIn
     } operation: {
-        previewActionSection(userRating: 0, showUserRating: false)
+        previewActionSection(siteUserRating: 0, userRatingTint: nil, userRating: 0, showUserRating: false)
     }
 }
 
@@ -362,7 +380,23 @@ struct ActionSection: View {
     withDependencies {
         $0.cookieClient = .previewLoggedIn
     } operation: {
-        previewActionSection(userRating: 7, showUserRating: true)
+        previewActionSection(siteUserRating: 0, userRatingTint: nil, userRating: 7, showUserRating: true)
+    }
+}
+
+#Preview("Actions (rated)") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewActionSection(siteUserRating: 3.5, userRatingTint: .green, userRating: 7, showUserRating: false)
+    }
+}
+
+#Preview("Actions (rated, rating shown)") {
+    withDependencies {
+        $0.cookieClient = .previewLoggedIn
+    } operation: {
+        previewActionSection(siteUserRating: 3.5, userRatingTint: .green, userRating: 7, showUserRating: true)
     }
 }
 
@@ -370,7 +404,13 @@ struct ActionSection: View {
 struct TagsSection: View {
     let tags: [GalleryTag]
     let showsImages: Bool
+    /// The account's cached My Tags, whose tags carry their symbol (design approved 2026-11-22).
+    let myTags: MyTags?
     let voteTagAction: (String, Int) -> Void
+    /// Add to My Tags: the tag's full `namespace:tag`.
+    let addToMyTagsAction: (String) -> Void
+    /// Remove from My Tags: the tag's id in the tag set last chosen on My Tags.
+    let removeFromMyTagsAction: (Int) -> Void
     // Carries the tapped tag's namespace alongside the assembled search keyword so the reducer can
     // emit the namespace without parsing it back out of the keyword (which would be tag content).
     let navigateSearchAction: (String, TagNamespace?) -> Void
@@ -381,8 +421,10 @@ struct TagsSection: View {
         VStack(alignment: .leading) {
             ForEach(tags) { tag in
                 TagRow(
-                    tag: tag, showsImages: showsImages,
+                    tag: tag, showsImages: showsImages, myTags: myTags,
                     voteTagAction: voteTagAction,
+                    addToMyTagsAction: addToMyTagsAction,
+                    removeFromMyTagsAction: removeFromMyTagsAction,
                     navigateSearchAction: navigateSearchAction,
                     navigateTagDetailAction: navigateTagDetailAction,
                     translateAction: translateAction
@@ -401,7 +443,10 @@ extension TagsSection {
 
         let tag: GalleryTag
         let showsImages: Bool
+        let myTags: MyTags?
         let voteTagAction: (String, Int) -> Void
+        let addToMyTagsAction: (String) -> Void
+        let removeFromMyTagsAction: (Int) -> Void
         // Mirrors `TagsSection`: the row passes the namespace it already holds for its header text,
         // so no caller has to recover it from the assembled keyword.
         let navigateSearchAction: (String, TagNamespace?) -> Void
@@ -466,7 +511,8 @@ extension TagsSection {
                     imageURL: translation?.valueImageURL,
                     showsImages: showsImages,
                     font: .subheadline, padding: padding, textColor: .primary,
-                    backgroundColor: backgroundColor
+                    backgroundColor: backgroundColor,
+                    myTag: content.myTagHighlight(in: myTags)
                 )
             }
             .contextMenu {
@@ -494,6 +540,31 @@ extension TagsSection {
             }
             if didLogin {
                 tagVoteButtons(content: content)
+                if let tagSet = myTags?.selectedTagSet {
+                    Divider()
+                    myTagsItem(content: content, tagSet: tagSet)
+                }
+            }
+        }
+
+        /// The tag's My Tags item, after the shipped items (design approved 2026-11-22): Remove from My Tags for a tag
+        /// the tag set last chosen on My Tags holds, which removes it at once; otherwise Add to My Tags, which opens
+        /// Add Tag with the tag filled in.
+        @ContentBuilder
+        private func myTagsItem(content: GalleryTag.Content, tagSet: MyTagSet) -> some View {
+            let name = content.myTagsName
+            if let myTag = tagSet.tags.first(where: { $0.name == name }) {
+                Button(role: .destructive) {
+                    removeFromMyTagsAction(myTag.id)
+                } label: {
+                    Label(.RLocalizable.myTagsRemoveFromMyTags, systemSymbol: .tagSlash)
+                }
+            } else {
+                Button {
+                    addToMyTagsAction(name)
+                } label: {
+                    Label(.myTagsAddToMyTags, systemSymbol: .tag)
+                }
             }
         }
 
@@ -542,7 +613,10 @@ extension TagsSection {
                 ])
             ],
             showsImages: false,
+            myTags: nil,
             voteTagAction: { _, _ in },
+            addToMyTagsAction: { _ in },
+            removeFromMyTagsAction: { _ in },
             navigateSearchAction: { _, _ in },
             navigateTagDetailAction: { _ in },
             translateAction: { .init(text: $0, translation: nil) }

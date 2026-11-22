@@ -21,6 +21,7 @@ struct HeaderSectionActionSpacingTests {
             return detail
         }
 
+        var readingProgress = 0
         @AccessibilityFocusState var readFocus: Bool
 
         var body: some View {
@@ -41,6 +42,8 @@ struct HeaderSectionActionSpacingTests {
                 createDefaultFolderAction: {},
                 favorAction: { _ in },
                 unfavorAction: {},
+                readingProgress: readingProgress,
+                isReaderOnScreen: false,
                 navigateReadingAction: {},
                 readButtonFocus: $readFocus,
                 navigateUploaderAction: {}
@@ -54,12 +57,14 @@ struct HeaderSectionActionSpacingTests {
         let read: CGRect
     }
 
-    private func actionFrames(width: CGFloat, size: DynamicTypeSize) throws -> ActionFrames {
+    private func actionFrames(
+        width: CGFloat, size: DynamicTypeSize, readingProgress: Int = 0
+    ) throws -> ActionFrames {
         // `@SharedReader(.didLogin)` reads the cookie store while the header is built.
         let elements = try withDependencies {
             $0.cookieClient = .noop
         } operation: {
-            try LaidOutElements(of: Host(), width: width, size: size)
+            try LaidOutElements(of: Host(readingProgress: readingProgress), width: width, size: size)
         }
         return try ActionFrames(
             download: #require(elements.frame(labelled: "Download")),
@@ -103,5 +108,18 @@ struct HeaderSectionActionSpacingTests {
     @Test(arguments: [320, 375] as [CGFloat], [DynamicTypeSize.xSmall, .xxxLarge, .accessibility3])
     func spacingHoldsWhateverTheRowArrangement(width: CGFloat, size: DynamicTypeSize) throws {
         expectEvenlySpaced(try actionFrames(width: width, size: size), "\(width)pt at \(size)")
+    }
+
+    // A saved page draws a progress ring inside the Read button, never a different button: the three controls keep one
+    // size and the designed gaps, and the frames are exactly those of a gallery that was never read.
+    @Test(arguments: [320, 375, 402, 834] as [CGFloat], [DynamicTypeSize.large, .accessibility3])
+    func aSavedPageLeavesTheRowExactlyAsItWas(width: CGFloat, size: DynamicTypeSize) throws {
+        let unread = try actionFrames(width: width, size: size)
+        let resumed = try actionFrames(width: width, size: size, readingProgress: 12)
+
+        expectEvenlySpaced(resumed, "\(width)pt at \(size) with a saved page")
+        #expect(resumed.download == unread.download, "\(width)pt at \(size): Download moved")
+        #expect(resumed.favorite == unread.favorite, "\(width)pt at \(size): Favorite moved")
+        #expect(resumed.read == unread.read, "\(width)pt at \(size): Read changed")
     }
 }

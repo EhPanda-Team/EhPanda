@@ -43,6 +43,13 @@ public struct LibraryClient: Sendable {
     }
 }
 
+/// The disk size limits of the two image libraries' own caches (owner decision). Kingfisher holds covers, previews
+/// and thumbnails, so it gets the larger share; SDWebImage is used mainly to decode and render animated images
+/// (the bytes come from `DataCache`), so its own disk cache stays small. The reader's byte cache has its own limit
+/// (`DataCache.Configuration.defaultDiskSizeLimit`).
+private let kingfisherDiskSizeLimit: UInt = 512 * 1024 * 1024
+private let sdWebImageDiskSizeLimit: UInt = 128 * 1024 * 1024
+
 extension LibraryClient {
     public static let live = live(configuringImageSessions: { _ in })
 
@@ -60,6 +67,9 @@ extension LibraryClient {
                 config.httpCookieStorage = HTTPCookieStorage.shared
                 configuringImageSessions(config)
                 KingfisherManager.shared.downloader.sessionConfiguration = config
+                // Each library trims its own disk cache to its limit when the app leaves the foreground or ends.
+                KingfisherManager.shared.cache.diskStorage.config.sizeLimit = kingfisherDiskSizeLimit
+                SDImageCache.shared.config.maxDiskSize = sdWebImageDiskSizeLimit
 
                 let sdConfig = URLSessionConfiguration.default
                 sdConfig.httpCookieStorage = HTTPCookieStorage.shared

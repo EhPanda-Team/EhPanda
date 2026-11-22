@@ -283,7 +283,10 @@ public struct FavoritesReducer: Sendable {
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
                     state.rawGalleries[targetFavIndex] = galleries
-                    state.sortOrder = fetchResult.sortOrder
+                    // A page whose order was not read keeps the order the server last confirmed.
+                    if let sortOrder = fetchResult.sortOrder {
+                        state.sortOrder = sortOrder
+                    }
                     return .none
                 case .failure(let error):
                     state.rawLoadingState[targetFavIndex] = .failed(error)
@@ -317,7 +320,9 @@ public struct FavoritesReducer: Sendable {
                     state.rawPageNumber[targetFavIndex] = pageNumber
                     state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
                     state.insertGalleries(favoritesIndex: targetFavIndex, galleries: galleries)
-                    state.sortOrder = fetchResult.sortOrder
+                    if let sortOrder = fetchResult.sortOrder {
+                        state.sortOrder = sortOrder
+                    }
 
                     var effects: [Effect<Action>] = []
                     if galleries.isEmpty, pageNumber.hasNextPage() {
