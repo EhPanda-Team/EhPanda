@@ -4,19 +4,13 @@ import AppTools
 import ClipboardClient
 public import ComposableArchitecture
 import CookieClient
-public import Foundation
+import Foundation
 import HapticsClient
 import Resources
 import UIKit
 
 @Reducer
 public struct AccountSettingReducer: Sendable {
-    @Reducer
-    public enum Destination {
-        @ReducerCaseIgnored
-        case webView(URL)
-    }
-
     public enum Dialog: Equatable, Sendable {
         case confirmLogout
     }
@@ -28,13 +22,13 @@ public struct AccountSettingReducer: Sendable {
         case pushBlockedUsers
         /// The Website picker chose the other host; Setting reads My Tags there.
         case galleryHostChanged
+        case pushMyTags
     }
 
     private enum CancelID { case observeCookies }
 
     @ObservableState
     public struct State: Equatable, Sendable {
-        @Presents public var destination: Destination.State?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         @Presents public var toast: AppAlertState<Never>?
         public var ehCookiesState: CookiesState = .empty(.ehentai)
@@ -50,8 +44,6 @@ public struct AccountSettingReducer: Sendable {
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case toast(PresentationAction<Never>)
-        case destination(PresentationAction<Destination.Action>)
-        case presentWebView(URL)
         case confirmationDialog(PresentationAction<Dialog>)
         case delegate(Delegate)
         case onPresented
@@ -89,13 +81,6 @@ public struct AccountSettingReducer: Sendable {
                 guard host != state.galleryHost else { return .none }
                 state.$setting.withLock({ $0.galleryHost = host })
                 return .send(.delegate(.galleryHostChanged))
-
-            case .destination:
-                return .none
-
-            case .presentWebView(let url):
-                state.destination = .webView(url)
-                return .none
 
             case .delegate:
                 return .none
@@ -159,19 +144,10 @@ public struct AccountSettingReducer: Sendable {
 
             }
         }
-        .haptics(
-            unwrapping: \.destination,
-            case: \.webView,
-            hapticsClient: hapticsClient
-        )
-        .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
         .ifLet(\.$toast, action: \.toast)
     }
 }
-
-extension AccountSettingReducer.Destination.State: Equatable, Sendable {}
-extension AccountSettingReducer.Destination.Action: Equatable, Sendable {}
 
 // Echo-guard. The jar notifies for this screen's own write-backs too: every keystroke commits
 // through the `.onChange` → `setCookies` path, which trims whitespace before writing. Reloading on

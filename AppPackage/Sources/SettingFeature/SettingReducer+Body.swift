@@ -40,6 +40,12 @@ extension SettingReducer {
             case .path(.element(id: _, action: .account(.delegate(.galleryHostChanged)))):
                 return .send(.fetchMyTags)
 
+            case .path(.element(id: _, action: .account(.delegate(.pushMyTags)))):
+                return present(&state, .myTags(.init()))
+
+            case .path(.element(id: _, action: .myTags(.delegate(.pushLogin)))):
+                return present(&state, .login(.init()))
+
             case .path(.element(id: _, action: .general(.delegate(.pushAppActivityLogs)))):
                 return present(&state, .appActivityLogs(.init()))
 

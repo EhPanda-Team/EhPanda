@@ -39,9 +39,7 @@ struct AccountSettingView: View {
                         \.$confirmationDialog, action: \.confirmationDialog
                     ),
                     openHostSettingsAction: { store.send(.delegate(.pushEhSetting)) },
-                    manageTagsAction: {
-                        store.send(.presentWebView(Defaults.URL.myTags(host: setting.galleryHost)))
-                    }
+                    manageTagsAction: { store.send(.delegate(.pushMyTags)) }
                 )
             }
             // Shown signed in and signed out: blocking is local to the device and needs no account (UI-SPEC C-10).
@@ -56,12 +54,6 @@ struct AccountSettingView: View {
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .toast($store.scope(\.$toast, action: \.toast))
-        .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
-            WebView(url: url.wrappedValue)
-                .ignoresSafeArea(edges: .bottom)
-                .scrollEdgeEffectStyle(.soft, for: .top)
-                .privacyMask()
-        }
         .navigationTitle(.account)
     }
 }

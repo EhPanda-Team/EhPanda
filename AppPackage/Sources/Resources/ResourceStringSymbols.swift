@@ -39,6 +39,8 @@ public nonisolated extension LocalizedStringResource {
 
         public static var myTagsRemoveFailed: LocalizedStringResource { .myTagsRemoveFailed }
 
+        public static var openInBrowser: LocalizedStringResource { .openInBrowser }
+
         public static var actions: LocalizedStringResource { .actions }
 
         public static var ageWallTitle: LocalizedStringResource { .ageWallTitle }

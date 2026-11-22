@@ -38,6 +38,7 @@ struct SettingPresentationTests {
             SettingPath.State.appActivityLogs(.init())
                 .onPresentedAction?.is(\.appActivityLogs.refreshAvailableRuns) == true
         )
+        #expect(SettingPath.State.myTags(.init()).onPresentedAction?.is(\.myTags.onPresented) == true)
 
         // Screens driven entirely by `@Shared(.setting)`, which fetch nothing.
         #expect(SettingPath.State.appearance(.init()).onPresentedAction == nil)

@@ -73,19 +73,28 @@ public struct ErrorView: View {
     private let error: AppError
     private let buttonTitle: LocalizedStringResource
     private let showsSymbol: Bool
+    private let secondaryTitle: LocalizedStringResource?
+    private let secondaryAction: (() -> Void)?
     private let action: (() -> Void)?
 
-    /// - Parameter showsSymbol: Whether the error's symbol is drawn above its title; a view with little height
-    ///   leaves it out so the title and the text stay in view.
+    /// - Parameters:
+    ///   - showsSymbol: Whether the error's symbol is drawn above its title; a view with little height leaves it out
+    ///     so the title and the text stay in view.
+    ///   - secondaryTitle: A second button's title, drawn above the first, 8 pt apart, in the same style (My Tags'
+    ///     Open in Browser, design approved 2026-11-22); shown only with `secondaryAction`.
     public init(
         error: AppError,
         buttonTitle: LocalizedStringResource = .RLocalizable.retry,
         showsSymbol: Bool = true,
+        secondaryTitle: LocalizedStringResource? = nil,
+        secondaryAction: (() -> Void)? = nil,
         action: (() -> Void)? = nil
     ) {
         self.error = error
         self.buttonTitle = buttonTitle
         self.showsSymbol = showsSymbol
+        self.secondaryTitle = secondaryTitle
+        self.secondaryAction = secondaryAction
         self.action = action
     }
 
@@ -106,7 +115,17 @@ public struct ErrorView: View {
                 Text(error.alertText)
             }
         } actions: {
-            if let action {
+            if let secondaryTitle, let secondaryAction {
+                VStack(spacing: 8) {
+                    Button(secondaryTitle, action: secondaryAction)
+                        .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
+                    if let action {
+                        Button(buttonTitle, action: action)
+                            .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
+                    }
+                }
+                .padding()
+            } else if let action {
                 Button(buttonTitle, action: action)
                     .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
                     .padding()

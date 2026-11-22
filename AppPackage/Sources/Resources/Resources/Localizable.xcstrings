@@ -78,6 +78,17 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "無法移除標籤" } }
       }
     },
+    "open_in_browser" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Im Browser öffnen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open in Browser" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ブラウザで開く" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "브라우저에서 열기" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在浏览器中打开" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "在瀏覽器中開啟" } }
+      }
+    },
     "layout" : {
       "extractionState" : "manual",
       "localizations" : {
