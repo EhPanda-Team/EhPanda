@@ -99,3 +99,88 @@ Decoded 8-bit RGBA, the current picture against `after-phone`: the error-info pi
 with a largest channel difference of 1; the archives picture differs in 0 pixels, so its SHA-256 difference is in the
 PNG encoding only. Orchestrator decision: accepted without a rerun. Conclusion: 0 differences attributable to the
 change over 160 keys.
+
+## Task 3: the iPad
+
+### Turning the iPad
+
+The first iPad landscape run failed every coordinate with `geometry`: the device was still portrait. The turn step ran
+`VisualCaptureOrientationUITests/testRotateToLandscape` in a parallel-testing clone of the iPad, which turned the
+clone and never the device that captures (the hosted `run-shard.sh` passes `-parallel-testing-enabled NO` for its
+turn step, the local runner did not). Owner decision (2026-11-22): approved for the turn step only. The runner now
+passes `-parallel-testing-enabled NO` to that one call (commit `8b30ec452`); every other test stays parallel. After
+the fix `pad-landscape-1/orientation.log` names no clone (0 occurrences of "Clone"), the destination is the phase
+iPad's own UDID, and the turn reads: `Device orientation changed to Landscape Left`, `Interface orientation changed to
+Landscape Right`, `Test Case '-[EhPandaUITests.VisualCaptureOrientationUITests testRotateToLandscape]' passed (0.387
+seconds).`
+
+### `settings-root`, iPad, `en-large` and `en-accessibility5`
+
+`pad-portrait-1` and `pad-landscape-1` (heights at the device height):
+
+| orientation | en-large | en-accessibility5 |
+| --- | --- | --- |
+| portrait (1210 pt screen) | `recorded`, fits | `recorded`, fits |
+| landscape (834 pt screen) | `recorded`, fits | `page-height: needs 865 pt, committed 834 pt` (light and dark) |
+
+Only iPad landscape AX5 is taller than the screen, so that pair is the only tall iPad pair of this scenario;
+nothing is above 4095 pt, so no iPad picture used the render-server path. Committed: iPad landscape AX5 865, every
+other iPad value the device height (1210 / 834). Runs `pad-portrait-2` and `pad-landscape-2`: 8 of 8 `recorded`.
+
+| key (en, light and dark) | picture (px) | committed | width = scene width |
+| --- | --- | --- | --- |
+| large, portrait | 834 x 1210 | 1210 | yes |
+| accessibility5, portrait | 834 x 1210 | 1210 | yes |
+| large, landscape | 1210 x 834 | 834 | yes |
+| accessibility5, landscape | 1210 x 865 | 865 | yes |
+
+### The black-slice check (orchestrator-approved reading)
+
+The plan's check, "the picture's top and bottom 64 rows are not all one colour", cannot hold for this page: it ends in
+blank background, so its bottom 64 rows are one colour in every picture, also at the device height (white in light,
+black in dark). What the check exists for is the Phase 17 failure past the render limit: a picture that comes back
+transparent, or with a black band where content or background should be. Raw colour alone cannot tell that from a
+dark-mode page whose real background is black. Reading (orchestrator decision): a tall picture passes when
+1. every pixel is fully opaque (alpha 255);
+2. its bottom 64 rows equal the page's own background at that theme, sampled from the same picture's left-margin pixel
+   (x = 3) at mid-height;
+3. the picture as a whole is not one colour, and its top 64 rows are not one colour.
+
+Result: all 8 iPad pictures above and the 4 tall iPhone pictures (`settings-root` landscape at Large, 633 pt, and at
+AX5, 850 pt) pass all three. Sampled background: `(255, 255, 255)` in light, `(0, 0, 0)` in dark, in every
+picture. The bottom 64 rows equal it, the top 64 rows hold 201 to 234 distinct colours, the picture as a whole 244 to
+256. Every picture is an opaque RGB PNG. The iPhone portrait pictures are at the device height, not tall, and
+are not judged by this check (their top 64 rows are one colour because the inline-large title starts below them).
+
+### Sheet probe: does a form sheet grow with the window?
+
+`app-wide-error-info` (the Error Info sheet over the Search root), iPad, `en-accessibility5`, portrait. Finding only,
+nothing committed (the state's file was restored with `git checkout --`, no change to `ErrorInfoViewSnapshot.swift`).
+
+| committed | window growth | need measured by the check |
+| --- | --- | --- |
+| 1210 pt (the device height) | 0 | 1570 pt |
+| 1570 pt (one-off local value) | 360 pt | 1930 pt |
+
+The second need is the first plus the growth (1570 + 360 = 1930), so the form sheet does not grow with the window:
+it keeps its own size (about 660 pt tall in the 1570 pt picture, its content clipped with the Suggested Solution cut
+off) while the page behind it grows. Finding for 19-20's probes and 19-26's owner decision: a taller window does not
+make a form sheet show more of its content, and the check's need for such a state follows the window, so a committed
+height can never satisfy it. The harness is unchanged for this.
+
+### iPad regression proof
+
+The 19-18 sample without `settings-root` (20 classes) at `en-large` portrait (`regress-pad`), against 19-18's
+`after-pad`:
+
+```
+regress-keys 40
+regress-differs 0
+regress-other-errors 0
+statuses: recorded 30, error 10 (all "page-height: needs <n> pt, committed <m> pt")
+```
+
+The 10 `page-height` errors, each light and dark: `app-wide-error-info` 1242 pt, `home-populated` 1858 pt,
+`quick-search-list` 1242 pt, `reader-vertical` 9265 pt, `search-root-history` 1242 pt (committed 1210 for all). Their
+pictures are kept, and equal 19-18's. `reader-vertical` shows that the reader's list, which the design lists among the
+pages that "never scroll", needs 9265 pt on the iPad: a note for 19-20's measuring mode and 19-26.
