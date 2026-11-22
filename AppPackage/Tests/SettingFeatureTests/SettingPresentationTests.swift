@@ -39,6 +39,10 @@ struct SettingPresentationTests {
                 .onPresentedAction?.is(\.appActivityLogs.refreshAvailableRuns) == true
         )
         #expect(SettingPath.State.myTags(.init()).onPresentedAction?.is(\.myTags.onPresented) == true)
+        #expect(
+            SettingPath.State.about(.init())
+                .onPresentedAction?.is(\.about.fetchCodeContributors) == true
+        )
 
         // Screens driven entirely by `@Shared(.setting)`, which fetch nothing.
         #expect(SettingPath.State.appearance(.init()).onPresentedAction == nil)
@@ -46,7 +50,6 @@ struct SettingPresentationTests {
         #expect(SettingPath.State.download(.init()).onPresentedAction == nil)
         #expect(SettingPath.State.reading(.init()).onPresentedAction == nil)
         #expect(SettingPath.State.laboratory(.init()).onPresentedAction == nil)
-        #expect(SettingPath.State.about(.init()).onPresentedAction == nil)
         #expect(SettingPath.State.appIcon(.init()).onPresentedAction == nil)
     }
 

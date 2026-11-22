@@ -5,8 +5,8 @@ public import ReadingSettingFeature
 // screen is a path element; child screens never push directly — they emit `delegate` actions that
 // `SettingReducer` observes and appends to `path`. Each screen's view reads and writes `setting`
 // through its own `@Shared(.setting)`/`@SharedReader(.setting)`. Screens whose edits trigger a side
-// effect own a dedicated reducer for it; the remaining state-free screens (download, about) share
-// `StaticSettingScreenReducer`.
+// effect own a dedicated reducer for it: About owns `AboutFeature` for its contributors fetch, and the one
+// remaining state-free screen (download) uses `StaticSettingScreenReducer`.
 @Reducer
 public enum SettingPath {
     case account(AccountSettingReducer)
@@ -18,7 +18,7 @@ public enum SettingPath {
     case download(StaticSettingScreenReducer)
     case reading(ReadingSettingReducer)
     case laboratory(LaboratorySettingReducer)
-    case about(StaticSettingScreenReducer)
+    case about(AboutFeature)
     case appIcon(AppIconReducer)
     case blockedUsers(BlockedUsersReducer)
     case myTags(MyTagsFeature)
@@ -79,14 +79,16 @@ extension SettingPath.State {
             return .appActivityLogs(.refreshAvailableRuns)
         case .myTags:
             return .myTags(.onPresented)
-        case .appearance, .login, .download, .reading, .laboratory, .about, .appIcon, .blockedUsers:
+        case .about:
+            return .about(.fetchCodeContributors)
+        case .appearance, .login, .download, .reading, .laboratory, .appIcon, .blockedUsers:
             return nil
         }
     }
 }
 
 // A placeholder reducer for Setting screens that hold no state and run no logic (their views are
-// driven entirely by bindings into `SettingReducer.State.setting`). Shared across every such leaf.
+// driven entirely by bindings into `SettingReducer.State.setting`). It serves state-free leaves (today, download).
 @Reducer
 public struct StaticSettingScreenReducer: Sendable {
     @ObservableState

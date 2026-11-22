@@ -1,10 +1,17 @@
 import AppComponents
 import AppModels
 import AppTools
+import ComposableArchitecture
 import Resources
 import SwiftUI
 
 struct AboutView: View {
+    private let store: StoreOf<AboutFeature>
+
+    init(store: StoreOf<AboutFeature>) {
+        self.store = store
+    }
+
     private var version: String {
         [
             String(localized: .version),
@@ -17,27 +24,30 @@ struct AboutView: View {
         Form {
             Section {
                 ForEach(contacts) { contact in
-                    LinkRow(urlString: contact.urlString, text: contact.text)
+                    LinkRow(destination: URL(string: contact.urlString), title: Text(contact.text))
                 }
             }
             Section(.specialThanks) {
                 ForEach(specialThanks) { specialThank in
-                    LinkRow(urlString: specialThank.urlString, text: specialThank.text)
+                    LinkRow(destination: URL(string: specialThank.urlString), title: Text(specialThank.text))
                 }
             }
-            Section(.codeContributors) {
-                ForEach(codeContributors) { codeContributor in
-                    LinkRow(urlString: codeContributor.urlString, text: codeContributor.text)
+            if store.codeContributors?.isEmpty != true {
+                Section(.codeContributors) {
+                    featuredContributorRows
                 }
             }
             Section(.translationContributors) {
-                ForEach(translationContributors) { translationContributor in
-                    LinkRow(urlString: translationContributor.urlString, text: translationContributor.text)
+                ForEach(Self.translationContributors) { translationContributor in
+                    LinkRow(
+                        destination: URL(string: translationContributor.urlString),
+                        title: Text(translationContributor.text)
+                    )
                 }
             }
             Section(.acknowledgements) {
                 ForEach(acknowledgements) { acknowledgement in
-                    LinkRow(urlString: acknowledgement.urlString, text: acknowledgement.text)
+                    LinkRow(destination: URL(string: acknowledgement.urlString), title: Text(acknowledgement.text))
                 }
             }
         }
@@ -57,8 +67,23 @@ struct AboutView: View {
         }
     }
 
+    // MARK: Code level contributors
+    @ViewBuilder
+    private var featuredContributorRows: some View {
+        if let contributors = store.codeContributors {
+            ForEach(contributors) { contributor in
+                LinkRow(destination: contributor.htmlURL, title: Text(verbatim: contributor.login))
+            }
+        } else if let error = store.codeContributorsLoadingState.failed {
+            ErrorView(error: error, action: { store.send(.fetchCodeContributors) })
+        } else {
+            ProgressView()
+                .frame(maxWidth: .infinity)
+        }
+    }
+
     // MARK: Contacts
-    private let contacts: [Info] = {[
+    private let contacts: [AboutLink] = {[
         .init(
             urlString: String(localized: .Constant.contactWebsite),
             text: .website
@@ -82,7 +107,7 @@ struct AboutView: View {
     ]}()
 
     // MARK: Special thanks
-    private let specialThanks: [Info] = {[
+    private let specialThanks: [AboutLink] = {[
         .init(
             urlString: String(localized: .Constant.specialThanksTaylorlannisterLink),
             text: .Constant.specialThanksTaylorlannister
@@ -101,36 +126,10 @@ struct AboutView: View {
         )
     ]}()
 
-    // MARK: Code level contributors
-    private let codeContributors: [Info] = {[
-        .init(
-            urlString: String(localized: .Constant.codeContributorVvbbnn00Link),
-            text: .Constant.codeContributorVvbbnn00
-        ),
-        .init(
-            urlString: String(localized: .Constant.codeContributorKaed3MiLink),
-            text: .Constant.codeContributorKaed3Mi
-        ),
-        .init(
-            urlString: String(localized: .Constant.codeContributorDyphireLink),
-            text: .Constant.codeContributorDyphire
-        ),
-        .init(
-            urlString: String(localized: .Constant.codeContributorAalberrtyLink),
-            text: .Constant.codeContributorAalberrty
-        ),
-        .init(
-            urlString: String(localized: .Constant.codeContributorJimmyPrimeLink),
-            text: .Constant.codeContributorJimmyPrime
-        ),
-        .init(
-            urlString: String(localized: .Constant.codeContributorXioxinLink),
-            text: .Constant.codeContributorXioxin
-        )
-    ]}()
-
     // MARK: Translation contributors
-    private let translationContributors: [Info] = {[
+    /// The fixed Translation Contributors list. Internal so `AboutFeatureTests` can pin
+    /// `AboutFeature.translationContributorLogins` against it.
+    static let translationContributors: [AboutLink] = [
         .init(
             urlString: String(localized: .Constant.translationContributorNebulosaCatLink),
             text: .Constant.translationContributorNebulosaCat
@@ -147,10 +146,10 @@ struct AboutView: View {
             urlString: String(localized: .Constant.translationContributorNeKoOuOLink),
             text: .Constant.translationContributorNeKoOuO
         )
-    ]}()
+    ]
 
     // MARK: Acknowledgements
-    private let acknowledgements: [Info] = {[
+    private let acknowledgements: [AboutLink] = {[
         .init(
             urlString: String(localized: .Constant.acknowledgementKannaLink),
             text: .Constant.acknowledgementKanna
@@ -192,25 +191,20 @@ struct AboutView: View {
 
 // MARK: LinkRow
 private struct LinkRow: View {
-    private let urlString: String
-    private let text: LocalizedStringResource
-
-    init(urlString: String, text: LocalizedStringResource) {
-        self.urlString = urlString
-        self.text = text
-    }
+    let destination: URL?
+    let title: Text
 
     var body: some View {
         Group {
-            let text = Text(text)
+            let title = title
                 .fontWeight(.medium)
 
-            if let url = URL(string: urlString) {
-                Link(destination: url) {
-                    text.withArrow()
+            if let destination {
+                Link(destination: destination) {
+                    title.withArrow()
                 }
             } else {
-                text
+                title
             }
         }
         .foregroundStyle(.primary)
@@ -218,7 +212,7 @@ private struct LinkRow: View {
 }
 
 // MARK: Definition
-private struct Info: Identifiable {
+struct AboutLink: Identifiable {
     var id: String { urlString }
 
     let urlString: String
@@ -226,7 +220,13 @@ private struct Info: Identifiable {
 }
 
 #Preview("Initial") {
-    NavigationStack {
-        AboutView()
+    var state = AboutFeature.State()
+    state.codeContributors = ["aalberrty", "xioxin"].enumerated().compactMap({ offset, login in
+        URL(string: "https://github.com/\(login)").map({ url in
+            GitHubContributor(id: offset, login: login, htmlURL: url, accountType: "User")
+        })
+    })
+    return NavigationStack {
+        AboutView(store: Store(initialState: state, reducer: AboutFeature.init))
     }
 }

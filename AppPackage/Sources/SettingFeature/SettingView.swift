@@ -94,8 +94,8 @@ public struct SettingView: View {
         case .laboratory(let laboratoryStore):
             LaboratorySettingView(store: laboratoryStore)
 
-        case .about:
-            AboutView()
+        case .about(let aboutStore):
+            AboutView(store: aboutStore)
 
         case .appIcon(let appIconStore):
             AppIconView(store: appIconStore)

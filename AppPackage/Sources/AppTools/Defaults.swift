@@ -4,6 +4,7 @@ public import Foundation
 public struct Defaults: Sendable {
     public struct App: Sendable {
         public static let identifier = "app.ehpanda"
+        public static let repoName = "EhPanda-Team/EhPanda"
     }
     public struct ImageSize: Sendable {
         /// Shared width-to-height proportion for gallery covers, including grid tiles.
@@ -121,6 +122,9 @@ public struct Defaults: Sendable {
                 case ehpandaWidth = "ehpandaWidth"
                 case ehpandaHeight = "ehpandaHeight"
                 case ehpandaOffset = "ehpandaOffset"
+
+                // GitHub
+                case perPage = "per_page"
             }
             public enum Value: String, Sendable {
                 case one = "1"

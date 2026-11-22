@@ -165,6 +165,16 @@ public struct URLUtil {
     public static func githubAPI(repoName: String) -> URL {
         Defaults.URL.githubAPI.appending(path: "\(repoName)/releases/latest")
     }
+
+    /// The repository's contributors, all time, in GitHub's order (most contributions first).
+    ///
+    /// 100 is GitHub's largest page, and one page holds every contributor today (17), so the About page's
+    /// exclusions always leave five without paging.
+    public static func githubContributors(repoName: String) -> URL {
+        Defaults.URL.githubAPI
+            .appending(path: "\(repoName)/contributors")
+            .appending(queryItems: [.perPage: "100"])
+    }
 }
 
 // MARK: Combining (Filter)

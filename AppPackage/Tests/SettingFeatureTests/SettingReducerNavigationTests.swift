@@ -28,6 +28,8 @@ struct SettingReducerNavigationTests {
     ) -> TestStoreOf<SettingReducer> {
         TestStore(initialState: initialState, reducer: SettingReducer.init) {
             $0.analyticsClient = .noop
+            // About now loads its contributors on push.
+            $0.codeContributorsClient.fetch = { [] }
             $0.cookieClient = .noop
             $0.libraryClient = .noop
             $0.logsClient = .noop

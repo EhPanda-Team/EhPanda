@@ -418,3 +418,24 @@ public struct TagTranslatorRequest: Request {
         }
     }
 }
+
+/// The repository's contributors as GitHub lists them, unfiltered; the About page applies its own exclusions.
+public struct GitHubContributorsRequest: Request {
+    public init(urlSession: URLSession = .shared) {
+        self.urlSession = urlSession
+    }
+    public let urlSession: URLSession
+
+    public func response() async throws(AppError) -> [GitHubContributor] {
+        let request = urlRequest(
+            url: URLUtil.githubContributors(repoName: Defaults.App.repoName),
+            allowsCellular: true
+        )
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            return try JSONDecoder().decode([GitHubContributor].self, from: data)
+        } catch {
+            throw AppError.parseFailed
+        }
+    }
+}
