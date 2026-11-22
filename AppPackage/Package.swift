@@ -370,6 +370,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
+            .module(.appTools),
             .module(.automationIdentifiers),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)

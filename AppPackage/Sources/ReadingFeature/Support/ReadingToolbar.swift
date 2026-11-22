@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
@@ -61,10 +62,10 @@ struct ReadingToolbar: ToolbarContent {
                         .symbolEffect(.pulse, options: .repeating, isActive: enablesLiveText)
                 }
                 .frame(minWidth: 44, minHeight: 44)
-                .contentShape(.rect)
             }
             // The automatic toolbar button style renders the symbol without its pulse.
             .buttonStyle(.plain)
+            .interactiveIconHover()
             .accessibilityAddTraits(enablesLiveText ? .isSelected : [])
         }
         if isLandscape {

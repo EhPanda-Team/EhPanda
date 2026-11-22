@@ -86,6 +86,7 @@ struct ControlPanel<G: Gesture>: View {
                         }
                         .buttonStyle(.plain)
                         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
+                        .hoverShape(.rect(cornerRadius: 16))
                         .accessibilityIdentifier(AccessibilityIdentifiers.readingMoveControls)
                         .environment(\.layoutDirection, layoutDirection)
                         .offset(x: moveButtonOffset)
@@ -183,6 +184,7 @@ private struct LowerPanel<G: Gesture>: View {
                 }
                 .foregroundStyle(.primary)
                 .glassEffect(.regular.interactive())
+                .hoverShape(.capsule)
                 .gesture(dismissGesture)
                 .accessibilityFocused(controlFocus, equals: .close)
                 .visible(!showsSliderPreview)
@@ -414,7 +416,7 @@ private let previewContainerSize = CGSize(width: 375, height: 667)
         showsCloseButton: true,
         range: 1...14,
         previewURLs: [:],
-        dismissGesture: TapGesture(),
+        dismissGesture: DragGesture(),
         dismissAction: {},
         fetchPreviewURLsAction: { _ in }
     )

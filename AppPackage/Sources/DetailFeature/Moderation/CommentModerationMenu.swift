@@ -1,4 +1,5 @@
 import AppModels
+import AppTools
 import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -237,11 +238,10 @@ struct CommentModerationMenuButton: View {
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .frame(minWidth: 44, minHeight: 44)
-                .contentShape(.hoverEffect, .circle)
-                .hoverEffect()
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
+        .interactiveIconHover()
         .padding(.vertical, -12)
         .padding(.trailing, -12)
         .accessibilityHidden(true)

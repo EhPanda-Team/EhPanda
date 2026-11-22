@@ -1,3 +1,4 @@
+import AppTools
 import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
@@ -68,9 +69,8 @@ private struct BlockedCommentCardPill: View {
                 .frame(minHeight: 30)
                 .background(Self.fill, in: .capsule)
                 .overlay(Capsule().strokeBorder(Self.stroke, lineWidth: 1))
-                .contentShape(.hoverEffect, .capsule)
-                .hoverEffect(.highlight)
         }
         .buttonStyle(.plain)
+        .interactiveHover(.highlight, in: .capsule)
     }
 }

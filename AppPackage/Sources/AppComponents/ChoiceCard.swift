@@ -1,3 +1,4 @@
+import AppTools
 import Resources
 import SFSafeSymbols
 public import SwiftUI
@@ -61,8 +62,7 @@ public struct ChoiceCard: View {
                 .contentShape(.rect(cornerRadius: 15))
         }
         .buttonStyle(.plain)
-        .contentShape(.hoverEffect, .rect(cornerRadius: 15))
-        .hoverEffect(.highlight)
+        .interactiveHover(.highlight, in: .rect(cornerRadius: 15))
         .sensoryFeedback(.selection, trigger: isSelected)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
