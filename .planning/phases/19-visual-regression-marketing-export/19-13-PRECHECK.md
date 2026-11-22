@@ -1,6 +1,6 @@
 # Phase 19-13: Candidate Pre-Check & Open Findings
 
-**Status:** Open — `A1–A9`, `A12`, and run-to-run capture variations are fixed on `fix/snapshot-scenarios` (`84c9c00bd`, candidate run `44279625701` in progress). Items `A11`, `B1–B2`, and `C1–C16` remain `owner to decide` and **must be handled before approving or publishing the baseline** (19-CONTEXT D-17, D-01).
+**Status:** Open. `A1`–`A9` and `A12`–`A14` are fixed on `fix/snapshot-scenarios` (`84c9c00bd`); the run-to-run variation fixes are in the same commits but not yet shown stable on a hosted run. The owner decided every former `owner to decide` item on 2026-11-22 (verdicts below): `A11`, `B1`, `B2`, `C8`, `C10`, `C12`, `C13` and `C14` are accepted; `C1`–`C3`, `C5`–`C7`, `C9`, `C11`, `C15` and `C16` are to be fixed and re-recorded; `C4` changes the capture for every page (a fixed height per device, orientation and text size that covers the whole page, declared per view in a `*ViewSnapshot.swift` file through a test-only `SnapshotProvider` protocol). The candidate set must be re-recorded and pre-checked again before approval (19-CONTEXT D-17).
 
 ## Coverage & Machine Checks
 
@@ -36,7 +36,7 @@
 | A8 | `home-populated` (iPad) | Popular carousel had one blank neighbor and repeated `VH1` on the other side | `TracerScenarios.home()` supplies distinct neighbor galleries and `assets/home/` cover keys (`d4178574b`) | defect fixed |
 | A9 | `downloads-inspector`, `downloads-inspector-error` (iPhone portrait) | Initial-state sheet mount left the underlying Downloads list undimmed and peeking below the sheet | Inspector opens via `tapHeldRow` after the hosted list settles (`ce3732a89`) | defect fixed |
 | A10 | `detail-pages-new-dawn` (light vs dark) | Background sun rays appear in dark theme and not in light theme; verified static (non-animating) | Intentional dark-only static rendering; no capture change required | not a defect |
-| A11 | `watched-signed-out` (`accessibility5` landscape) | Signed-out `ContentUnavailableView` exceeds `accessibility5` landscape height and becomes a scroll view, hiding the automatic navigation-bar-drawer search field (same family as `C13`) | Native UIKit/SwiftUI behavior when `ContentUnavailableView` scrolls; paired with `C13` for owner decision | owner to decide |
+| A11 | `watched-signed-out` (`accessibility5` landscape) | Signed-out `ContentUnavailableView` exceeds `accessibility5` landscape height and becomes a scroll view, hiding the automatic navigation-bar-drawer search field (same family as `C13`) | Native UIKit/SwiftUI behavior when `ContentUnavailableView` scrolls; paired with `C13` for owner decision | not a defect (owner decision, 2026-11-22: native behaviour) |
 | A12 | `settings-pages-general-cache-confirmation` (`ko` portrait) | `RevealStep` left Korean General mid-title-collapse when revealing the row | `RevealStep.reveal` applies `restWhereTitleSnaps` (`8f2c96fe3`) | defect fixed |
 | A13 | Untouched scenarios across runs (`search-results-list`, `report-form-*`, `search-root-*`, `favorites-*`, `gallery-detail-loaded`, `history-clear-confirmation`, `reader-controls`, `reader-slider-scrub`) | 2-read premature settles on starved runners, unverified post-settle render, late `_UITextFieldClearButton`, simultaneous `.sheet`+`.alert` mount on `report-form-error-alert`, interactive glass shadow steps, and disabled+dimmed `GalleryLayoutPicker` bar item race | Six-read floor + kept settled image (`d24ea6438`); platter, clear-button, glass-shadow, report-alert, and disabled bar-item waits (`fc7ca9db5`) | defect fixed |
 | A14 | `search-typing-suggestions` (`zh-Hans`, `zh-Hant` `accessibility5` iPhone landscape light) | `LibraryScenarios.type` did not wait for keyboard frame or bind `contentScrollView(for: .top)` to the suggestions list, toggling the navigation bar hairline across runs | Awaits `keyboardIsUp` and names the suggestions scroll view (`fc7ca9db5`) | defect fixed |
@@ -49,8 +49,8 @@ Each `B` item requires an owner decision on how the snapshot harness should repr
 
 | ID | Scenarios / Coordinates | Issue | Options | Verdict |
 | --- | --- | --- | --- | --- |
-| B1 | `app-wide-app-alert`, `comments-post-empty`, `comments-post-filled`, `comments-posting-warning` (primarily landscape) | Layout reserves bottom space for the software keyboard, which lives in a separate UIKit window omitted by single-window capture | **(a)** Capture without focus; **(b)** composite the keyboard window into the capture; **(c)** keep as-is (focused layout verified, system keyboard omitted) | owner to decide |
-| B2 | `settings-login-filled`, `settings-login-error` | Password `SecureField` renders blank in `drawHierarchy` because iOS redacts secure text fields from window snapshots | **(a)** Accept system secure-field redaction as-is; **(b)** adjust scenario/fixture presentation if bullets must be shown | owner to decide |
+| B1 | `app-wide-app-alert`, `comments-post-empty`, `comments-post-filled`, `comments-posting-warning` (primarily landscape) | Layout reserves bottom space for the software keyboard, which lives in a separate UIKit window omitted by single-window capture | **(a)** Capture without focus; **(b)** composite the keyboard window into the capture; **(c)** keep as-is (focused layout verified, system keyboard omitted) | not a defect (owner decision, 2026-11-22: keep as is; the system keyboard is a separate window) |
+| B2 | `settings-login-filled`, `settings-login-error` | Password `SecureField` renders blank in `drawHierarchy` because iOS redacts secure text fields from window snapshots | **(a)** Accept system secure-field redaction as-is; **(b)** adjust scenario/fixture presentation if bullets must be shown | not a defect (owner decision, 2026-11-22: accept the system redaction of secure text) |
 
 ---
 
@@ -60,22 +60,22 @@ Per `19-CONTEXT.md` D-17, real UI defects are fixed in app code and their affect
 
 | ID | Scenarios / Coordinates | App UI / Layout Finding | Verdict |
 | --- | --- | --- | --- |
-| C1 | `quick-search-word-editor` (every locale, size, and device family) | `Search Terms` text field clips its text vertically in half | owner to decide |
-| C2 | `settings-pages-activity-logs-empty` (portrait; landscape shows inline title) | Empty Activity Logs page shows no navigation title in portrait | owner to decide |
-| C3 | `settings-login-error` (iPhone landscape; portrait at `large`) | Error toast overlaps the circular sign-in button and truncates its message to one line | owner to decide |
-| C4 | `agewall-*`, `analytics-choice-*` (iPhone landscape, iPad AX5); `report-form-*`; `detail-pages-archives` / `-insufficient-funds` | Floating bottom action bar / footer overlaps underlying scroll content (or shows text through translucent disabled button) | owner to decide |
-| C5 | `detail-pages-new-dawn` (`accessibility5`) | New Dawn greeting card clips its reward line, and a background ray crosses over text | owner to decide |
-| C6 | `reader-settings-sheet`, `settings-pages-reading` (`de` and `ko` at `accessibility5`) | First row lacks top padding when its value wraps, clipping the label under the navigation title | owner to decide |
-| C7 | `detail-pages-folder-delete-confirmation`; `quick-search-delete-confirmation` | Delete Folder confirmation dialog is not anchored to the triggering folder row (`AGENTS.md` dialog placement rule); Quick Search delete confirmation changes anchor across orientations | owner to decide |
-| C8 | `history-empty` (`accessibility5` landscape) | Empty-state symbol disappears in landscape at `accessibility5` | owner to decide |
-| C9 | `home-populated` | Front Page shelf stacks cards in a single narrow column, and stat labels hyphenate mid-word (e.g. `"Catego-ry"`) | owner to decide |
-| C10 | `shell-library-sidebar` (`accessibility5`) | Library sidebar column stays narrow at `accessibility5`, breaking words mid-word | owner to decide |
-| C11 | `report-form-sent` (`accessibility5` landscape) | Sent confirmation message truncates to a single line | owner to decide |
-| C12 | `gallery-detail-*` (iPad portrait) | Horizontal stats strip clips at the trailing edge on iPad portrait (acceptable if horizontal scrolling is the intended affordance) | owner to decide |
-| C13 | `front-page-*`, `popular-*`, `toplists-*`, `watched-*` (`list` and `grid`, paired with `A11`) | Loaded gallery lists start with the automatic navigation-bar-drawer search/filter field collapsed, whereas loading/empty/error states show it expanded | owner to decide |
-| C14 | `settings-account-signed-out` | Empty cookie rows display `"None"` with the green `"Valid"` checkmark because `CookieValue.isInvalid` returns `false` for empty strings (also noted in Phase 16 `deferred-items.md`) | owner to decide |
-| C15 | `detail-pages-archives-insufficient-funds` | Insufficient funds are not visually indicated and the H@H download button remains enabled (`19-07-SUMMARY.md`) | owner to decide |
-| C16 | `detail-pages-torrents` (`de`) | Torrent file sizes render with an English decimal point instead of localized decimal formatting in German | owner to decide |
+| C1 | `quick-search-word-editor` (every locale, size, and device family) | `Search Terms` text field clips its text vertically in half | owner decision: fix and re-record (open) |
+| C2 | `settings-pages-activity-logs-empty` (portrait; landscape shows inline title) | Empty Activity Logs page shows no navigation title in portrait | owner decision: fix and re-record (open) |
+| C3 | `settings-login-error` (iPhone landscape; portrait at `large`) | Error toast overlaps the circular sign-in button and truncates its message to one line | owner decision: fix and re-record (open); the toast keeps clear of a tab bar on screens that have none |
+| C4 | `agewall-*`, `analytics-choice-*` (iPhone landscape, iPad AX5); `report-form-*`; `detail-pages-archives` / `-insufficient-funds` | Floating bottom action bar / footer overlaps underlying scroll content (or shows text through translucent disabled button) | owner decision: capture every page at a fixed height that covers the whole page (open; applies to all pages) |
+| C5 | `detail-pages-new-dawn` (`accessibility5`) | New Dawn greeting card clips its reward line, and a background ray crosses over text | owner decision: fix and re-record (open); the reward line is never cut, and the rays go in light and dark (the sun or moon stays) |
+| C6 | `reader-settings-sheet`, `settings-pages-reading` (`de` and `ko` at `accessibility5`) | First row lacks top padding when its value wraps, clipping the label under the navigation title | owner decision: investigate and fix (open) |
+| C7 | `detail-pages-folder-delete-confirmation`; `quick-search-delete-confirmation` | Delete Folder confirmation dialog is not anchored to the triggering folder row (`AGENTS.md` dialog placement rule); Quick Search delete confirmation changes anchor across orientations | owner decision: fix and re-record (open); anchor on the triggering row |
+| C8 | `history-empty` (`accessibility5` landscape) | Empty-state symbol disappears in landscape at `accessibility5` | not a defect (owner decision, 2026-11-22: native behaviour; re-checked once pages are captured at full height) |
+| C9 | `home-populated` | Front Page shelf stacks cards in a single narrow column, and stat labels hyphenate mid-word (e.g. `"Catego-ry"`) | owner decision: investigate and fix (open) |
+| C10 | `shell-library-sidebar` (`accessibility5`) | Library sidebar column stays narrow at `accessibility5`, breaking words mid-word | not a defect (owner decision, 2026-11-22: native sidebar width) |
+| C11 | `report-form-sent` (`accessibility5` landscape) | Sent confirmation message truncates to a single line | owner decision: fix and re-record (open) |
+| C12 | `gallery-detail-*` (iPad portrait) | Horizontal stats strip clips at the trailing edge on iPad portrait (acceptable if horizontal scrolling is the intended affordance) | not a defect (owner decision, 2026-11-22: the strip scrolls) |
+| C13 | `front-page-*`, `popular-*`, `toplists-*`, `watched-*` (`list` and `grid`, paired with `A11`) | Loaded gallery lists start with the automatic navigation-bar-drawer search/filter field collapsed, whereas loading/empty/error states show it expanded | not a defect (owner decision, 2026-11-22: native behaviour) |
+| C14 | `settings-account-signed-out` | Empty cookie rows display `"None"` with the green `"Valid"` checkmark because `CookieValue.isInvalid` returns `false` for empty strings (also noted in Phase 16 `deferred-items.md`) | not a defect (owner decision, 2026-11-22: accepted as is) |
+| C15 | `detail-pages-archives-insufficient-funds` | Insufficient funds are not visually indicated and the H@H download button remains enabled (`19-07-SUMMARY.md`) | owner decision: fix and re-record (open) |
+| C16 | `detail-pages-torrents` (`de`) | Torrent file sizes render with an English decimal point instead of localized decimal formatting in German | owner decision: fix and re-record (open) |
 
 ---
 
