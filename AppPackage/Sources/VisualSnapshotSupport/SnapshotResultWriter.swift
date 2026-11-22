@@ -28,6 +28,58 @@ public struct SnapshotResultLine: Codable, Equatable, Sendable {
     }
 }
 
+/// How a measuring run (``SnapshotMode/measure``) ended for one coordinate.
+public enum SnapshotHeightStatus: String, Codable, Sendable {
+    /// The page's needed height was found: the window was grown until the need held still.
+    case measured
+    /// The page's most-overflowing scroll view did not grow with the window, so no window height covers it.
+    case cannotCover = "cannot-cover"
+    /// The need kept moving with the window for the whole step budget.
+    case didNotConverge = "did-not-converge"
+    case error
+    case notApplicable
+}
+
+/// One line of `heights.jsonl` (19-20, design section 3): the page height one coordinate needs. Reasons are fixed
+/// codes, never page text.
+public struct SnapshotHeightLine: Codable, Equatable, Sendable {
+    public let key: String
+    public let status: SnapshotHeightStatus
+    /// The whole-point window height that covers the page (`measured`), or the last need seen.
+    public let neededPoints: Int?
+    /// The window's own height, the pinned device height.
+    public let screenPoints: Int?
+    /// How many times the window was grown.
+    public let steps: Int
+    public let reason: String?
+
+    public init(
+        key: String, status: SnapshotHeightStatus, neededPoints: Int?, screenPoints: Int?, steps: Int, reason: String?
+    ) {
+        self.key = key
+        self.status = status
+        self.neededPoints = neededPoints
+        self.screenPoints = screenPoints
+        self.steps = steps
+        self.reason = reason
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case key, status, neededPoints, screenPoints, steps, reason
+    }
+
+    /// Every field is written, `null` when empty, so a reader never has to tell a missing key from an empty one.
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(key, forKey: .key)
+        try container.encode(status, forKey: .status)
+        try container.encode(neededPoints, forKey: .neededPoints)
+        try container.encode(screenPoints, forKey: .screenPoints)
+        try container.encode(steps, forKey: .steps)
+        try container.encode(reason, forKey: .reason)
+    }
+}
+
 /// `shard.json` (19-RESEARCH §9): what ran where, and the infrastructure error class, if any.
 public struct SnapshotShardRecord: Codable, Equatable, Sendable {
     public enum Infrastructure: String, Codable, Sendable {
@@ -128,6 +180,11 @@ public struct SnapshotResultWriter: Sendable {
         output.appending(path: "results.jsonl")
     }
 
+    /// The measuring mode's lines (19-20). A measuring run writes this file and never ``resultsURL``.
+    public var heightsURL: URL {
+        output.appending(path: "heights.jsonl")
+    }
+
     /// Where pictures wait to be moved into place: below the output, so the move is a rename on one volume. A
     /// staged picture ends in `.partial`, so one a killed process left behind is never read as a picture.
     var stagingURL: URL {
@@ -147,11 +204,50 @@ public struct SnapshotResultWriter: Sendable {
     /// pictures. A picture that cannot be staged leaves nothing behind.
     @discardableResult
     public func append(_ line: SnapshotResultLine, pictures: [SnapshotPicture] = []) throws -> Bool {
-        let manager = FileManager.default
-        try manager.createDirectory(at: output, withIntermediateDirectories: true)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
-        var data = try encoder.encode(line)
+        return try append(
+            encoder.encode(line),
+            LineTarget(
+                file: resultsURL, key: line.key, isProvisional: Self.isProvisional(line.status),
+                isProvisionalStatus: { SnapshotStatus(rawValue: $0).map(Self.isProvisional) ?? false }
+            ),
+            pictures: pictures
+        )
+    }
+
+    /// Appends `line` to `heights.jsonl` under the same discipline as ``append(_:pictures:)``: one `write` to a
+    /// descriptor opened with `O_APPEND` under an exclusive `flock`, and each coordinate keeps its first final line.
+    /// An `error` line is provisional, so a later measurement of the coordinate follows it. Returns whether it wrote
+    /// the line. The measuring mode writes no picture and no result line.
+    @discardableResult
+    public func appendHeight(_ line: SnapshotHeightLine) throws -> Bool {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return try append(
+            encoder.encode(line),
+            LineTarget(
+                file: heightsURL, key: line.key, isProvisional: line.status == .error,
+                isProvisionalStatus: { $0 == SnapshotHeightStatus.error.rawValue }
+            ),
+            pictures: []
+        )
+    }
+
+    /// The file a line is appended to and how its coordinate's earlier lines read.
+    private struct LineTarget {
+        let file: URL
+        let key: String
+        /// Whether the new line is itself provisional.
+        let isProvisional: Bool
+        /// Whether an earlier line of this status is provisional.
+        let isProvisionalStatus: @Sendable (String) -> Bool
+    }
+
+    private func append(_ encoded: Data, _ target: LineTarget, pictures: [SnapshotPicture]) throws -> Bool {
+        let manager = FileManager.default
+        try manager.createDirectory(at: output, withIntermediateDirectories: true)
+        var data = encoded
         data.append(0x0A)
 
         let staging = stagingURL.appending(path: UUID().uuidString, directoryHint: .isDirectory)
@@ -170,15 +266,15 @@ public struct SnapshotResultWriter: Sendable {
             staged.append((file, destination))
         }
 
-        let descriptor = open(resultsURL.path(percentEncoded: false), O_WRONLY | O_APPEND | O_CREAT, 0o644)
+        let descriptor = open(target.file.path(percentEncoded: false), O_WRONLY | O_APPEND | O_CREAT, 0o644)
         guard descriptor >= 0 else { throw SnapshotResultWriterError.open(errno) }
         defer { close(descriptor) }
         try lock(descriptor)
         defer { flock(descriptor, LOCK_UN) }
-        switch try keyStates()[line.key] {
+        switch try keyStates(in: target)[target.key] {
         case .final?:
             return false
-        case .provisional? where Self.isProvisional(line.status):
+        case .provisional? where target.isProvisional:
             return false
         case .provisional?, nil:
             break
@@ -213,10 +309,10 @@ public struct SnapshotResultWriter: Sendable {
     }
 
     /// Each written key's state: final once it has a line that is not provisional.
-    private func keyStates() throws -> [String: KeyState] {
+    private func keyStates(in target: LineTarget) throws -> [String: KeyState] {
         var states: [String: KeyState] = [:]
-        for (key, status) in try readKeys() where states[key] != .final {
-            let provisional = status.flatMap(SnapshotStatus.init(rawValue:)).map(Self.isProvisional) ?? false
+        for (key, status) in try readKeys(in: target.file) where states[key] != .final {
+            let provisional = status.map(target.isProvisionalStatus) ?? false
             states[key] = provisional ? .provisional : .final
         }
         return states
@@ -247,13 +343,13 @@ public struct SnapshotResultWriter: Sendable {
     /// The keys of every line written so far. A line that does not read as a result (a clone killed mid-write) is
     /// passed over: the caller only asks whether a coordinate already has its line.
     public func recordedKeys() throws -> Set<String> {
-        Set(try readKeys().map(\.key))
+        Set(try readKeys(in: resultsURL).map(\.key))
     }
 
-    /// Each line's key and status, in the order written; lines that do not read as a result are passed over.
-    private func readKeys() throws -> [(key: String, status: String?)] {
-        guard FileManager.default.fileExists(atPath: resultsURL.path(percentEncoded: false)) else { return [] }
-        let text = try String(contentsOf: resultsURL, encoding: .utf8)
+    /// Each line's key and status in `file`, in the order written; lines that do not read as a result are passed over.
+    private func readKeys(in file: URL) throws -> [(key: String, status: String?)] {
+        guard FileManager.default.fileExists(atPath: file.path(percentEncoded: false)) else { return [] }
+        let text = try String(contentsOf: file, encoding: .utf8)
         var keys: [(key: String, status: String?)] = []
         for line in text.split(separator: "\n") {
             let object: Any

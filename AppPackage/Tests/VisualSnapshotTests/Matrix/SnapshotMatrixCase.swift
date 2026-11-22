@@ -96,7 +96,7 @@ class SnapshotMatrixCase: XCTestCase {
         }
         if let failure = configuration.failedCheck() {
             for coordinate in coordinates {
-                try writer.append(.failure(coordinate.key, reason: "configuration-\(failure)"))
+                try Self.recordFailure(coordinate.key, reason: "configuration-\(failure)", mode: mode, writer: writer)
             }
             XCTFail("Configuration check failed: \(failure)")
             return
@@ -120,7 +120,7 @@ class SnapshotMatrixCase: XCTestCase {
             let rules = wanted.map({ inventory.notApplicableReason(for: $0, pins: pins) })
             guard rules.contains(where: { $0 == nil }) else {
                 for (coordinate, reason) in zip(wanted, rules) {
-                    try writer.append(.notApplicable(coordinate.key, reason: reason ?? ""))
+                    try Self.recordNotApplicable(coordinate.key, reason: reason ?? "", mode: mode, writer: writer)
                 }
                 continue
             }
@@ -129,7 +129,7 @@ class SnapshotMatrixCase: XCTestCase {
             let screenHeight = try XCTUnwrap(pin.points.last)
             guard await Self.rotate(scene: scene, window: window, to: orientation, pin: pin) else {
                 for coordinate in wanted {
-                    try writer.append(.failure(coordinate.key, reason: "geometry"))
+                    try Self.recordFailure(coordinate.key, reason: "geometry", mode: mode, writer: writer)
                 }
                 let insets = window.safeAreaInsets
                 let traits = window.traitCollection
@@ -144,7 +144,7 @@ class SnapshotMatrixCase: XCTestCase {
             }
             for (coordinate, reason) in zip(wanted, rules) {
                 if let reason {
-                    try writer.append(.notApplicable(coordinate.key, reason: reason))
+                    try Self.recordNotApplicable(coordinate.key, reason: reason, mode: mode, writer: writer)
                     continue
                 }
                 picture += 1
@@ -162,10 +162,102 @@ class SnapshotMatrixCase: XCTestCase {
         }
     }
 
+    /// Writes a coordinate's not-applicable line: to `heights.jsonl` in the measuring mode, which never writes a result
+    /// line, otherwise to `results.jsonl`.
+    private static func recordNotApplicable(
+        _ key: String, reason: String, mode: SnapshotMode, writer: SnapshotResultWriter
+    ) throws {
+        if mode == .measure {
+            try writer.appendHeight(
+                SnapshotHeightLine(
+                    key: key, status: .notApplicable, neededPoints: nil, screenPoints: nil, steps: 0, reason: reason
+                )
+            )
+        } else {
+            try writer.append(.notApplicable(key, reason: reason))
+        }
+    }
+
+    /// Writes a coordinate's failure line (`error`) as ``recordNotApplicable(_:reason:mode:writer:)`` writes its
+    /// not-applicable one.
+    private static func recordFailure(
+        _ key: String, reason: String, mode: SnapshotMode, writer: SnapshotResultWriter
+    ) throws {
+        if mode == .measure {
+            try writer.appendHeight(
+                SnapshotHeightLine(
+                    key: key, status: .error, neededPoints: nil, screenPoints: nil, steps: 0, reason: reason
+                )
+            )
+        } else {
+            try writer.append(.failure(key, reason: reason))
+        }
+    }
+
+    /// Runs `operation` in the dependencies every scenario's pictures are taken in.
+    @MainActor
+    private func inScenarioDependencies<Result>(
+        _ factory: ScenarioFactory, operation: @MainActor () async -> Result
+    ) async -> Result {
+        let appStorage = UserDefaults.inMemory
+        return await withDependencies {
+            $0.context = .preview
+            $0.cookieClient = factory.cookies ?? (factory.signedIn ? .previewLoggedIn : .noop)
+            // The device the picture is taken on: the preview client reports a phone, and the error information
+            // sheet's Device row read "iPhone" in every iPad picture (candidate run 44025665174).
+            $0.deviceClient = .live
+            $0.date.now = PublicVisualFixtures.fixedDate
+            $0.uuid = .incrementing
+            $0.defaultAppStorage = appStorage
+            $0.defaultInMemoryStorage = InMemoryStorage()
+        } operation: {
+            await operation()
+        }
+    }
+
+    /// Finds the window height the coordinate's page needs and writes it to `heights.jsonl`: no picture, no result
+    /// line. `error` and `did-not-converge` fail the test; `cannot-cover` does not, it is a finding for the owner.
+    @MainActor
+    private func measureCoordinate(
+        _ coordinate: SnapshotCoordinate, factory: ScenarioFactory, context: CaptureContext
+    ) async throws {
+        let style: UIUserInterfaceStyle = coordinate.theme == "dark" ? .dark : .light
+        let sampling = VisibleViewportSampling()
+        MainThreadWatch.context = coordinate.key
+        defer { MainThreadWatch.context = "" }
+        let measurement = await inScenarioDependencies(factory) {
+            await HostedWindowCapture.measure(
+                make: {
+                    AnyView(try factory.make().environment(\.visibleViewportSampling, sampling))
+                },
+                window: context.window, style: style, interact: factory.interact, minimumReads: factory.minimumReads,
+                freezeViewport: { sampling.isFrozen = $0 }
+            )
+        }
+        try context.writer.appendHeight(
+            SnapshotHeightLine(
+                key: coordinate.key, status: measurement.status, neededPoints: measurement.neededPoints,
+                screenPoints: measurement.screenPoints, steps: measurement.steps, reason: measurement.reason
+            )
+        )
+        switch measurement.status {
+        case .error, .didNotConverge:
+            // A fixed message: the key names synthetic coordinates only, and a reason never holds page text.
+            let reason = measurement.reason.map({ " (\($0))" }) ?? ""
+            XCTFail("\(coordinate.key): \(measurement.status.rawValue)\(reason)")
+        case .measured, .cannotCover, .notApplicable:
+            break
+        }
+    }
+
     @MainActor
     private func captureCoordinate(
         _ coordinate: SnapshotCoordinate, factory: ScenarioFactory, context: CaptureContext
     ) async throws {
+        if context.mode == .measure {
+            try await measureCoordinate(coordinate, factory: factory, context: context)
+            return
+        }
         let (window, mode, run, writer) = (context.window, context.mode, context.run, context.writer)
         let style: UIUserInterfaceStyle = coordinate.theme == "dark" ? .dark : .light
         let reference = run.references?.appending(path: coordinate.baselinePath)
@@ -177,20 +269,9 @@ class SnapshotMatrixCase: XCTestCase {
         )
         // Installed from the first render and kept, as its documentation requires; the tall window freezes it.
         let sampling = VisibleViewportSampling()
-        let appStorage = UserDefaults.inMemory
         MainThreadWatch.context = coordinate.key
         defer { MainThreadWatch.context = "" }
-        let outcome = await withDependencies {
-            $0.context = .preview
-            $0.cookieClient = factory.cookies ?? (factory.signedIn ? .previewLoggedIn : .noop)
-            // The device the picture is taken on: the preview client reports a phone, and the error information
-            // sheet's Device row read "iPhone" in every iPad picture (candidate run 44025665174).
-            $0.deviceClient = .live
-            $0.date.now = PublicVisualFixtures.fixedDate
-            $0.uuid = .incrementing
-            $0.defaultAppStorage = appStorage
-            $0.defaultInMemoryStorage = InMemoryStorage()
-        } operation: {
+        let outcome = await inScenarioDependencies(factory) {
             await HostedWindowCapture.captureAndCompare(
                 make: {
                     let view = try factory.make()

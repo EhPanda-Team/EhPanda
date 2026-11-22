@@ -9,6 +9,10 @@ public enum SnapshotMode: String, Sendable {
     case compare
     /// Writes every picture into the run's output directory as a candidate for approval. Never touches a reference.
     case candidate
+    /// Takes no picture: finds the page height each coordinate needs and writes it to `heights.jsonl` (see
+    /// ``HostedWindowCapture/measure(make:window:style:interact:minimumReads:freezeViewport:)``). Local only:
+    /// `run-snapshot-local.sh --measure-heights` selects it, and the hosted gate never does.
+    case measure
 }
 
 /// The outcome of waiting for a hosted window to stop changing.
@@ -214,7 +218,7 @@ public enum HostedWindowCapture {
         await settleRead(window, minimumReads: minimumReads).result
     }
 
-    private static func settleRead(_ window: UIWindow, minimumReads: Int) async -> SettledRead {
+    static func settleRead(_ window: UIWindow, minimumReads: Int) async -> SettledRead {
         let clock = ContinuousClock()
         let start = clock.now
         var runStart = clock.now
@@ -549,7 +553,7 @@ public enum HostedWindowCapture {
 
     /// The outcome of ``settleRead(_:minimumReads:)``, keeping the exact settled frame verified against `anchor` so
     /// ``attemptHosted(window:request:)`` does not draw an extra unverified frame after settling.
-    private struct SettledRead {
+    struct SettledRead {
         let result: SettleResult
         let image: UIImage?
     }
@@ -622,46 +626,27 @@ public enum HostedWindowCapture {
         guard let scene = window.windowScene else {
             return failure(tallWindowGeometryReason)
         }
-        var companion: StatusBarCompanion?
+        var grown: GrownWindow?
         defer {
-            window.frame = nativeFrame
-            window.rootViewController?.view.frame = window.bounds
-            window.traitOverrides.remove(UITraitHorizontalSizeClass.self)
-            window.traitOverrides.remove(UITraitVerticalSizeClass.self)
-            companion?.remove()
+            grown?.restore()
             height.freezeViewport(false)
             window.layoutIfNeeded()
         }
-        let native = await settleRead(window, minimumReads: request.minimumReads)
-        guard case .settled = native.result, let nativeImage = native.image else {
-            return timeoutAttempt(native.result, png: nil)
-        }
-        height.freezeViewport(true)
-        let frozen = await settleRead(window, minimumReads: request.minimumReads)
-        guard case .settled = frozen.result, let frozenImage = frozen.image else {
-            return timeoutAttempt(frozen.result, png: nil)
-        }
-        guard let nativeBytes = comparedBytes(nativeImage), nativeBytes == comparedBytes(frozenImage) else {
-            return Attempt(status: .error, settleSamples: frozen.result.samples, png: pngData(frozenImage),
+        let frozen: SettleResult
+        switch await freezeAtNativeSize(window, minimumReads: request.minimumReads, freeze: height.freezeViewport) {
+        case .unsettled(let settled):
+            return timeoutAttempt(settled, png: nil)
+        case .changed(let settled, let image):
+            return Attempt(status: .error, settleSamples: settled.samples, png: pngData(image),
                            difference: nil, reason: freezeChangedPixelsReason)
+        case .matched(let settled):
+            frozen = settled
         }
-        let pinnedInsets = window.safeAreaInsets
-        let sceneClasses = scene.traitCollection
-        companion = StatusBarCompanion(
-            scene: scene, hidesStatusBar: scene.statusBarManager?.isStatusBarHidden ?? false
-        )
-        window.traitOverrides.horizontalSizeClass = sceneClasses.horizontalSizeClass
-        window.traitOverrides.verticalSizeClass = sceneClasses.verticalSizeClass
-        window.frame = CGRect(
-            origin: nativeFrame.origin, size: CGSize(width: nativeFrame.width, height: height.points)
-        )
-        window.rootViewController?.view.frame = window.bounds
-        window.layoutIfNeeded()
-        guard await nextSample() else { return timeoutAttempt(frozen.result, png: nil) }
-        let insets = window.safeAreaInsets
-        guard insets.top == pinnedInsets.top, insets.left == pinnedInsets.left, insets.right == pinnedInsets.right,
-              window.traitCollection.horizontalSizeClass == sceneClasses.horizontalSizeClass,
-              window.traitCollection.verticalSizeClass == sceneClasses.verticalSizeClass else {
+        let held = GrownWindow(window: window, scene: scene)
+        grown = held
+        held.resize(to: height.points)
+        guard await nextSample() else { return timeoutAttempt(frozen, png: nil) }
+        guard held.holdsViewportGeometry() else {
             return failure(tallWindowGeometryReason)
         }
         // Above what the render server draws in one read, the window is taken in reads of its native size.
@@ -678,7 +663,7 @@ public enum HostedWindowCapture {
     private static func checked(_ attempt: Attempt, window: UIWindow, committed: CGFloat) -> Attempt {
         switch attempt.status {
         case .recorded, .passed, .changed, .missingBaseline:
-            let need = HostedHierarchy.pageNeed(in: window)
+            let need = HostedHierarchy.pageNeed(in: window).points
             guard need > committed else { return attempt }
             return Attempt(
                 status: .error, settleSamples: attempt.settleSamples, png: attempt.png,
@@ -691,7 +676,7 @@ public enum HostedWindowCapture {
     }
 
     /// Waits one ``sampleInterval``, so a layout change has reached the window; `false` when the task was cancelled.
-    private static func nextSample() async -> Bool {
+    static func nextSample() async -> Bool {
         do {
             try await ContinuousClock().sleep(for: sampleInterval)
             return true
@@ -706,9 +691,14 @@ public enum HostedWindowCapture {
         Attempt(status: .error, settleSamples: 0, png: nil, difference: nil, reason: reason)
     }
 
+    /// The reason of a settle that timed out: what last moved or changed, never page text.
+    static var settleTimeoutReason: String {
+        (lastMotion ?? lastChange).map({ "settle-timeout:\($0)" }) ?? "settle-timeout"
+    }
+
     private static func timeoutAttempt(_ settled: SettleResult, png: Data?) -> Attempt {
         Attempt(status: .timeout, settleSamples: settled.samples, png: png, difference: nil,
-                reason: (lastMotion ?? lastChange).map({ "settle-timeout:\($0)" }) ?? "settle-timeout")
+                reason: settleTimeoutReason)
     }
 
     /// Runs the user step, settles, captures and compares (or records) the hosted page.
@@ -768,7 +758,7 @@ public enum HostedWindowCapture {
     /// that spans at least ``stableSpan`` while the window is at rest (``motion(in:)`` is `nil`), or gives up after
     /// ``maximumSamples`` passes: the rule of ``settleRead(_:minimumReads:)`` with the digests of the render-server
     /// read plan as the reads, which match only when equal.
-    private static func settleOwnedRows(
+    static func settleOwnedRows(
         _ window: UIWindow, viewportSize: CGSize, format: UIGraphicsImageRendererFormat, minimumReads: Int
     ) async throws -> SettleResult {
         let clock = ContinuousClock()
@@ -806,6 +796,9 @@ public enum HostedWindowCapture {
     /// Records or compares a settled picture.
     private static func conclude(_ image: UIImage, png: Data, settled: SettleResult, request: Request) -> Attempt {
         switch request.mode {
+        case .measure:
+            // The measuring mode takes no picture: it has its own entry point.
+            return failure("measure-mode-takes-no-picture")
         case .candidate:
             return Attempt(status: .recorded, settleSamples: settled.samples, png: png, difference: nil, reason: nil)
         case .compare:

@@ -409,6 +409,101 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertEqual(try Self.pixelHeight(outcome.png), Int(committed))
     }
 
+    // MARK: Measuring mode (19-20)
+
+    /// A scroll view with content taller than the window is measured at the need the check reports for it, in one
+    /// growth step, and the window is left as it was found.
+    @MainActor
+    func testMeasuringAScrollViewGivesTheNeedTheCheckReports() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let native = window.frame
+        let content = native.height + 588
+        var insets: CGFloat = 0
+        let measured = await Self.measure(Self.scrolling(content), in: window) { window in
+            let scrollView = Self.scrollViews(in: window).first
+            insets = (scrollView?.adjustedContentInset.top ?? 0) + (scrollView?.adjustedContentInset.bottom ?? 0)
+        }
+        let need = Int((content + insets).rounded(.up))
+        XCTAssertEqual(measured, PageMeasurement(
+            status: .measured, neededPoints: need, screenPoints: Int(native.height), steps: 1, reason: nil
+        ))
+        XCTAssertEqual(window.frame, native)
+        XCTAssertFalse(window.traitOverrides.contains(UITraitHorizontalSizeClass.self))
+        XCTAssertFalse(window.traitOverrides.contains(UITraitVerticalSizeClass.self))
+        let checked = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.scrolling(content)) }, window: window, style: .light, reference: nil,
+            mode: .candidate, height: Self.height(native.height)
+        )
+        XCTAssertEqual(checked.reason, "page-height: needs \(need) pt, committed \(Int(native.height)) pt")
+    }
+
+    /// A page that fits the screen is measured at the screen height, without growing the window.
+    @MainActor
+    func testAPageThatFitsTheScreenIsMeasuredAtTheScreenHeightInNoSteps() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let measured = await Self.measure(Self.sample(offset: 0), in: window)
+        let screen = Int(window.bounds.height)
+        XCTAssertEqual(measured, PageMeasurement(
+            status: .measured, neededPoints: screen, screenPoints: screen, steps: 0, reason: nil
+        ))
+    }
+
+    /// A scroll view that keeps its own height while the window grows cannot be covered by any window height.
+    @MainActor
+    func testAScrollViewThatDoesNotGrowWithTheWindowCannotBeCovered() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let view = VStack(spacing: 0) {
+            ScrollView { Color.orange.frame(height: 900) }
+                .frame(height: 300)
+            Color.clear
+        }
+        var scrollViewClass = ""
+        let measured = await Self.measure(view, in: window) { window in
+            scrollViewClass = Self.scrollViews(in: window).first.map({ String(describing: type(of: $0)) }) ?? ""
+        }
+        XCTAssertFalse(scrollViewClass.isEmpty)
+        XCTAssertEqual(measured.status, .cannotCover)
+        XCTAssertEqual(measured.reason, "cannot-cover:\(scrollViewClass)")
+        XCTAssertEqual(measured.steps, 1)
+        XCTAssertEqual(window.frame.height, CGFloat(measured.screenPoints))
+    }
+
+    /// Content that grows with every window step never holds still: the measurement gives up after 12 steps.
+    @MainActor
+    func testContentThatGrowsWithTheWindowDoesNotConverge() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let view = ScrollView {
+            Color.orange.containerRelativeFrame(.vertical) { length, _ in length + 100 }
+        }
+        let measured = await Self.measure(view, in: window)
+        XCTAssertEqual(measured.status, .didNotConverge, measured.reason ?? "")
+        XCTAssertEqual(measured.steps, HostedWindowCapture.maximumGrowthSteps)
+        XCTAssertNotNil(measured.neededPoints)
+        XCTAssertEqual(window.frame.height, CGFloat(measured.screenPoints))
+    }
+
+    /// Height lines go to `heights.jsonl` and never to `results.jsonl`; a coordinate keeps its first final line, and
+    /// an `error` line gives way to a later measurement.
+    func testHeightLinesHaveTheirOwnFileAndKeepTheFirstFinalLine() throws {
+        let writer = SnapshotResultWriter(output: try Self.temporaryDirectory())
+        let key = "a__en__large__portrait__iphone__light"
+        func line(_ status: SnapshotHeightStatus, needed: Int?) -> SnapshotHeightLine {
+            SnapshotHeightLine(key: key, status: status, neededPoints: needed, screenPoints: 912, steps: 1, reason: nil)
+        }
+        XCTAssertTrue(try writer.appendHeight(line(.error, needed: nil)))
+        XCTAssertFalse(try writer.appendHeight(line(.error, needed: nil)))
+        XCTAssertTrue(try writer.appendHeight(line(.measured, needed: 1200)))
+        XCTAssertFalse(try writer.appendHeight(line(.measured, needed: 1300)))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: writer.resultsURL.path(percentEncoded: false)))
+        let decoded = try String(contentsOf: writer.heightsURL, encoding: .utf8)
+            .split(separator: "\n")
+            .map({ try JSONDecoder().decode(SnapshotHeightLine.self, from: Data($0.utf8)) })
+        XCTAssertEqual(decoded, [line(.error, needed: nil), line(.measured, needed: 1200)])
+        let text = try String(contentsOf: writer.heightsURL, encoding: .utf8)
+        XCTAssertTrue(text.contains("\"status\":\"error\""))
+        XCTAssertTrue(text.contains("\"reason\":null"))
+    }
+
     /// The same sample strings are asserted by `Scripts/visual/test_snapshot_matrix.py`.
     func testCoordinateKeyAndBaselinePathMatchTheContract() {
         struct Sample {
@@ -623,6 +718,15 @@ final class HostedWindowCaptureTests: XCTestCase {
     }
 
     // MARK: Helpers
+
+    @MainActor
+    private static func measure(
+        _ view: some View, in window: UIWindow, interact: (@MainActor (UIWindow) async throws -> Void)? = nil
+    ) async -> PageMeasurement {
+        await HostedWindowCapture.measure(
+            make: { AnyView(view) }, window: window, style: .light, interact: interact, freezeViewport: { _ in }
+        )
+    }
 
     private static func height(_ points: CGFloat) -> CaptureHeight {
         CaptureHeight(points: points, freezeViewport: { _ in })

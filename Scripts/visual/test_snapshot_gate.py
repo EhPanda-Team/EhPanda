@@ -16,6 +16,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = ROOT / '.github/workflows'
 GATE = WORKFLOWS / 'snapshot-gate.yml'
+RUN_SHARD = ROOT / 'Scripts/visual/run-shard.sh'
 SHARDS = ROOT / 'Scripts/visual/snapshot-shards.json'
 ENVIRONMENT = ROOT / 'Scripts/visual/regression-environment.json'
 INVENTORY = ROOT / 'AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json'
@@ -50,6 +51,14 @@ def uses(job):
 
 def step_using(job, prefix):
     return [step for step in job.get('steps', []) if step.get('uses', '').startswith(prefix)]
+
+
+MEASURING_MODE = re.compile(r'MODE="?measure|mode=measure|measure-heights')
+
+
+def selects_the_measuring_mode(text):
+    """The non-comment lines of `text` that set the snapshot mode to the measuring mode or pass the runner's flag."""
+    return [line for line in text.splitlines() if not line.lstrip().startswith('#') and MEASURING_MODE.search(line)]
 
 
 class GateWorkflowTests(unittest.TestCase):
@@ -336,6 +345,20 @@ class GateWorkflowTests(unittest.TestCase):
         for flag in ('-retry-tests-on-failure', '-test-iterations', '-run-tests-until-failure'):
             self.assertNotIn(flag, self.text, flag)
         self.assertIn('-collect-test-diagnostics never', policy)
+
+    def test_the_gate_never_runs_the_measuring_mode(self):
+        # 19-20 (T-19-47): the measuring mode adjusts the committed heights, so only a local run may select it. The
+        # words "measure" and "measurement" stay in comments, which describe the cost runs.
+        for path in (GATE, RUN_SHARD):
+            self.assertEqual(selects_the_measuring_mode(path.read_text()), [], path.name)
+
+    def test_the_measuring_mode_check_sees_a_gate_that_selects_it(self):
+        # Mutation guard: the check above must fail for each way the gate could select the mode.
+        for line in ('TEST_RUNNER_EHPANDA_SNAPSHOT_MODE=measure', 'MODE="measure"', '  mode=measure',
+                     'Scripts/visual/run-snapshot-local.sh --measure-heights --out x',
+                     'env EHPANDA_SNAPSHOT_MODE=measure xcodebuild test'):
+            self.assertEqual(selects_the_measuring_mode(f'# comment\n{line}\n'), [line], line)
+        self.assertEqual(selects_the_measuring_mode('  # MODE=measure --measure-heights\nMODE=candidate\n'), [])
 
     def test_fail_fast_is_off_on_every_matrix(self):
         self.assertGreaterEqual(self.text.count('fail-fast: false'), 3)
