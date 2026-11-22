@@ -5,6 +5,7 @@ date: 2026-11-23
 commits:
   - d0f7b7655
   - 31b5c32d2
+  - 2c915e852
 ---
 
 # 261123-1ep: Save Search on search results pages
@@ -84,9 +85,25 @@ in [PLAN.md](PLAN.md).
   executor subagents, because the owner's decisions and the code context were already in hand.
 - No analytics signal was added. The signal set was signed off in 20-13, and a "saved from
   results" signal would need the owner's decision.
-- **Pre-existing defect found during the UI check (not fixed here):** in the saved-search editor
-  on `develop`, the Search Terms text editor often lays out one line tall (22 pt), so a prefilled
-  keyword is clipped at the top and bottom of its row. It shows the same way in Quick Search's
-  existing Edit Saved Search screen, whose layout this task did not change. It is likely tied to
-  the tag-suggestion row that 261113-h72 added to the same section. It shows in the new sheet
-  because the sheet opens with text already in the editor.
+- **Defect found during the UI check, fixed in `2c915e852` (owner go-ahead, 2026-11-23):** in the
+  saved-search editor, the Search Terms `TextEditor` laid out at one line (22 pt) from the second
+  presentation on (the first was 38 pt), so text was clipped at the top and bottom of its row. It
+  showed in the new sheet and in Quick Search's existing Edit Saved Search screen.
+  - Cause: the `TextEditor`'s own sizing in a form row. With the tag-suggestion row taken out, the
+    clipping was identical (22 pt on the second and later presentations), so 261113-h72's
+    suggestions are not the cause.
+  - Fix: Search Terms is now a native `TextField(axis: .vertical)`. It sizes the same on every
+    presentation, grows with its text and lines up with the Name field (the editor's text sat 5 pt
+    further in). Return now ends editing instead of inserting a newline, which suits a one-line
+    query.
+  - The owner chose no placeholder (2026-11-23). A text field's label only becomes its
+    placeholder, so the label is empty and `.accessibilityLabel(.searchTerms)` names the field for
+    VoiceOver, which the `TextEditor` never did. `TagSuggestionView.Source.textEditor` is renamed
+    `.multilineField`, with its docs updated.
+  - Checked in the simulator: a prefilled sheet opened three times, the empty New Saved Search
+    screen, Edit Saved Search with saved text, long text wrapping over three lines, and Return.
+    Tag suggestions could not appear there (no tag database on a fresh simulator); their code is
+    unchanged apart from the rename.
+  - Gate: clean app build (0 warnings), SwiftLint `--strict` clean, and QuickSearchFeatureTests,
+    SearchFeatureTests, DetailFeatureTests, AppFeatureTests and AppToolsTests: TEST SUCCEEDED,
+    863 cases passed, 0 failed.
