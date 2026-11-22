@@ -56,6 +56,21 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
   the process each scenario is drawn in portrait and landscape and in light and dark, on iPhone Air and on iPad Pro
   11-inch (M5): 144 pictures per scenario. iPadOS refuses an in-process turn, so an iPad process captures one
   orientation, and the device is turned first with `VisualCaptureOrientationUITests`.
+- **Per-view snapshot files.** Each view declares its states in its own
+  `AppPackage/Tests/VisualSnapshotTests/Snapshots/<View>ViewSnapshot.swift`, an `enum` that conforms to the test-only
+  `SnapshotProvider` protocol (shaped like `PreviewProvider`; previews stay `#Preview`). A `SnapshotState` holds the
+  scenario ID (unchanged, so keys and baseline paths do not change), its `heights` (`PageHeights`) and the
+  `ScenarioFactory` that builds the real view, signs in, loads artwork and performs the user step. Swift has no type
+  discovery, so `ScenarioCatalog.providers` lists the providers, and `ScenarioInventoryTests` fails until that list and
+  `scenarios.json` agree. Nothing here reaches Release.
+- **Tall window and check.** After the turn, each picture is taken in the key window resized to the scene's width and
+  the committed height of its coordinate (`PageHeights`: one value per device, orientation and text size, the tallest
+  of the six languages and both themes; `.screen` keeps the device height for a page that never scrolls or fits). The
+  height is fixed in the source and never measured or changed during a run. The window keeps the viewport's status
+  bar (a companion window), safe area and size classes, and the viewport sampling is frozen and verified against the
+  native read; a picture above 8191 device pixels is composed from native-size reads. A page whose scroll content
+  needs more fails as `page-height: needs <n> pt, committed <m> pt` and keeps its picture, and that failure is not
+  retried. A page shorter than the screen keeps the screen height.
 - **Comparison.** Strict and never recording: pictures are 1x, precision 0.9999, perceptual precision 1, applied
   everywhere (`HostedWindowCapture`). A picture that differs or times out is captured and compared once more
   before it counts as failed; every such retry goes into the flake log. Recording happens only in an explicit
@@ -198,12 +213,38 @@ Scripts/visual/run-snapshot-local.sh --device phone --config en-large --classes 
 ```
 
 `--device` is `phone` or `pad` (the `EhPanda iPhone Air` and `EhPanda iPad Pro 11-inch (M5)` simulators, found by
-name), `--orientation` selects one iPad orientation, and `--workers N` runs the classes on N parallel-testing clones
-(the hosted check uses none). It waits for any other `xcodebuild` first, and fails on a failed or empty run or on
-any changed, missing (compare), timeout or error picture. Local results are advisory: only the pinned hosted runner
+exact name; `--simulator NAME` names another, never a prefix match), `--orientation` selects one iPad orientation,
+and `--workers N` runs the classes on N parallel-testing clones (the hosted check uses none). It waits for any
+other `xcodebuild` first, and fails on a failed or empty run or on any changed, missing (compare), timeout or error
+picture. Local results are advisory: only the pinned hosted runner
 records and compares the baseline. `run-shard.sh` records `drift` and captures nothing unless the Mac matches the
 pin. The fault switch `EHPANDA_SNAPSHOT_FAULT` is for the hosted proof on `ci/snapshot-gate` only and exists nowhere
 else.
+
+**Committed heights.** The heights of the tall window come from measurement, never by hand and never from the gate.
+`--measure-heights` (instead of `--mode`) runs the chosen classes in the measuring mode: no picture is taken, and
+each coordinate gets one line in `<out>/heights.jsonl` with the window height its page needs (the window is grown
+until the need holds still, at most 12 steps) as `measured`, or `cannot-cover` (a scroll view that does not grow
+with the window), `did-not-converge`, `error` or `notApplicable`. The run fails on a missing or empty file or on an
+`error` or `did-not-converge` line. Measuring runs over every language, both themes and both devices are turned into
+heights in four steps:
+
+```sh
+Scripts/visual/run-snapshot-local.sh --device phone --config en-large --classes <Classes> --measure-heights --out DIR
+python3 Scripts/visual/snapshot_heights.py propose --runs DIR... --out PROPOSAL.json
+python3 Scripts/visual/snapshot_heights.py apply --proposal PROPOSAL.json [--only ID,ID]
+git diff AppPackage/Tests/VisualSnapshotTests/Snapshots   # review, then commit
+python3 Scripts/visual/snapshot_heights.py check-sources
+```
+
+`propose` takes, per scenario, device, orientation and text size, the tallest need over the six languages and both
+themes, rounded up to whole points and never under the device height; it refuses a group with a missing coordinate and
+lists `cannot-cover`, `did-not-converge` and `error` lines as findings, whose groups get no value. `apply` writes the
+canonical layout into the `heights:` argument of each named state (and `import CoreGraphics` where a file commits
+heights), and refuses a scenario whose twelve values are not all in the proposal. `check-sources` fails on a value
+under the device height, a non-integer, a literal that is not the canonical layout, a duplicate ID or an ID set unlike
+`scenarios.json`. When a view later outgrows its height, the gate fails with the needed value; raising it is a source
+change that the next baseline approval covers.
 
 # Baseline
 
@@ -270,6 +311,9 @@ python3 Scripts/visual/snapshot_report.py --aggregate OUT/aggregate.json --pictu
    the sheets, 16 pictures each; `picture-probe.swift` reads each picture's text with Vision and its pixel statistics,
    `contact-sheet.swift` draws the sheets. Both are compiled on the first run (macOS only); the probe's results are
    kept in `SET/probe.jsonl`, so a re-run reads only new pictures. A full set takes about 15 minutes on 8 processes.
+   With `--heights FILE`, the file `snapshot_heights.py export --out FILE` writes from the committed sources
+   (`.screen` resolved to the device heights), it also flags `committed-height`: a picture whose pixel size is not the
+   pinned width of its device and orientation by the committed height of its coordinate.
 3. **Owner approval.** The owner reviews and approves the whole set once, against the final UI, in the format he
    chooses (the planning default is the short packet beside the full report). Silence, a partial answer or the
    approval of a sample is not approval. The approval is recorded with the run ID and the

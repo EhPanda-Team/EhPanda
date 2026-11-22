@@ -91,6 +91,16 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
   image with the library's `.image` strategy under `record: .never`. Recording happens only in an explicit candidate
   run (D-17). This replaces the 17-11 XCUITest dispatcher for the matrix; "real-app dispatch" now means real
   feature views and stores in the real app process.
+  - *Amended 2026-11-22 (owner decision C4, design approved in `19-FULL-PAGE-CAPTURE-DESIGN.md`):* after rotation the
+    key window is resized to the scene's width and the committed height of the coordinate (at least the device
+    height), with the Phase 17 remedies: the status bar companion window, size classes pinned to the scene's, the
+    viewport sampling frozen and verified, and pictures above 8191 device pixels composed from native-size reads. A
+    page whose scroll content needs more than the committed height fails with `page-height: needs <n> pt, committed
+    <m> pt` and keeps its picture; nothing grows at run time. The heights are committed per view, one value per
+    device, orientation and text size (the tallest of six languages and both themes), in the `heights:` argument of
+    the state in its `*ViewSnapshot.swift` file. They come from the measuring mode
+    (`Scripts/visual/run-snapshot-local.sh --measure-heights`, then `Scripts/visual/snapshot_heights.py`), which the
+    gate never runs (`test_snapshot_gate.py` fails if the workflow or `run-shard.sh` can set it).
 - **D-09: spike findings** (25 cases × 3 scales, one record and three compare runs, iPhone Air simulator):
   - Path B renders Liquid Glass (`.glass`, `.glassProminent`), materials, menus, alerts, sheets, confirmation
     dialogs and the soft scroll edge, which package-only tests could not. The glass backdrop blur is weaker than on

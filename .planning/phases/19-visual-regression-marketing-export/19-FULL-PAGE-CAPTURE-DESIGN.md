@@ -1,6 +1,7 @@
 # Phase 19: Full-page capture and per-view snapshot files (design proposal)
 
-**Status:** proposal, 2026-11-22. Nothing is implemented. Needs the owner's go-ahead before any code changes.
+**Status:** approved by the owner on 2026-11-22 and implemented by plans 19-18 to 19-20 (per-view providers, the tall
+window and its check, the measuring mode and `snapshot_heights.py`); the committed heights are filled in by 19-26.
 
 ## Owner decisions this answers (2026-11-22)
 
