@@ -34,6 +34,27 @@ extension HomePath.State: GalleryRouteIdentifiable {
     }
 }
 
+extension HomePath.State {
+    /// The scoped action that flushes the reader this screen presents, if any: a list screen's own
+    /// reader, or one presented inside the nested gallery drill-down.
+    public var readingFlushAction: HomePath.Action? {
+        switch self {
+        case .frontPage(let state):
+            state.reading.flushAction.map({ .frontPage(.reading($0)) })
+        case .popular(let state):
+            state.reading.flushAction.map({ .popular(.reading($0)) })
+        case .toplists(let state):
+            state.reading.flushAction.map({ .toplists(.reading($0)) })
+        case .watched(let state):
+            state.reading.flushAction.map({ .watched(.reading($0)) })
+        case .history(let state):
+            state.reading.flushAction.map({ .history(.reading($0)) })
+        case .gallery(let state):
+            state.readingFlushAction.map({ .gallery($0) })
+        }
+    }
+}
+
 extension StackState where Element == HomePath.State {
     // Locate the pushed `.gallery(.detail)` element for `gid` so a comment action performed on a
     // deeper `.comments` screen can refresh the detail it belongs to.

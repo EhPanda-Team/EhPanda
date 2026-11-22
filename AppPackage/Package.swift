@@ -694,8 +694,6 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.networkingFeature),
             .module(.quickSearchFeature),
-            .module(.readingFeature),
-            .module(.systemNotification),
             .module(.resources),
             .module(.tagTranslationFeature),
             .targetDependency(.composableArchitecture),
@@ -1079,6 +1077,8 @@ let targets: [PackageDescription.Target] = [
             .module(.appLaunchAutomationClient),
             .module(.downloadClient),
             .module(.fileClient),
+            .module(.galleryClient),
+            .module(.networkingFeature),
             .module(.readingFeature),
             .targetDependency(.sharing)
         ]
@@ -1214,6 +1214,7 @@ let targets: [PackageDescription.Target] = [
             .module(.analyticsClient),
             .module(.appLaunchAutomationClient),
             .module(.appModels),
+            .module(.detailFeature),
             .module(.favoritesFeature),
             .module(.readingFeature),
             .targetDependency(.composableArchitecture),

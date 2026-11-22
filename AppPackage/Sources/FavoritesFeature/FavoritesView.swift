@@ -8,12 +8,10 @@ import DateSeekFeature
 import DetailFeature
 import GalleryListComponents
 import QuickSearchFeature
-import ReadingFeature
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
 public import SwiftUI
-import SystemNotification
 import TagTranslationFeature
 
 public struct FavoritesView: View {
@@ -65,11 +63,7 @@ public struct FavoritesView: View {
                 )
                 .privacyMask()
             }
-            .fullScreenCover(item: $store.scope(\.$destination, action: \.destination).reading) { store in
-                ReadingView(store: store)
-                    .privacyMask()
-            }
-            .toast($store.scope(\.$toast, action: \.toast))
+            .galleryReading(store.scope(\.reading, action: \.reading))
             .searchable(text: $store.keyword, placement: .navigationBarDrawer)
             .searchSuggestions {
                 TagSuggestionView(
@@ -92,12 +86,12 @@ public struct FavoritesView: View {
                 showsGridRating: false,
                 galleries: store.galleries ?? [],
                 pageNumber: store.pageNumber,
-                loadingState: store.readingRequestID == nil ? store.loadingState ?? .idle : .loading,
+                loadingState: store.reading.isOpening ? .loading : store.loadingState ?? .idle,
                 footerLoadingState: store.footerLoadingState ?? .idle,
                 fetchAction: { store.send(.fetchGalleries()) },
                 fetchMoreAction: { store.send(.fetchMoreGalleries) },
                 navigateAction: { store.send(.galleryTapped($0)) },
-                readAction: { store.send(.openReading($0)) },
+                readAction: { store.send(.reading(.open($0))) },
                 translateAction: {
                     store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
                 },

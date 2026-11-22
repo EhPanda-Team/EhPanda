@@ -158,6 +158,7 @@ private struct GalleryDetailCellContent: View {
     private var cover: some View {
         GalleryCover(url: resolvedCoverURL, style: .standard)
             .accessibilityHidden(true)
+            .galleryReadCover()
     }
 
     /// The designed 5pt gap is what separates single lines of text. At an accessibility size every

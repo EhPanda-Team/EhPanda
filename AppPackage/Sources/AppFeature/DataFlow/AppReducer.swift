@@ -698,9 +698,9 @@ private extension AppReducer {
 
     /// Flush actions for every reading session currently on top of a navigation host, so a background
     /// force-quit persists each reader's last debounced page. A reader is presented as a `.reading`
-    /// destination of `.detail`/`.previews` (elements of the gallery stacks) or, for the Downloads tab
-    /// and the modal detail, directly as a host destination. Any new host that can present a
-    /// `.reading` destination must be registered here.
+    /// destination of `.detail`/`.previews` (elements of the gallery stacks), by a list screen's
+    /// `GalleryReadingFeature`, or, for the Downloads tab and the modal detail, directly as a host
+    /// destination. Any new host that can present a reader must be registered here.
     func readingFlushEffects(_ state: State) -> [Effect<Action>] {
         var effects: [Effect<Action>] = []
 
@@ -718,22 +718,20 @@ private extension AppReducer {
             effects.append(.send(.downloads(.path(.element(id: id, action: action)))))
         }
 
-        // Home / SearchRoot nest the gallery stack under a `.gallery` element.
+        // Home / SearchRoot stack their list screens, each with its own list reader, and nest the
+        // gallery stack under a `.gallery` element.
         if let id = state.homeState.path.ids.last,
-           case .gallery(let gallery)? = state.homeState.path[id: id],
-           let action = gallery.readingFlushAction {
-            effects.append(.send(.home(.path(.element(id: id, action: .gallery(action))))))
+           let action = state.homeState.path[id: id]?.readingFlushAction {
+            effects.append(.send(.home(.path(.element(id: id, action: action)))))
         }
         if let id = state.searchRootState.path.ids.last,
-           case .gallery(let gallery)? = state.searchRootState.path[id: id],
-           let action = gallery.readingFlushAction {
-            effects.append(.send(.searchRoot(.path(.element(id: id, action: .gallery(action))))))
+           let action = state.searchRootState.path[id: id]?.readingFlushAction {
+            effects.append(.send(.searchRoot(.path(.element(id: id, action: action)))))
         }
 
-        // The modal detail (a deep link, or a tab's gallery in a window regular in both
-        // dimensions) and the Downloads tab present a reader directly.
-        if state.favoritesState.destination?.reading != nil {
-            effects.append(.send(.favorites(.destination(.presented(.reading(.flushReadingProgress))))))
+        // Favorites' list reader and the Downloads tab present a reader directly.
+        if let action = state.favoritesState.reading.flushAction {
+            effects.append(.send(.favorites(.reading(action))))
         }
         if state.downloadsState.destination?.reading != nil {
             effects.append(.send(.downloads(.destination(.presented(.reading(.flushReadingProgress))))))

@@ -30,6 +30,7 @@ public struct DetailSearchReducer: Sendable {
         @SharedReader(.searchFilter) public var searchFilter: Filter
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @SharedReader(.setting) public var setting: Setting
+        public var reading = GalleryReadingFeature.State()
         @Presents public var destination: Destination.State?
         public var keyword = ""
         public var lastKeyword = ""
@@ -49,6 +50,7 @@ public struct DetailSearchReducer: Sendable {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case delegate(Delegate)
+        case reading(GalleryReadingFeature.Action)
         case filtersButtonTapped
         case quickSearchButtonTapped
         case destination(PresentationAction<Destination.Action>)
@@ -68,6 +70,7 @@ public struct DetailSearchReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
+        Scope(\.reading, action: \.reading, GalleryReadingFeature.init)
             .onChange(of: \.keyword) { _, state in
                 if !state.keyword.isEmpty {
                     state.lastKeyword = state.keyword
@@ -80,7 +83,11 @@ public struct DetailSearchReducer: Sendable {
             case .binding:
                 return .none
 
-            case .delegate:
+            case .delegate(.pushDetail):
+                state.reading.cancelOpening()
+                return .none
+
+            case .reading:
                 return .none
 
             case .filtersButtonTapped:

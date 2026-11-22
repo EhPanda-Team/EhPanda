@@ -162,6 +162,7 @@ public struct GalleryThumbnailCell: View {
             }
             .compositingGroup()
             .clipShape(.rect(cornerRadius: 15))
+            .galleryReadCover()
     }
 
     private var resolvedCoverURL: URL? {

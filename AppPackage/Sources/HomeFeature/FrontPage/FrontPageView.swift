@@ -3,6 +3,7 @@ import AppModels
 import AppTools
 import ComposableArchitecture
 import DateSeekFeature
+import DetailFeature
 import FiltersFeature
 import GalleryListComponents
 import Resources
@@ -22,16 +23,18 @@ struct FrontPageView: View {
             displayMode: store.setting.galleryListPresentation[.frontPage],
             galleries: store.filteredGalleries,
             pageNumber: store.pageNumber,
-            loadingState: store.loadingState,
+            loadingState: store.reading.isOpening ? .loading : store.loadingState,
             footerLoadingState: store.footerLoadingState,
             fetchAction: { store.send(.fetchGalleries) },
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
+            readAction: { store.send(.reading(.open($0))) },
             translateAction: {
                 store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             },
             galleryFocus: $focusedGalleryID
         )
+        .galleryReading(store.scope(\.reading, action: \.reading))
         .sheet(
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in

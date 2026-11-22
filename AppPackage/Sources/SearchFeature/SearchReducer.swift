@@ -3,6 +3,7 @@ public import AppModels
 import AppTools
 public import ComposableArchitecture
 public import DateSeekFeature
+public import DetailFeature
 import DownloadClient
 public import FiltersFeature
 import Foundation
@@ -35,6 +36,7 @@ public struct SearchReducer: Sendable {
         @SharedReader(.searchFilter) public var searchFilter: Filter
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @SharedReader(.setting) public var setting: Setting
+        public var reading = GalleryReadingFeature.State()
         @Presents public var destination: Destination.State?
         public var keyword = ""
         public var lastKeyword = ""
@@ -57,6 +59,7 @@ public struct SearchReducer: Sendable {
         case binding(BindingAction<State>)
         case onPresented
         case delegate(Delegate)
+        case reading(GalleryReadingFeature.Action)
         case filtersButtonTapped
         case quickSearchButtonTapped
         case dateSeekButtonTapped(DateSeekNavigation)
@@ -80,6 +83,7 @@ public struct SearchReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
+        Scope(\.reading, action: \.reading, GalleryReadingFeature.init)
             .onChange(of: \.keyword) { _, state in
                 if !state.keyword.isEmpty {
                     state.lastKeyword = state.keyword
@@ -102,7 +106,14 @@ public struct SearchReducer: Sendable {
                     .send(.fetchGalleries())
                 )
 
+            case .delegate(.pushDetail):
+                state.reading.cancelOpening()
+                return .none
+
             case .delegate:
+                return .none
+
+            case .reading:
                 return .none
 
             case .filtersButtonTapped:

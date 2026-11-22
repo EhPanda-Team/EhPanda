@@ -1,5 +1,4 @@
 import AnalyticsClient
-public import AppComponents
 public import AppModels
 import AppTools
 public import ComposableArchitecture
@@ -7,13 +6,11 @@ import CookieClient
 public import DateSeekFeature
 public import DetailFeature
 import DownloadClient
-public import Foundation
 import GalleryClient
 import HapticsClient
 import IdentifiedCollections
 public import NetworkingFeature
 public import QuickSearchFeature
-public import ReadingFeature
 import SwiftUI
 
 @Reducer
@@ -34,7 +31,6 @@ public struct FavoritesReducer: Sendable {
     public enum Destination {
         case quickSearch(QuickSearchReducer)
         case dateSeek(DateSeekReducer)
-        case reading(ReadingReducer)
     }
 
     @ObservableState
@@ -44,8 +40,7 @@ public struct FavoritesReducer: Sendable {
         @SharedReader(.setting) public var setting: Setting
         public var path = StackState<GalleryPath.State>()
         @Presents public var destination: Destination.State?
-        @Presents public var toast: AppAlertState<Never>?
-        public var readingRequestID: UUID?
+        public var reading = GalleryReadingFeature.State()
         public var keyword = ""
         public var visibleGalleryID: String?
 
@@ -92,9 +87,7 @@ public struct FavoritesReducer: Sendable {
         case loginSucceeded
         case delegate(Delegate)
         case galleryTapped(Gallery)
-        case openReading(Gallery)
-        case openReadingDone(requestID: UUID, Result<ReadingReducer.State, AppError>)
-        case toast(PresentationAction<Never>)
+        case reading(GalleryReadingFeature.Action)
         case pushGalleryDetail(Gallery)
         case path(StackActionOf<GalleryPath>)
         case setFavoritesIndex(Int)
@@ -123,7 +116,7 @@ public struct FavoritesReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
-        readingReducer
+        Scope(\.reading, action: \.reading, GalleryReadingFeature.init)
 
         Reduce { state, action in
             switch action {
@@ -160,7 +153,7 @@ public struct FavoritesReducer: Sendable {
                 return .send(.fetchGalleries())
 
             case .galleryTapped(let gallery):
-                state.readingRequestID = nil
+                state.reading.cancelOpening()
                 return .send(.delegate(.openGalleryDetail(gallery)))
 
             case .pushGalleryDetail(let gallery):
@@ -215,7 +208,7 @@ public struct FavoritesReducer: Sendable {
             case .setFavoritesIndex(let index):
                 guard index != state.favoritesIndex else { return .none }
                 state.favoritesIndex = index
-                state.readingRequestID = nil
+                state.reading.cancelOpening()
                 guard cookieClient.didLogin else { return .none }
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())
@@ -363,7 +356,7 @@ public struct FavoritesReducer: Sendable {
                 }
                 return .none
 
-            case .destination, .openReading, .openReadingDone, .toast:
+            case .destination, .reading:
                 return .none
             }
         }
@@ -378,7 +371,6 @@ public struct FavoritesReducer: Sendable {
             hapticsClient: hapticsClient
         )
         .ifLet(\.$destination, action: \.destination)
-        .ifLet(\.$toast, action: \.toast)
         .forEach(\.path, action: \.path)
         .signalsErrors(of: \.rawLoadingState, on: .favorites)
         .signalsErrors(of: \.rawFooterLoadingState, on: .favorites)

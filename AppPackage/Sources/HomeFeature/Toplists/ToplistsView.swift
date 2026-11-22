@@ -1,6 +1,7 @@
 import AppComponents
 import AppModels
 import ComposableArchitecture
+import DetailFeature
 import GalleryListComponents
 import Resources
 import SFSafeSymbols
@@ -24,15 +25,17 @@ struct ToplistsView: View {
             displayMode: store.setting.galleryListPresentation[.toplists],
             galleries: store.filteredGalleries ?? [],
             pageNumber: store.pageNumber,
-            loadingState: store.loadingState ?? .idle,
+            loadingState: store.reading.isOpening ? .loading : store.loadingState ?? .idle,
             footerLoadingState: store.footerLoadingState ?? .idle,
             fetchAction: { store.send(.fetchGalleries()) },
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
+            readAction: { store.send(.reading(.open($0))) },
             translateAction: {
                 store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             }
         )
+        .galleryReading(store.scope(\.reading, action: \.reading))
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .appAlert($store.scope(\.$alert, action: \.alert), text: $store.jumpPageIndex)
         .toolbar(content: toolbar)

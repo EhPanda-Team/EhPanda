@@ -3,6 +3,7 @@ public import AppComponents
 public import AppModels
 import AppTools
 public import ComposableArchitecture
+public import DetailFeature
 import GalleryClient
 import HapticsClient
 import Resources
@@ -26,6 +27,7 @@ public struct ToplistsReducer: Sendable {
     public struct State: Equatable {
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @SharedReader(.setting) public var setting: Setting
+        public var reading = GalleryReadingFeature.State()
         public var keyword = ""
         public var jumpPageIndex = ""
         @Presents public var alert: AppAlertState<Alert>?
@@ -62,6 +64,7 @@ public struct ToplistsReducer: Sendable {
         case binding(BindingAction<State>)
         case onPresented
         case delegate(Delegate)
+        case reading(GalleryReadingFeature.Action)
         case setToplistsType(ToplistsType)
 
         case alert(PresentationAction<Alert>)
@@ -84,6 +87,7 @@ public struct ToplistsReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
+        Scope(\.reading, action: \.reading, GalleryReadingFeature.init)
 
         Reduce { state, action in
             switch action {
@@ -97,12 +101,17 @@ public struct ToplistsReducer: Sendable {
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())
 
-            case .delegate:
+            case .delegate(.pushDetail):
+                state.reading.cancelOpening()
+                return .none
+
+            case .reading:
                 return .none
 
             case .setToplistsType(let type):
                 guard type != state.type else { return .none }
                 state.type = type
+                state.reading.cancelOpening()
                 guard state.galleries?.isEmpty != false else { return .none }
                 return .send(.fetchGalleries())
 

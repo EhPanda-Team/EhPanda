@@ -2,6 +2,7 @@ import AnalyticsClient
 public import AppModels
 import AppTools
 public import ComposableArchitecture
+public import DetailFeature
 public import FiltersFeature
 import GalleryClient
 import HapticsClient
@@ -27,6 +28,7 @@ public struct PopularReducer: Sendable {
         @SharedReader(.globalFilter) public var globalFilter: Filter
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @SharedReader(.setting) public var setting: Setting
+        public var reading = GalleryReadingFeature.State()
         @Presents public var destination: Destination.State?
         public var keyword = ""
 
@@ -44,6 +46,7 @@ public struct PopularReducer: Sendable {
         case binding(BindingAction<State>)
         case onPresented
         case delegate(Delegate)
+        case reading(GalleryReadingFeature.Action)
         case filtersButtonTapped
         case destination(PresentationAction<Destination.Action>)
 
@@ -59,6 +62,7 @@ public struct PopularReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
+        Scope(\.reading, action: \.reading, GalleryReadingFeature.init)
 
         Reduce { state, action in
             switch action {
@@ -72,7 +76,11 @@ public struct PopularReducer: Sendable {
                 guard state.galleries.isEmpty else { return .none }
                 return .send(.fetchGalleries)
 
-            case .delegate:
+            case .delegate(.pushDetail):
+                state.reading.cancelOpening()
+                return .none
+
+            case .reading:
                 return .none
 
             case .filtersButtonTapped:

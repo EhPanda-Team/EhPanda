@@ -403,7 +403,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         homeApp.buttons["Show All"].firstMatch.tap()
         let firstGalleryRow = homeApp.buttons.matching(UITestConstants.galleryItemPredicate).firstMatch
         XCTAssertTrue(firstGalleryRow.waitForExistence(timeout: 15), "Front Page did not render a gallery row.")
-        firstGalleryRow.tap()
+        firstGalleryRow.tapGalleryOutsideCover("Front Page gallery")
         homeApp.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         try audit(homeApp, surface: "Gallery Detail (iPad modal)")
     }

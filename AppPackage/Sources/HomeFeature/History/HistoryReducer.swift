@@ -3,6 +3,7 @@ import AppComponents
 public import AppModels
 import AppTools
 public import ComposableArchitecture
+public import DetailFeature
 import DownloadClient
 import Foundation
 import GalleryClient
@@ -33,6 +34,7 @@ public struct HistoryReducer: Sendable {
     public struct State: Equatable {
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @SharedReader(.setting) public var setting: Setting
+        public var reading = GalleryReadingFeature.State()
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
         public var keyword = ""
         public var downloadBadges = [String: DownloadBadge]()
@@ -62,6 +64,7 @@ public struct HistoryReducer: Sendable {
         case binding(BindingAction<State>)
         case onPresented
         case delegate(Delegate)
+        case reading(GalleryReadingFeature.Action)
         case confirmationDialog(PresentationAction<Dialog>)
         case clearHistoryButtonTapped
         case clearHistoryGalleries
@@ -82,6 +85,7 @@ public struct HistoryReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
+        Scope(\.reading, action: \.reading, GalleryReadingFeature.init)
 
         Reduce { state, action in
             switch action {
@@ -98,7 +102,11 @@ public struct HistoryReducer: Sendable {
                     .send(.fetchGalleries)
                 )
 
-            case .delegate:
+            case .delegate(.pushDetail):
+                state.reading.cancelOpening()
+                return .none
+
+            case .reading:
                 return .none
 
             case .clearHistoryButtonTapped:

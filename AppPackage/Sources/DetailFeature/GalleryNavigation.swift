@@ -143,7 +143,8 @@ extension StackState where Element == GalleryPath.State {
 
 extension GalleryPath.State {
     /// The scoped action that flushes the reading session this gallery screen presents, if any. A
-    /// reader is a `.reading` destination of `.detail`/`.previews`. A new gallery screen that can host
+    /// reader is a `.reading` destination of `.detail`/`.previews`, or the list reader of
+    /// `.detailSearch`. A new gallery screen that can host
     /// a reader must be handled here (and any new *host* of a reader registered in `AppReducer`'s
     /// scene-phase router).
     public var readingFlushAction: GalleryPath.Action? {
@@ -152,6 +153,8 @@ extension GalleryPath.State {
             return .detail(.destination(.presented(.reading(.flushReadingProgress))))
         case .previews(let previews) where previews.destination?.reading != nil:
             return .previews(.destination(.presented(.reading(.flushReadingProgress))))
+        case .detailSearch(let detailSearch):
+            return detailSearch.reading.flushAction.map({ .detailSearch(.reading($0)) })
         default:
             return nil
         }

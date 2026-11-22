@@ -22,6 +22,19 @@ extension SearchPath.State: GalleryRouteIdentifiable {
     }
 }
 
+extension SearchPath.State {
+    /// The scoped action that flushes the reader this screen presents, if any: the results list's
+    /// own reader, or one presented inside the nested gallery drill-down.
+    public var readingFlushAction: SearchPath.Action? {
+        switch self {
+        case .search(let state):
+            state.reading.flushAction.map({ .search(.reading($0)) })
+        case .gallery(let state):
+            state.readingFlushAction.map({ .gallery($0) })
+        }
+    }
+}
+
 extension StackState where Element == SearchPath.State {
     // Locate the pushed `.gallery(.detail)` element for `gid` so a comment action performed on a
     // deeper `.comments` screen can refresh the detail it belongs to.

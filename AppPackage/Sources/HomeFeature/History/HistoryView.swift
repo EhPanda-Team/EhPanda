@@ -2,6 +2,7 @@ import AppComponents
 import AppModels
 import AppTools
 import ComposableArchitecture
+import DetailFeature
 import GalleryListComponents
 import Resources
 import SFSafeSymbols
@@ -22,7 +23,7 @@ struct HistoryView: View {
             galleries: store.filteredGalleries,
             // History pages through the device's own list, so its cursor is the index of the next entry to fetch.
             pageNumber: PageNumber(nextCursor: store.hasMoreHistory ? String(store.fetchedCount) : nil),
-            loadingState: store.loadingState,
+            loadingState: store.reading.isOpening ? .loading : store.loadingState,
             footerLoadingState: store.footerLoadingState,
             // A leading list section, rather than a pinned top banner, keeps the navigation title
             // intact: only the most-recent records survive the launch-time prune.
@@ -30,11 +31,13 @@ struct HistoryView: View {
             fetchAction: { store.send(.fetchGalleries) },
             fetchMoreAction: { store.send(.fetchMoreGalleries) },
             navigateAction: { store.send(.delegate(.pushDetail($0))) },
+            readAction: { store.send(.reading(.open($0))) },
             translateAction: {
                 store.tagTranslator.lookup(word: $0, returnOriginal: !store.setting.translateTags)
             },
             downloadBadges: store.downloadBadges
         )
+        .galleryReading(store.scope(\.reading, action: \.reading))
         .searchable(text: $store.keyword, placement: .navigationBarDrawer, prompt: .filter)
         .toolbar(content: toolbar)
         .navigationTitle(.history)

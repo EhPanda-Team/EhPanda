@@ -93,7 +93,7 @@ public struct GalleryClient: Sendable {
         _ host: GalleryHost,
         _ gidList: [(gid: String, token: String)]
     ) async throws(AppError) -> [Gallery]
-    /// The gallery detail of Detail and of the Favorites reading shortcut.
+    /// The gallery detail of Detail and of the list reading shortcut (`GalleryReadingFeature`).
     public var fetchGalleryDetail: @Sendable (
         _ gid: String,
         _ galleryURL: URL

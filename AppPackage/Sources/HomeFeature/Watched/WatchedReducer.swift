@@ -4,6 +4,7 @@ import AppTools
 public import ComposableArchitecture
 import CookieClient
 public import DateSeekFeature
+public import DetailFeature
 import DownloadClient
 public import FiltersFeature
 import GalleryClient
@@ -35,6 +36,7 @@ public struct WatchedReducer: Sendable {
         @SharedReader(.watchedFilter) public var watchedFilter: Filter
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @SharedReader(.setting) public var setting: Setting
+        public var reading = GalleryReadingFeature.State()
         @Presents public var destination: Destination.State?
         public var keyword = ""
 
@@ -54,6 +56,7 @@ public struct WatchedReducer: Sendable {
         case onPresented
         case loginSucceeded
         case delegate(Delegate)
+        case reading(GalleryReadingFeature.Action)
         case filtersButtonTapped
         case quickSearchButtonTapped
         case dateSeekButtonTapped(DateSeekNavigation)
@@ -79,6 +82,7 @@ public struct WatchedReducer: Sendable {
 
     public var body: some Reducer<State, Action> {
         BindingReducer()
+        Scope(\.reading, action: \.reading, GalleryReadingFeature.init)
 
         Reduce { state, action in
             switch action {
@@ -114,7 +118,11 @@ public struct WatchedReducer: Sendable {
                 guard state.galleries.isEmpty else { return .none }
                 return .send(.fetchGalleries())
 
-            case .delegate:
+            case .delegate(.pushDetail):
+                state.reading.cancelOpening()
+                return .none
+
+            case .reading:
                 return .none
 
             case .filtersButtonTapped:

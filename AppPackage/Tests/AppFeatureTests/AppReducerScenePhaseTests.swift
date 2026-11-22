@@ -6,11 +6,14 @@ import AppModels
 import ComposableArchitecture
 import CookieClient
 import CustomDump
+import DetailFeature
 import DownloadClient
 import FavoritesFeature
 import Foundation
+import HomeFeature
 import LogsClient
 import ReadingFeature
+import SearchFeature
 import SettingFeature
 import Sharing
 import SwiftUI
@@ -22,35 +25,36 @@ import UserDefaultsClient
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
 struct AppReducerScenePhaseTests {
+    /// Every list that opens a reader directly (D146) is registered with the scene-phase router, so a
+    /// background force-quit keeps that reader's last page.
     @MainActor
-    @Test
-    func backgroundFlushesDirectFavoritesReadingProgress() async {
+    @Test(arguments: ListReaderHost.allCases)
+    func backgroundFlushesListReadingProgress(host: ListReaderHost) async {
         let gallery = Gallery(
             gid: "98123", token: "library", title: "Progress fixture", rating: 0, tags: [],
             category: .manga, uploader: "", pageCount: 10, postedDate: .distantPast,
             coverURL: nil, galleryURL: nil
         )
         let appStorage = UserDefaults.inMemory
-        var reading = withDependencies {
+        var reader = withDependencies {
             $0.defaultAppStorage = appStorage
         } operation: {
             ReadingReducer.State(gallery: gallery)
         }
-        reading.readingProgress = 7
+        reader.readingProgress = 7
         let store = makeStore(
-            detectLinksFromClipboard: false, privacyMaskIntensity: 0,
-            favoritesReading: reading, appStorage: appStorage
+            detectLinksFromClipboard: false, privacyMaskIntensity: 0, appStorage: appStorage,
+            prepare: { host.present(reader, in: &$0) }
         )
         store.exhaustivity = .off
         await store.send(.onScenePhaseChange(.background))
-        await store.receive(\.favorites.destination.presented.reading.flushReadingProgress)
+        await store.finish()
         let history = withDependencies {
             $0.defaultAppStorage = appStorage
         } operation: {
             Shared<[GalleryHistoryEntry]>(.galleryHistory)
         }
         #expect(history.wrappedValue.readingProgress(gid: gallery.id) == 7)
-        await store.finish()
     }
 
     @MainActor
@@ -176,8 +180,8 @@ private extension AppReducerScenePhaseTests {
         detectLinksFromClipboard: Bool,
         privacyMaskIntensity: Double,
         hasLoadedInitialSetting: Bool = true,
-        favoritesReading: ReadingReducer.State? = nil,
-        appStorage: UserDefaults = .inMemory
+        appStorage: UserDefaults = .inMemory,
+        prepare: (inout AppReducer.State) -> Void = { _ in }
     ) -> TestStoreOf<AppReducer> {
         let inMemoryStorage = InMemoryStorage()
 
@@ -186,9 +190,7 @@ private extension AppReducerScenePhaseTests {
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             var initialState = AppReducer.State()
-            if let favoritesReading {
-                initialState.favoritesState.destination = .reading(favoritesReading)
-            }
+            prepare(&initialState)
             initialState.settingState.hasLoadedInitialSetting = hasLoadedInitialSetting
             initialState.settingState.$setting.withLock {
                 $0 = Setting(
@@ -225,6 +227,40 @@ private extension AppReducerScenePhaseTests {
                     $0.userDefaultsClient = .noop
                 }
             )
+        }
+    }
+}
+
+/// A list screen that presents a reader of its own, in each place the app can host one.
+enum ListReaderHost: CaseIterable, Sendable {
+    case favorites
+    case homeList
+    case homeSheetList
+    case searchResults
+    case detailSearch
+
+    func present(_ reader: ReadingReducer.State, in state: inout AppReducer.State) {
+        var reading = GalleryReadingFeature.State()
+        reading.reader = reader
+        switch self {
+        case .favorites:
+            state.favoritesState.reading = reading
+        case .homeList:
+            var frontPage = FrontPageReducer.State()
+            frontPage.reading = reading
+            state.homeState.path.append(.frontPage(frontPage))
+        case .homeSheetList:
+            var popular = PopularReducer.State()
+            popular.reading = reading
+            state.homeState.sheet = HomeSheetFeature.State(root: .popular(popular), side: .left)
+        case .searchResults:
+            var search = SearchReducer.State(keyword: "fixture")
+            search.reading = reading
+            state.searchRootState.path.append(.search(search))
+        case .detailSearch:
+            var detailSearch = DetailSearchReducer.State(keyword: "fixture")
+            detailSearch.reading = reading
+            state.homeState.path.append(.gallery(.detailSearch(detailSearch)))
         }
     }
 }

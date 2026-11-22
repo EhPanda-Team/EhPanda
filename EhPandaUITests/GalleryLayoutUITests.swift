@@ -96,7 +96,8 @@ final class GalleryLayoutUITests: XCTestCase {
         }
         search.tapWhenHittable("Favorites search")
         search.typeText("Library")
-        app.buttons[AccessibilityIdentifiers.galleryListItem(id: "1001")].tapWhenHittable("Open a searched gallery")
+        app.buttons[AccessibilityIdentifiers.galleryListItem(id: "1001")]
+            .tapGalleryOutsideCover("Open a searched gallery")
         let detail = app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].firstMatch
         XCTAssertTrue(detail.waitForExistence(timeout: 10))
         app.returnFromGalleryDetail()

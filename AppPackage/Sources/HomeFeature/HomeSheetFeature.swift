@@ -30,10 +30,20 @@ public struct HomeSheetFeature {
             if let action = gallery?.readingFlushAction {
                 return .gallery(.presented(action))
             }
-            if case .gallery(let root) = root, let action = root.readingFlushAction {
-                return .root(.gallery(action))
+            switch root {
+            case .frontPage(let state):
+                return state.reading.flushAction.map({ .root(.frontPage(.reading($0))) })
+            case .popular(let state):
+                return state.reading.flushAction.map({ .root(.popular(.reading($0))) })
+            case .toplists(let state):
+                return state.reading.flushAction.map({ .root(.toplists(.reading($0))) })
+            case .watched(let state):
+                return state.reading.flushAction.map({ .root(.watched(.reading($0))) })
+            case .history(let state):
+                return state.reading.flushAction.map({ .root(.history(.reading($0))) })
+            case .gallery(let root):
+                return root.readingFlushAction.map({ .root(.gallery($0)) })
             }
-            return nil
         }
     }
 

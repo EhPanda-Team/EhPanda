@@ -241,7 +241,7 @@ final class LibraryPresentationUITests: XCTestCase {
         )
     }
 
-    func testFavoritesSingleTapDetailsAndDoubleTapReads() throws {
+    func testFavoritesSingleTapDetailsAndCoverOrDoubleTapReads() throws {
         XCUIDevice.shared.orientation = .landscapeLeft
         // The orientation outlives the test on this simulator clone. Left in landscape, it turns the next test's
         // iPad reader into a two-page spread. A failed check stops the test without running a `defer`, so a teardown
@@ -259,7 +259,7 @@ final class LibraryPresentationUITests: XCTestCase {
         )
     }
 
-    func testDownloadsSingleTapDetailsAndDoubleTapReads() throws {
+    func testDownloadsSingleTapDetailsAndCoverOrDoubleTapReads() throws {
         XCUIDevice.shared.orientation = .landscapeLeft
         // Restores portrait for the next test, as in the Favorites case above.
         addTeardownBlock { XCUIDevice.shared.orientation = .portrait }
@@ -290,7 +290,7 @@ final class LibraryPresentationUITests: XCTestCase {
             app.buttons[layout].tapWhenHittable("Library \(layout)")
             let gallery = app.buttons[item].firstMatch
             XCTAssertTrue(gallery.waitForExistence(timeout: 15))
-            gallery.tapWhenHittable("Single tap opens Detail")
+            gallery.tapGalleryOutsideCover("Single tap opens Detail")
             let detail = app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].firstMatch
             XCTAssertTrue(detail.waitForExistence(timeout: 15))
             XCTAssertFalse(app.descendants(matching: .any)[AccessibilityIdentifiers.readingView].firstMatch.exists)
@@ -304,6 +304,13 @@ final class LibraryPresentationUITests: XCTestCase {
             XCTAssertTrue(reader.waitForNonExistence(timeout: 10))
             XCTAssertTrue(picker.waitForExistence(timeout: 10))
             XCTAssertFalse(detail.exists, "Double tap must not leave Detail beneath the reader.")
+            gallery.tapGalleryCover(grid: layout == "Grid", "A tap on the cover reads")
+            XCTAssertTrue(reader.waitForExistence(timeout: 15), "A tap on the cover must open reading directly.")
+            ReaderPageProbe(app: app).showPanel()
+            reader.buttons["Close"].firstMatch.tapWhenHittable("Return from cover reading")
+            XCTAssertTrue(reader.waitForNonExistence(timeout: 10))
+            XCTAssertTrue(picker.waitForExistence(timeout: 10))
+            XCTAssertFalse(detail.exists, "A tap on the cover must not leave Detail beneath the reader.")
             if layout == "List" {
                 let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
                 screenshot.name = "Library \(source) row"

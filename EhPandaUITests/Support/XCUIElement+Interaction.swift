@@ -22,6 +22,72 @@ extension XCUIElement {
         tap()
     }
 
+    /// Opens a gallery entry's Detail with a tap outside its cover, since a tap on the cover reads (D146).
+    ///
+    /// The bottom centre is the text column of a row, beside or below the cover, and the information under a grid
+    /// card's cover, in both layouts and at every text size. A grid card can be taller than the space between the
+    /// bars (iPhone landscape shows only its cover), so the list is first dragged until that edge is in view.
+    func tapGalleryOutsideCover(
+        _ name: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        revealBottomEdge()
+        tapGallery(at: CGVector(dx: 0.5, dy: 1), offset: CGVector(dx: 0, dy: -6), name, file: file, line: line)
+    }
+
+    /// Drags the scroll view under this element up, slowly and without momentum, until the element's bottom edge
+    /// sits above the tab bar, or the window's bottom when there is none.
+    private func revealBottomEdge() {
+        let app = XCUIApplication()
+        let window = app.windows.firstMatch
+        for _ in 0..<4 {
+            let tabBar = app.tabBars.firstMatch
+            let tabBarFrame = tabBar.exists ? tabBar.frame : .null
+            let visibleBottom = tabBarFrame.minY > window.frame.midY ? tabBarFrame.minY : window.frame.maxY
+            let overshoot = frame.maxY + 12 - visibleBottom
+            guard overshoot > 0 else { return }
+            let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
+            let distance = min(overshoot + 24, window.frame.height * 0.4)
+            start.press(
+                forDuration: 0.05,
+                thenDragTo: start.withOffset(CGVector(dx: 0, dy: -distance)),
+                withVelocity: .slow,
+                thenHoldForDuration: 0.15
+            )
+        }
+    }
+
+    /// Taps a gallery entry's cover: 30 points in from a row's leading edge at its middle, where the row's cover
+    /// sits, or the upper quarter of a grid card, which the card's full-width cover fills.
+    func tapGalleryCover(
+        grid: Bool,
+        _ name: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        if grid {
+            tapGallery(at: CGVector(dx: 0.5, dy: 0.25), offset: .zero, name, file: file, line: line)
+        } else {
+            tapGallery(at: CGVector(dx: 0, dy: 0.5), offset: CGVector(dx: 30, dy: 0), name, file: file, line: line)
+        }
+    }
+
+    private func tapGallery(
+        at normalizedOffset: CGVector,
+        offset: CGVector,
+        _ name: String,
+        file: StaticString,
+        line: UInt
+    ) {
+        let becameHittable = waitUntilHittable(timeout: Self.hittableTimeout)
+        if !becameHittable {
+            attachScreenState("\(name) not hittable")
+        }
+        XCTAssertTrue(becameHittable, "\(name) never became hittable.", file: file, line: line)
+        coordinate(withNormalizedOffset: normalizedOffset).withOffset(offset).tap()
+    }
+
     /// Keeps the screen and the element's state with a failed wait, so a failure shows what covered or moved it.
     func attachScreenState(_ name: String) {
         XCTContext.runActivity(named: name) { activity in

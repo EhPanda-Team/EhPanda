@@ -38,7 +38,7 @@ final class DeepLinkPadUITests: XCTestCase {
             firstGalleryRow.waitForExistence(timeout: 15),
             "The Front Page list did not render a gallery row."
         )
-        firstGalleryRow.tap()
+        firstGalleryRow.tapGalleryOutsideCover("Front Page gallery")
 
         app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertTrue(

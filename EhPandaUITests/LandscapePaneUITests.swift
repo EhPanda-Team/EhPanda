@@ -43,7 +43,7 @@ final class LandscapePaneUITests: XCTestCase {
         XCTAssertTrue(frontPage.waitForExistence(timeout: 10))
         XCTAssertGreaterThanOrEqual(frontPage.frame.minX, window.frame.midX)
         print("CAPTURE_LANDSCAPE_SHEET")
-        app.buttons.matching(UITestConstants.galleryItemPredicate).firstMatch.tapWhenHittable("Gallery")
+        app.buttons.matching(UITestConstants.galleryItemPredicate).firstMatch.tapGalleryOutsideCover("Gallery")
         let detail = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertLessThanOrEqual(detail.frame.maxX, window.frame.midX)
         let sheetClose = try XCTUnwrap(app.buttons.matching(identifier: "Close").allElementsBoundByIndex.first {
