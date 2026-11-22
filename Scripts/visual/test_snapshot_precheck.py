@@ -137,6 +137,47 @@ class CheckTests(unittest.TestCase):
         flags = self.run_checks({name: {'error': 'unreadable'}})
         self.assertEqual(flags[name], [('unreadable', 'unreadable')])
 
+    def committed_heights(self):
+        return {'home-populated': {'iphone': {'portrait': {'xSmall': 912, 'large': 1500, 'accessibility5': 2000},
+                                              'landscape': {'xSmall': 420, 'large': 420, 'accessibility5': 420}},
+                                   'ipad': {'portrait': {'xSmall': 1210, 'large': 1210, 'accessibility5': 1210},
+                                            'landscape': {'xSmall': 834, 'large': 834, 'accessibility5': 834}}}}
+
+    def committed_height_flags(self, probes):
+        _, env = snapshot_precheck.snapshot_matrix.load()
+        expected = snapshot_precheck.expected_pixels(self.committed_heights(), env)
+        names = {name: Path(name) for name in probes}
+        return snapshot_precheck.check(names, probes, {name: f'digest-{name}' for name in probes},
+                                       dict.fromkeys(probes, 1000), self.strings, self.markers, expected=expected)
+
+    def test_a_picture_that_is_not_the_pinned_width_by_the_committed_height_is_flagged(self):
+        exact = key(size='large')
+        short = key(size='large', locale='de')
+        narrow = key(size='large', locale='ja')
+        wrong_device = key(size='large', family='ipad')
+        landscape = key(size='xSmall', orientation='landscape')
+        flags = self.committed_height_flags({
+            exact: probe(width=420, height=1500),
+            short: probe(width=420, height=912),
+            narrow: probe(width=419, height=1500),
+            wrong_device: probe(width=834, height=1500),
+            landscape: probe(width=912, height=420)})
+        self.assertNotIn(exact, flags)
+        self.assertEqual(flags[short], [('committed-height', '420x912 px, expected 420x1500')])
+        self.assertEqual(flags[narrow], [('committed-height', '419x1500 px, expected 420x1500')])
+        self.assertEqual(flags[wrong_device], [('committed-height', '834x1500 px, expected 834x1210')])
+        self.assertNotIn(landscape, flags)
+
+    def test_a_scenario_without_a_committed_height_is_flagged(self):
+        name = key(scenario='unlisted')
+        flags = self.committed_height_flags({name: probe()})
+        self.assertEqual(flags[name], [('committed-height', 'no committed height for this scenario')])
+
+    def test_the_size_check_is_off_without_the_committed_heights(self):
+        name = key()
+        self.assertNotIn(name, self.run_checks({name: probe(width=1, height=1)}))
+        self.assertIn('committed-height', snapshot_precheck.CHECKS)
+
     def test_the_sheet_plan_shows_every_picture_once_sixteen_a_sheet_in_slice_order(self):
         names = [key(scenario=f's{number:02d}', locale=locale) for number in range(20)
                  for locale in ('ja', 'en')]

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Machine checks on every candidate picture before the owner sees any, and the agent's contact sheets (19-13; D-17).
 
-usage: snapshot_precheck.py --set SET [--out FLAGS] [--sheets DIR] [--workers N]
+usage: snapshot_precheck.py --set SET [--out FLAGS] [--sheets DIR] [--workers N] [--heights FILE]
 
 `SET` is an assembled candidate set (`snapshot_publish.py assemble`): its pictures under `SET/pictures/` in the
 baseline layout. Every picture is read once by `picture-probe.swift` (Vision text and pixel statistics; the results
@@ -11,6 +11,10 @@ are kept in `SET/probe.jsonl` by SHA-256, so a re-run reads only new pictures), 
 - `placeholder`: a solid rectangle of the colour of the app's image placeholder, at least 40 pixels a side and
   shaped like an image, so an image may not have loaded. In dark sheets the raised background is the same colour.
 - `size-outlier`: a file under half or over twice the median size of the same screen in the other languages.
+- `committed-height` (with `--heights FILE`, the file `snapshot_heights.py export` writes): a picture whose pixel size
+  is not the pinned width of its device and orientation by the committed height of its coordinate (19-20, design
+  section 4: every picture is taken in a window of exactly that height, at scale 1). A scenario the file does not
+  list is flagged too.
 - `same-as`: the same bytes as another scenario at the same coordinate, where the states should differ.
 - `same-in-both-themes`: the light and dark pictures are identical.
 - `truncated`: text ending in or containing `…` that is not itself a catalog string.
@@ -40,6 +44,7 @@ import sys
 import tempfile
 
 import snapshot_fetch
+import snapshot_matrix
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
@@ -48,8 +53,8 @@ PARSER_FIXTURES = SOURCES / 'TestingSupport/Resources/Parser'
 VISUAL_FIXTURES = (SOURCES / 'VisualSnapshotSupport', ROOT / 'AppPackage/Tests/VisualSnapshotTests')
 LANGUAGES = {'en': ['en-US'], 'de': ['de-DE', 'en-US'], 'ja': ['ja-JP', 'en-US'], 'ko': ['ko-KR', 'en-US'],
              'zh-Hans': ['zh-Hans', 'en-US'], 'zh-Hant': ['zh-Hant', 'en-US']}
-CHECKS = ('unreadable', 'uniform', 'placeholder', 'size-outlier', 'same-as', 'same-in-both-themes', 'truncated',
-          'untranslated', 'real-content')
+CHECKS = ('unreadable', 'uniform', 'placeholder', 'size-outlier', 'committed-height', 'same-as',
+          'same-in-both-themes', 'truncated', 'untranslated', 'real-content')
 SHEET_SIZE = 16
 UNIFORM_DEVIATION = 2.0
 UNIFORM_SHARE = 0.995
@@ -164,8 +169,21 @@ def normalize(text):
     return ' '.join(text.split())
 
 
-def check(pictures, probes, digests, sizes, strings, markers, fixtures=frozenset()):
-    """`{key: [(check, detail)]}` for every flagged picture."""
+def expected_pixels(heights, env):
+    """`{(scenario, family, orientation, size): (width, height)}` in pixels: the pinned width and the committed height
+    of each coordinate, from the exported heights (`snapshot_heights.py export`) and the rendering pins."""
+    width = {(family, orientation): int(env['devices'][family]['orientations'][orientation]['points'][0])
+             for family in env['devices'] for orientation in env['devices'][family]['orientations']}
+    return {(scenario, family, orientation, size): (width[(family, orientation)], value)
+            for scenario, families in heights.items()
+            for family, orientations in families.items()
+            for orientation, sizes in orientations.items()
+            for size, value in sizes.items()}
+
+
+def check(pictures, probes, digests, sizes, strings, markers, fixtures=frozenset(), expected=None):
+    """`{key: [(check, detail)]}` for every flagged picture; `expected` (``expected_pixels``) turns on
+    `committed-height`."""
     values, translated = strings
     flags = defaultdict(list)
     for key, result in probes.items():
@@ -173,6 +191,13 @@ def check(pictures, probes, digests, sizes, strings, markers, fixtures=frozenset
             flags[key].append(('unreadable', result['error']))
             continue
         coordinate = axes(key)
+        if expected is not None:
+            want = expected.get(tuple(coordinate[axis] for axis in ('scenario', 'family', 'orientation', 'size')))
+            got = (result['width'], result['height'])
+            if want is None:
+                flags[key].append(('committed-height', 'no committed height for this scenario'))
+            elif got != want:
+                flags[key].append(('committed-height', f'{got[0]}x{got[1]} px, expected {want[0]}x{want[1]}'))
         if result['lumaDeviation'] < UNIFORM_DEVIATION or result['dominantShare'] > UNIFORM_SHARE:
             flags[key].append(('uniform', f"deviation {result['lumaDeviation']:.2f}, "
                                           f"one colour {result['dominantShare']:.1%}"))
@@ -278,6 +303,8 @@ def main(argv=None):
     parser.add_argument('--out', type=Path)
     parser.add_argument('--sheets', type=Path)
     parser.add_argument('--workers', type=int, default=max(1, (os.cpu_count() or 2) // 2))
+    parser.add_argument('--heights', type=Path, help='the committed heights (snapshot_heights.py export): '
+                        'check each picture against its coordinate\'s pinned width and committed height')
     parser.add_argument('--build', type=Path, help='where to compile the Swift tools (default: a temporary directory)')
     args = parser.parse_args(argv)
     root = args.set / 'pictures'
@@ -293,7 +320,12 @@ def main(argv=None):
         build_directory.mkdir(parents=True, exist_ok=True)
         probes = probe(pictures, digests, args.set / 'probe.jsonl', build(HERE / 'picture-probe.swift',
                                                                             build_directory), args.workers)
-        flags = check(pictures, probes, digests, sizes, catalog_strings(), fixture_markers(), fixture_strings())
+        expected = None
+        if args.heights:
+            _, env = snapshot_matrix.load()
+            expected = expected_pixels(json.loads(args.heights.read_text()), env)
+        flags = check(pictures, probes, digests, sizes, catalog_strings(), fixture_markers(), fixture_strings(),
+                      expected)
         if args.sheets:
             sheets = write_sheets(pictures, args.sheets, build(HERE / 'contact-sheet.swift', build_directory))
             print(f'{len(sheets)} contact sheets in {args.sheets}')
