@@ -106,7 +106,8 @@ struct DownloadLogPrivacyInvariantTests {
     /// The `+WholesaleAbsenceEvidence.swift` site is the same failure line for B1's stop-time
     /// write-back (`writeBackCorroboratedWholesaleAbsence`), with the same `private` error.
     /// The `+QueueOperations.swift` entry is the queue operations' trail: one notice per accepted reorder carries the
-    /// gallery masked and the operation `public`, so a device archive shows the order a user set.
+    /// gallery masked and the operation `public`, so a device archive shows the order a user set;
+    /// a second notice names the gallery Download Now interrupted, masked the same way.
     /// The heartbeat summary and the environment lines carry no gallery value at all and appear
     /// here not at all.
     private static let expectedHashMaskedCounts = [
@@ -115,7 +116,7 @@ struct DownloadLogPrivacyInvariantTests {
         "DownloadClient+PageTransferProgress.swift": 2,
         "DownloadClient+PersistenceNormalize.swift": 1,
         "DownloadClient+PublicAPI.swift": 2,
-        "DownloadClient+QueueOperations.swift": 1,
+        "DownloadClient+QueueOperations.swift": 2,
         "DownloadClient+Scheduling.swift": 3,
         "DownloadClient+WholesaleAbsenceEvidence.swift": 1,
         "DownloadClient+WorkingManifestReconciliation.swift": 1
@@ -125,7 +126,7 @@ struct DownloadLogPrivacyInvariantTests {
     ///
     /// The table is keyed by file name, so two same-named files anywhere under the module would
     /// collapse into one entry and hide a site. The joined count cannot collapse.
-    private static let expectedHashMaskedTotal = 16
+    private static let expectedHashMaskedTotal = 17
 
     @Test
     func testNoDownloadLogPublishesGalleryIdentity() throws {
@@ -188,6 +189,7 @@ struct DownloadLogPrivacyInvariantTests {
         for message in [
             "Download completed",
             "Download enqueued",
+            "Download interrupted",
             "Download paused",
             "Download queue reordered",
             "Download resumed"

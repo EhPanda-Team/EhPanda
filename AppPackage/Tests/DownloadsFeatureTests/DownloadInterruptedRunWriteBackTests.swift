@@ -253,15 +253,6 @@ private extension DownloadInterruptedRunWriteBackTests {
         )
     }
 
-    /// An offline stub for the run's detail request; the caller removes it when the case ends.
-    func makeOfflineStub() -> String {
-        let stubSessionID = UUID().uuidString
-        SharedSessionStubURLProtocol.setHandler(for: stubSessionID) { _ in
-            throw URLError(.notConnectedToInternet)
-        }
-        return stubSessionID
-    }
-
     /// Schedules the repair, announces its measurement and lands `indices` through the production
     /// flush, asserting on the way that the record really claimed every page throughout — the
     /// non-vacuity a three-of-six outcome needs, since otherwise the record could have read three

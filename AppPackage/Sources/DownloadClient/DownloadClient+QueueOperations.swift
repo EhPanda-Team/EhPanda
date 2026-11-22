@@ -15,9 +15,16 @@ extension DownloadCoordinator {
     /// is refused rather than obeyed: `.notFound` for a gallery that is gone, `.unknown` for an operation its
     /// status or place no longer allows, with nothing moved.
     ///
-    /// A paused item (Download Next only) is mobilized through `resume(gid:)` and `ensureContinuedSession()`
-    /// unchanged, exactly as the pause toggle's resume branch does, and then placed. That is why no new queue
-    /// entrance or queue-intent advance exists here: the entrance census stays at five. The operation takes no
+    /// Download Now (B-1) interrupts the active gallery through `interruptActiveRun(of:)`: the interrupted
+    /// gallery is not paused and does not leave the queue, it waits directly after the selected one. With nothing
+    /// active the item goes first and the convergence starts it. An active run the persisted queue does not hold
+    /// (started from the scheduler's unqueued path) is not interrupted, so the item then waits first, as with
+    /// Download Next.
+    ///
+    /// A paused item (Download Next and Download Now) is mobilized through `resume(gid:)` and
+    /// `ensureContinuedSession()` unchanged, exactly as the pause toggle's resume branch does, and then placed.
+    /// That is why no new queue entrance or queue-intent advance exists here: the entrance census stays at five.
+    /// The operation takes no
     /// scheduling block, which keeps the rule `writeSettledPauseRecord`'s doc states (no queue-mobilizing entry
     /// point takes one) and leaves the block census at five.
     ///
@@ -55,8 +62,11 @@ extension DownloadCoordinator {
                 return .failure(.unknown)
             }
         }
+        let interrupted = interruptibleActiveGalleryID(for: operation)
         var order = waiting
         switch operation {
+        case .downloadNow:
+            order = [gid] + (interrupted.map({ [$0] }) ?? []) + waiting.filter({ $0 != gid })
         case .downloadNext:
             order.remove(at: offset)
             order.insert(gid, at: 0)
@@ -73,6 +83,9 @@ extension DownloadCoordinator {
             return .success(())
         }
         await queueStore.reorder(order)
+        if let interrupted {
+            await interruptActiveRun(of: interrupted)
+        }
         await notifyObservers()
         await scheduleNextIfNeeded()
         logger.notice(
@@ -82,5 +95,50 @@ extension DownloadCoordinator {
             """
         )
         return .success(())
+    }
+
+    /// The active gallery Download Now interrupts: only for Download Now, and only when the persisted queue holds it.
+    private func interruptibleActiveGalleryID(for operation: DownloadQueueOperation) -> String? {
+        guard operation == .downloadNow, let activeID = activeGalleryID, queueStore.contains(activeID) else {
+            return nil
+        }
+        return activeID
+    }
+
+    /// Cancels the active run of `interrupted` and clears the active slot, then waits for the cancelled run to end.
+    ///
+    /// It must be followed by `notifyObservers()` and `scheduleNextIfNeeded()` with no exit in between, because it
+    /// clears the active slot (ACTIVE-OWNERSHIP CONVERGENCE); its one caller does exactly that. It awaits the
+    /// cancelled run, like pause and delete, so the run-exit write-back lands before the next run starts. The
+    /// interrupted gallery is not paused, keeps its queue slot directly after the selected one, keeps its queue
+    /// intent, and its manifest is left as its own run's exit leaves it (B-1, manifest SSOT).
+    ///
+    /// It takes no scheduling block, deliberately: every failure-persistence handler is gated on
+    /// `shouldSuppressFailurePersistence`, whose `Task.isCancelled` arm stays true in the cancelled run's own task
+    /// for the rest of its life; the page loop already stops on cancellation and skips its forced flush; the
+    /// interrupted gallery is meant to stay schedulable, which a block would defeat; and a successor run of the same
+    /// gallery during the wait is `isSupersededByALiveRun`'s overlapping-run disposition. So the block census and
+    /// the rule that no queue-mobilizing entry point takes one stand.
+    ///
+    /// A `.redownload` or `.update` run that had already replaced its folder would replace it again, and lose the
+    /// pages it saved, if it restarted under the same mode. So the interrupted gallery continues as `.repair`. "Had
+    /// prepared" is read from the run's measurement, which stands from the preparation's announcement to the run's
+    /// exit; the queue-intent generation and queue guards leave a mode a concurrent action wrote alone.
+    private func interruptActiveRun(of interrupted: String) async {
+        guard activeGalleryID == interrupted, let interruptedTask = activeTask else { return }
+        let intentGeneration = queueIntentGeneration(for: interrupted)
+        let hadPrepared = liveRunProgressBasis(gid: interrupted) != nil
+        interruptedTask.cancel()
+        activeTask = nil
+        activeGalleryID = nil
+        logger.notice("Download interrupted for Download Now, gid: \(interrupted, privacy: .private(mask: .hash)).")
+        await interruptedTask.value
+        guard queueIntentGeneration(for: interrupted) == intentGeneration,
+              hadPrepared,
+              queueStore.contains(interrupted),
+              let mode = queuedModes[interrupted],
+              mode == .redownload || mode == .update
+        else { return }
+        queuedModes[interrupted] = .repair
     }
 }

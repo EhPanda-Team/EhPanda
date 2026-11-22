@@ -267,6 +267,8 @@ private extension DownloadGalleryItem {
 private extension DownloadQueueOperation {
     var title: LocalizedStringResource {
         switch self {
+        case .downloadNow:
+            .downloadNow
         case .downloadNext:
             .downloadNext
         case .moveUp:
@@ -280,6 +282,8 @@ private extension DownloadQueueOperation {
 
     var symbol: SFSymbol {
         switch self {
+        case .downloadNow:
+            .arrowDownCircle
         case .downloadNext:
             .textLineFirstAndArrowtriangleForward
         case .moveUp:
@@ -296,7 +300,7 @@ private extension DownloadQueueOperation {
         switch self {
         case .moveUp, .moveDown, .downloadLast:
             true
-        case .downloadNext:
+        case .downloadNow, .downloadNext:
             false
         }
     }

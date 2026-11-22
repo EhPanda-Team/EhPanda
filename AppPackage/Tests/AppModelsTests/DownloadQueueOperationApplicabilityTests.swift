@@ -17,28 +17,28 @@ struct DownloadQueueOperationApplicabilityTests {
             name: "first of three",
             status: .queued,
             place: DownloadQueuePlace(position: 1, waitingCount: 3),
-            applicable: [.moveDown, .downloadLast]
+            applicable: [.downloadNow, .moveDown, .downloadLast]
         ),
         Row(
             name: "middle of three",
             status: .queued,
             place: DownloadQueuePlace(position: 2, waitingCount: 3),
-            applicable: [.downloadNext, .moveUp, .moveDown, .downloadLast]
+            applicable: [.downloadNow, .downloadNext, .moveUp, .moveDown, .downloadLast]
         ),
         Row(
             name: "last of three",
             status: .queued,
             place: DownloadQueuePlace(position: 3, waitingCount: 3),
-            applicable: [.downloadNext, .moveUp]
+            applicable: [.downloadNow, .downloadNext, .moveUp]
         ),
         Row(
             name: "only waiting item",
             status: .queued,
             place: DownloadQueuePlace(position: 1, waitingCount: 1),
-            applicable: []
+            applicable: [.downloadNow]
         ),
-        Row(name: "waiting without a place", status: .queued, place: nil, applicable: []),
-        Row(name: "paused", status: .inactive, place: nil, applicable: [.downloadNext]),
+        Row(name: "waiting without a place", status: .queued, place: nil, applicable: [.downloadNow]),
+        Row(name: "paused", status: .inactive, place: nil, applicable: [.downloadNow, .downloadNext]),
         Row(name: "active", status: .active, place: nil, applicable: []),
         Row(name: "update available", status: .updateAvailable, place: nil, applicable: []),
         Row(name: "error", status: .error, place: nil, applicable: []),

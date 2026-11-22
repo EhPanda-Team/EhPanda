@@ -15,6 +15,14 @@ struct DownloadQueueOperationCopyTests {
 
     @Test(arguments: [
         Label(
+            key: "download_now",
+            resource: .downloadNow,
+            values: [
+                "en": "Download Now", "de": "Jetzt laden", "ja": "今すぐダウンロード", "ko": "지금 다운로드",
+                "zh-Hans": "立即下载", "zh-Hant": "立即下載"
+            ]
+        ),
+        Label(
             key: "download_next",
             resource: .downloadNext,
             values: [
