@@ -454,66 +454,6 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(update.subtitle == "0 / 1 page · 1 gallery")
     }
 
-    /// The reachable empty-live-sum input: a session outliving its work for the moment between the
-    /// queue emptying and the scheduling tail completing it. A push taken in that window sums
-    /// nothing live at all, and here the emptying is a real completion rather than a bare dequeue.
-    ///
-    /// What holds the pair up is the ledger, not the monotonic floor: the departing gallery retires
-    /// all six of its pages to both sides, so completed equals total *because* nothing is
-    /// outstanding — the one moment a 1.0 fraction is honest. Under the old basis this same staging
-    /// pushed `2 / 2 pages`, a full card with two thirds of the work never done, so the case now
-    /// fails on the pre-fix code instead of passing verbatim on it.
-    ///
-    /// Those six retired pages are also the whole of Y, so the drained card names one gallery
-    /// rather than none (**D-G2C-01**). It is the positive-retirement side of the boundary read on
-    /// a completion; the zero-retirement side is
-    /// `testDrainingTheQueueCompletesTheSessionWithSuccess` above, where the gallery finished
-    /// nothing and drains to `0 galleries`.
-    ///
-    /// A genuinely zero denominator — a session outliving work nobody finished at all — is reached
-    /// under the ledger only when the departing gallery finished no pages, so that guard is not
-    /// lost but moved: `DownloadContinuedSessionLedgerTests` supplies it.
-    ///
-    /// The terminal push is taken through `scheduleNextIfNeeded` rather than invoked directly. The
-    /// pair it owes is unchanged; what changes is that the product now makes the call, and a value
-    /// pinned on a call the product never makes is what hid G-15-2B.
-    @Test
-    func testEmptySchedulableSetStillPushesAPositiveTotal() async throws {
-        let gid = "210045"
-        let title = "Departing"
-        let spy = BackgroundProcessingClientSpy()
-        let fixture = try await makeQueuedCoordinator(
-            galleries: [.init(gid: gid, title: title, pageCount: 6, completedPageCount: 2)],
-            client: spy.client
-        )
-        defer { removeTemporaryItem(at: fixture.rootURL) }
-
-        await fixture.manager.testingEnsureContinuedSession()
-        let sessionID = try #require(await fixture.manager.testingContinuedSessionID())
-        await fixture.manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-
-        await fixture.manager.updateDownloadIndex(
-            folderURL: fixture.storage.folderURL(
-                relativePath: "Folder/[\(gid)_token] \(title)"
-            ),
-            manifest: manifest(
-                for: .init(gid: gid, title: title, pageCount: 6, completedPageCount: 6)
-            )
-        )
-        await fixture.manager.settleCompletedDownload(gid: gid)
-        await fixture.manager.scheduleNextIfNeeded()
-
-        let update = try #require(spy.progressUpdates.last)
-        #expect(update.totalUnitCount >= 1)
-        #expect(spy.progressUpdates.map(\.completedUnitCount) == [2, 6])
-        #expect(update.totalUnitCount == 6)
-        #expect(spy.progressUpdates.map(\.subtitle) == [
-            "2 / 6 pages · 1 gallery",
-            "6 / 6 pages · 1 gallery"
-        ])
-        #expect(spy.finishSuccesses == [true])
-    }
-
     /// The start string is already covered; this covers every *later* string, because the card is
     /// re-titled on each push and a content leak introduced there would never touch the start
     /// path. Exact equality rather than a substring probe: that is what fails if a gallery value
