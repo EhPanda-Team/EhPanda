@@ -51,13 +51,6 @@ public struct SearchReducer: Sendable {
             lastKeyword = keyword
         }
 
-        mutating func insertGalleries(_ galleries: [Gallery]) {
-            galleries.forEach { gallery in
-                if !self.galleries.contains(gallery) {
-                    self.galleries.append(gallery)
-                }
-            }
-        }
     }
 
     public enum Action: BindableAction {
@@ -175,33 +168,29 @@ public struct SearchReducer: Sendable {
                 })
                 switch result {
                 case .success(let response):
-                    let galleries = response.galleries
-                    guard !galleries.isEmpty else {
-                        state.loadingState = .failed(.notFound)
-                        guard response.pageNumber.hasNextPage() else { return searchPerformed }
-                        return .merge(searchPerformed, .send(.fetchMoreGalleries))
-                    }
+                    // The page's cursor is kept even when the page is empty, since the next page is fetched from it.
                     state.pageNumber = response.pageNumber
                     state.dateSeekNavigation = response.dateSeekNavigation
-                    state.galleries = galleries
-                    return searchPerformed
+                    state.galleries = response.galleries
+                    guard response.galleries.isEmpty else { return searchPerformed }
+                    state.loadingState = .failed(.notFound)
+                    guard response.pageNumber.hasNextPage() else { return searchPerformed }
+                    return .merge(searchPerformed, .send(.fetchMoreGalleries))
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
                 return searchPerformed
 
             case .fetchMoreGalleries:
-                let pageNumber = state.pageNumber
-                guard pageNumber.hasNextPage(),
-                      state.footerLoadingState != .loading,
-                      let lastID = state.galleries.last?.id
+                guard state.footerLoadingState != .loading,
+                      let cursor = state.pageNumber.nextCursor
                 else { return .none }
                 state.footerLoadingState = .loading
                 let filter = state.searchFilter
                 let host = state.setting.galleryHost
                 return .run { [lastKeyword = state.lastKeyword] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await galleryClient.fetchMoreSearchGalleries(host, lastKeyword, filter, lastID)
+                        try await galleryClient.fetchMoreSearchGalleries(host, lastKeyword, filter, cursor)
                     }
                     await send(.fetchMoreGalleriesDone(result))
                 }
@@ -211,18 +200,15 @@ public struct SearchReducer: Sendable {
                 state.footerLoadingState = .idle
                 switch result {
                 case .success(let response):
-                    let galleries = response.galleries
+                    let previous = state.pageNumber
                     state.pageNumber = response.pageNumber
                     state.dateSeekNavigation = response.dateSeekNavigation
-                    state.insertGalleries(galleries)
-
-                    var effects: [Effect<Action>] = []
-                    if galleries.isEmpty, response.pageNumber.hasNextPage() {
-                        effects.append(.send(.fetchMoreGalleries))
-                    } else if !galleries.isEmpty {
+                    if state.galleries.appendNew(response.galleries) > 0 {
                         state.loadingState = .idle
+                        return .none
                     }
-                    return .merge(effects)
+                    // Nothing new leaves the last gallery where it was, so no scroll will ask again: go on from here.
+                    return response.pageNumber.advances(from: previous) ? .send(.fetchMoreGalleries) : .none
 
                 case .failure(let error):
                     state.footerLoadingState = .failed(error)

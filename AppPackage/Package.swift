@@ -927,6 +927,7 @@ let targets: [PackageDescription.Target] = [
             .module(.galleryClient),
             .module(.filtersFeature),
             .module(.hapticsClient),
+            .module(.networkingFeature),
             .module(.testingSupport),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
@@ -1161,6 +1162,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .module(.cookieClient),
             .module(.downloadClient),
+            .module(.galleryClient),
             .module(.hapticsClient)
         ]
     ),

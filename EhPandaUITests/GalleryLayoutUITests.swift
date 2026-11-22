@@ -104,19 +104,30 @@ final class GalleryLayoutUITests: XCTestCase {
         XCTAssertEqual(search.value as? String, "Library")
     }
 
-    func testGridLoadsNextPageFromTrailingVisibility() throws {
+    /// G-11-7, in the List layout: the page after the first holds only galleries already listed, and only the site's
+    /// cursor on that page leads on (`UITestStubURLProtocol.libraryFixtureName(next:)`).
+    func testListLoadsPastARepeatedPage() throws {
+        try loadPastARepeatedPage(layout: "List")
+    }
+
+    /// G-11-7, in the Grid layout. The two layouts load their next page from different views, so each is driven.
+    func testGridLoadsPastARepeatedPage() throws {
+        try loadPastARepeatedPage(layout: "Grid")
+    }
+
+    private func loadPastARepeatedPage(layout: String) throws {
         XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         try launchFavorites(app)
         defer { app.terminate() }
         app.buttons["gallery-layout-favorites"].tapWhenHittable("Favorites layout")
-        app.buttons["Grid"].tapWhenHittable("Grid")
+        app.buttons[layout].tapWhenHittable(layout)
         let content = app.descendants(matching: .any)["favorites-gallery-list"].firstMatch
         let nextPage = app.buttons["gallery-list-item-1025"]
         for _ in 0..<20 where !nextPage.isHittable {
             content.swipeUp(velocity: .fast)
         }
-        XCTAssertTrue(nextPage.isHittable, "The grid must load its next page when the trailing gallery is visible.")
+        XCTAssertTrue(nextPage.isHittable, "The \(layout) layout stopped at the page of galleries already listed.")
         XCTAssertEqual(app.buttons.matching(identifier: "gallery-list-item-1025").count, 1)
     }
 

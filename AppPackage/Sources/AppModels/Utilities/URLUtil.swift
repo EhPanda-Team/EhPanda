@@ -11,9 +11,9 @@ public struct URLUtil {
         host: GalleryHost,
         keyword: String,
         filter: Filter,
-        lastID: String
+        cursor: String
     ) -> URL {
-        host.url.appending(queryItems: [.fSearch: keyword, .next: lastID]).applyingFilter(filter)
+        host.url.appending(queryItems: [.fSearch: keyword, .next: cursor]).applyingFilter(filter)
     }
 
     public static func frontPageList(host: GalleryHost, filter: Filter) -> URL {
@@ -23,9 +23,9 @@ public struct URLUtil {
     public static func moreFrontPageList(
         host: GalleryHost,
         filter: Filter,
-        lastID: String
+        cursor: String
     ) -> URL {
-        host.url.appending(queryItems: [.next: lastID]).applyingFilter(filter)
+        host.url.appending(queryItems: [.next: cursor]).applyingFilter(filter)
     }
 
     public static func popularList(host: GalleryHost, filter: Filter) -> URL {
@@ -47,10 +47,10 @@ public struct URLUtil {
     public static func moreWatchedList(
         host: GalleryHost,
         filter: Filter,
-        lastID: String,
+        cursor: String,
         keyword: String = ""
     ) -> URL {
-        var url = Defaults.URL.watched(host: host).appending(queryItems: [.next: lastID])
+        var url = Defaults.URL.watched(host: host).appending(queryItems: [.next: cursor])
         if !keyword.isEmpty {
             url.append(queryItems: [.fSearch: keyword])
         }
@@ -85,12 +85,10 @@ public struct URLUtil {
     public static func moreFavoritesList(
         host: GalleryHost,
         favIndex: Int,
-        lastID: String,
-        lastTimestamp: String,
+        cursor: String,
         keyword: String = ""
     ) -> URL {
-        var url = Defaults.URL.favorites(host: host)
-            .appending(queryItems: [.next: [lastID, lastTimestamp].joined(separator: "-")])
+        var url = Defaults.URL.favorites(host: host).appending(queryItems: [.next: cursor])
         if favIndex != -1 {
             url.append(queryItems: [.favcat: String(favIndex)])
         } else {

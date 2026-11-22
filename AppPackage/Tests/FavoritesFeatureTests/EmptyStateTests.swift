@@ -64,6 +64,10 @@ struct EmptyStateTests {
         }
         await store.send(.fetchGalleriesDone(index: -1, keyword: Self.keyword, result: Self.emptyFavorites())) {
             $0.rawLoadingState[-1] = .failed(.notFound)
+            // The empty result and its paging replace the earlier list, so a page fetched after it is not appended
+            // to galleries this search did not return.
+            $0.rawPageNumber[-1] = PageNumber()
+            $0.rawGalleries[-1] = []
             $0.emptyFavoritesIndices = []
         }
         await store.finish()

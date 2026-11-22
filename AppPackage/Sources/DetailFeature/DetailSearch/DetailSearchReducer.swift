@@ -44,13 +44,6 @@ public struct DetailSearchReducer: Sendable {
             self.lastKeyword = keyword
         }
 
-        mutating func insertGalleries(_ galleries: [Gallery]) {
-            galleries.forEach { gallery in
-                if !self.galleries.contains(gallery) {
-                    self.galleries.append(gallery)
-                }
-            }
-        }
     }
 
     public enum Action: BindableAction {
@@ -138,24 +131,20 @@ public struct DetailSearchReducer: Sendable {
                 state.loadingState = .idle
                 switch result {
                 case .success(let (pageNumber, galleries)):
-                    guard !galleries.isEmpty else {
-                        state.loadingState = .failed(.notFound)
-                        guard pageNumber.hasNextPage() else { return .none }
-                        return .send(.fetchMoreGalleries)
-                    }
+                    // The page's cursor is kept even when the page is empty, since the next page is fetched from it.
                     state.pageNumber = pageNumber
                     state.galleries = galleries
-                    return .none
+                    guard galleries.isEmpty else { return .none }
+                    state.loadingState = .failed(.notFound)
+                    return pageNumber.hasNextPage() ? .send(.fetchMoreGalleries) : .none
                 case .failure(let error):
                     state.loadingState = .failed(error)
                 }
                 return .none
 
             case .fetchMoreGalleries:
-                let pageNumber = state.pageNumber
-                guard pageNumber.hasNextPage(),
-                      state.footerLoadingState != .loading,
-                      let lastID = state.galleries.last?.id
+                guard state.footerLoadingState != .loading,
+                      let cursor = state.pageNumber.nextCursor
                 else { return .none }
                 state.footerLoadingState = .loading
                 let filter = state.searchFilter
@@ -163,7 +152,7 @@ public struct DetailSearchReducer: Sendable {
                 return .run { [lastKeyword = state.lastKeyword] send in
                     do throws(AppError) {
                         let response = try await galleryClient.fetchMoreSearchGalleries(
-                            host, lastKeyword, filter, lastID
+                            host, lastKeyword, filter, cursor
                         )
                         await send(
                             .fetchMoreGalleriesDone(
@@ -180,16 +169,14 @@ public struct DetailSearchReducer: Sendable {
                 state.footerLoadingState = .idle
                 switch result {
                 case .success(let (pageNumber, galleries)):
+                    let previous = state.pageNumber
                     state.pageNumber = pageNumber
-                    state.insertGalleries(galleries)
-
-                    var effects: [Effect<Action>] = []
-                    if galleries.isEmpty, pageNumber.hasNextPage() {
-                        effects.append(.send(.fetchMoreGalleries))
-                    } else if !galleries.isEmpty {
+                    if state.galleries.appendNew(galleries) > 0 {
                         state.loadingState = .idle
+                        return .none
                     }
-                    return .merge(effects)
+                    // Nothing new leaves the last gallery where it was, so no scroll will ask again: go on from here.
+                    return pageNumber.advances(from: previous) ? .send(.fetchMoreGalleries) : .none
 
                 case .failure(let error):
                     state.footerLoadingState = .failed(error)
