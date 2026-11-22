@@ -30,6 +30,14 @@ enum ToplistsViewSnapshot: SnapshotProvider {
                     make: { BrowsingScenarios.toplists(.loaded(.row)) }, prepare: artwork,
                     interact: { try await BrowsingScenarios.activate(String(localized: .timeRange), in: $0) }
                 )
+            ),
+            SnapshotState(
+                id: "app-wide-app-alert",
+                heights: .screen,
+                factory: .init(
+                    make: { SettingsScenarios.jumpPageAlert() }, prepare: TracerScenarios.cacheHomeArtwork,
+                    interact: SettingsScenarios.holdAlertCaret
+                )
             )
         ]
     }

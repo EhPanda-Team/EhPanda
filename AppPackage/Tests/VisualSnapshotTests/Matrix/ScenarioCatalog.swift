@@ -35,14 +35,6 @@ struct ScenarioFactory {
     }
 }
 
-/// One group file's registrations and the plan that fills it (19-02): `ScenarioCatalog+Gallery.swift` (19-07) and
-/// `+Settings.swift` (19-08). The states not yet moved into a `Snapshots/` provider (19-18) are still registered
-/// here.
-struct ScenarioGroup {
-    let plan: String
-    let factories: [String: ScenarioFactory]
-}
-
 /// Scenario ID → state. Every registered ID must be in `scenarios.json` (`ScenarioInventoryTests`).
 enum ScenarioCatalog {
     /// Every view's snapshot provider (19-18), one line each. Swift has no type discovery, so a new provider is
@@ -68,24 +60,41 @@ enum ScenarioCatalog {
             DownloadInspectorViewSnapshot.self,
             DetailViewSnapshot.self,
             GallerySheetViewSnapshot.self,
-            SettingViewSnapshot.self
+            SettingViewSnapshot.self,
+            CommentsViewSnapshot.self,
+            PostCommentViewSnapshot.self,
+            ReportFormViewSnapshot.self,
+            PreviewsViewSnapshot.self,
+            GalleryInfoViewSnapshot.self,
+            DetailSearchViewSnapshot.self,
+            ArchivesViewSnapshot.self,
+            TorrentsViewSnapshot.self,
+            TagDetailViewSnapshot.self,
+            NewDawnViewSnapshot.self,
+            FolderManagerViewSnapshot.self,
+            ReadingViewSnapshot.self,
+            ReadingSettingViewSnapshot.self,
+            AccountSettingViewSnapshot.self,
+            BlockedUsersViewSnapshot.self,
+            LoginViewSnapshot.self,
+            GeneralSettingViewSnapshot.self,
+            AppActivityLogsViewSnapshot.self,
+            AppearanceSettingViewSnapshot.self,
+            AppIconViewSnapshot.self,
+            DownloadSettingViewSnapshot.self,
+            LaboratorySettingViewSnapshot.self,
+            AboutViewSnapshot.self,
+            EhSettingViewSnapshot.self,
+            ErrorInfoViewSnapshot.self,
+            ToastMessageViewSnapshot.self
         ]
     }
 
-    static var groups: [ScenarioGroup] {
-        [
-            ScenarioGroup(plan: "19-07", factories: gallery),
-            ScenarioGroup(plan: "19-08", factories: settings)
-        ]
-    }
-
-    /// Every provider's states, then the group registrations not yet moved, each with the screen's own height. An ID
-    /// declared twice appears twice: ``state(_:)`` keeps the first, and `ScenarioInventoryTests` fails.
+    /// Every provider's states. An ID declared twice appears twice: ``state(_:)`` keeps the first, and
+    /// `ScenarioInventoryTests` fails.
     @MainActor
     static var states: [SnapshotState] {
-        providers.flatMap({ $0.states }) + groups.flatMap({ group in
-            group.factories.map({ SnapshotState(id: $0.key, heights: .screen, factory: $0.value) })
-        })
+        providers.flatMap({ $0.states })
     }
 
     @MainActor
