@@ -30,9 +30,10 @@ public struct SnapshotResultLine: Codable, Equatable, Sendable {
 
 /// How a measuring run (``SnapshotMode/measure``) ended for one coordinate.
 public enum SnapshotHeightStatus: String, Codable, Sendable {
-    /// The page's needed height was found: the window was grown until the need held still.
+    /// The page's needed height was found: the page fitted the window of its last hosting.
     case measured
-    /// The page's most-overflowing scroll view did not grow with the window, so no window height covers it.
+    /// No window height covers the page: its most-overflowing scroll view keeps its height while the window grows
+    /// (`cannot-cover:<class>`), or it avoids a keyboard that is up (`cannot-cover:keyboard`).
     case cannotCover = "cannot-cover"
     /// The need kept moving with the window for the whole step budget.
     case didNotConverge = "did-not-converge"
@@ -49,7 +50,7 @@ public struct SnapshotHeightLine: Codable, Equatable, Sendable {
     public let neededPoints: Int?
     /// The window's own height, the pinned device height.
     public let screenPoints: Int?
-    /// How many times the window was grown.
+    /// How many heights above the window's own the page was hosted at.
     public let steps: Int
     public let reason: String?
 

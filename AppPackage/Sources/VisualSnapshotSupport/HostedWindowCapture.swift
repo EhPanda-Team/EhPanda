@@ -10,7 +10,8 @@ public enum SnapshotMode: String, Sendable {
     /// Writes every picture into the run's output directory as a candidate for approval. Never touches a reference.
     case candidate
     /// Takes no picture: finds the page height each coordinate needs and writes it to `heights.jsonl` (see
-    /// ``HostedWindowCapture/measure(make:window:style:interact:minimumReads:freezeViewport:)``). Local only:
+    /// ``HostedWindowCapture/measure(make:window:style:still:interact:minimumReads:freezeViewport:keyboardTop:)``).
+    /// Local only:
     /// `run-snapshot-local.sh --measure-heights` selects it, and the hosted gate never does.
     case measure
 }
@@ -632,7 +633,7 @@ public enum HostedWindowCapture {
         let nativeFrame = window.frame
         guard height.points > nativeFrame.height else {
             let attempt = await attemptHosted(window: window, request: request)
-            return checked(attempt, window: window, committed: height.points)
+            return checked(attempt, window: window, height: height)
         }
         return await attemptTall(window: window, request: request, height: height, nativeFrame: nativeFrame)
     }
@@ -648,30 +649,25 @@ public enum HostedWindowCapture {
     private static func attemptTall(
         window: UIWindow, request: Request, height: CaptureHeight, nativeFrame: CGRect
     ) async -> Attempt {
-        guard let scene = window.windowScene else {
-            return failure(tallWindowGeometryReason)
-        }
         var grown: GrownWindow?
         defer {
             grown?.restore()
             height.freezeViewport(false)
             window.layoutIfNeeded()
         }
-        let frozen: SettleResult
-        switch await freezeAtNativeSize(window, minimumReads: request.minimumReads, freeze: height.freezeViewport) {
-        case .unsettled(let settled):
+        let prepared = await prepareGrownWindow(
+            window, to: height.points, minimumReads: request.minimumReads, freeze: height.freezeViewport
+        )
+        grown = prepared.grown
+        switch prepared.outcome {
+        case .ready:
+            break
+        case .unsettled(let settled), .cancelled(let settled):
             return timeoutAttempt(settled, png: nil)
         case .changed(let settled, let image):
             return Attempt(status: .error, settleSamples: settled.samples, png: pngData(image),
                            difference: nil, reason: freezeChangedPixelsReason)
-        case .matched(let settled):
-            frozen = settled
-        }
-        let held = GrownWindow(window: window, scene: scene)
-        grown = held
-        held.resize(to: height.points)
-        guard await nextSample() else { return timeoutAttempt(frozen, png: nil) }
-        guard held.holdsViewportGeometry() else {
+        case .geometry:
             return failure(tallWindowGeometryReason)
         }
         // Above what the render server draws in one read, the window is taken in reads of its native size.
@@ -679,21 +675,27 @@ public enum HostedWindowCapture {
         let attempt = await attemptHosted(
             window: window, request: request, viewportSize: sliced ? nativeFrame.size : nil
         )
-        return checked(attempt, window: window, committed: height.points)
+        return checked(attempt, window: window, height: height)
     }
 
     /// The check, never an adjustment: a page whose scroll content needs more than the committed height fails with
     /// the needed value and keeps its picture. A failure that has no picture to check (a timeout, a failed step) is
     /// left as it is, so the retry rules keep seeing it.
-    private static func checked(_ attempt: Attempt, window: UIWindow, committed: CGFloat) -> Attempt {
+    ///
+    /// When the scroll view that sets the need avoids a keyboard that is up (the keyboard rule of 19-30,
+    /// ``PageNeed/avoidsKeyboard(topAt:in:)``), the reason ends `, cannot-cover:keyboard`: no height covers such a
+    /// page. A classification, not an adjustment: the check still fails and keeps its picture.
+    private static func checked(_ attempt: Attempt, window: UIWindow, height: CaptureHeight) -> Attempt {
         switch attempt.status {
         case .recorded, .passed, .changed, .missingBaseline:
-            let need = HostedHierarchy.pageNeed(in: window).points
-            guard need > committed else { return attempt }
+            let need = HostedHierarchy.pageNeed(in: window)
+            guard need.points > height.points else { return attempt }
+            let avoided = height.keyboardTop(window).map({ need.avoidsKeyboard(topAt: $0, in: window) }) ?? false
             return Attempt(
                 status: .error, settleSamples: attempt.settleSamples, png: attempt.png,
                 difference: attempt.difference,
-                reason: "page-height: needs \(Int(need)) pt, committed \(Int(committed.rounded())) pt"
+                reason: "page-height: needs \(Int(need.points)) pt, committed \(Int(height.points.rounded())) pt"
+                    + (avoided ? ", \(keyboardReason)" : "")
             )
         case .timeout, .error, .notApplicable:
             return attempt

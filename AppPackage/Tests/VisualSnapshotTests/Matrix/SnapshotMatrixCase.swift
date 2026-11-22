@@ -231,7 +231,8 @@ class SnapshotMatrixCase: XCTestCase {
                     AnyView(try factory.make().environment(\.visibleViewportSampling, sampling))
                 },
                 window: context.window, style: style, still: factory.still, interact: factory.interact,
-                minimumReads: factory.minimumReads, freezeViewport: { sampling.isFrozen = $0 }
+                minimumReads: factory.minimumReads, freezeViewport: { sampling.isFrozen = $0 },
+                keyboardTop: Self.keyboardTop(over:)
             )
         }
         try context.writer.appendHeight(
@@ -248,6 +249,14 @@ class SnapshotMatrixCase: XCTestCase {
         case .measured, .cannotCover, .notApplicable:
             break
         }
+    }
+
+    /// The top of the keyboard on the screen when one is up by the keyboard steps' own rule
+    /// (``GalleryScenarios/keyboardIsUp(over:)``: the frame UIKit last announced covers the screen's bottom), else
+    /// `nil`. The harness reads it only to name a page whose scroll view avoids that keyboard (19-30).
+    @MainActor
+    private static func keyboardTop(over window: UIWindow) -> CGFloat? {
+        GalleryScenarios.keyboardIsUp(over: window) ? KeyboardWatch.frame.minY : nil
     }
 
     @MainActor
@@ -281,7 +290,9 @@ class SnapshotMatrixCase: XCTestCase {
                 },
                 window: window, style: style, reference: reference, mode: mode, still: factory.still,
                 interact: factory.interact, minimumReads: factory.minimumReads,
-                height: CaptureHeight(points: committed, freezeViewport: { sampling.isFrozen = $0 })
+                height: CaptureHeight(
+                    points: committed, freezeViewport: { sampling.isFrozen = $0 }, keyboardTop: Self.keyboardTop(over:)
+                )
             )
         }
         let digest = outcome.png.map({ SHA256.hash(data: $0).map({ String(format: "%02x", $0) }).joined() })

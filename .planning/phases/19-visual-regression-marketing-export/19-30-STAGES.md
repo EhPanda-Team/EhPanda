@@ -130,7 +130,46 @@ The provider was restored from the backup (`cmp -s` equal) and `check-sources` e
 
 ## Measuring mode
 
-(Task 2.)
+**RED (step 1).** `CaptureStageTests` with the five new cases and `keyboardTop` added to `CaptureHeight` and `measure` but
+not yet read, `$W/stage-red2.xcresult`: 4 of the 5 new cases fail, as expected (the 3 capture-path cases of Task 1 still
+pass).
+
+- `testAPageOnlyItsStillnessStepHoldsStillIsMeasured`: `("error") is not equal to ("measured") - settle-timeout:pixels:23,102,99x49`
+  (the taller hosting's native settle runs before the step), need nil, steps 0.
+- `testEachMeasuredHeightIsItsOwnHostingInTheCaptureOrder`: `make` called once (not twice), still saw `[912.0]` not
+  `[912.0, 912.0]`, interact saw `[912.0]` not `[912.0, 1422.0]`.
+- `testAKeyboardTheScrollViewAvoidsCannotBeCoveredAndIsFoundAtTheFirstHosting`: `("measured") is not equal to ("cannotCover")`,
+  reason nil, steps 1 not 0.
+- `testTheChecksReasonNamesAKeyboardTheScrollViewAvoids`: reason `page-height: needs 1714 pt, committed 912 pt` without
+  `, cannot-cover:keyboard`.
+- `testAKeyboardTheScrollViewDoesNotAvoidIsNoReason` passes before and after (the old code has no keyboard reason).
+
+(A first RED run had a fixture fault of mine: the synthetic scroll view was not resized with its page, so it also failed
+the keyboard-less cases with `cannot-cover:UIScrollView`. The fixture now keeps the scroll view the size of its page in
+`layoutSubviews`, and the RED above is the run after that fix.)
+
+**GREEN (step 3).** `CaptureStageTests` (8 cases), `HostedWindowCaptureTests` and `ScenarioInventoryTests` on the project
+iPhone: `** TEST SUCCEEDED ** [248.927 sec]`; strict lint of `VisualSnapshotSupport` and `VisualSnapshotTests`: 0 lines
+each. Implementation: `ScenarioFactory` unchanged in this task; `TallWindow.swift` gains `CaptureHeight.keyboardTop`,
+`PageNeed.avoidsKeyboard(topAt:in:)`, `GrownPreparation` and `prepareGrownWindow`, and `measure` is rewritten as one
+hosting per height; `HostedWindowCapture.attemptTall` calls `prepareGrownWindow` and `checked` takes the `CaptureHeight`;
+`SnapshotMatrixCase` supplies `keyboardTop` from `KeyboardWatch`.
+
+**Tracer, measuring mode (step 4, `$W/tracer-measure`, `home-loading`, iPhone `en-large`).**
+
+| coordinate | status | need (pt) | steps |
+| --- | --- | --- | --- |
+| portrait, light | measured | 941 | 1 |
+| portrait, dark | measured | 941 | 1 |
+| landscape, light | measured | 903 | 1 |
+| landscape, dark | measured | 903 | 1 |
+
+Under the old order 19-20 had `error` (`settle-timeout:animation:UIImageView:contents`) for all four. The larger of light
+and dark is 941 in portrait and 903 in landscape, the values Task 1 captured at.
+
+**Tracer, tall capture through `prepareGrownWindow` (`$W/tracer-green-2`).** The same one-off input as Task 1's
+`$W/tracer-green`: 4 of 4 `recorded`, every key's status and SHA-256 equal to `$W/tracer-green`'s (0 differing keys). The
+provider was restored with `git checkout --`; `check-sources` printed `138 states, heights read back`, exit 0.
 
 ## Stage inventory
 

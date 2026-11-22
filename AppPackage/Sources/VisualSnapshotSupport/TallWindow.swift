@@ -10,10 +10,18 @@ public struct CaptureHeight: Sendable {
     /// Freezes (`true`) or releases (`false`) the page's viewport sampling (`VisibleViewportSampling`), so views that
     /// size themselves from their own measured viewport keep the native measurement while the window is taller.
     public let freezeViewport: @MainActor @Sendable (Bool) -> Void
+    /// The top, in screen coordinates, of a keyboard that is up by the steps' own rule, else `nil` (the matrix supplies
+    /// it, as it supplies ``freezeViewport``). A classification, never an adjustment: the check and the measuring mode
+    /// use it only to name a page whose scroll view avoids that keyboard (`cannot-cover:keyboard`, 19-30).
+    public let keyboardTop: @MainActor @Sendable (UIWindow) -> CGFloat?
 
-    public init(points: CGFloat, freezeViewport: @escaping @MainActor @Sendable (Bool) -> Void) {
+    public init(
+        points: CGFloat, freezeViewport: @escaping @MainActor @Sendable (Bool) -> Void,
+        keyboardTop: @escaping @MainActor @Sendable (UIWindow) -> CGFloat?
+    ) {
         self.points = points
         self.freezeViewport = freezeViewport
+        self.keyboardTop = keyboardTop
     }
 }
 
@@ -89,6 +97,23 @@ struct PageNeed {
     let points: CGFloat
     /// The visible, scrolling scroll view with the largest overflow, or `nil` when the page fits its window.
     let scrollView: UIScrollView?
+
+    /// Whether the scroll view that sets the need avoids a keyboard whose top is at `keyboardTop`, in screen
+    /// coordinates: the keyboard's top lies at least one device pixel above the scroll view's bottom edge, and the
+    /// scroll view's `adjustedContentInset.bottom` covers that overlap within one device pixel.
+    ///
+    /// This is the second condition of the keyboard rule (19-30); the first, that a keyboard is up, is the caller's
+    /// (`keyboardTop` is `nil` without one). A keyboard stays at the screen's bottom while the window grows below it,
+    /// and the inset that follows it grows by exactly the window's growth, so the need of such a page never holds still
+    /// (19-20's experiment). A page with a keyboard up that its scroll view ignores (`LoginView` does, up to the Large
+    /// text size) does not avoid it.
+    func avoidsKeyboard(topAt keyboardTop: CGFloat, in window: UIWindow) -> Bool {
+        guard let scrollView else { return false }
+        let pixel = 1 / window.screen.scale
+        let bottom = scrollView.convert(scrollView.bounds, to: window.screen.coordinateSpace).maxY
+        let overlap = bottom - keyboardTop
+        return overlap >= pixel && scrollView.adjustedContentInset.bottom >= overlap - pixel
+    }
 }
 
 extension HostedHierarchy {
@@ -191,6 +216,29 @@ enum FrozenRead {
     case changed(SettleResult, UIImage)
 }
 
+/// What preparing a window grown past the screen came to
+/// (``HostedWindowCapture/prepareGrownWindow(_:to:minimumReads:freeze:)``).
+struct GrownPreparation {
+    /// How the preparation ended.
+    enum Outcome {
+        /// The window is grown to the requested height and holds the viewport's geometry.
+        case ready
+        /// The native settle never settled.
+        case unsettled(SettleResult)
+        /// The frozen read differs from the native one; carries the frozen settle and picture.
+        case changed(SettleResult, UIImage)
+        /// The task was cancelled while the grown layout was waited for; carries the native settle.
+        case cancelled(SettleResult)
+        /// The window has no scene, or the grown window lost the viewport's top, left or right safe area, or its
+        /// size classes.
+        case geometry
+    }
+
+    /// The grown window whenever one was made, so the caller restores everything in its `defer`.
+    let grown: GrownWindow?
+    let outcome: Outcome
+}
+
 /// How a measuring run ended for one coordinate (19-20, design section 3).
 public struct PageMeasurement: Equatable, Sendable {
     /// `measured`, `cannotCover`, `didNotConverge` or `error`.
@@ -239,116 +287,184 @@ extension HostedWindowCapture {
         return .matched(frozen.result)
     }
 
+    /// Everything the tall path does between hosting at native size and the operating step, in the capture and in the
+    /// measuring mode alike (19-30): the page is settled at native size and its viewport sampling frozen and verified
+    /// (``freezeAtNativeSize(_:minimumReads:freeze:)``), then the status bar companion and the size class pins go up,
+    /// the window is resized to `points`, one sample is waited for, and the viewport's geometry is checked. The caller
+    /// restores the grown window and releases the freeze on every exit.
+    static func prepareGrownWindow(
+        _ window: UIWindow, to points: CGFloat, minimumReads: Int, freeze: @MainActor (Bool) -> Void
+    ) async -> GrownPreparation {
+        guard let scene = window.windowScene else { return GrownPreparation(grown: nil, outcome: .geometry) }
+        let frozen: SettleResult
+        switch await freezeAtNativeSize(window, minimumReads: minimumReads, freeze: freeze) {
+        case .unsettled(let settled):
+            return GrownPreparation(grown: nil, outcome: .unsettled(settled))
+        case .changed(let settled, let image):
+            return GrownPreparation(grown: nil, outcome: .changed(settled, image))
+        case .matched(let settled):
+            frozen = settled
+        }
+        let held = GrownWindow(window: window, scene: scene)
+        held.resize(to: points)
+        guard await nextSample() else { return GrownPreparation(grown: held, outcome: .cancelled(frozen)) }
+        guard held.holdsViewportGeometry() else { return GrownPreparation(grown: held, outcome: .geometry) }
+        return GrownPreparation(grown: held, outcome: .ready)
+    }
+
     /// Finds the window height the hosted page needs, without taking a picture.
     ///
-    /// The page is hosted at native size, settled, and its viewport sampling frozen and verified as the tall window
-    /// does; the status bar companion and size class pins go up, `interact` runs and the window settles again. Then,
-    /// while the page needs more than the window has (``HostedHierarchy/pageNeed(in:)``), the window is set to that
-    /// need, laid out and settled again (at most ``maximumGrowthSteps`` times), and the new need is read. The result
-    /// is `measured` once two consecutive reads give the same whole-point need. If the most-overflowing scroll view
-    /// grew by less than the window did, less one device pixel, no window height covers it (`cannotCover`, reason
-    /// `cannot-cover:<class>`); if the need still moves after the last step, `didNotConverge`. Nothing is written
-    /// and the window and viewport sampling are restored on every exit.
+    /// Every height is its own hosting, taken in the capture's order (19-30, owner decision 2026-11-23, 「把步驟拆成
+    /// 兩種」): the window's own height first, in a screen-sized hosting (`make`, host, `still`, `interact`, settle),
+    /// then each taller height in a fresh hosting of the tall path (`make`, host, `still` at native size, then
+    /// ``prepareGrownWindow(_:to:minimumReads:freeze:)`` as the capture does, `interact`, settle). A taller height
+    /// needs a fresh hosting because an operating step cannot be undone, and the owner's order grows the window
+    /// before it.
+    /// After each settle the need is read (``HostedHierarchy/pageNeed(in:)``), together with the class and height of
+    /// the scroll view that sets it and whether that scroll view avoids a keyboard that is up (`keyboardTop`,
+    /// ``PageNeed/avoidsKeyboard(topAt:in:)``). Then:
+    /// - a need at most the hosting's height is `measured` at that height, `steps` the number of hostings above the
+    ///   window's own height;
+    /// - a need above it with an avoided keyboard is `cannotCover`, reason `cannot-cover:keyboard`, at once: no height
+    ///   covers a page whose scroll view follows a keyboard that stays at the screen's bottom;
+    /// - a need above it whose most-overflowing scroll view keeps its class and its height (within one device pixel)
+    ///   from the previous hosting while the window grew is `cannotCover`, reason `cannot-cover:<class>`;
+    /// - after the ``maximumGrowthSteps``th hosting above the window's own height the measurement ends as
+    ///   `didNotConverge`; otherwise the next height is the need.
     ///
-    /// A page that fits the screen is `measured` at the screen height in no steps.
+    /// The classification is never an adjustment. Nothing is written, and the window, the pins and the viewport
+    /// sampling are restored after every hosting. A page that fits the screen is `measured` at the screen height in no
+    /// steps.
     public static func measure(
         make: () throws -> AnyView, window: UIWindow, style: UIUserInterfaceStyle,
         still: (@MainActor (UIWindow) async throws -> Void)? = nil,
         interact: (@MainActor (UIWindow) async throws -> Void)? = nil, minimumReads: Int = minimumReads,
-        freezeViewport: @escaping @MainActor @Sendable (Bool) -> Void
+        freezeViewport: @escaping @MainActor @Sendable (Bool) -> Void,
+        keyboardTop: @MainActor (UIWindow) -> CGFloat?
     ) async -> PageMeasurement {
-        let screen = Int(window.bounds.height.rounded())
-        let root: AnyView
-        do {
-            root = try make()
-        } catch {
-            return PageMeasurement(status: .error, neededPoints: nil, screenPoints: screen, steps: 0, reason: "factory")
-        }
-        let hosted = host(root, in: window, style: style)
-        let measurement = await measureHosted(
-            window: window, still: still, interact: interact, minimumReads: minimumReads,
-            freezeViewport: freezeViewport
-        )
-        await hosted.disposeAfterDismissal()
-        return measurement
-    }
-
-    private static func measureHosted(
-        window: UIWindow, still: (@MainActor (UIWindow) async throws -> Void)?,
-        interact: (@MainActor (UIWindow) async throws -> Void)?, minimumReads: Int,
-        freezeViewport: @MainActor (Bool) -> Void
-    ) async -> PageMeasurement {
-        let nativeSize = window.bounds.size
-        let screen = Int(nativeSize.height.rounded())
-        func ended(_ status: SnapshotHeightStatus, need: PageNeed? = nil, steps: Int = 0, reason: String? = nil)
+        let screen = window.bounds.height
+        let pixel = 1 / window.screen.scale
+        func ended(_ status: SnapshotHeightStatus, last: HostingRead?, steps: Int, reason: String? = nil)
             -> PageMeasurement {
             PageMeasurement(
-                status: status, neededPoints: need.map({ Int($0.points) }), screenPoints: screen, steps: steps,
-                reason: reason
+                status: status, neededPoints: last.map({ Int($0.points) }), screenPoints: Int(screen.rounded()),
+                steps: steps, reason: reason
             )
         }
-        guard let scene = window.windowScene else { return ended(.error, reason: tallWindowGeometryReason) }
+        var height = screen
+        var previous: HostingRead?
+        for step in 0...maximumGrowthSteps {
+            let root: AnyView
+            do {
+                root = try make()
+            } catch {
+                return ended(.error, last: previous, steps: step, reason: "factory")
+            }
+            let hosted = host(root, in: window, style: style)
+            let hosting = await measureHosted(
+                window: window, height: height,
+                stages: .init(still: still, interact: interact, minimumReads: minimumReads),
+                freezeViewport: freezeViewport, keyboardTop: keyboardTop
+            )
+            await hosted.disposeAfterDismissal()
+            let read: HostingRead
+            switch hosting {
+            case .failed(let reason): return ended(.error, last: previous, steps: step, reason: reason)
+            case .read(let value): read = value
+            }
+            if read.points <= height { return ended(.measured, last: read, steps: step) }
+            if read.avoidsKeyboard {
+                return ended(.cannotCover, last: read, steps: step, reason: keyboardReason)
+            }
+            if let previous, let name = read.scrollViewClass, name == previous.scrollViewClass,
+               abs(read.scrollViewHeight - previous.scrollViewHeight) <= pixel {
+                return ended(.cannotCover, last: read, steps: step, reason: "cannot-cover:\(name)")
+            }
+            previous = read
+            height = read.points
+        }
+        return ended(.didNotConverge, last: previous, steps: maximumGrowthSteps)
+    }
+
+    /// The reason of a page whose need-setting scroll view avoids a keyboard that is up (the keyboard rule, 19-30).
+    static let keyboardReason = "cannot-cover:keyboard"
+
+    /// The two kinds of step of one hosting, and the fewest identical reads its settles need.
+    private struct Stages {
+        let still: (@MainActor (UIWindow) async throws -> Void)?
+        let interact: (@MainActor (UIWindow) async throws -> Void)?
+        let minimumReads: Int
+    }
+
+    /// What one hosting of the measuring mode read, while its page was still hosted.
+    private struct HostingRead {
+        /// The window height the page needs, in whole points.
+        let points: CGFloat
+        /// The class and height of the scroll view that sets the need; `nil` and 0 when the page fits.
+        let scrollViewClass: String?
+        let scrollViewHeight: CGFloat
+        /// Whether that scroll view avoids a keyboard that is up.
+        let avoidsKeyboard: Bool
+    }
+
+    private enum Hosting {
+        case read(HostingRead)
+        /// A fixed reason code, never page text.
+        case failed(String)
+    }
+
+    /// One hosting at `height`: the stillness step at native size, the window grown (above its own height), the
+    /// operating step, the settle, and the read.
+    private static func measureHosted(
+        window: UIWindow, height: CGFloat, stages: Stages, freezeViewport: @MainActor (Bool) -> Void,
+        keyboardTop: @MainActor (UIWindow) -> CGFloat?
+    ) async -> Hosting {
+        let nativeSize = window.bounds.size
+        let minimumReads = stages.minimumReads
         var grown: GrownWindow?
         defer {
             grown?.restore()
             freezeViewport(false)
             window.layoutIfNeeded()
         }
-        switch await freezeAtNativeSize(window, minimumReads: minimumReads, freeze: freezeViewport) {
-        case .unsettled:
-            return ended(.error, reason: settleTimeoutReason)
-        case .changed:
-            return ended(.error, reason: freezeChangedPixelsReason)
-        case .matched:
-            break
-        }
-        let held = GrownWindow(window: window, scene: scene)
-        grown = held
-        if let still {
+        if let still = stages.still {
             do {
                 try await still(window)
             } catch {
-                return ended(.error, reason: "\(interactionReason):\(stepFailure(error))")
+                return .failed("\(interactionReason):\(stepFailure(error))")
             }
         }
-        if let interact {
+        if height > nativeSize.height {
+            let prepared = await prepareGrownWindow(
+                window, to: height, minimumReads: minimumReads, freeze: freezeViewport
+            )
+            grown = prepared.grown
+            switch prepared.outcome {
+            case .ready: break
+            case .unsettled, .cancelled: return .failed(settleTimeoutReason)
+            case .changed: return .failed(freezeChangedPixelsReason)
+            case .geometry: return .failed(tallWindowGeometryReason)
+            }
+        }
+        if let interact = stages.interact {
             do {
                 try await interact(window)
             } catch {
-                return ended(.error, reason: "\(interactionReason):\(stepFailure(error))")
+                return .failed("\(interactionReason):\(stepFailure(error))")
             }
         }
         do {
             guard case .settled = try await settleWindow(window, nativeSize: nativeSize, minimumReads: minimumReads)
-            else { return ended(.error, reason: settleTimeoutReason) }
+            else { return .failed(settleTimeoutReason) }
         } catch {
-            return ended(.error, reason: "render-server:\(error)")
+            return .failed("render-server:\(error)")
         }
-        var previous = HostedHierarchy.pageNeed(in: window)
-        guard previous.points > nativeSize.height else { return ended(.measured, need: previous) }
-        let scale = window.screen.scale
-        for step in 1...maximumGrowthSteps {
-            let heightBefore = previous.scrollView?.bounds.height ?? 0
-            let growth = previous.points - window.bounds.height
-            held.resize(to: previous.points)
-            do {
-                guard case .settled = try await settleWindow(
-                    window, nativeSize: nativeSize, minimumReads: minimumReads
-                ) else { return ended(.error, need: previous, steps: step, reason: settleTimeoutReason) }
-            } catch {
-                return ended(.error, need: previous, steps: step, reason: "render-server:\(error)")
-            }
-            let need = HostedHierarchy.pageNeed(in: window)
-            if need.points == previous.points { return ended(.measured, need: need, steps: step) }
-            if let scrollView = previous.scrollView, scrollView.bounds.height - heightBefore < growth - 1 / scale {
-                return ended(
-                    .cannotCover, need: need, steps: step,
-                    reason: "cannot-cover:\(String(describing: type(of: scrollView)))"
-                )
-            }
-            previous = need
-        }
-        return ended(.didNotConverge, need: previous, steps: maximumGrowthSteps)
+        let need = HostedHierarchy.pageNeed(in: window)
+        let avoids = keyboardTop(window).map({ need.avoidsKeyboard(topAt: $0, in: window) }) ?? false
+        return .read(HostingRead(
+            points: need.points, scrollViewClass: need.scrollView.map({ String(describing: type(of: $0)) }),
+            scrollViewHeight: need.scrollView?.bounds.height ?? 0, avoidsKeyboard: avoids
+        ))
     }
 
     /// Settles the window as it is: on 1x reads of the window, or, above what the render server draws in one read,
