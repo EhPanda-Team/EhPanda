@@ -28,6 +28,20 @@ public enum AppInfo {
         nonEmptyInfoDictionaryString(forKey: "TelemetryDeckSalt")
     }
 
+    /// The crash reporting project's write-only ingestion key (a DSN), substituted into the bundle at
+    /// build time from the `SENTRY_DSN` build setting.
+    ///
+    /// `nil` is the intended state for builds from source, forks, local, test-host and preview builds,
+    /// which therefore never start crash reporting. Only the release workflows supply the value, from the
+    /// `SENTRY_DSN` repository secret as a command-line build setting.
+    ///
+    /// There is deliberately no xcconfig default or local override: xcconfig parsing treats `//` as a
+    /// comment and would cut a DSN at `https:`, and no local build needs one, because the start rule
+    /// refuses every Debug build.
+    public static var sentryDSN: String? {
+        nonEmptyInfoDictionaryString(forKey: "SentryDSN")
+    }
+
     /// Reads a bundle metadata string, collapsing the three absent-value shapes onto one `nil`: a
     /// missing key, a value that is not a string, and the empty string that an unfilled `$(VAR)`
     /// substitution leaves behind. One nil condition is what lets callers gate on a single check.

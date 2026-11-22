@@ -1,6 +1,7 @@
 import AppModels
 import AppTools
 public import ComposableArchitecture
+import CrashReporting
 import DownloadClient
 import Foundation
 import LibraryClient
@@ -66,6 +67,10 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication, didFinishLaunchingWithOptions
             launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        // Crash reporting starts first, so that a crash anywhere later in launch is still caught. It neither
+        // waits for nor depends on the analytics choice, because crash reports are not analytics data. The
+        // start rule itself refuses Debug builds, test hosts and builds without a DSN.
+        CrashReporter.start()
         if !AppInfo.isTesting {
             store.send(.appDelegate(.onLaunchFinish))
         }

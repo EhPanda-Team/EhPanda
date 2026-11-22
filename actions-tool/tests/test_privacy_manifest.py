@@ -29,6 +29,16 @@ purpose is analytics:
 * `NSPrivacyCollectedDataTypeDeviceID`: the random per-install identifier of the install signal
   and TelemetryDeck's hashed per-install identifier.
 * `NSPrivacyCollectedDataTypeOtherDiagnosticData`: the kinds of errors that occur (Basic and Full).
+
+Data collected, through Sentry: crash reports. They are declared separately because they are not
+analytics data (the SDK starts at launch under every analytics level, and the README's statement that
+nothing is sent until the person chooses concerns analytics only). The reports are scrubbed before they
+leave the device (`CrashReportScrubber`), carry nothing about the person, are not linked to the user and
+are not used for tracking. The only purpose is App Functionality:
+
+* `NSPrivacyCollectedDataTypeCrashData`: the crash itself, as a stack trace with device and build facts.
+
+The Sentry SDK's own required-reason APIs are covered by the privacy manifest the SDK ships.
 """
 
 import pathlib
@@ -44,10 +54,12 @@ EXPECTED_REASONS = {
     "NSPrivacyAccessedAPICategoryUserDefaults": ["CA92.1"],
     "NSPrivacyAccessedAPICategoryFileTimestamp": ["C617.1"],
 }
+# Each collected type with its one purpose, in the order the manifest declares them.
 EXPECTED_DATA_TYPES = [
-    "NSPrivacyCollectedDataTypeProductInteraction",
-    "NSPrivacyCollectedDataTypeDeviceID",
-    "NSPrivacyCollectedDataTypeOtherDiagnosticData",
+    ("NSPrivacyCollectedDataTypeProductInteraction", "NSPrivacyCollectedDataTypePurposeAnalytics"),
+    ("NSPrivacyCollectedDataTypeDeviceID", "NSPrivacyCollectedDataTypePurposeAnalytics"),
+    ("NSPrivacyCollectedDataTypeOtherDiagnosticData", "NSPrivacyCollectedDataTypePurposeAnalytics"),
+    ("NSPrivacyCollectedDataTypeCrashData", "NSPrivacyCollectedDataTypePurposeAppFunctionality"),
 ]
 
 # The symbols Apple lists for each required-reason category ("Describing use of required reason
@@ -128,15 +140,15 @@ class PrivacyManifestShapeTests(unittest.TestCase):
         for entry in entries:
             self.assertEqual(sorted(entry), ["NSPrivacyAccessedAPIType", "NSPrivacyAccessedAPITypeReasons"])
 
-    def test_declares_the_three_collected_types_unlinked_untracked_for_analytics(self):
+    def test_declares_the_collected_types_unlinked_untracked_each_for_its_purpose(self):
         entries = load_manifest()["NSPrivacyCollectedDataTypes"]
-        self.assertEqual([entry["NSPrivacyCollectedDataType"] for entry in entries], EXPECTED_DATA_TYPES)
-        for entry in entries:
-            with self.subTest(entry["NSPrivacyCollectedDataType"]):
+        self.assertEqual([entry["NSPrivacyCollectedDataType"] for entry in entries],
+                         [data_type for data_type, _ in EXPECTED_DATA_TYPES])
+        for entry, (data_type, purpose) in zip(entries, EXPECTED_DATA_TYPES):
+            with self.subTest(data_type):
                 self.assertIs(entry["NSPrivacyCollectedDataTypeLinked"], False)
                 self.assertIs(entry["NSPrivacyCollectedDataTypeTracking"], False)
-                self.assertEqual(entry["NSPrivacyCollectedDataTypePurposes"],
-                                 ["NSPrivacyCollectedDataTypePurposeAnalytics"])
+                self.assertEqual(entry["NSPrivacyCollectedDataTypePurposes"], [purpose])
                 self.assertEqual(len(entry), 4)
 
     def test_has_no_other_top_level_keys(self):

@@ -280,6 +280,7 @@ let targets: [PackageDescription.Target] = [
             .module(.automationIdentifiers),
             .module(.clipboardClient),
             .module(.cookieClient),
+            .module(.crashReporting),
             .module(.dateSeekFeature),
             .module(.detailFeature),
             .module(.dfClient),
@@ -423,10 +424,11 @@ let targets: [PackageDescription.Target] = [
     ),
     // The sole importer of the Sentry SDK (enforced by the `crash_reporting_sdk_import_boundary` lint
     // rule). Nothing in it sends a report by hand: the only reports are the crashes the SDK finds on the
-    // next launch.
+    // next launch. The `.appModels` edge supplies `AppInfo.sentryDSN` and `DistributionChannel`.
     .target(
         module: .crashReporting,
         dependencies: [
+            .module(.appModels),
             .targetDependency(.sentry)
         ]
     ),
@@ -1212,6 +1214,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .crashReportingTests,
         dependencies: [
+            .module(.appModels),
             .module(.appTools),
             .module(.crashReporting),
             .targetDependency(.sentry)
