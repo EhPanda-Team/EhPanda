@@ -394,6 +394,18 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   findings) in `19-13-PRECHECK.md` remain `owner to decide` and must be resolved — fixed and re-recorded, or
   explicitly accepted by the owner — before baseline approval and publication (19-CONTEXT D-17).
 
+- **Pre-check decided and full-page capture approved, 2026-11-22** (owner decisions in this session; work moved from
+  `fix/snapshot-scenarios` onto `claude/phase19-deferred-0c4fb6`, its 16 commits re-applied on the re-signed
+  `develop`): every former `owner to decide` item has a verdict in `19-13-PRECHECK.md`. Accepted: A11, B1, B2, C8,
+  C10, C12, C13, C14. To fix and re-record: C1, C2, C3 (the toast keeps clear of a tab bar only where there is one),
+  C5 (no cut reward line; no rays in light or dark), C6, C7, C9, C11, C15, C16. C4 became a capture rule for every
+  page: each picture is taken at a fixed, committed height that covers the whole page, one value per device ×
+  orientation × text size (the tallest of the six languages), declared per view in a `*ViewSnapshot.swift` file
+  through a test-only `SnapshotProvider` protocol (proven with swift-snapshot-testing 1.19.6 first). Design:
+  `19-FULL-PAGE-CAPTURE-DESIGN.md` (approved). T-19-24 closed and UF-3 resolved (`19-SECURITY.md`). Next: new Phase 19
+  plans for the harness change, the app fixes and the run-to-run variation, then a new candidate run (every picture
+  changes) and 19-13 again.
+
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
 ## Phase 19 executing — 2026-11-07
