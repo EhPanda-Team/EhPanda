@@ -118,8 +118,8 @@ extension SnapshotMatrixCase {
     /// Captures the catalog's scenario `id`.
     @MainActor
     func capture(scenario id: String) async throws {
-        let factory = try ScenarioCatalog.state(id).factory
-        try await factory.prepare?()
-        try await capture(scenario: id, factory: factory)
+        let state = try ScenarioCatalog.state(id)
+        try await state.factory.prepare?()
+        try await capture(scenario: id, factory: state.factory, heights: state.heights)
     }
 }

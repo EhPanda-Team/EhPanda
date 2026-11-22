@@ -72,8 +72,8 @@ public final class FullContentHost<Content: View> {
     private let sceneViewportTraits: UITraitCollection
     private var verticalScrollHost: UIScrollView
     /// The full-screen window that owns the status bar while ``window`` is taller than the screen. See
-    /// ``StatusBarAppearanceController``.
-    private var companionWindow: UIWindow?
+    /// ``StatusBarCompanion``.
+    private var statusBarCompanion: StatusBarCompanion?
 
     /// Requires the requested Dynamic Type category to come from the app's system setting.
     /// A window-only AX5 override over system Large lets the native toolbar re-resolve its glyph from 70×85 to
@@ -232,24 +232,10 @@ public final class FullContentHost<Content: View> {
             .write(to: outputDirectory.appending(path: "visible-viewport-freeze-parity.json"), options: .atomic)
         guard freezeMatches else { throw FullContentHostError.visibleViewportFreezeChangedPixels }
 
-        // UIKit lets only a window that covers the whole screen drive the status bar. Once the key window grows
-        // past the screen it loses that role and the status bar reappears (measured 2026-10-03: hidden -> visible,
-        // status bar frame 54 pt on the phone / 32 pt on the iPad, iPad safe-area top 0 -> 32), and the soft
-        // scroll-edge effect renders under it. A full-screen companion window therefore owns the status bar state
-        // while the capture window is tall, so that window keeps the viewport's status bar, safe area and edge
-        // effect. It mirrors the state measured at viewport size rather than hard-coding hidden, which keeps
-        // screens with a visible status bar unchanged.
+        // A full-screen companion window owns the status bar state while the capture window is tall. It mirrors the
+        // state measured at viewport size rather than hard-coding hidden (see ``StatusBarCompanion``).
         let statusBarHidden = scene.statusBarManager?.isStatusBarHidden ?? false
-        let companion = UIWindow(windowScene: scene)
-        companion.rootViewController = StatusBarAppearanceController(hidesStatusBar: statusBarHidden)
-        // At `.normal`, created after the capture window, so it is the topmost full-screen window: the host app's
-        // own full-screen main window is also at `.normal` with a visible status bar, and a companion below it
-        // (`.normal - 1`) never takes over the status bar (measured 2026-10-03). It is never made key; the capture
-        // window stays key, and a clear, non-key companion in front of it does not affect the replicant reads,
-        // which draw the captured hierarchy itself.
-        companion.windowLevel = .normal
-        companion.isHidden = false
-        companionWindow = companion
+        statusBarCompanion = StatusBarCompanion(scene: scene, hidesStatusBar: statusBarHidden)
 
         var previousHeight: CGFloat?
         var previousOutputHeight: CGFloat?
@@ -501,9 +487,8 @@ public final class FullContentHost<Content: View> {
     }
 
     private func removeStatusBarCompanion() {
-        companionWindow?.isHidden = true
-        companionWindow?.rootViewController = nil
-        companionWindow = nil
+        statusBarCompanion?.remove()
+        statusBarCompanion = nil
     }
 
     /// Samples the viewport rendering until it holds byte-identical under ``RenderSettlement``.
@@ -736,37 +721,6 @@ private struct CaptureMeasurement {
     let renderSettleSamples: Int
     let renderSettleMilliseconds: Int
     let statusBarHidden: Bool
-}
-
-/// Root of the status bar companion window: it exists only to state the status bar visibility measured while
-/// the capture window was viewport-sized.
-///
-/// UIKit lets only a window covering the whole screen drive the status bar, so a capture window grown past the
-/// screen cannot keep it hidden (measured 2026-10-03: the status bar reappears, 54 pt on the phone and 32 pt on
-/// the iPad, and the iPad safe-area top goes 0 -> 32). A clear, full-screen, non-key window above the host app's
-/// own main window, whose root prefers the measured visibility, restores the viewport's status bar state; with it
-/// the tall window's top crop matched the viewport reference pixel for pixel on both devices. Placed below the
-/// host app's main window, it lost to that window's visible status bar (measured 2026-10-03).
-private final class StatusBarAppearanceController: UIViewController {
-    let hidesStatusBar: Bool
-
-    init(hidesStatusBar: Bool) {
-        self.hidesStatusBar = hidesStatusBar
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        nil
-    }
-
-    override var prefersStatusBarHidden: Bool { hidesStatusBar }
-
-    override func loadView() {
-        let view = UIView()
-        view.backgroundColor = .clear
-        self.view = view
-    }
 }
 
 @MainActor

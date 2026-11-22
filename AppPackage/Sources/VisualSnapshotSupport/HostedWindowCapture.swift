@@ -469,10 +469,16 @@ public enum HostedWindowCapture {
     /// `interact`, when given, runs after hosting and before the settle wait: the user step that brings a scenario
     /// to its state where no store state can (a moderation alert that its row presents after the row's own action).
     /// `minimumReads` is passed to ``settle(_:minimumReads:)``.
+    ///
+    /// `height`, when given, is the coordinate's committed page height (19-19). A height at or under the window's
+    /// own takes the path above unchanged; a taller one is taken in the window resized to it (``attemptTall``).
+    /// Either way the page is then checked against the height: a page that needs more fails with
+    /// `page-height: needs <n> pt, committed <m> pt` and keeps its picture. The window is never grown at run time,
+    /// and that failure is never retried. `nil` is the path above without the check.
     public static func captureAndCompare(
         make: () throws -> AnyView, window: UIWindow, style: UIUserInterfaceStyle, reference: URL?,
         mode: SnapshotMode, interact: (@MainActor (UIWindow) async throws -> Void)? = nil,
-        minimumReads: Int = minimumReads
+        minimumReads: Int = minimumReads, height: CaptureHeight? = nil
     ) async -> CaptureOutcome {
         let clock = ContinuousClock()
         let start = clock.now
@@ -482,7 +488,8 @@ public enum HostedWindowCapture {
             let result = await attemptOnce(
                 make: make, window: window,
                 request: .init(
-                    style: style, reference: reference, mode: mode, interact: interact, minimumReads: minimumReads
+                    style: style, reference: reference, mode: mode, interact: interact, minimumReads: minimumReads,
+                    height: height
                 )
             )
             let elapsed = seconds(start.duration(to: clock.now))
@@ -553,6 +560,7 @@ public enum HostedWindowCapture {
         let mode: SnapshotMode
         let interact: (@MainActor (UIWindow) async throws -> Void)?
         let minimumReads: Int
+        let height: CaptureHeight?
     }
 
     private struct Attempt {
@@ -571,9 +579,132 @@ public enum HostedWindowCapture {
             return Attempt(status: .error, settleSamples: 0, png: nil, difference: nil, reason: "factory")
         }
         let hosted = host(root, in: window, style: request.style)
-        let attempt = await attemptHosted(window: window, request: request)
+        let attempt: Attempt
+        if let height = request.height {
+            attempt = await attemptSized(window: window, request: request, height: height)
+        } else {
+            attempt = await attemptHosted(window: window, request: request)
+        }
         await hosted.disposeAfterDismissal()
         return attempt
+    }
+
+    /// The reason of an attempt whose grown window lost the viewport's top, left or right safe area, or its size
+    /// classes.
+    static let tallWindowGeometryReason = "tall-window-geometry"
+    /// The reason of an attempt whose picture changed when the viewport sampling was frozen at native size.
+    static let freezeChangedPixelsReason = "freeze-changed-pixels"
+
+    /// Takes the hosted page at the committed height, then checks the page against it.
+    ///
+    /// A height at or under the window's own is the screen-sized path of ``attemptHosted(window:request:)``: the
+    /// design's minimum is the device height, and today's pictures stay byte for byte what they were (19-19).
+    private static func attemptSized(window: UIWindow, request: Request, height: CaptureHeight) async -> Attempt {
+        let nativeFrame = window.frame
+        guard height.points > nativeFrame.height else {
+            let attempt = await attemptHosted(window: window, request: request)
+            return checked(attempt, window: window, committed: height.points)
+        }
+        return await attemptTall(window: window, request: request, height: height, nativeFrame: nativeFrame)
+    }
+
+    /// Takes the hosted page in the window resized to the scene's width and the committed height.
+    ///
+    /// The window is hosted and settled at native size first; the viewport sampling is then frozen and the frozen
+    /// read must be byte for byte the native one, because a view that sized itself from its own viewport would
+    /// otherwise reflow when the window grows. The status bar companion holds the measured status bar state, and the
+    /// window's size classes are pinned to the scene's (a tall phone-landscape window would derive a regular
+    /// vertical class), so the grown window keeps the viewport's top, left and right safe area and its size classes;
+    /// the attempt fails with ``tallWindowGeometryReason`` if it does not. Everything is restored on every exit.
+    private static func attemptTall(
+        window: UIWindow, request: Request, height: CaptureHeight, nativeFrame: CGRect
+    ) async -> Attempt {
+        guard let scene = window.windowScene else {
+            return failure(tallWindowGeometryReason)
+        }
+        var companion: StatusBarCompanion?
+        defer {
+            window.frame = nativeFrame
+            window.rootViewController?.view.frame = window.bounds
+            window.traitOverrides.remove(UITraitHorizontalSizeClass.self)
+            window.traitOverrides.remove(UITraitVerticalSizeClass.self)
+            companion?.remove()
+            height.freezeViewport(false)
+            window.layoutIfNeeded()
+        }
+        let native = await settleRead(window, minimumReads: request.minimumReads)
+        guard case .settled = native.result, let nativeImage = native.image else {
+            return timeoutAttempt(native.result, png: nil)
+        }
+        height.freezeViewport(true)
+        let frozen = await settleRead(window, minimumReads: request.minimumReads)
+        guard case .settled = frozen.result, let frozenImage = frozen.image else {
+            return timeoutAttempt(frozen.result, png: nil)
+        }
+        guard let nativeBytes = comparedBytes(nativeImage), nativeBytes == comparedBytes(frozenImage) else {
+            return Attempt(status: .error, settleSamples: frozen.result.samples, png: pngData(frozenImage),
+                           difference: nil, reason: freezeChangedPixelsReason)
+        }
+        let pinnedInsets = window.safeAreaInsets
+        let sceneClasses = scene.traitCollection
+        companion = StatusBarCompanion(
+            scene: scene, hidesStatusBar: scene.statusBarManager?.isStatusBarHidden ?? false
+        )
+        window.traitOverrides.horizontalSizeClass = sceneClasses.horizontalSizeClass
+        window.traitOverrides.verticalSizeClass = sceneClasses.verticalSizeClass
+        window.frame = CGRect(
+            origin: nativeFrame.origin, size: CGSize(width: nativeFrame.width, height: height.points)
+        )
+        window.rootViewController?.view.frame = window.bounds
+        window.layoutIfNeeded()
+        guard await nextSample() else { return timeoutAttempt(frozen.result, png: nil) }
+        let insets = window.safeAreaInsets
+        guard insets.top == pinnedInsets.top, insets.left == pinnedInsets.left, insets.right == pinnedInsets.right,
+              window.traitCollection.horizontalSizeClass == sceneClasses.horizontalSizeClass,
+              window.traitCollection.verticalSizeClass == sceneClasses.verticalSizeClass else {
+            return failure(tallWindowGeometryReason)
+        }
+        let attempt = await attemptHosted(window: window, request: request)
+        return checked(attempt, window: window, committed: height.points)
+    }
+
+    /// The check, never an adjustment: a page whose scroll content needs more than the committed height fails with
+    /// the needed value and keeps its picture. A failure that has no picture to check (a timeout, a failed step) is
+    /// left as it is, so the retry rules keep seeing it.
+    private static func checked(_ attempt: Attempt, window: UIWindow, committed: CGFloat) -> Attempt {
+        switch attempt.status {
+        case .recorded, .passed, .changed, .missingBaseline:
+            let need = HostedHierarchy.pageNeed(in: window)
+            guard need > committed else { return attempt }
+            return Attempt(
+                status: .error, settleSamples: attempt.settleSamples, png: attempt.png,
+                difference: attempt.difference,
+                reason: "page-height: needs \(Int(need)) pt, committed \(Int(committed.rounded())) pt"
+            )
+        case .timeout, .error, .notApplicable:
+            return attempt
+        }
+    }
+
+    /// Waits one ``sampleInterval``, so a layout change has reached the window; `false` when the task was cancelled.
+    private static func nextSample() async -> Bool {
+        do {
+            try await ContinuousClock().sleep(for: sampleInterval)
+            return true
+        } catch {
+            // Cancellation ends the wait, like the settle's.
+            return false
+        }
+    }
+
+    /// An attempt that ended before it had a picture.
+    private static func failure(_ reason: String) -> Attempt {
+        Attempt(status: .error, settleSamples: 0, png: nil, difference: nil, reason: reason)
+    }
+
+    private static func timeoutAttempt(_ settled: SettleResult, png: Data?) -> Attempt {
+        Attempt(status: .timeout, settleSamples: settled.samples, png: png, difference: nil,
+                reason: (lastMotion ?? lastChange).map({ "settle-timeout:\($0)" }) ?? "settle-timeout")
     }
 
     private static func attemptHosted(window: UIWindow, request: Request) async -> Attempt {
@@ -590,8 +721,7 @@ public enum HostedWindowCapture {
         let image = settledRead.image ?? capture(window)
         let png = pngData(image)
         if case .timeout = settled {
-            return Attempt(status: .timeout, settleSamples: settled.samples, png: png, difference: nil,
-                           reason: (lastMotion ?? lastChange).map({ "settle-timeout:\($0)" }) ?? "settle-timeout")
+            return timeoutAttempt(settled, png: png)
         }
         switch request.mode {
         case .candidate:

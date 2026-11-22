@@ -1,3 +1,4 @@
+import AppComponents
 import AppFeature
 import ComposableArchitecture
 import CookieClient
@@ -59,8 +60,9 @@ class SnapshotMatrixCase: XCTestCase {
     ///   - id: The scenario ID in `scenarios.json`.
     ///   - factory: The scenario's real view and store, signed-in state and user step. `make` is called inside the
     ///     scenario's dependencies, once per attempt, so every attempt starts from the scenario's initial state.
+    ///   - heights: The page heights the scenario's pictures are taken at (19-19).
     @MainActor
-    func capture(scenario id: String, factory: ScenarioFactory) async throws {
+    func capture(scenario id: String, factory: ScenarioFactory, heights: PageHeights) async throws {
         let run = SnapshotRunEnvironment.current
         guard let mode = run.mode, let output = run.output else {
             throw XCTSkip("Matrix scenarios run only with EHPANDA_SNAPSHOT_MODE and EHPANDA_SNAPSHOT_OUTPUT")
@@ -123,6 +125,8 @@ class SnapshotMatrixCase: XCTestCase {
                 continue
             }
             let pin = try XCTUnwrap(pins.geometry(family: family, orientation: orientation))
+            // The pin lists the window's width, then its height, in points.
+            let screenHeight = try XCTUnwrap(pin.points.last)
             guard await Self.rotate(scene: scene, window: window, to: orientation, pin: pin) else {
                 for coordinate in wanted {
                     try writer.append(.failure(coordinate.key, reason: "geometry"))
@@ -147,7 +151,8 @@ class SnapshotMatrixCase: XCTestCase {
                 try await captureCoordinate(
                     coordinate, factory: factory,
                     context: .init(
-                        window: window, mode: mode, run: run, writer: writer, picture: picture, pictures: pictures
+                        window: window, mode: mode, run: run, writer: writer, picture: picture, pictures: pictures,
+                        heights: heights, screenHeight: screenHeight
                     )
                 )
             }
@@ -165,6 +170,13 @@ class SnapshotMatrixCase: XCTestCase {
         let style: UIUserInterfaceStyle = coordinate.theme == "dark" ? .dark : .light
         let reference = run.references?.appending(path: coordinate.baselinePath)
         let shift = run.shift == coordinate.scenario
+        // The window height of this coordinate, committed in the scenario's source; never measured here.
+        let committed = context.heights.points(
+            family: coordinate.family, orientation: coordinate.orientation, size: coordinate.size,
+            screenHeight: context.screenHeight
+        )
+        // Installed from the first render and kept, as its documentation requires; the tall window freezes it.
+        let sampling = VisibleViewportSampling()
         let appStorage = UserDefaults.inMemory
         MainThreadWatch.context = coordinate.key
         defer { MainThreadWatch.context = "" }
@@ -183,10 +195,12 @@ class SnapshotMatrixCase: XCTestCase {
                 make: {
                     let view = try factory.make()
                     // The controlled 1-point shift of 19-01 Task 3; read only by the tracer's own variable.
-                    return shift ? AnyView(view.padding(.top, 1)) : view
+                    let shifted = shift ? AnyView(view.padding(.top, 1)) : view
+                    return AnyView(shifted.environment(\.visibleViewportSampling, sampling))
                 },
                 window: window, style: style, reference: reference, mode: mode, interact: factory.interact,
-                minimumReads: factory.minimumReads
+                minimumReads: factory.minimumReads,
+                height: CaptureHeight(points: committed, freezeViewport: { sampling.isFrozen = $0 })
             )
         }
         let digest = outcome.png.map({ SHA256.hash(data: $0).map({ String(format: "%02x", $0) }).joined() })
@@ -328,6 +342,9 @@ struct CaptureContext {
     /// This coordinate's place among the test's captured pictures, from 1, and how many it captures.
     let picture: Int
     let pictures: Int
+    /// The scenario's committed page heights and the pinned screen height `.screen` stands for.
+    let heights: PageHeights
+    let screenHeight: CGFloat
 }
 
 enum SnapshotMatrixError: Error {

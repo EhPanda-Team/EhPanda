@@ -276,6 +276,94 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertNil(SnapshotMatrixCase.lineReason(outcome, picture: 1, of: 2))
     }
 
+    // MARK: Tall window (19-19)
+
+    /// A page committed shorter than its content fails with the height it needs, keeps its picture at the committed
+    /// height, is not retried and leaves the window as it found it; committed at that need, it is recorded.
+    @MainActor
+    func testAPageTallerThanItsCommittedHeightFailsWithTheHeightItNeeds() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let native = window.frame
+        // 1000 pt committed over 1500 pt of content on the 912 pt phone.
+        let committed = native.height + 88
+        let content = committed + 500
+        var insets: CGFloat = 0
+        var grownInsets = UIEdgeInsets.zero
+        let failed = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.scrolling(content)) }, window: window, style: .light, reference: nil,
+            mode: .candidate,
+            interact: { window in
+                let scrollView = Self.scrollViews(in: window).first
+                insets = (scrollView?.adjustedContentInset.top ?? 0) + (scrollView?.adjustedContentInset.bottom ?? 0)
+                grownInsets = window.safeAreaInsets
+            },
+            height: Self.height(committed)
+        )
+        let need = Int((content + insets).rounded(.up))
+        // Recorded, not checked: the safe area the tall window ends up with (its top, left and right are pinned).
+        let observed = XCTAttachment(string: """
+            window \(native.width) x \(committed) pt, native height \(native.height) pt; \
+            safeAreaInsets top \(grownInsets.top) left \(grownInsets.left) bottom \(grownInsets.bottom) \
+            right \(grownInsets.right)
+            """)
+        observed.name = "tall-window-safe-area"
+        observed.lifetime = .keepAlways
+        add(observed)
+        XCTAssertEqual(failed.status, .error)
+        XCTAssertEqual(failed.attempts, 1)
+        XCTAssertEqual(failed.reason, "page-height: needs \(need) pt, committed \(Int(committed)) pt")
+        XCTAssertEqual(try Self.pixelHeight(failed.png), Int(committed))
+        XCTAssertEqual(window.frame, native)
+        // The size class pins are removed again.
+        XCTAssertFalse(window.traitOverrides.contains(UITraitHorizontalSizeClass.self))
+        XCTAssertFalse(window.traitOverrides.contains(UITraitVerticalSizeClass.self))
+
+        let recorded = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.scrolling(content)) }, window: window, style: .light, reference: nil,
+            mode: .candidate, height: Self.height(CGFloat(need))
+        )
+        XCTAssertEqual(recorded.status, .recorded, recorded.reason ?? "")
+        XCTAssertEqual(try Self.pixelHeight(recorded.png), need)
+        XCTAssertEqual(window.frame, native)
+    }
+
+    /// A height equal to the window's own is today's path: the same bytes as a call without a height.
+    @MainActor
+    func testACommittedHeightEqualToTheWindowTakesTheSameBytesAsNoHeight() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let plain = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.sample(offset: 0)) }, window: window, style: .light, reference: nil,
+            mode: .candidate
+        )
+        let sized = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.sample(offset: 0)) }, window: window, style: .light, reference: nil,
+            mode: .candidate, height: Self.height(window.bounds.height)
+        )
+        XCTAssertEqual(plain.status, .recorded)
+        XCTAssertEqual(sized.status, .recorded)
+        XCTAssertNotNil(plain.png)
+        XCTAssertEqual(sized.png, plain.png)
+    }
+
+    /// A scroll view the user cannot see never counts toward the need: hidden, or (nearly) transparent in itself or
+    /// in an ancestor. The visible one is the control that fails.
+    @MainActor
+    func testAHiddenOrTransparentScrollViewNeverCountsTowardsThePageHeight() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        for concealment in OversizedScrollView.Concealment.allCases {
+            let outcome = await HostedWindowCapture.captureAndCompare(
+                make: { AnyView(OversizedScrollView(concealment: concealment)) }, window: window, style: .light,
+                reference: nil, mode: .candidate, height: Self.height(window.bounds.height)
+            )
+            if concealment == .visible {
+                XCTAssertEqual(outcome.status, .error)
+                XCTAssertTrue(outcome.reason?.hasPrefix("page-height: needs") == true, outcome.reason ?? "")
+            } else {
+                XCTAssertEqual(outcome.status, .recorded, "\(concealment): \(outcome.reason ?? "")")
+            }
+        }
+    }
+
     /// The same sample strings are asserted by `Scripts/visual/test_snapshot_matrix.py`.
     func testCoordinateKeyAndBaselinePathMatchTheContract() {
         struct Sample {
@@ -491,6 +579,33 @@ final class HostedWindowCaptureTests: XCTestCase {
 
     // MARK: Helpers
 
+    private static func height(_ points: CGFloat) -> CaptureHeight {
+        CaptureHeight(points: points, freezeViewport: { _ in })
+    }
+
+    @MainActor
+    private static func scrolling(_ height: CGFloat) -> some View {
+        ScrollView {
+            Color.orange.frame(height: height)
+        }
+    }
+
+    @MainActor
+    private static func scrollViews(in view: UIView) -> [UIScrollView] {
+        var found: [UIScrollView] = []
+        for subview in view.subviews {
+            if let scrollView = subview as? UIScrollView {
+                found.append(scrollView)
+            }
+            found += scrollViews(in: subview)
+        }
+        return found
+    }
+
+    private static func pixelHeight(_ png: Data?) throws -> Int {
+        try XCTUnwrap(png.flatMap(UIImage.init(data:))?.cgImage).height
+    }
+
     @MainActor
     private static func sample(offset: CGFloat) -> some View {
         VStack(spacing: 12) {
@@ -557,6 +672,38 @@ final class HostedWindowCaptureTests: XCTestCase {
 
 private enum CaptureTestError: Error {
     case unsettled
+}
+
+/// A scroll view with 5000 pt of content, in the hosted page, shown or concealed in one of the ways the check
+/// ignores.
+private struct OversizedScrollView: UIViewRepresentable {
+    enum Concealment: CaseIterable {
+        case visible, hidden, transparent, transparentAncestor
+    }
+
+    let concealment: Concealment
+
+    func makeUIView(context: Context) -> UIView {
+        let ancestor = UIView()
+        let scrollView = UIScrollView()
+        scrollView.contentSize = CGSize(width: 10, height: 5000)
+        scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        ancestor.addSubview(scrollView)
+        switch concealment {
+        case .visible: break
+        case .hidden: scrollView.isHidden = true
+        case .transparent: scrollView.alpha = 0.005
+        case .transparentAncestor: ancestor.alpha = 0
+        }
+        return ancestor
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        // The scroll view fills its container, which SwiftUI sizes after making it.
+        for subview in uiView.subviews {
+            subview.frame = uiView.bounds
+        }
+    }
 }
 
 private struct StepError: CaptureStepFailure {
