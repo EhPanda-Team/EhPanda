@@ -36,7 +36,7 @@ enum ToplistsViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { SettingsScenarios.jumpPageAlert() }, prepare: TracerScenarios.cacheHomeArtwork,
-                    interact: SettingsScenarios.holdAlertCaret
+                    still: SettingsScenarios.holdAlertCaret
                 )
             )
         ]

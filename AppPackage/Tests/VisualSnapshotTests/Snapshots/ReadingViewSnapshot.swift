@@ -24,7 +24,7 @@ enum ReadingViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { try GalleryScenarios.reader(.controls) }, prepare: pages,
-                    interact: SettingsScenarios.waitForGlassShadow
+                    still: SettingsScenarios.waitForGlassShadow
                 )
             ),
             SnapshotState(
@@ -32,7 +32,7 @@ enum ReadingViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { try GalleryScenarios.reader(.scrub) }, prepare: pages,
-                    interact: SettingsScenarios.waitForGlassShadow
+                    still: SettingsScenarios.waitForGlassShadow
                 )
             ),
             SnapshotState(
@@ -45,7 +45,7 @@ enum ReadingViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { try GalleryScenarios.reader(.loading) }, prepare: pages,
-                    interact: GalleryScenarios.holdStill
+                    still: GalleryScenarios.holdStill
                 )
             ),
             SnapshotState(

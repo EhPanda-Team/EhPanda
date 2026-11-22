@@ -16,7 +16,7 @@ enum PreviewsViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { try GalleryScenarios.previews(loaded: false) }, prepare: artwork,
-                    interact: GalleryScenarios.holdStill
+                    still: GalleryScenarios.holdStill
                 )
             )
         ]

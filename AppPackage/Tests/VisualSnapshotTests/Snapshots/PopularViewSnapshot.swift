@@ -20,7 +20,7 @@ enum PopularViewSnapshot: SnapshotProvider {
                 id: "popular-loading",
                 heights: .screen,
                 factory: .init(
-                    make: { BrowsingScenarios.popular(.loading) }, interact: BrowsingScenarios.freezeIndicators
+                    make: { BrowsingScenarios.popular(.loading) }, still: BrowsingScenarios.freezeIndicators
                 )
             ),
             SnapshotState(

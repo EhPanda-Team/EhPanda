@@ -12,7 +12,7 @@ enum LoginViewSnapshot: SnapshotProvider {
                 id: "settings-login-filled",
                 heights: .screen,
                 factory: .init(
-                    signedIn: false, make: { SettingsScenarios.login(.filled) }, interact: LibraryScenarios.holdCaret
+                    signedIn: false, make: { SettingsScenarios.login(.filled) }, still: LibraryScenarios.holdCaret
                 )
             ),
             SnapshotState(

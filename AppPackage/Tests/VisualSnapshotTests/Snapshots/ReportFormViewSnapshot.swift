@@ -7,7 +7,7 @@ enum ReportFormViewSnapshot: SnapshotProvider {
                 id: "report-form-loading",
                 heights: .screen,
                 factory: .init(
-                    make: { try GalleryScenarios.reportForm(.loading) }, interact: GalleryScenarios.holdStill
+                    make: { try GalleryScenarios.reportForm(.loading) }, still: GalleryScenarios.holdStill
                 )
             ),
             SnapshotState(
@@ -24,7 +24,7 @@ enum ReportFormViewSnapshot: SnapshotProvider {
                 id: "report-form-sending",
                 heights: .screen,
                 factory: .init(
-                    make: { try GalleryScenarios.reportForm(.sending) }, interact: GalleryScenarios.holdStill
+                    make: { try GalleryScenarios.reportForm(.sending) }, still: GalleryScenarios.holdStill
                 )
             ),
             SnapshotState(

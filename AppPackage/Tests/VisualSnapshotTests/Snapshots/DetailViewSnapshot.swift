@@ -18,7 +18,7 @@ enum DetailViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { try LibraryScenarios.detail(.loading) }, prepare: artwork,
-                    interact: BrowsingScenarios.freezeIndicators
+                    still: BrowsingScenarios.freezeIndicators
                 )
             ),
             SnapshotState(

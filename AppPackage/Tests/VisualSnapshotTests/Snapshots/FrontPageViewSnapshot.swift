@@ -20,7 +20,7 @@ enum FrontPageViewSnapshot: SnapshotProvider {
                 id: "front-page-loading",
                 heights: .screen,
                 factory: .init(
-                    make: { BrowsingScenarios.frontPage(.loading) }, interact: BrowsingScenarios.freezeIndicators
+                    make: { BrowsingScenarios.frontPage(.loading) }, still: BrowsingScenarios.freezeIndicators
                 )
             ),
             SnapshotState(

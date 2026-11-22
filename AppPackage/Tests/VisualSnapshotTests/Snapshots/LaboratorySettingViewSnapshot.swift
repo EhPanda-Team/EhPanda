@@ -10,7 +10,7 @@ enum LaboratorySettingViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { SettingsScenarios.settings([.laboratory(.init())]) },
-                    interact: SettingsScenarios.waitForGlassShadow
+                    still: SettingsScenarios.waitForGlassShadow
                 )
             )
         ]

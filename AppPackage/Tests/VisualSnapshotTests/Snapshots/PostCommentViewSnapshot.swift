@@ -8,7 +8,7 @@ enum PostCommentViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { try GalleryScenarios.comments(.postEmpty) },
-                    interact: GalleryScenarios.holdStillOverKeyboard
+                    still: GalleryScenarios.holdStillOverKeyboard
                 )
             ),
             SnapshotState(
@@ -16,7 +16,7 @@ enum PostCommentViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { try GalleryScenarios.comments(.postFilled) },
-                    interact: GalleryScenarios.holdStillOverKeyboard
+                    still: GalleryScenarios.holdStillOverKeyboard
                 )
             ),
             SnapshotState(
@@ -24,7 +24,7 @@ enum PostCommentViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { try GalleryScenarios.comments(.postingWarning) },
-                    interact: GalleryScenarios.holdStillOverKeyboard
+                    still: GalleryScenarios.holdStillOverKeyboard
                 )
             )
         ]
