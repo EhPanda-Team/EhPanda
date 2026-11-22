@@ -543,6 +543,47 @@ final class RenderServerCaptureTests: XCTestCase {
         XCTAssertEqual(RenderServerCapture.maximumSliceHeight(forScreenScale: 1), 8191)
     }
 
+    /// A window passed as the drawn view is its own host, so sheets, alerts and menus presented in it are in the
+    /// picture (19-19): the capture is the window's whole bounds, past the direct-draw ceiling, composed in reads.
+    @MainActor
+    func testAWindowPassedAsTheViewIsItsOwnHost() async throws {
+        let scene = try BandedWindow.activeScene()
+        let scale = scene.screen.scale
+        let height = floor(BandedWindow.directDrawCeiling / scale) + 1
+        let fixture = try await BandedWindow.make(in: scene, height: height)
+        defer { fixture.tearDown() }
+        let result = try RenderServerCapture.image(
+            of: fixture.window, viewportSize: scene.screen.bounds.size, format: fixture.format
+        )
+        XCTAssertGreaterThan(result.slices.count, 2)
+        XCTAssertEqual(result.image.size, CGSize(width: fixture.window.bounds.width, height: height))
+        XCTAssertEqual(result.image.scale, scale)
+        let digests = try RenderServerCapture.ownedRowDigests(
+            of: fixture.window, viewportSize: scene.screen.bounds.size, format: fixture.format
+        )
+        XCTAssertEqual(digests.count, result.slices.count)
+    }
+
+    /// A view that is in no window still has no host and no screen scale.
+    @MainActor
+    func testADetachedPlainViewStillThrowsDetachedView() async throws {
+        let scene = try BandedWindow.activeScene()
+        let format = UIGraphicsImageRendererFormat()
+        let detached = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        for call in [
+            { _ = try RenderServerCapture.image(of: detached, viewportSize: scene.screen.bounds.size, format: format) },
+            { _ = try RenderServerCapture.ownedRowDigests(
+                of: detached, viewportSize: scene.screen.bounds.size, format: format
+            ) }
+        ] {
+            XCTAssertThrowsError(try call()) { error in
+                guard case .detachedView = error as? RenderServerCaptureError else {
+                    return XCTFail("Unexpected error: \(error)")
+                }
+            }
+        }
+    }
+
     /// One point wider than the widest read on the running device (2731 pt at 3x, 4096 pt at 2x, both 8192 px or
     /// more), so the capture must refuse the width rather than slice it.
     @MainActor

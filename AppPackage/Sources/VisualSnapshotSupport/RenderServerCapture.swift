@@ -117,7 +117,8 @@ public enum RenderServerCapture {
         of view: UIView, viewportSize: CGSize, format: UIGraphicsImageRendererFormat, contextBandHeight: CGFloat = 64,
         diagnosticsDirectory: URL? = nil
     ) throws -> Result {
-        guard let window = view.window else { throw RenderServerCaptureError.detachedView }
+        // A window is its own host: it has no `window` of its own to read.
+        guard let window = view as? UIWindow ?? view.window else { throw RenderServerCaptureError.detachedView }
         return try capture(
             bounds: view.bounds, viewportSize: viewportSize, screenScale: window.screen.scale,
             outputScale: format.scale, contextBandHeight: contextBandHeight, diagnosticsDirectory: diagnosticsDirectory
@@ -133,7 +134,8 @@ public enum RenderServerCapture {
     static func ownedRowDigests(
         of view: UIView, viewportSize: CGSize, format: UIGraphicsImageRendererFormat, contextBandHeight: CGFloat = 64
     ) throws -> [String] {
-        guard let window = view.window else { throw RenderServerCaptureError.detachedView }
+        // A window is its own host: it has no `window` of its own to read.
+        guard let window = view as? UIWindow ?? view.window else { throw RenderServerCaptureError.detachedView }
         return try ownedRowDigests(
             bounds: view.bounds, viewportSize: viewportSize, screenScale: window.screen.scale,
             outputScale: format.scale, contextBandHeight: contextBandHeight

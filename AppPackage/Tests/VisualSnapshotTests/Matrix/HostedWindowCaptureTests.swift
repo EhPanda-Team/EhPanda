@@ -364,6 +364,51 @@ final class HostedWindowCaptureTests: XCTestCase {
         }
     }
 
+    /// A committed height whose device pixels are above the render server's limit is taken in reads of the native
+    /// size, settled on owned-row digests: the picture is exactly the committed height at 1x, and two captures in a row
+    /// give the same bytes. The direct `drawHierarchy` path is not used after the user step.
+    @MainActor
+    func testAPageAboveTheRenderServerLimitIsTakenInSlicesAndRepeats() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let native = window.frame
+        let committed = (RenderServerCapture.maximumSnapshotDimension / window.screen.scale).rounded(.up) + 200
+        XCTAssertGreaterThan(committed * window.screen.scale, RenderServerCapture.maximumSnapshotDimension)
+        var pictures: [Data] = []
+        for _ in 1...2 {
+            var drawsBeforeCapture = 0
+            let outcome = await HostedWindowCapture.captureAndCompare(
+                make: { AnyView(Self.bands(height: committed)) }, window: window, style: .light, reference: nil,
+                mode: .candidate, interact: { _ in drawsBeforeCapture = HostedWindowCapture.captureCalls },
+                height: Self.height(committed)
+            )
+            XCTAssertEqual(outcome.status, .recorded, outcome.reason ?? "")
+            XCTAssertGreaterThanOrEqual(outcome.settleSamples, HostedWindowCapture.minimumReads)
+            XCTAssertEqual(HostedWindowCapture.captureCalls, drawsBeforeCapture, "the direct path was used")
+            XCTAssertEqual(try Self.pixelHeight(outcome.png), Int(committed))
+            XCTAssertEqual(window.frame, native)
+            pictures.append(try XCTUnwrap(outcome.png))
+        }
+        XCTAssertEqual(pictures.first, pictures.last)
+    }
+
+    /// A page at or under the limit keeps the direct `drawHierarchy` path, also in a tall window.
+    @MainActor
+    func testAPageUnderTheRenderServerLimitKeepsTheDirectPath() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let committed = window.bounds.height + 88
+        XCTAssertLessThanOrEqual(committed * window.screen.scale, RenderServerCapture.maximumSnapshotDimension)
+        var drawsBeforeCapture = 0
+        let outcome = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.bands(height: committed)) }, window: window, style: .light, reference: nil,
+            mode: .candidate, interact: { _ in drawsBeforeCapture = HostedWindowCapture.captureCalls },
+            height: Self.height(committed)
+        )
+        XCTAssertEqual(outcome.status, .recorded, outcome.reason ?? "")
+        XCTAssertEqual(HostedWindowCapture.captureCalls - drawsBeforeCapture, outcome.settleSamples)
+        XCTAssertGreaterThan(outcome.settleSamples, 0)
+        XCTAssertEqual(try Self.pixelHeight(outcome.png), Int(committed))
+    }
+
     /// The same sample strings are asserted by `Scripts/visual/test_snapshot_matrix.py`.
     func testCoordinateKeyAndBaselinePathMatchTheContract() {
         struct Sample {
@@ -588,6 +633,22 @@ final class HostedWindowCaptureTests: XCTestCase {
         ScrollView {
             Color.orange.frame(height: height)
         }
+    }
+
+    /// A page that never scrolls: rows of changing colour and text, exactly `height` points tall.
+    @MainActor
+    private static func bands(height: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            ForEach(0..<Int(height / 60), id: \.self) { row in
+                Text(verbatim: "Row \(row)")
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(Color(hue: Double(row % 12) / 12, saturation: 0.4, brightness: 0.95))
+            }
+            Color.white
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 
     @MainActor

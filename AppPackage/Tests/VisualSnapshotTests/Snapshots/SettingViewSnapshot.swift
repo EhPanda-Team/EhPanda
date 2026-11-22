@@ -10,7 +10,7 @@ enum SettingViewSnapshot: SnapshotProvider {
                 heights: .committed(
                     iphone: .init(
                         portrait: .init(xSmall: 912, large: 912, accessibility5: 912),
-                        landscape: .init(xSmall: 633, large: 633, accessibility5: 420)
+                        landscape: .init(xSmall: 633, large: 633, accessibility5: 850)
                     ),
                     ipad: .init(
                         portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1210),

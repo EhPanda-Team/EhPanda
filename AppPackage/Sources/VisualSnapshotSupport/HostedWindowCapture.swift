@@ -664,7 +664,11 @@ public enum HostedWindowCapture {
               window.traitCollection.verticalSizeClass == sceneClasses.verticalSizeClass else {
             return failure(tallWindowGeometryReason)
         }
-        let attempt = await attemptHosted(window: window, request: request)
+        // Above what the render server draws in one read, the window is taken in reads of its native size.
+        let sliced = height.points * window.screen.scale > RenderServerCapture.maximumSnapshotDimension
+        let attempt = await attemptHosted(
+            window: window, request: request, viewportSize: sliced ? nativeFrame.size : nil
+        )
         return checked(attempt, window: window, committed: height.points)
     }
 
@@ -707,7 +711,13 @@ public enum HostedWindowCapture {
                 reason: (lastMotion ?? lastChange).map({ "settle-timeout:\($0)" }) ?? "settle-timeout")
     }
 
-    private static func attemptHosted(window: UIWindow, request: Request) async -> Attempt {
+    /// Runs the user step, settles, captures and compares (or records) the hosted page.
+    ///
+    /// `viewportSize`, when given, is the window's native size: the window is taller than the render server can draw
+    /// in one read, so the page is settled and captured in reads of that size (``attemptSliced``).
+    private static func attemptHosted(
+        window: UIWindow, request: Request, viewportSize: CGSize? = nil
+    ) async -> Attempt {
         if let interact = request.interact {
             do {
                 try await interact(window)
@@ -716,6 +726,9 @@ public enum HostedWindowCapture {
                                reason: "\(interactionReason):\(stepFailure(error))")
             }
         }
+        if let viewportSize {
+            return await attemptSliced(window: window, request: request, viewportSize: viewportSize)
+        }
         let settledRead = await settleRead(window, minimumReads: request.minimumReads)
         let settled = settledRead.result
         let image = settledRead.image ?? capture(window)
@@ -723,6 +736,75 @@ public enum HostedWindowCapture {
         if case .timeout = settled {
             return timeoutAttempt(settled, png: png)
         }
+        return conclude(image, png: png, settled: settled, request: request)
+    }
+
+    /// A window taller than the render server draws in one read: settled on the owned-row digests of reads of the
+    /// native viewport size, the way the full-content capture settles its grown window, and captured as the
+    /// composite of those reads (``RenderServerCapture``). The window itself is the drawn view, so sheets, alerts and
+    /// menus are in the picture. Reads are always of the native size: cross-origin reads are not byte-identical at
+    /// glass rims and SF Symbols.
+    private static func attemptSliced(window: UIWindow, request: Request, viewportSize: CGSize) async -> Attempt {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        do {
+            let settled = try await settleOwnedRows(
+                window, viewportSize: viewportSize, format: format, minimumReads: request.minimumReads
+            )
+            guard case .settled = settled else {
+                return Attempt(status: .timeout, settleSamples: settled.samples, png: nil, difference: nil,
+                               reason: "settle-timeout:render-server")
+            }
+            let image = try RenderServerCapture.image(of: window, viewportSize: viewportSize, format: format).image
+            return conclude(image, png: pngData(image), settled: settled, request: request)
+        } catch {
+            // A fixed case name with its numbers, never page text.
+            return failure("render-server:\(error)")
+        }
+    }
+
+    /// Reads the window's owned-row digests until at least `minimumReads` consecutive passes are identical over a run
+    /// that spans at least ``stableSpan`` while the window is at rest (``motion(in:)`` is `nil`), or gives up after
+    /// ``maximumSamples`` passes: the rule of ``settleRead(_:minimumReads:)`` with the digests of the render-server
+    /// read plan as the reads, which match only when equal.
+    private static func settleOwnedRows(
+        _ window: UIWindow, viewportSize: CGSize, format: UIGraphicsImageRendererFormat, minimumReads: Int
+    ) async throws -> SettleResult {
+        let clock = ContinuousClock()
+        let start = clock.now
+        var runStart = clock.now
+        var runReads = 0
+        var anchor: [String]?
+        for sample in 1...maximumSamples {
+            var digests: [String]?
+            if motion(in: window) == nil {
+                digests = try RenderServerCapture.ownedRowDigests(
+                    of: window, viewportSize: viewportSize, format: format
+                )
+            }
+            if let digests, digests == anchor {
+                runReads += 1
+                if runReads >= minimumReads, runStart.duration(to: clock.now) >= stableSpan {
+                    return .settled(samples: sample, seconds: seconds(start.duration(to: clock.now)))
+                }
+            } else {
+                runStart = clock.now
+                runReads = digests == nil ? 0 : 1
+                anchor = digests
+            }
+            do {
+                try await clock.sleep(for: sampleInterval)
+            } catch {
+                // Cancellation ends the wait; the passes so far did not settle.
+                return .timeout(samples: sample, seconds: seconds(start.duration(to: clock.now)))
+            }
+        }
+        return .timeout(samples: maximumSamples, seconds: seconds(start.duration(to: clock.now)))
+    }
+
+    /// Records or compares a settled picture.
+    private static func conclude(_ image: UIImage, png: Data, settled: SettleResult, request: Request) -> Attempt {
         switch request.mode {
         case .candidate:
             return Attempt(status: .recorded, settleSamples: settled.samples, png: png, difference: nil, reason: nil)
