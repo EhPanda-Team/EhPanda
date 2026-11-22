@@ -183,6 +183,14 @@
     {
       "target": {
         "containerPath": "container:AppPackage",
+        "identifier": "QuickSearchFeatureTests",
+        "name": "QuickSearchFeatureTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
+        "containerPath": "container:AppPackage",
         "identifier": "SearchFeatureTests",
         "name": "SearchFeatureTests"
       },

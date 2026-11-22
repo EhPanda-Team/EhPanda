@@ -147,6 +147,7 @@ enum Module: String {
     case readingFeatureTests = "ReadingFeatureTests"
     case systemNotificationTests = "SystemNotificationTests"
     case analyticsClientTests = "AnalyticsClientTests"
+    case quickSearchFeatureTests = "QuickSearchFeatureTests"
     case searchFeatureTests = "SearchFeatureTests"
     case favoritesFeatureTests = "FavoritesFeatureTests"
     case liveCheckTests = "LiveCheckTests"
@@ -1079,6 +1080,7 @@ let targets: [PackageDescription.Target] = [
             .module(.fileClient),
             .module(.galleryClient),
             .module(.networkingFeature),
+            .module(.quickSearchFeature),
             .module(.readingFeature),
             .targetDependency(.sharing)
         ]
@@ -1192,6 +1194,15 @@ let targets: [PackageDescription.Target] = [
         ]
     ),
     .testTarget(
+        module: .quickSearchFeatureTests,
+        dependencies: [
+            .module(.appModels),
+            .module(.quickSearchFeature),
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.sharing)
+        ]
+    ),
+    .testTarget(
         module: .searchFeatureTests,
         dependencies: [
             .module(.analyticsClient),
@@ -1205,7 +1216,8 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.downloadClient),
             .module(.hapticsClient),
-            .module(.testingSupport)
+            .module(.testingSupport),
+            .targetDependency(.sharing)
         ]
     ),
     .testTarget(
