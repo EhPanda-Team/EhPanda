@@ -13,6 +13,16 @@ Downloads keeps management actions in its grid menu. Row menus, default Detail a
 double-tap reading and the accessible Read action remain. D89's validation below is historical;
 see [the current visual/menu follow-up](LIBRARY-VISUAL-POLISH.md).
 
+## Later owner revision: cover tap reads (D146, 2026-11-23)
+
+A single tap on a gallery's cover reads, and a single tap anywhere else on the entry still opens
+Detail; double tap still reads. This applies to every gallery list and grid, not only Library:
+Front Page, Popular, Toplists, Watched, History, Search results, Detail's tag search, Favorites and
+Downloads. Home's own sections (slideshow cards, cover wall, rankings) keep tapping into Detail.
+VoiceOver keeps each entry as one element: default activation opens Detail and the Read action
+reads. Every list opens its reader through one shared reducer, `GalleryReadingFeature`. See
+[261123-c7r](../261123-c7r-cover-tap-reads-on-every-gallery-list-and-grid/261123-c7r-SUMMARY.md).
+
 ## Implementation plan
 
 1. Preserve native Button semantics and arbitrate tap counts with SwiftUI's exclusive gesture
