@@ -119,6 +119,34 @@ custom_rules:
       - string
     severity: error
 
+  # Keeps the crash reporting SDK behind one module, so every report that leaves the app is shaped by that
+  # module's explicit options and its scrubber, and no other code can start a second, unscrubbed client.
+  crash_reporting_sdk_import_boundary:
+    name: "Crash Reporting SDK Import Boundary"
+    regex: '\bimport\s+Sentry\w*\b'
+    message: "Only the CrashReporting module and its tests may import the Sentry SDK. Start crash reporting through CrashReporter instead."
+    # `excluded` matches file paths, not source text: the module that legitimately owns the import, and its tests.
+    excluded:
+      - ".*/Sources/CrashReporting/.*"
+      - ".*/Tests/CrashReportingTests/.*"
+    excluded_match_kinds:
+      - comment
+      - doccomment
+      - string
+    severity: error
+
+  # Keeps the SDK to the one call that starts it. Nothing in first-party code reports by hand, so the only
+  # reports are the crashes the SDK finds on the next launch, and no first-party data can ride along.
+  crash_reporting_start_only:
+    name: "Crash Reporting Start Only"
+    regex: '\bSentrySDK\s*\.\s*(?!start\b)\w+'
+    message: "Nothing sends a report by hand: the only reports are crashes the SDK finds on the next launch, and SentrySDK.start is the one SDK call."
+    excluded_match_kinds:
+      - comment
+      - doccomment
+      - string
+    severity: error
+
   date_property_at_suffix:
     name: "Date Property At Suffix"
     regex: '\b(?:let|var)\s+\w*[a-z]At\b'

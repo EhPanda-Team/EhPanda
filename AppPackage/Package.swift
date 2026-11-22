@@ -21,6 +21,9 @@ var dependencies: [PackageDescription.Package.Dependency] = [
     // both. Keep the stable 2.x release series; upstream 3.0.0 tags are still prereleases.
     .package(url: "https://github.com/TelemetryDeck/SwiftSDK", .upToNextMajor(from: "2.14.2")),
     .package(url: "https://github.com/apple/swift-markdown", from: "0.9.0"),
+    // The crash reporting SDK, pinned exactly so that a new SDK option, possibly one that records more
+    // than the crash, can only arrive through a reviewed bump that rechecks CrashReporter's explicit options.
+    .package(url: "https://github.com/getsentry/sentry-cocoa", exact: "9.35.0"),
     .package(url: "https://github.com/onevcat/Kingfisher", from: "8.13.0"),
     .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.10.0"),
     .package(
@@ -48,6 +51,7 @@ extension PackageDescription.Target.Dependency {
     static let markdown: Self = .product(name: "Markdown", package: "swift-markdown")
     static let sdWebImageSwiftUI: Self = .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI")
     static let sdWebImageWebPCoder: Self = .product(name: "SDWebImageWebPCoder", package: "SDWebImageWebPCoder")
+    static let sentry: Self = .product(name: "Sentry", package: "sentry-cocoa")
     static let sfSafeSymbols: Self = .product(name: "SFSafeSymbols", package: "SFSafeSymbols")
     static let sharing: Self = .product(name: "Sharing", package: "swift-sharing")
     static let snapshotTesting: Self = .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
@@ -83,6 +87,7 @@ enum Module: String {
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
     case cookieClient = "CookieClient"
+    case crashReporting = "CrashReporting"
     case dfClient = "DFClient"
     case dateSeekFeature = "DateSeekFeature"
     case detailFeature = "DetailFeature"
@@ -151,6 +156,7 @@ enum Module: String {
     case searchFeatureTests = "SearchFeatureTests"
     case favoritesFeatureTests = "FavoritesFeatureTests"
     case liveCheckTests = "LiveCheckTests"
+    case crashReportingTests = "CrashReportingTests"
 }
 
 extension Module {
@@ -413,6 +419,15 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
             .targetDependency(.telemetryDeck)
+        ]
+    ),
+    // The sole importer of the Sentry SDK (enforced by the `crash_reporting_sdk_import_boundary` lint
+    // rule). Nothing in it sends a report by hand: the only reports are the crashes the SDK finds on the
+    // next launch.
+    .target(
+        module: .crashReporting,
+        dependencies: [
+            .targetDependency(.sentry)
         ]
     ),
     .target(
@@ -1191,6 +1206,15 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
             .module(.deviceClient)
+        ]
+    ),
+    // The `.appTools` edge supplies `Defaults.Cookie`, which the cookie redaction test builds its names from.
+    .testTarget(
+        module: .crashReportingTests,
+        dependencies: [
+            .module(.appTools),
+            .module(.crashReporting),
+            .targetDependency(.sentry)
         ]
     ),
     .testTarget(

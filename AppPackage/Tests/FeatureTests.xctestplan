@@ -219,6 +219,14 @@
     },
     {
       "target": {
+        "containerPath": "container:AppPackage",
+        "identifier": "CrashReportingTests",
+        "name": "CrashReportingTests"
+      },
+      "parallelizable": true
+    },
+    {
+      "target": {
         "containerPath": "container:EhPanda.xcodeproj",
         "identifier": "A17000000000000000000006",
         "name": "VisualSnapshotTests"
