@@ -3,9 +3,9 @@ status: complete
 quick_id: 261123-1ep
 date: 2026-11-23
 commits:
-  - d0f7b7655
-  - 31b5c32d2
-  - 2c915e852
+  - c9ea89d47
+  - a12c2040b
+  - 84882b1e1
 ---
 
 # 261123-1ep: Save Search on search results pages
@@ -20,7 +20,7 @@ in [PLAN.md](PLAN.md).
 
 ## Changes
 
-- `d0f7b7655` Save a results keyword as a saved search
+- `c9ea89d47` Save a results keyword as a saved search
   - `QuickSearchFeature/NewSavedSearchFeature.swift`: a new reducer for the sheet. It holds the
     draft (its identifier comes from the presenter's `uuid` dependency), appends it under the limit
     on Confirm and dismisses itself. It also has `canSave(keyword:into:)`, the one eligibility rule
@@ -42,7 +42,7 @@ in [PLAN.md](PLAN.md).
     「儲存為快速搜尋」. The two Chinese locales call saved searches 快速搜索/快速搜尋, as their
     existing editor titles do.
   - Scroll-edge inventory row for the new sheet (its Form root already carries the policy).
-- `31b5c32d2` Test saving a keyword as a saved search
+- `a12c2040b` Test saving a keyword as a saved search
   - New `QuickSearchFeatureTests` target (with `.swiftlint.yml`, in `FeatureTests.xctestplan`, set
     parallelizable): prefill, eligibility (empty, duplicate by content and by name-only text, limit)
     and Confirm (appends the edited draft and dismisses; at the limit it saves nothing but still
@@ -64,7 +64,7 @@ in [PLAN.md](PLAN.md).
   (57 s under load from the three targets running together). The case that does not write takes
   0.1 s, so the time is the in-memory defaults write, not a wait in the code. A `finish()`
   timeout would have failed the case.
-- Simulator UI check (owner request, 2026-11-23), on a Debug build of `0358eac52` running on a
+- Simulator UI check (owner request, 2026-11-23), on a Debug build of `611f28548` running on a
   task-created iPhone Air (iOS 27.2) with the stubbed network fixtures:
   - Search tab results for `language:english`: Save Search is right after Quick Search and enabled.
     The sheet shows Cancel and Confirm, an empty name and the keyword in Search Terms. Cancel
@@ -80,12 +80,16 @@ in [PLAN.md](PLAN.md).
 ## Notes
 
 - The worktree was cut from `main`. Before the first commit the work was rebased onto `develop`
-  (531db50b1), where the project's work and the source note live.
+  (531db50b1), where the project's work and the source note live. Before merging, it was rebased
+  again onto `develop` at 5db2bd133 (quick task 261123-c7r). The overlaps in both search reducers,
+  `Package.swift`, the scroll-edge inventory and STATE.md kept both changes. The commit hashes in
+  these records are the rebased ones; the simulator checks above ran before this rebase, and the
+  build and tests were repeated on the rebased tree.
 - The planning and execution steps ran inline in the orchestrating session, with no planner or
   executor subagents, because the owner's decisions and the code context were already in hand.
 - No analytics signal was added. The signal set was signed off in 20-13, and a "saved from
   results" signal would need the owner's decision.
-- **Defect found during the UI check, fixed in `2c915e852` (owner go-ahead, 2026-11-23):** in the
+- **Defect found during the UI check, fixed in `84882b1e1` (owner go-ahead, 2026-11-23):** in the
   saved-search editor, the Search Terms `TextEditor` laid out at one line (22 pt) from the second
   presentation on (the first was 38 pt), so text was clipped at the top and bottom of its row. It
   showed in the new sheet and in Quick Search's existing Edit Saved Search screen.
