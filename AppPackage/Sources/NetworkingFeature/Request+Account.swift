@@ -502,6 +502,65 @@ public struct CommentGalleryRequest: Request {
     }
 }
 
+/// Fetches a comment's source for editing, as the site's own Edit link does: `geteditcomment` answers with the edit
+/// form, whose text is the comment as its author typed it, BBCode included. The rendered comment has lost that markup,
+/// so an edit started from it would save the comment without its formatting.
+public struct EditableGalleryCommentRequest: Request {
+    public init(
+        host: GalleryHost,
+        apiuid: Int,
+        apikey: String,
+        gid: Int,
+        token: String,
+        commentID: Int,
+        urlSession: URLSession = .shared
+    ) {
+        self.host = host
+        self.apiuid = apiuid
+        self.apikey = apikey
+        self.gid = gid
+        self.token = token
+        self.commentID = commentID
+        self.urlSession = urlSession
+    }
+    public let host: GalleryHost
+    public let apiuid: Int
+    public let apikey: String
+    public let gid: Int
+    public let token: String
+    public let commentID: Int
+    public let urlSession: URLSession
+
+    public func response() async throws(AppError) -> String {
+        let params: [String: Any] = [
+            "method": "geteditcomment",
+            "apiuid": apiuid,
+            "apikey": apikey,
+            "gid": gid,
+            "token": token,
+            "comment_id": commentID
+        ]
+
+        var request = URLRequest(url: Defaults.URL.api(host: host))
+        request.httpMethod = "POST"
+        request.httpBody = try encodeJSONObject(params)
+
+        let (data, _) = try await fetch(request, in: urlSession)
+        do {
+            return try parseResponse(data: data) {
+                // A comment that cannot be edited answers `error` instead, such as another member's comment.
+                guard let dictionary = try JSONSerialization.jsonObject(with: $0) as? [String: Any],
+                      dictionary["error"] == nil,
+                      let form = dictionary["editable_comment"] as? String
+                else { throw AppError.parseFailed }
+                return try Parser.parseEditableComment(html: form)
+            }
+        } catch {
+            throw mapAppError(error: error)
+        }
+    }
+}
+
 public struct EditGalleryCommentRequest: Request {
     public init(
         commentID: String,

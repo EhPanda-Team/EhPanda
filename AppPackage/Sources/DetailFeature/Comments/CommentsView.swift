@@ -165,9 +165,7 @@ struct CommentsView: View {
                 // own, whose vote is disabled, which a full swipe could not perform.
                 if comment.editable {
                     Button {
-                        store.send(
-                            .presentPostComment(commentID: comment.commentID, content: comment.plainTextContent)
-                        )
+                        store.send(.editTapped(commentID: comment.commentID))
                     } label: {
                         Label(.editComment, systemSymbol: .squareAndPencil)
                             .labelStyle(.iconOnly)

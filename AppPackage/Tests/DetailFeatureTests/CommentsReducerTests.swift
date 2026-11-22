@@ -73,6 +73,47 @@ struct CommentsReducerTests {
         }
     }
 
+    // Edit opens the editor with the comment's source from the site, BBCode included, so saving keeps the formatting.
+    @MainActor
+    @Test
+    func editingOpensTheEditorWithTheSitesSource() async {
+        var state = CommentsReducer.State(galleryURL: .mock)
+        state.toast = .loading()
+        let store = TestStore(initialState: state, reducer: CommentsReducer.init) {
+            $0.analyticsClient = .noop
+            $0.hapticsClient = .noop
+        }
+        let source = "[b]bold text[/b] and [url=https://example.com]a link[/url]"
+
+        await store.send(.fetchEditableCommentDone(commentID: "42", result: .success(source))) {
+            $0.toast = nil
+        }
+        await store.receive(\.presentPostComment) {
+            $0.commentContent = source
+            $0.destination = .postComment("42")
+        }
+        await store.receive(\.setPostCommentFocused, timeout: .seconds(2)) {
+            $0.postCommentFocused = true
+        }
+    }
+
+    // Without the source the editor stays shut: the rendered text has lost the BBCode, and saving it would strip the
+    // comment's formatting.
+    @MainActor
+    @Test
+    func editingWithoutTheSourceKeepsTheEditorShut() async {
+        var state = CommentsReducer.State(galleryURL: .mock)
+        state.toast = .loading()
+        let store = TestStore(initialState: state, reducer: CommentsReducer.init) {
+            $0.analyticsClient = .noop
+            $0.hapticsClient = .noop
+        }
+
+        await store.send(.fetchEditableCommentDone(commentID: "42", result: .failure(.networkingFailed))) {
+            $0.toast = .error()
+        }
+    }
+
     // The editor's Post closes the editor from the reducer, after the request, rather than from the view (P-8):
     // with the bundled filter list, an ordinary comment posts and closes exactly as before.
     @MainActor

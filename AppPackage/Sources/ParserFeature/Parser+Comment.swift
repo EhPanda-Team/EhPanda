@@ -5,6 +5,15 @@ import Kanna
 import SwiftUI
 
 extension Parser {
+    /// Reads a comment's source, as its author typed it, from the edit form the site's `geteditcomment` API answers
+    /// with. Unlike the rendered comment it keeps the BBCode, so an edit saved from it keeps the formatting.
+    public static func parseEditableComment(html: String) throws -> String {
+        guard let source = try Kanna.HTML(html: html, encoding: .utf8)
+            .at_xpath("//textarea [@name='commenttext_edit']")?.text
+        else { throw AppError.parseFailed }
+        return source
+    }
+
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     static func parseComments(doc: any HTMLDocument) -> [GalleryComment] {
         var comments = [GalleryComment]()

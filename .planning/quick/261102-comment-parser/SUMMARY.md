@@ -102,6 +102,7 @@ because anonymous fixture comments have none.
 
 - Chinese and Japanese italics stay upright, including inside bold italics. Bold, underline and strike-through do apply
   to them. iOS draws no slanted CJK from `.emphasized`, while a browser synthesizes one.
-- Editing a comment pre-fills plain text, so saving an edit in the app drops the comment's styles.
-  The owner deferred this (Deferred Items in `.planning/STATE.md`).
+- ~~Editing a comment pre-fills plain text, so saving an edit in the app drops the comment's styles.~~
+  Resolved 2026-11-22: Edit pre-fills the comment's source from the site's `geteditcomment` API, BBCode included
+  (Deferred Items in `.planning/STATE.md`).
 - The website Comments captures predate this change as well.
