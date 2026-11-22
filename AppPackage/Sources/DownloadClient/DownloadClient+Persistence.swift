@@ -65,7 +65,7 @@ extension DownloadCoordinator {
     /// failed, an entry with no indexed record), which keep their queue slots. Position 1 is the next to start.
     /// It filters through `displayStatus(for:)`, the same derivation the list's waiting group comes from, so the
     /// order the user sees and the order downloads run in come from one record and cannot diverge (A-1). The
-    /// list's waiting group and every badge's VoiceOver place read it.
+    /// list's waiting group, every badge's VoiceOver place and the queue operations read it.
     func waitingQueueGIDs() -> [String] {
         guard hasLoadedIndex else { return [] }
         return queueStore.gids.filter({ gid in

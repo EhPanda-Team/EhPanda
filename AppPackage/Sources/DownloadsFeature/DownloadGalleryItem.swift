@@ -73,7 +73,13 @@ private extension DownloadGalleryItem {
             deleteButton(role: nil)
                 .tint(.red)
         }
-        // Swipe actions become native accessibility actions; Read is provided by the tap interaction.
+        .accessibilityActions {
+            ForEach(queueOperations, id: \.self) { operation in
+                queueButton(operation)
+            }
+        }
+        // Swipe actions become native accessibility actions; the queue operations have no swipe action (B-3), so
+        // the modifier above adds them. Read is provided by the tap interaction.
         .confirmationDialog(
             $rowStore.scope(\.$confirmationDialog, action: \.confirmationDialog)
         )
@@ -110,6 +116,9 @@ private extension DownloadGalleryItem {
             if canMove { moveButton }
             if download.canTriggerUpdate { updateButton }
             if download.canTogglePause { pauseButton }
+            ForEach(queueOperations, id: \.self) { operation in
+                queueButton(operation)
+            }
             deleteButton(role: .destructive)
         }
         .confirmationDialog(
@@ -199,6 +208,37 @@ private extension DownloadGalleryItem {
         }
     }
 
+    var queueOperations: [DownloadQueueOperation] {
+        DownloadQueueOperation.allCases.filter({ operation in
+            operation.isApplicable(status: download.displayStatus, place: download.queuePlace)
+        })
+    }
+
+    func queueButton(_ operation: DownloadQueueOperation) -> some View {
+        Button {
+            store.send(.performQueueOperation(gid: download.gid, operation: operation))
+        } label: {
+            Label(operation.title, systemSymbol: operation.symbol)
+        }
+    }
+
+    @ViewBuilder
+    var queueMenuItems: some View {
+        ForEach(queueOperations.filter({ !$0.sitsInReorderMenu }), id: \.self) { operation in
+            queueButton(operation)
+        }
+        let reorderOperations = queueOperations.filter({ $0.sitsInReorderMenu })
+        if !reorderOperations.isEmpty {
+            Menu {
+                ForEach(reorderOperations, id: \.self) { operation in
+                    queueButton(operation)
+                }
+            } label: {
+                Label(.reorder, systemSymbol: .arrowUpArrowDown)
+            }
+        }
+    }
+
     func deleteButton(role: ButtonRole?) -> some View {
         Button(role: role) {
             rowStore.send(.deleteButtonTapped)
@@ -219,6 +259,45 @@ private extension DownloadGalleryItem {
         if download.canTogglePause {
             pauseButton
         }
+        queueMenuItems
         deleteButton(role: .destructive)
+    }
+}
+
+private extension DownloadQueueOperation {
+    var title: LocalizedStringResource {
+        switch self {
+        case .downloadNext:
+            .downloadNext
+        case .moveUp:
+            .moveUp
+        case .moveDown:
+            .moveDown
+        case .downloadLast:
+            .downloadLast
+        }
+    }
+
+    var symbol: SFSymbol {
+        switch self {
+        case .downloadNext:
+            .textLineFirstAndArrowtriangleForward
+        case .moveUp:
+            .arrowUp
+        case .moveDown:
+            .arrowDown
+        case .downloadLast:
+            .textLineLastAndArrowtriangleForward
+        }
+    }
+
+    /// The three position moves share the Reorder submenu; Download Next stays directly in the menu (B-5).
+    var sitsInReorderMenu: Bool {
+        switch self {
+        case .moveUp, .moveDown, .downloadLast:
+            true
+        case .downloadNext:
+            false
+        }
     }
 }

@@ -35,6 +35,7 @@ public struct DownloadClient: Sendable {
     public var updateRemoteVersion: @Sendable (String, DownloadVersionMetadata) async -> DownloadedGallery?
     public var enqueue: @Sendable (DownloadRequestPayload) async throws -> Void
     public var togglePause: @Sendable (String) async throws -> Void
+    public var performQueueOperation: @Sendable (String, DownloadQueueOperation) async throws -> Void
     public var retry: @Sendable (String, DownloadStartMode) async throws -> Void
     public var retryPages: @Sendable (String, [Int]) async throws -> Void
     public var delete: @Sendable (String) async throws -> Void
@@ -169,6 +170,9 @@ extension DownloadClient {
             },
             enqueue: { payload in try await manager.enqueue(payload: payload).get() },
             togglePause: { gid in try await manager.togglePause(gid: gid).get() },
+            performQueueOperation: { gid, operation in
+                try await manager.performQueueOperation(gid: gid, operation: operation).get()
+            },
             retry: { gid, mode in try await manager.retry(gid: gid, mode: mode).get() },
             retryPages: { gid, pageIndices in
                 try await manager.retryPages(gid: gid, pageIndices: pageIndices).get()
@@ -234,6 +238,7 @@ extension DownloadClient {
         updateRemoteVersion: { _, _ in nil },
         enqueue: { _ in },
         togglePause: { _ in },
+        performQueueOperation: { _, _ in },
         retry: { _, _ in },
         retryPages: { _, _ in },
         delete: { _ in },

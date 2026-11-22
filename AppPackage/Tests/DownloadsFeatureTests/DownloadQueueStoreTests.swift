@@ -31,6 +31,59 @@ struct DownloadQueueStoreTests {
 
         #expect(store.gids.isEmpty)
     }
+
+    @Test
+    func testReorderMovesTheNamedGIDsWithinTheirOwnSlots() async {
+        let (store, rootURL) = makeStore()
+        defer { removeTemporaryItem(at: rootURL) }
+        for gid in ["a", "b", "c", "d", "e"] {
+            await store.enqueue(gid)
+        }
+
+        await store.reorder(["d", "b"])
+
+        #expect(store.gids == ["a", "d", "c", "b", "e"])
+    }
+
+    @Test
+    func testReorderIgnoresAbsentGIDsAndKeepsTheFirstOfADuplicate() async {
+        let (store, rootURL) = makeStore()
+        defer { removeTemporaryItem(at: rootURL) }
+        for gid in ["a", "b", "c"] {
+            await store.enqueue(gid)
+        }
+
+        await store.reorder(["c", "x", "a", "c"])
+
+        #expect(store.gids == ["c", "b", "a"])
+    }
+
+    @Test
+    func testAnEmptyReorderChangesNothing() async {
+        let (store, rootURL) = makeStore()
+        defer { removeTemporaryItem(at: rootURL) }
+        for gid in ["a", "b", "c"] {
+            await store.enqueue(gid)
+        }
+
+        await store.reorder([])
+
+        #expect(store.gids == ["a", "b", "c"])
+    }
+
+    @Test
+    func testASecondStoreOverTheSameFileReadsTheReorderedQueue() async {
+        let (store, rootURL) = makeStore()
+        defer { removeTemporaryItem(at: rootURL) }
+        for gid in ["a", "b", "c"] {
+            await store.enqueue(gid)
+        }
+
+        await store.reorder(["c", "a"])
+
+        let reopened = DownloadQueueStore(fileURL: rootURL.appending(path: ".queue.json"))
+        #expect(reopened.gids == ["c", "b", "a"])
+    }
 }
 
 private extension DownloadQueueStoreTests {
