@@ -88,6 +88,7 @@ enum Module: String {
     case deviceClient = "DeviceClient"
     case downloadClient = "DownloadClient"
     case downloadsFeature = "DownloadsFeature"
+    case ehSettingClient = "EhSettingClient"
     case favoritesFeature = "FavoritesFeature"
     case fileClient = "FileClient"
     case filtersFeature = "FiltersFeature"
@@ -426,6 +427,16 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.kingfisher)
         ]
     ),
+    // The E-Hentai Settings page's three requests, behind one dependency so a test decides their outcome.
+    // The EhPanda profile request in `SettingReducer+Body.swift` is not part of it.
+    .target(
+        module: .ehSettingClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.networkingFeature),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
     // The gallery list and detail fetches reducers start, behind one dependency so a test decides their outcome.
     // Outside `NetworkingFeature`, only this module, `HomeClient` and the download client build those requests.
     .target(
@@ -669,6 +680,7 @@ let targets: [PackageDescription.Target] = [
             .module(.clipboardClient),
             .module(.cookieClient),
             .module(.dfClient),
+            .module(.ehSettingClient),
             .module(.fileClient),
             .module(.hapticsClient),
             .module(.libraryClient),
@@ -997,6 +1009,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appTools),
             .module(.dfClient),
+            .module(.ehSettingClient),
             .module(.libraryClient),
             .module(.networkingFeature),
             .module(.readingSettingFeature)

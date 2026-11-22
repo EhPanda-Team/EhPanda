@@ -131,9 +131,8 @@ struct SettingReducerNavigationTests {
         await store.finish()
     }
 
-    // `.ehSetting`'s push is asserted at the mapping level in `SettingPresentationTests`, not here:
-    // presenting it now starts `fetchEhSetting`, and `EhSettingRequest` takes its `URLSession` as an
-    // `init` default the reducer never overrides, so a store-level push would issue a real request.
+    // `.ehSetting`'s push is asserted at the mapping level in `SettingPresentationTests`, and its first load
+    // goes through `EhSettingClient`, which `EhSettingReducerTests` drives with a stubbed client.
 
     @MainActor
     @Test

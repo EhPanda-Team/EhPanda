@@ -5,9 +5,9 @@ public import AppModels
 import AppTools
 public import ComposableArchitecture
 import CookieClient
+import EhSettingClient
 public import Foundation
 import HapticsClient
-import NetworkingFeature
 import Resources
 public import Sharing
 
@@ -66,6 +66,7 @@ public struct EhSettingReducer: Sendable {
     @Dependency(\.applicationClient) private var applicationClient
     @Dependency(\.hapticsClient) private var hapticsClient
     @Dependency(\.cookieClient) private var cookieClient
+    @Dependency(\.ehSettingClient) private var ehSettingClient
 
     public init() {}
 
@@ -115,7 +116,7 @@ public struct EhSettingReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await EhSettingRequest(host: host).response()
+                        try await ehSettingClient.fetchSettings(host)
                     }
                     await send(.fetchEhSettingDone(result))
                 }
@@ -141,11 +142,7 @@ public struct EhSettingReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await SubmitEhSettingChangesRequest(
-                            host: host,
-                            ehSetting: ehSetting
-                        )
-                        .response()
+                        try await ehSettingClient.submitChanges(host, ehSetting)
                     }
                     await send(.submitChangesDone(result))
                 }
@@ -168,13 +165,7 @@ public struct EhSettingReducer: Sendable {
                 let host = state.setting.galleryHost
                 return .run { send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await EhProfileRequest(
-                            host: host,
-                            action: action,
-                            name: name,
-                            set: set
-                        )
-                        .response()
+                        try await ehSettingClient.performProfileAction(host, action, name, set)
                     }
                     await send(.performActionDone(result))
                 }
