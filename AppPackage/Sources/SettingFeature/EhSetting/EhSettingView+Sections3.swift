@@ -12,6 +12,7 @@ extension EhSettingView {
 // MARK: CoverScalingSection
 struct CoverScalingSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -21,6 +22,7 @@ struct CoverScalingSection: View {
                 range: 75...150,
                 unit: "%"
             )
+            .disabled(updatingOptions.contains(.coverScaleFactor))
         } header: {
             Text.ehSettingBoldHeader(
                 .coverScaling,
@@ -36,6 +38,7 @@ struct CoverScalingSection: View {
 // MARK: TagFilteringThresholdSection
 struct TagFilteringThresholdSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -43,6 +46,7 @@ struct TagFilteringThresholdSection: View {
                 title: .tagFilteringThreshold,
                 value: $ehSetting.tagFilteringThreshold, range: -9999...0
             )
+            .disabled(updatingOptions.contains(.tagFilteringThreshold))
         } header: {
             Text.ehSettingBoldHeader(
                 .tagFilteringThreshold,
@@ -55,6 +59,7 @@ struct TagFilteringThresholdSection: View {
 // MARK: TagWatchingThresholdSection
 struct TagWatchingThresholdSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -62,6 +67,7 @@ struct TagWatchingThresholdSection: View {
                 title: .tagWatchingThreshold,
                 value: $ehSetting.tagWatchingThreshold, range: 0...9999
             )
+            .disabled(updatingOptions.contains(.tagWatchingThreshold))
         } header: {
             Text.ehSettingBoldHeader(
                 .tagWatchingThreshold,
@@ -74,6 +80,7 @@ struct TagWatchingThresholdSection: View {
 // MARK: FilteredRemovalCountSection
 struct FilteredRemovalCountSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -81,6 +88,7 @@ struct FilteredRemovalCountSection: View {
                 .showFilteredRemovalCount,
                 isOn: $ehSetting.showFilteredRemovalCount
             )
+            .disabled(updatingOptions.contains(.showFilteredRemovalCount))
         } header: {
             Text.ehSettingBoldHeader(
                 .filteredRemovalCount,
@@ -94,6 +102,7 @@ struct FilteredRemovalCountSection: View {
 struct ExcludedLanguagesSection: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     private let languages = Language.allExcludedCases.map(\.value)
     private var languageBindings: [Binding<Bool>] {
@@ -107,13 +116,18 @@ struct ExcludedLanguagesSection: View {
     /// bindings through a shrinking slice keeps that offset out of the row arithmetic, and a
     /// short `excludedLanguages` (a settings page that parsed light) simply yields empty
     /// trailing cells instead of an out-of-range read.
-    private var rows: [(title: LocalizedStringResource, bindings: [Binding<Bool>])] {
+    ///
+    /// `firstIndex` is the `excludedLanguages` index of the row's column 0, so the cell at column `offset` is index
+    /// `firstIndex + offset`. The first row's is -1, because its column 0 is the placeholder.
+    private var rows: [ExcludedLanguageRow] {
         var remaining = languageBindings[...]
         return languages.enumerated().map { offset, title in
             let leading: [Binding<Bool>] = offset == 0 ? [.constant(false)] : []
             let cells = remaining.prefix(3 - leading.count)
             remaining = remaining.dropFirst(cells.count)
-            return (title, leading + cells)
+            return ExcludedLanguageRow(
+                title: title, bindings: leading + cells, firstIndex: cells.startIndex - leading.count
+            )
         }
     }
 
@@ -137,11 +151,17 @@ struct ExcludedLanguagesSection: View {
             if dynamicTypeSize <= .large {
                 columnHeader
                 ForEach(rows.enumerated(), id: \.offset) { offset, row in
-                    ExcludeRow(title: row.title, bindings: row.bindings, isFirstRow: offset == 0)
+                    ExcludeRow(
+                        title: row.title, bindings: row.bindings, isFirstRow: offset == 0,
+                        firstIndex: row.firstIndex, updatingOptions: updatingOptions
+                    )
                 }
             } else {
                 ForEach(rows.enumerated(), id: \.offset) { offset, row in
-                    ExcludeLanguageBlock(title: row.title, bindings: row.bindings, isFirstRow: offset == 0)
+                    ExcludeLanguageBlock(
+                        title: row.title, bindings: row.bindings, isFirstRow: offset == 0,
+                        firstIndex: row.firstIndex, updatingOptions: updatingOptions
+                    )
                 }
             }
         } header: {
@@ -173,10 +193,20 @@ struct ExcludedLanguagesSection: View {
     }
 }
 
+/// One language's row of the exclusion grid: its name, its cells' bindings in column order, and the
+/// `excludedLanguages` index of its column 0. See ``ExcludedLanguagesSection``.
+private struct ExcludedLanguageRow {
+    let title: LocalizedStringResource
+    let bindings: [Binding<Bool>]
+    let firstIndex: Int
+}
+
 struct ExcludeRow: View {
     let title: LocalizedStringResource
     let bindings: [Binding<Bool>]
     let isFirstRow: Bool
+    let firstIndex: Int
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         HStack {
@@ -194,6 +224,7 @@ struct ExcludeRow: View {
                     Color.clear
                 } else if let category = EhSetting.ExcludedLanguagesCategory(rawValue: offset) {
                     ExcludeToggle(title: title, category: category, isOn: binding)
+                        .disabled(updatingOptions.contains(.excludedLanguage(firstIndex + offset)))
                 }
             }
         }
@@ -250,6 +281,8 @@ struct ExcludeLanguageBlock: View {
     let title: LocalizedStringResource
     let bindings: [Binding<Bool>]
     let isFirstRow: Bool
+    let firstIndex: Int
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -263,6 +296,7 @@ struct ExcludeLanguageBlock: View {
                     if !(isFirstRow && offset == 0),
                        let category = EhSetting.ExcludedLanguagesCategory(rawValue: offset) {
                         ExcludeLanguageToggle(category: category, isOn: binding)
+                            .disabled(updatingOptions.contains(.excludedLanguage(firstIndex + offset)))
                     }
                 }
             }
@@ -276,8 +310,8 @@ struct ExcludeLanguageBlock: View {
 /// The switch stands in for the grid's tap target and fires the same soft feedback, so flipping an
 /// exclusion feels the same at every size; the system control brings the label, the on/off value
 /// and the hit target that the bare `Image` never had. The feedback hangs off the value rather than
-/// off a wrapped binding because the exclusion is only ever flipped from this switch — the settings
-/// payload is fetched once per profile and never toggles a language behind the user's back.
+/// off a wrapped binding, so it also marks a switch that a site answer moves back after a save that did
+/// not take. At the default size the grid's cell, whose feedback belongs to its tap, stays silent then.
 struct ExcludeLanguageToggle: View {
     @Dependency(\.hapticsClient) private var hapticsClient
     let category: EhSetting.ExcludedLanguagesCategory
@@ -292,19 +326,33 @@ struct ExcludeLanguageToggle: View {
 }
 
 // MARK: ExcludedUploadersSection
+/// The excluded uploaders editor, saved when editing ends.
+///
+/// Every write to the form saves to the site, and the editor has no submit, because Return inserts a line. So it
+/// edits a view-local `draft` and writes the form when focus leaves it. While the editor is not focused the draft
+/// follows the form, so a site answer shows in it. The footer counts the draft, so it follows the typing.
 struct ExcludedUploadersSection: View {
     @Binding var ehSetting: EhSetting
-    @FocusState var isFocused
+    let updatingOptions: Set<EhSettingReducer.Option>
+    @State private var draft: String
+    @FocusState private var isFocused: Bool
+
+    init(ehSetting: Binding<EhSetting>, updatingOptions: Set<EhSettingReducer.Option>) {
+        _ehSetting = ehSetting
+        self.updatingOptions = updatingOptions
+        _draft = State(initialValue: ehSetting.wrappedValue.excludedUploaders)
+    }
 
     var body: some View {
         Section {
-            TextEditor(text: $ehSetting.excludedUploaders)
+            TextEditor(text: $draft)
                 .textInputAutocapitalization(.none)
                 // This editor intentionally occupies 30% of the container height rather than
                 // merely capping its height, giving the multi-line input a stable editing area.
                 .containerRelativeFrame(.vertical) { height, _ in height * 0.3 }
                 .autocorrectionDisabled(true)
                 .focused($isFocused)
+                .disabled(updatingOptions.contains(.excludedUploaders))
         } header: {
             Text.ehSettingBoldHeader(
                 .excludedUploaders,
@@ -313,9 +361,17 @@ struct ExcludedUploadersSection: View {
         } footer: {
             Text(
                 .excludedUploadersCount(
-                    used: ehSetting.excludedUploaders.ehSettingLineCount, limit: 1000
+                    used: draft.ehSettingLineCount, limit: 1000
                 )
             )
+        }
+        .onChange(of: isFocused) {
+            guard !isFocused, draft != ehSetting.excludedUploaders else { return }
+            ehSetting.excludedUploaders = draft
+        }
+        .onChange(of: ehSetting.excludedUploaders) {
+            guard !isFocused else { return }
+            draft = ehSetting.excludedUploaders
         }
     }
 }
@@ -323,6 +379,7 @@ struct ExcludedUploadersSection: View {
 // MARK: ViewportOverrideSection
 struct ViewportOverrideSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -332,6 +389,7 @@ struct ViewportOverrideSection: View {
                 range: 0...9999,
                 unit: "px"
             )
+            .disabled(updatingOptions.contains(.viewportVirtualWidth))
         } header: {
             Text.ehSettingBoldHeader(
                 .viewportOverride,
@@ -344,6 +402,7 @@ struct ViewportOverrideSection: View {
 // MARK: GalleryCommentsSection
 struct GalleryCommentsSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -357,6 +416,7 @@ struct GalleryCommentsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.commentsSortOrder))
 
             Picker(
                 .commentsVotesShowTiming,
@@ -368,6 +428,7 @@ struct GalleryCommentsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.commentVotesShowTiming))
         } header: {
             Text(.galleryComments)
                 .ehSettingRegularHeaderStyled()
@@ -378,6 +439,7 @@ struct GalleryCommentsSection: View {
 // MARK: GalleryTagsSection
 struct GalleryTagsSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -388,6 +450,7 @@ struct GalleryTagsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.tagsSortOrder))
         } header: {
             Text(.galleryTags)
                 .ehSettingRegularHeaderStyled()
@@ -398,6 +461,7 @@ struct GalleryTagsSection: View {
 // MARK: GalleryPageThumbnailLabelingSection
 struct GalleryPageThumbnailLabelingSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -411,6 +475,7 @@ struct GalleryPageThumbnailLabelingSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.galleryPageNumbering))
         } header: {
             Text(.galleryPageThumbnailLabeling)
                 .ehSettingRegularHeaderStyled()
@@ -421,6 +486,7 @@ struct GalleryPageThumbnailLabelingSection: View {
 // MARK: MultiplePageViewerSection
 struct MultiplePageViewerSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         if let useMultiplePageViewerBinding = Binding($ehSetting.useMultiplePageViewer),
@@ -431,6 +497,7 @@ struct MultiplePageViewerSection: View {
                     .useMultiPageViewer,
                     isOn: useMultiplePageViewerBinding
                 )
+                .disabled(updatingOptions.contains(.useMultiplePageViewer))
 
                 Picker(
                     .displayStyle,
@@ -442,11 +509,13 @@ struct MultiplePageViewerSection: View {
                     }
                 }
                 .ehSettingPickerStyled()
+                .disabled(updatingOptions.contains(.multiplePageViewerStyle))
 
                 AppToggle(
                     .showThumbnailPane,
                     isOn: multiplePageViewerShowPaneBinding
                 )
+                .disabled(updatingOptions.contains(.multiplePageViewerShowThumbnailPane))
             } header: {
                 Text(.multiPageViewer)
                     .ehSettingRegularHeaderStyled()
@@ -485,7 +554,7 @@ private var excludedLanguagesPreviewSetting: EhSetting {
 
     NavigationStack {
         Form {
-            EhSettingView.ExcludedLanguagesSection(ehSetting: $ehSetting)
+            EhSettingView.ExcludedLanguagesSection(ehSetting: $ehSetting, updatingOptions: [])
         }
     }
     .environment(\.dynamicTypeSize, .large)
@@ -496,7 +565,7 @@ private var excludedLanguagesPreviewSetting: EhSetting {
 
     NavigationStack {
         Form {
-            EhSettingView.ExcludedLanguagesSection(ehSetting: $ehSetting)
+            EhSettingView.ExcludedLanguagesSection(ehSetting: $ehSetting, updatingOptions: [])
         }
     }
     .environment(\.dynamicTypeSize, .accessibility3)

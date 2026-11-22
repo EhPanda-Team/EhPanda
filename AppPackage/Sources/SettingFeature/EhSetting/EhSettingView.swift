@@ -1,10 +1,7 @@
 import AppComponents
 import AppModels
-import AppTools
 import ComposableArchitecture
 import Resources
-import SFSafeSymbols
-import SFSafeSymbolsExt
 import Sharing
 import SwiftUI
 
@@ -42,7 +39,7 @@ struct EhSettingView: View {
         .overlay {
             LoadingView()
                 .animation(.default) {
-                    $0.visible(store.loadingState == .loading || store.submittingState == .loading)
+                    $0.visible(store.loadingState == .loading)
                 }
         }
         .overlay {
@@ -51,14 +48,7 @@ struct EhSettingView: View {
                     $0.visible(store.loadingState.is(\.failed))
                 }
         }
-        .sheet(item: $store.destination.webView, id: \.absoluteString) { url in
-            WebView(url: url.wrappedValue)
-                .ignoresSafeArea(edges: .bottom)
-                .scrollEdgeEffectStyle(.soft, for: .top)
-                .privacyMask()
-        }
         .scrollEdgeEffectStyle(.soft, for: .top)
-        .toolbar(content: toolbar)
         .navigationTitle(.hostSettings(galleryHost.rawValue))
     }
     // MARK: Form
@@ -68,6 +58,7 @@ struct EhSettingView: View {
                 EhProfileSection(
                     ehSetting: ehSetting,
                     ehProfile: ehProfile,
+                    updatingOptions: store.updatingOptions,
                     profilePickerFocus: $profilePickerFocused,
                     editingProfileName: $store.editingProfileName,
                     deleteDialogAction: { store.send(.deleteProfileButtonTapped) },
@@ -77,56 +68,34 @@ struct EhSettingView: View {
                     performEhProfileAction: { store.send(.performAction(action: $0, name: $1, set: $2)) }
                 )
 
-                ImageLoadSettingsSection(ehSetting: ehSetting)
-                ImageSizeSettingsSection(ehSetting: ehSetting)
-                GalleryNameDisplaySection(ehSetting: ehSetting)
-                ArchiverSettingsSection(ehSetting: ehSetting)
-                FrontPageSettingsSection(ehSetting: ehSetting)
-                OptionalUIElementsSection(ehSetting: ehSetting)
-                FavoritesSection(ehSetting: ehSetting)
-                SearchResultCountSection(ehSetting: ehSetting)
-                ThumbnailSettingsSection(ehSetting: ehSetting)
+                ImageLoadSettingsSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                ImageSizeSettingsSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                GalleryNameDisplaySection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                ArchiverSettingsSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                FrontPageSettingsSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                OptionalUIElementsSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                FavoritesSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                SearchResultCountSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                ThumbnailSettingsSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
             }
             Group {
-                CoverScalingSection(ehSetting: ehSetting)
-                RatingsSection(ehSetting: ehSetting)
-                TagWatchingThresholdSection(ehSetting: ehSetting)
-                TagFilteringThresholdSection(ehSetting: ehSetting)
-                FilteredRemovalCountSection(ehSetting: ehSetting)
-                ExcludedLanguagesSection(ehSetting: ehSetting)
-                ExcludedUploadersSection(ehSetting: ehSetting)
-                ViewportOverrideSection(ehSetting: ehSetting)
-                GalleryCommentsSection(ehSetting: ehSetting)
-                GalleryTagsSection(ehSetting: ehSetting)
+                CoverScalingSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                RatingsSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                TagWatchingThresholdSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                TagFilteringThresholdSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                FilteredRemovalCountSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                ExcludedLanguagesSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                ExcludedUploadersSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                ViewportOverrideSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                GalleryCommentsSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                GalleryTagsSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
             }
             Group {
-                GalleryPageThumbnailLabelingSection(ehSetting: ehSetting)
-                MultiplePageViewerSection(ehSetting: ehSetting)
+                GalleryPageThumbnailLabelingSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
+                MultiplePageViewerSection(ehSetting: ehSetting, updatingOptions: store.updatingOptions)
             }
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
-    }
-    // MARK: Toolbar
-    private func toolbar() -> some ToolbarContent {
-        Group {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    store.send(.presentWebView(Defaults.URL.uConfig(host: setting.galleryHost)))
-                } label: {
-                    Label(.website, systemSymbol: .globe)
-                }
-                .disabled(setting.bypassSNIFiltering)
-            }
-
-            ToolbarItem(placement: .confirmationAction) {
-                Button {
-                    store.send(.submitChanges)
-                } label: {
-                    Label(.save, systemSymbol: .icloudAndArrowUp)
-                }
-                .disabled(store.ehSetting == nil)
-            }
-        }
     }
 }
 

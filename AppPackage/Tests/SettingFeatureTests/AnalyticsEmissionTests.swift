@@ -3,6 +3,7 @@ import AppComponents
 import AppModels
 import ComposableArchitecture
 import CookieClient
+import EhSettingClient
 import Foundation
 import HapticsClient
 import NetworkingFeature
@@ -173,21 +174,21 @@ struct AnalyticsEmissionTests {
 
     // MARK: E-Hentai settings
 
-    // The page shows the fetch's failure; a failed submit or profile action leaves the page as it was,
-    // so neither is counted.
+    // The page shows the first load's failure. A failed save or profile action shows nothing; the latest
+    // one quietly refetches, and a failed refetch only re-enables its control. Neither is counted.
     @MainActor
     @Test
     func onlyAFailedSettingsFetchRecordsAnErrorSignal() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
         let store = TestStore(initialState: EhSettingReducer.State(), reducer: EhSettingReducer.init) {
             $0.analyticsClient = .recording(into: recorded)
-            $0.hapticsClient = .noop
+            $0.ehSettingClient = .failing(.networkingFailed)
         }
         store.exhaustivity = .off(showSkippedAssertions: false)
 
         await store.send(.fetchEhSettingDone(.failure(.networkingFailed)))
-        await store.send(.submitChangesDone(.failure(.networkingFailed)))
-        await store.send(.performActionDone(.failure(.parseFailed)))
+        await store.send(.updateDone(option: .galleryName, revision: 0, result: .failure(.networkingFailed)))
+        await store.send(.updateDone(option: .profile, revision: 0, result: .failure(.parseFailed)))
         await store.finish()
 
         expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .ehSetting)])

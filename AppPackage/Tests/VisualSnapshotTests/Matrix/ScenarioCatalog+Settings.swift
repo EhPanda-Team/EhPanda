@@ -340,7 +340,7 @@ enum SettingsScenarios {
                 )
             })
             ehSetting.favoriteCategories = SettingsFixtures.favoriteCategories
-            site.setEhSetting(ehSetting)
+            site.setEhSetting(ehSetting, resettingProfileName: true)
         }
         return settings(
             [.account(.init()), .ehSetting(site)],

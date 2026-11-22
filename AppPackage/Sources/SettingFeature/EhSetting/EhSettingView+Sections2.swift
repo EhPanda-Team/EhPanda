@@ -9,6 +9,7 @@ extension EhSettingView {
 // MARK: OptionalUIElementsSection
 struct OptionalUIElementsSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -16,6 +17,7 @@ struct OptionalUIElementsSection: View {
                 .enableGalleryThumbnailSelector,
                 isOn: $ehSetting.enableGalleryThumbnailSelector
             )
+            .disabled(updatingOptions.contains(.enableGalleryThumbnailSelector))
         } header: {
             Text.ehSettingBoldHeader(
                 .optionalUiElements,
@@ -29,7 +31,7 @@ struct OptionalUIElementsSection: View {
 struct FavoritesSection: View {
     @SharedReader(.setting) private var setting: Setting
     @Binding var ehSetting: EhSetting
-    @FocusState private var isFocused
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     private var tuples: [(AppModels.Category, Binding<String>)] {
         Array(zip(AppModels.Category.allFavoritesCases, $ehSetting.favoriteCategories))
@@ -37,17 +39,18 @@ struct FavoritesSection: View {
 
     var body: some View {
         Section {
-            ForEach(tuples, id: \.0) { category, nameBinding in
+            ForEach(Array(tuples.enumerated()), id: \.element.0) { index, tuple in
+                let nameBinding = tuple.1
                 HStack(spacing: 30) {
                     Circle()
-                        .foregroundStyle(category.color(host: setting.galleryHost))
+                        .foregroundStyle(tuple.0.color(host: setting.galleryHost))
                         .frame(width: 10)
 
-                    SettingTextField(
+                    DraftTextField(
                         text: nameBinding, title: .favoriteCategoryName,
                         width: nil, alignment: .leading, background: .clear
                     )
-                    .focused($isFocused)
+                    .disabled(updatingOptions.contains(.favoriteCategory(index)))
                 }
                 .padding(.leading)
             }
@@ -69,6 +72,7 @@ struct FavoritesSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.favoritesSortOrder))
         } header: {
             Text(.favoritesSortOrderDescription)
                 .ehSettingRegularHeaderStyled()
@@ -79,18 +83,18 @@ struct FavoritesSection: View {
 // MARK: RatingsSection
 struct RatingsSection: View {
     @Binding var ehSetting: EhSetting
-    @FocusState var isFocused
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
             LabeledContent(.ratingsColor) {
-                SettingTextField(
+                DraftTextField(
                     text: $ehSetting.ratingsColor,
                     title: .ratingsColor,
                     promptText: .ratingsColorPrompt,
                     width: 80
                 )
-                .focused($isFocused)
+                .disabled(updatingOptions.contains(.ratingsColor))
             }
         } header: {
             Text.ehSettingBoldHeader(
@@ -106,6 +110,7 @@ struct RatingsSection: View {
 // MARK: SearchResultCountSection
 struct SearchResultCountSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -116,6 +121,7 @@ struct SearchResultCountSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.searchResultCount))
         } header: {
             Text.ehSettingBoldHeader(
                 .searchResultCount,
@@ -128,6 +134,7 @@ struct SearchResultCountSection: View {
 // MARK: ThumbnailSettingsSection
 struct ThumbnailSettingsSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -141,6 +148,7 @@ struct ThumbnailSettingsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.thumbnailLoadTiming))
         } header: {
             Text.ehSettingBoldHeader(
                 .thumbnailSettings,
@@ -161,6 +169,7 @@ struct ThumbnailSettingsSection: View {
                     Text(ehSetting.thumbnailConfigSize.value)
                 }
                 .pickerStyle(.segmented)
+                .disabled(updatingOptions.contains(.thumbnailConfigSize))
                 .frame(width: 200)
             }
 
@@ -174,6 +183,7 @@ struct ThumbnailSettingsSection: View {
                     Text(ehSetting.capableThumbnailConfigRowCount.value)
                 }
                 .pickerStyle(.segmented)
+                .disabled(updatingOptions.contains(.thumbnailConfigRows))
                 .frame(width: 200)
             }
         } header: {

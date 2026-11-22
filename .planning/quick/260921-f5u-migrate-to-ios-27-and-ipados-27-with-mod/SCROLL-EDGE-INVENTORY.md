@@ -42,7 +42,7 @@ Apply `.scrollEdgeEffectStyle(.soft, for: .top)` directly to each app-owned page
 | Settings | `SettingFeature/SettingView.swift` | main ScrollView; tab and iPad sheet | SettingView.swift main content ScrollView; direct host. |
 | Account settings | `SettingFeature/AccountSetting/AccountSettingView.swift` | Form | AccountSettingView.swift Form and WebView sheet root; direct hosts. |
 | Login | `SettingFeature/Login/LoginView.swift` | Login form responsive scrolling branch and fixed branch; web sheet wrappers | LoginView.swift form branches and web/challenge presentation roots; direct hosts. |
-| Web login | `SettingFeature/Components/WebView.swift` | WKWebView.scrollView.topEdgeEffect.style = .soft; SwiftUI page root at presentation | WebView.swift owns the UIKit property; AccountSettingView/EhSettingView/LoginView apply the SwiftUI presentation-root modifier. |
+| Web login | `SettingFeature/Components/WebView.swift` | WKWebView.scrollView.topEdgeEffect.style = .soft; SwiftUI page root at presentation | WebView.swift owns the UIKit property; AccountSettingView/LoginView apply the SwiftUI presentation-root modifier. |
 | Web challenge | `SettingFeature/Components/ChallengeWebView.swift` | WKWebView.scrollView.topEdgeEffect.style = .soft; SwiftUI page root at presentation | ChallengeWebView.swift owns the UIKit property; LoginView applies the SwiftUI challenge presentation-root modifier. |
 | General settings | `SettingFeature/GeneralSetting/GeneralSettingView.swift` | Form; system file importer | GeneralSettingView.swift Form root; direct host. File importer internals remain system-owned. |
 | Activity logs | `SettingFeature/AppActivityLogs/AppActivityLogsView.swift` | main List | AppActivityLogsView.swift main List root; direct host. |
@@ -53,7 +53,7 @@ Apply `.scrollEdgeEffectStyle(.soft, for: .top)` directly to each app-owned page
 | Download settings | `SettingFeature/Components/DownloadSettingView.swift` | Form | DownloadSettingView.swift Form root; direct host. |
 | Laboratory settings | `SettingFeature/Components/LaboratorySettingView.swift` | ScrollView | LaboratorySettingView.swift ScrollView root; direct host. |
 | About | `SettingFeature/Components/AboutView.swift` | Form | AboutView.swift Form root; direct host. |
-| Site settings | `SettingFeature/EhSetting/EhSettingView.swift` | Form with menu/inline/segmented pickers; no additional pushed picker pages | EhSettingView.swift Form and WebView sheet root; direct hosts. |
+| Site settings | `SettingFeature/EhSetting/EhSettingView.swift` | Form with menu/inline/segmented pickers; no additional pushed picker pages | EhSettingView.swift Form; direct host. |
 | New Dawn | `AppComponents/NewDawnView.swift` | ScrollView with min-height and based-on-size bounce behavior | NewDawnView.swift single ScrollView content root; direct host. |
 | Error information | `AppComponents/ErrorInfoView.swift` | Form in sheet | ErrorInfoView.swift sheet NavigationStack Form root; direct host. |
 | System share sheet | `AppComponents/ActivityView.swift` | UIActivityViewController is system-owned; apply SwiftUI presentation-root modifier, no subview traversal | ReadingView/DetailView/TorrentsView ActivityView presentation roots; UIKit internals remain system-owned. |

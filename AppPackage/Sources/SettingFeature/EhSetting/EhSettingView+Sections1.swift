@@ -11,6 +11,7 @@ extension EhSettingView {
 struct EhProfileSection: View {
     @Binding var ehSetting: EhSetting
     @Binding var ehProfile: EhProfile
+    let updatingOptions: Set<EhSettingReducer.Option>
     let profilePickerFocus: AccessibilityFocusState<Bool>.Binding
     @Binding var editingProfileName: String
     let deleteDialogAction: () -> Void
@@ -30,17 +31,20 @@ struct EhProfileSection: View {
             }
             .ehSettingPickerStyled()
             .accessibilityFocused(profilePickerFocus)
+            .disabled(updatingOptions.contains(.profile))
 
             if !ehProfile.isDefault {
                 Button(.setAsDefault) {
                     performEhProfileAction(.default, nil, ehProfile.value)
                 }
+                .disabled(updatingOptions.contains(.profile))
 
                 Button(
                     .deleteProfile,
                     role: .destructive,
                     action: deleteDialogAction
                 )
+                .disabled(updatingOptions.contains(.profile))
                 .confirmationDialog(deleteConfirmationDialog)
             }
         }
@@ -59,13 +63,13 @@ struct EhProfileSection: View {
             Button(.rename) {
                 performEhProfileAction(.rename, editingProfileName, ehProfile.value)
             }
-            .disabled(isFocused)
+            .disabled(isFocused || updatingOptions.contains(.profile))
 
             if ehSetting.isCapableOfCreatingNewProfile {
                 Button(.createNew) {
                     performEhProfileAction(.create, editingProfileName, ehProfile.value)
                 }
-                .disabled(isFocused)
+                .disabled(isFocused || updatingOptions.contains(.profile))
             }
         }
     }
@@ -74,6 +78,7 @@ struct EhProfileSection: View {
 // MARK: ImageLoadSettingsSection
 struct ImageLoadSettingsSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -87,6 +92,7 @@ struct ImageLoadSettingsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.loadThroughHathSetting))
         } header: {
             Text.ehSettingBoldHeader(.imageLoadSettings)
         } footer: {
@@ -101,6 +107,7 @@ struct ImageLoadSettingsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.hahRegion))
         } header: {
             if let country = ehSetting.literalDetectedCountry, let region = ehSetting.literalHahRegion {
                 Text(
@@ -118,6 +125,7 @@ struct ImageLoadSettingsSection: View {
 // MARK: ImageSizeSettingsSection
 struct ImageSizeSettingsSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -128,6 +136,7 @@ struct ImageSizeSettingsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.imageResolution))
         } header: {
             Text.ehSettingBoldHeader(
                 .imageSizeSettings,
@@ -141,6 +150,7 @@ struct ImageSizeSettingsSection: View {
                     .useOriginalImages,
                     isOn: useOriginalImagesBinding
                 )
+                .disabled(updatingOptions.contains(.useOriginalImages))
             } header: {
                 Text(.originalImages)
                     .ehSettingRegularHeaderStyled()
@@ -154,11 +164,13 @@ struct ImageSizeSettingsSection: View {
                 title: .horizontal,
                 value: $ehSetting.imageSizeWidth, range: 0...65535, unit: "px"
             )
+            .disabled(updatingOptions.contains(.imageSizeWidth))
 
             ValuePicker(
                 title: .vertical,
                 value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px"
             )
+            .disabled(updatingOptions.contains(.imageSizeHeight))
         } header: {
             Text(.imageSizeDescription)
                 .ehSettingRegularHeaderStyled()
@@ -169,6 +181,7 @@ struct ImageSizeSettingsSection: View {
 // MARK: GalleryNameDisplaySection
 struct GalleryNameDisplaySection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -179,6 +192,7 @@ struct GalleryNameDisplaySection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.galleryName))
         } header: {
             Text.ehSettingBoldHeader(
                 .galleryNameDisplay,
@@ -191,6 +205,7 @@ struct GalleryNameDisplaySection: View {
 // MARK: ArchiverSettingsSection
 struct ArchiverSettingsSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     var body: some View {
         Section {
@@ -201,6 +216,7 @@ struct ArchiverSettingsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.archiverBehavior))
         } header: {
             Text.ehSettingBoldHeader(
                 .archiverSettings,
@@ -213,6 +229,7 @@ struct ArchiverSettingsSection: View {
 // MARK: FrontPageSettingsSection
 struct FrontPageSettingsSection: View {
     @Binding var ehSetting: EhSetting
+    let updatingOptions: Set<EhSettingReducer.Option>
 
     private var categoryBindings: [Binding<Bool>] {
         $ehSetting.disabledCategories.map({ $0 })
@@ -220,7 +237,12 @@ struct FrontPageSettingsSection: View {
 
     var body: some View {
         Section {
-            CategoryView(bindings: categoryBindings)
+            CategoryView(
+                bindings: categoryBindings,
+                disabledIndices: Set(
+                    categoryBindings.indices.filter({ updatingOptions.contains(.disabledCategory($0)) })
+                )
+            )
         } header: {
             Text.ehSettingBoldHeader(
                 .frontPageSettings,
@@ -236,6 +258,7 @@ struct FrontPageSettingsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.displayMode))
         } header: {
             Text(.displayModeDescription)
                 .ehSettingRegularHeaderStyled()
@@ -249,6 +272,7 @@ struct FrontPageSettingsSection: View {
                 }
             }
             .ehSettingPickerStyled()
+            .disabled(updatingOptions.contains(.searchRangeIndicatorStyle))
         } header: {
             Text(.searchRangeIndicatorDescription)
                 .ehSettingRegularHeaderStyled()
@@ -257,6 +281,12 @@ struct FrontPageSettingsSection: View {
 }
 
 // MARK: Shared Helpers
+/// A slider row whose value saves once per drag.
+///
+/// Every write to the form saves to the site, so the slider moves a view-local `draft` while the thumb is down and
+/// writes the form once, when the drag ends. The label follows the draft. While no drag is in progress the draft
+/// follows the form, so a site answer moves the thumb. A change that arrives with no drag session, such as an
+/// assistive adjustment, ends no drag, so it is written at once: without that it would never be saved.
 struct ValuePicker: View {
     private let title: LocalizedStringResource
     @Binding var value: Float
@@ -264,18 +294,29 @@ struct ValuePicker: View {
     private let unit: String
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var draft: Float
+    @State private var isDragging = false
 
     init(title: LocalizedStringResource, value: Binding<Float>, range: ClosedRange<Float>, unit: String = "") {
         self.title = title
         _value = value
         self.range = range
         self.unit = unit
+        _draft = State(initialValue: value.wrappedValue)
     }
 
     var body: some View {
         LabeledContent(title) {
-            Text(String(Int(value)) + unit)
+            Text(String(Int(draft)) + unit)
                 .foregroundStyle(.tint)
+        }
+        .onChange(of: value) {
+            guard !isDragging else { return }
+            draft = value
+        }
+        .onChange(of: draft) {
+            guard !isDragging, draft != value else { return }
+            value = draft
         }
 
         if dynamicTypeSize.isAccessibilitySize {
@@ -283,7 +324,7 @@ struct ValuePicker: View {
                 rangeLabel(range.lowerBound)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Slider(value: $value, in: range)
+                Slider(value: $draft, in: range, onEditingChanged: editingChanged)
                     .frame(maxWidth: .infinity)
                     .accessibilityLabel(title)
 
@@ -292,7 +333,7 @@ struct ValuePicker: View {
             }
         } else {
             Slider(
-                value: $value,
+                value: $draft,
                 in: range,
                 label: EmptyView.init,
                 minimumValueLabel: {
@@ -300,9 +341,17 @@ struct ValuePicker: View {
                 },
                 maximumValueLabel: {
                     rangeLabel(range.upperBound)
-                }
+                },
+                onEditingChanged: editingChanged
             )
             .accessibilityLabel(title)
+        }
+    }
+
+    private func editingChanged(_ isEditing: Bool) {
+        isDragging = isEditing
+        if !isEditing, draft != value {
+            value = draft
         }
     }
 
@@ -310,6 +359,58 @@ struct ValuePicker: View {
         Text(String(Int(value)) + unit)
             .fontWeight(.medium)
             .font(.callout)
+    }
+}
+
+/// A single-line text field whose value saves on Return.
+///
+/// Every write to the form saves to the site, so the field edits a view-local `draft` and writes the form only on
+/// Return. Leaving the field without Return puts the saved value back, so the field never shows text that was not
+/// saved. While the field is not focused the draft follows the form, so a site answer shows in it.
+struct DraftTextField: View {
+    @Binding private var text: String
+    @State private var draft: String
+    @FocusState private var isFocused: Bool
+    private let title: LocalizedStringResource
+    private let promptText: LocalizedStringResource?
+    private let width: CGFloat?
+    private let alignment: TextAlignment
+    private let background: Color?
+
+    init(
+        text: Binding<String>, title: LocalizedStringResource,
+        promptText: LocalizedStringResource? = nil, width: CGFloat? = 50,
+        alignment: TextAlignment = .center, background: Color? = nil
+    ) {
+        _text = text
+        self.title = title
+        self.promptText = promptText
+        self.width = width
+        self.alignment = alignment
+        self.background = background
+        _draft = State(initialValue: text.wrappedValue)
+    }
+
+    var body: some View {
+        SettingTextField(
+            text: $draft, title: title, promptText: promptText,
+            width: width, alignment: alignment, background: background
+        )
+        .focused($isFocused)
+        .onSubmit(submit)
+        .onChange(of: isFocused) {
+            guard !isFocused else { return }
+            draft = text
+        }
+        .onChange(of: text) {
+            guard !isFocused else { return }
+            draft = text
+        }
+    }
+
+    private func submit() {
+        guard draft != text else { return }
+        text = draft
     }
 }
 

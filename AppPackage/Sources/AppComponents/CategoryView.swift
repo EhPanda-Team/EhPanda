@@ -97,6 +97,8 @@ public struct CategoryView: View {
     @State private var gridWidth: CGFloat = .zero
 
     private let bindings: [Binding<Bool>]
+    /// The cells, by their index in `bindings`, whose control is disabled.
+    private let disabledIndices: Set<Int>
 
     /// A scaled bound that has outgrown the grid itself would ask for a column wider than the sheet
     /// that holds it, so both ends are clamped to the measured width: the extreme sizes land on one
@@ -115,15 +117,17 @@ public struct CategoryView: View {
         }
     }
 
-    public init?(bindings: [Binding<Bool>]) {
+    public init?(bindings: [Binding<Bool>], disabledIndices: Set<Int> = []) {
         guard bindings.count == 10 else { return nil }
         self.bindings = bindings
+        self.disabledIndices = disabledIndices
     }
 
     public var body: some View {
         LazyVGrid(columns: gridItems) {
-            ForEach(tuples, id: \.1) { isFiltered, category in
-                CategoryCell(isFiltered: isFiltered, category: category)
+            ForEach(Array(tuples.enumerated()), id: \.element.1) { index, tuple in
+                CategoryCell(isFiltered: tuple.0, category: tuple.1)
+                    .disabled(disabledIndices.contains(index))
             }
         }
         .padding(.vertical)
