@@ -56,7 +56,7 @@ struct ReaderPageProbe {
     }
 
     private var pages: XCUIElement {
-        readingView.descendants(matching: .any).matching(identifier: "reading_pages").firstMatch
+        readingView.descendants(matching: .any).matching(identifier: AccessibilityIdentifiers.readingPages).firstMatch
     }
 
     private var indicator: XCUIElement {

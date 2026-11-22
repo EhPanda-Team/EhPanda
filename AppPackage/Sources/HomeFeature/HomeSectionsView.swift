@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AutomationIdentifiers
 import ComposableArchitecture
 import SwiftUI
 
@@ -28,9 +29,15 @@ struct HomeSectionsView: View {
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .onVisibleViewportChange { viewport = $0 }
-        .accessibilityIdentifier(
-            pane == .left ? "home_left_pane" : pane == .right ? "home_right_pane" : "home_sections"
-        )
+        .accessibilityIdentifier(identifier)
+    }
+
+    private var identifier: String {
+        switch pane {
+        case .left: AccessibilityIdentifiers.homeLeftPane
+        case .right: AccessibilityIdentifiers.homeRightPane
+        case nil: AccessibilityIdentifiers.homeSections
+        }
     }
 
     @ViewBuilder

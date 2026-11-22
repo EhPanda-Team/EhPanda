@@ -1,6 +1,7 @@
 import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
 import Sharing
@@ -123,7 +124,7 @@ struct HomeFrontPageCell: View {
         .accessibilityLabel(
             gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle), isEnabled: !showsRichInformation
         )
-        .accessibilityIdentifier("home_front_page_title_\(gallery.id)")
+        .accessibilityIdentifier(AccessibilityIdentifiers.homeFrontPageTitle(id: gallery.id))
     }
 }
 

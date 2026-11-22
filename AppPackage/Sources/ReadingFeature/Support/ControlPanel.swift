@@ -1,6 +1,7 @@
 import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
@@ -85,7 +86,7 @@ struct ControlPanel<G: Gesture>: View {
                         }
                         .buttonStyle(.plain)
                         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
-                        .accessibilityIdentifier("reading_move_controls")
+                        .accessibilityIdentifier(AccessibilityIdentifiers.readingMoveControls)
                         .environment(\.layoutDirection, layoutDirection)
                         .offset(x: moveButtonOffset)
                     }
@@ -256,14 +257,14 @@ private struct LowerPanel<G: Gesture>: View {
                 .frame(minHeight: 44)
                 .onGeometryChange(for: CGFloat.self, of: { $0.size.height }) { sliderRowHeight = $0 }
                 .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("reading_slider_row")
+                .accessibilityIdentifier(AccessibilityIdentifiers.readingSliderRow)
             }
             .frame(maxWidth: fillsWidth ? .infinity : nil)
             .glassEffect(in: .rect(cornerRadius: 16))
             .padding(.horizontal, SliderPreivew.outerPadding)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("reading_lower_panel")
+        .accessibilityIdentifier(AccessibilityIdentifiers.readingLowerPanel)
     }
 }
 
@@ -349,7 +350,7 @@ private struct SliderPreivew: View {
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("reading_slider_preview")
+        .accessibilityIdentifier(AccessibilityIdentifiers.readingSliderPreview)
         .visible(showsSliderPreview)
         .padding(.vertical, verticalPadding)
         .padding(.horizontal, horizontalPadding)

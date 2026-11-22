@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AutomationIdentifiers
 import ComposableArchitecture
 import DownloadsFeature
 import FavoritesFeature
@@ -104,7 +105,7 @@ private struct LibraryCategoriesList: View {
                     NavigationLink(value: LibraryGroup.downloads(.folder(folder))) {
                         Label(folder, systemSymbol: .folder)
                     }
-                    .accessibilityIdentifier("library-downloads-\(folder)")
+                    .accessibilityIdentifier(AccessibilityIdentifiers.libraryDownloads(folder: folder))
                 }
             } header: {
                 Text(.RLocalizable.downloads)
@@ -133,13 +134,13 @@ private struct LibraryCategoriesList: View {
                     NavigationLink(value: LibraryGroup.favorites(index)) {
                         Label(favoritesStore.user.getFavoriteCategory(index: index), systemSymbol: .heart)
                     }
-                    .accessibilityIdentifier("library-favorites-\(index)")
+                    .accessibilityIdentifier(AccessibilityIdentifiers.libraryFavorites(index: index))
                 }
             } header: {
                 Text(.RLocalizable.favorites)
             }
         }
-        .accessibilityIdentifier("library-categories")
+        .accessibilityIdentifier(AccessibilityIdentifiers.libraryCategories)
         .listStyle(.sidebar)
         .navigationTitle(.RLocalizable.library)
         .toolbarTitleDisplayMode(.inlineLarge)

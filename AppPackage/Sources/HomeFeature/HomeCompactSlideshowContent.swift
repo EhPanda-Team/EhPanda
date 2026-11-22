@@ -1,4 +1,5 @@
 import AppModels
+import AutomationIdentifiers
 import Sharing
 import SwiftUI
 
@@ -29,7 +30,7 @@ struct HomeCompactSlideshowContent: View {
 
     private var title: some View {
         Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
-            .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
+            .accessibilityIdentifier(AccessibilityIdentifiers.homeSlideshowTitle(id: gallery.id))
             .font(.subheadline.bold())
             .frame(maxWidth: .infinity, alignment: .topLeading)
     }

@@ -18,7 +18,7 @@ final class GalleryLayoutUITests: XCTestCase {
             app.launchArguments = ["-UIPreferredContentSizeCategoryName", size.rawValue]
             try launchFavorites(app)
             defer { app.terminate() }
-            let picker = app.buttons["gallery-layout-favorites"]
+            let picker = app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")]
             picker.tapWhenHittable("Presentation at \(size.rawValue)")
             app.buttons["Grid"].tapWhenHittable("Grid at \(size.rawValue)")
             app.requireLibraryNavigationTitle("Favorites")
@@ -41,17 +41,17 @@ final class GalleryLayoutUITests: XCTestCase {
         let app = XCUIApplication()
         try launchFavorites(app)
         defer { app.terminate() }
-        let picker = app.buttons["gallery-layout-favorites"]
+        let picker = app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")]
         picker.tapWhenHittable("Favorites layout")
         app.buttons["List"].tapWhenHittable("Favorites Row")
         let gallery = app.staticTexts["Library Study 12"].firstMatch
-        let content = app.descendants(matching: .any)["favorites-gallery-list"].firstMatch
+        let content = app.descendants(matching: .any)[AccessibilityIdentifiers.favoritesGalleryList].firstMatch
         for _ in 0..<12 where !gallery.isHittable {
             content.swipeUp(velocity: .slow)
         }
         XCTAssertTrue(gallery.isHittable, "The row list must reach a middle gallery.")
         let candidates = app.buttons.matching(NSPredicate(
-            format: "identifier BEGINSWITH %@", "gallery-list-item-"
+            format: "identifier BEGINSWITH %@", AccessibilityIdentifiers.galleryListItemPrefix
         ))
         let visibleFrame = app.windows.firstMatch.frame
         let navigationBottom = app.requireLibraryNavigationTitle("Favorites").frame.maxY
@@ -96,7 +96,7 @@ final class GalleryLayoutUITests: XCTestCase {
         }
         search.tapWhenHittable("Favorites search")
         search.typeText("Library")
-        app.buttons["gallery-list-item-1001"].tapWhenHittable("Open a searched gallery")
+        app.buttons[AccessibilityIdentifiers.galleryListItem(id: "1001")].tapWhenHittable("Open a searched gallery")
         let detail = app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].firstMatch
         XCTAssertTrue(detail.waitForExistence(timeout: 10))
         app.returnFromGalleryDetail()
@@ -120,15 +120,15 @@ final class GalleryLayoutUITests: XCTestCase {
         let app = XCUIApplication()
         try launchFavorites(app)
         defer { app.terminate() }
-        app.buttons["gallery-layout-favorites"].tapWhenHittable("Favorites layout")
+        app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")].tapWhenHittable("Favorites layout")
         app.buttons[layout].tapWhenHittable(layout)
-        let content = app.descendants(matching: .any)["favorites-gallery-list"].firstMatch
-        let nextPage = app.buttons["gallery-list-item-1025"]
+        let content = app.descendants(matching: .any)[AccessibilityIdentifiers.favoritesGalleryList].firstMatch
+        let nextPage = app.buttons[AccessibilityIdentifiers.galleryListItem(id: "1025")]
         for _ in 0..<20 where !nextPage.isHittable {
             content.swipeUp(velocity: .fast)
         }
         XCTAssertTrue(nextPage.isHittable, "The \(layout) layout stopped at the page of galleries already listed.")
-        XCTAssertEqual(app.buttons.matching(identifier: "gallery-list-item-1025").count, 1)
+        XCTAssertEqual(app.buttons.matching(identifier: AccessibilityIdentifiers.galleryListItem(id: "1025")).count, 1)
     }
 
     private func launchFavorites(_ app: XCUIApplication) throws {
@@ -137,7 +137,9 @@ final class GalleryLayoutUITests: XCTestCase {
             "EHPANDA_AUTOMATION_IPB_MEMBER_ID": "fixture-member",
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
         ])
-        XCTAssertTrue(app.buttons["gallery-layout-favorites"].waitForExistence(timeout: 15))
+        XCTAssertTrue(
+            app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")].waitForExistence(timeout: 15)
+        )
         XCTAssertTrue(app.staticTexts["Library Study 01"].firstMatch.waitForExistence(timeout: 15))
     }
 }

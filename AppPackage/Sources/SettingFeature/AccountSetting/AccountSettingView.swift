@@ -1,6 +1,7 @@
 import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 import ComposableArchitecture
 import CookieClient
 import Resources
@@ -154,7 +155,7 @@ private struct BlockedUsersRow: View {
         .foregroundStyle(.primary)
         .accessibilityLabel(.RLocalizable.blockedUsers)
         .accessibilityValue(blockedUsers.count.formatted(.number))
-        .accessibilityIdentifier("setting_blocked_users")
+        .accessibilityIdentifier(AccessibilityIdentifiers.settingBlockedUsers)
         .withArrow()
     }
 }

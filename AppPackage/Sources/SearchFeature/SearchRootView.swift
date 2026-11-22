@@ -1,6 +1,7 @@
 import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 public import ComposableArchitecture
 import DetailFeature
 import FiltersFeature
@@ -267,7 +268,7 @@ private struct HistoryKeywordsSection: View {
         .sectionActions {
             RemoveSearchHistoryButton(
                 message: .removeSearchesConfirmation, isEmpty: keywords.isEmpty,
-                identifier: "search-remove-all-keywords", action: removeAllAction
+                identifier: AccessibilityIdentifiers.searchRemoveAllKeywords, action: removeAllAction
             )
         }
     }
@@ -342,7 +343,7 @@ private struct HistoryGalleriesSection: View {
         .sectionActions {
             RemoveSearchHistoryButton(
                 message: .removeSeenConfirmation, isEmpty: !hasHistory,
-                identifier: "search-remove-all-galleries", action: removeAllAction
+                identifier: AccessibilityIdentifiers.searchRemoveAllGalleries, action: removeAllAction
             )
         }
     }

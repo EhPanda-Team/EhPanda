@@ -87,7 +87,7 @@ final class ReaderSliderPreviewUITests: XCTestCase {
     }
 
     private func previewElement(in app: XCUIApplication) -> XCUIElement {
-        app.descendants(matching: .any).matching(identifier: "reading_slider_preview").firstMatch
+        app.descendants(matching: .any).matching(identifier: AccessibilityIdentifiers.readingSliderPreview).firstMatch
     }
 
     private struct Sighting {

@@ -44,10 +44,9 @@ final class CommentModerationUITests: XCTestCase {
     }
 
     private enum Identifier {
-        static let reportForm = "report_form"
-        static let blockedRow = "blocked_comment_" + UITestConstants.commentID
-        static let stripCard = "comment_card_" + Copy.stripCommentID
-        static let blockedCard = "blocked_comment_card_" + Copy.stripCommentID
+        static let blockedRow = AccessibilityIdentifiers.blockedComment(id: UITestConstants.commentID)
+        static let stripCard = AccessibilityIdentifiers.commentCard(id: Copy.stripCommentID)
+        static let blockedCard = AccessibilityIdentifiers.blockedCommentCard(id: Copy.stripCommentID)
     }
 
     /// This case's own request log: XCTest makes one instance of the class for each test method. A constant, so
@@ -82,13 +81,13 @@ final class CommentModerationUITests: XCTestCase {
 
         // Report opens the form directly (18.1 D-01): no confirmation comes first.
         report.tapWhenHittable("Report")
-        app.requireElement(Identifier.reportForm)
+        app.requireElement(AccessibilityIdentifiers.reportForm)
         XCTAssertTrue(app.navigationBars[Copy.reportOnSite].exists, "The form is not titled \(Copy.reportOnSite).")
         XCTAssertEqual(app.alerts.count, 0, "Report raised an alert before the form.")
         keepScreenshot("comments-report-form", app: app)
         app.navigationBars[Copy.reportOnSite].buttons[Copy.close].tapWhenHittable("Close the form")
         XCTAssertTrue(
-            app.descendants(matching: .any)[Identifier.reportForm].waitForNonExistence(timeout: 10),
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportForm].waitForNonExistence(timeout: 10),
             "The form did not close."
         )
         app.terminate()
@@ -225,9 +224,9 @@ final class CommentModerationUITests: XCTestCase {
 
         card.press(forDuration: 1.2)
         app.buttons[Copy.reportOnSite].firstMatch.tapWhenHittable("Report in the card's menu")
-        app.requireElement(Identifier.reportForm)
+        app.requireElement(AccessibilityIdentifiers.reportForm)
         XCTAssertEqual(app.alerts.count, 0, "Report raised an alert before the form.")
-        let details = app.textFields["report_details"].firstMatch
+        let details = app.textFields[AccessibilityIdentifiers.reportDetails].firstMatch
         XCTAssertTrue(details.waitForExistence(timeout: 10), "The form has no Details.")
         XCTAssertTrue(
             (details.value as? String)?.contains(Copy.stripAuthor) == true, "Details does not name the card's author."

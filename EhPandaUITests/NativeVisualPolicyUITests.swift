@@ -311,7 +311,7 @@ final class NativeVisualPolicyUITests: XCTestCase {
         )
         // Back on the Search root, the query is a recent search that Remove All can clear.
         app.buttons["BackButton"].firstMatch.tapWhenHittable("Back to Search")
-        let source = app.buttons["search-remove-all-keywords"].firstMatch
+        let source = app.buttons[AccessibilityIdentifiers.searchRemoveAllKeywords].firstMatch
         revealElement(source, in: app)
         let confirm = app.buttons.matching(
             // Not either section's own Remove All, which open the dialogs.
@@ -492,7 +492,8 @@ final class NativeVisualPolicyUITests: XCTestCase {
     func showReaderPanel(in app: XCUIApplication) {
         let indicator = app.staticTexts.matching(identifier: AccessibilityIdentifiers.readingPageIndicator).firstMatch
         guard !indicator.waitForExistence(timeout: 2) else { return }
-        app.requireElement("reading_pages").coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let pages = app.requireElement(AccessibilityIdentifiers.readingPages)
+        pages.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(indicator.waitForExistence(timeout: 5), "The reader did not show its panel.")
     }
 

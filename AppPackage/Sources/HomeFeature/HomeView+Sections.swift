@@ -1,6 +1,7 @@
 import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 import Kingfisher
 import Resources
 import SFSafeSymbols
@@ -162,7 +163,7 @@ struct CardSlideSection: View, Equatable {
         // `HomeSlideshowSizing.minimumNeighborExposure`). No card moves on screen, because the margin
         // above grows by the same amount, and the section still reports the available width.
         .padding(.horizontal, -viewportOverhang)
-        .accessibilityIdentifier("home_carousel")
+        .accessibilityIdentifier(AccessibilityIdentifiers.homeCarousel)
         .onChange(of: galleries.count) { _, newCount in
             guard newCount > 0 else { return }
             windowBase = 0

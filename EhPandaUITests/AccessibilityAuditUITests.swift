@@ -331,9 +331,10 @@ final class AccessibilityAuditUITests: XCTestCase {
         XCTAssertTrue(menu.waitForExistence(timeout: 10), "The comment has no … button.")
         menu.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         app.buttons["Report on E-Hentai"].firstMatch.tapWhenHittable("Report in the menu")
-        app.requireElement("report_form")
+        app.requireElement(AccessibilityIdentifiers.reportForm)
         XCTAssertTrue(
-            app.buttons["report_reason_child"].waitForExistence(timeout: 15), "The Report form shows no reasons."
+            app.buttons[AccessibilityIdentifiers.reportReason(type: "child")].waitForExistence(timeout: 15),
+            "The Report form shows no reasons."
         )
         try audit(app, surface: "Report form")
     }
@@ -627,7 +628,7 @@ private extension AccessibilityAuditUITests {
     }
 
     func requireCarouselPreservesSelectionAcrossRotation(in app: XCUIApplication) throws {
-        let query = app.scrollViews.matching(identifier: "home_carousel")
+        let query = app.scrollViews.matching(identifier: AccessibilityIdentifiers.homeCarousel)
         let carousel = query.element(boundBy: 0)
         XCTAssertTrue(carousel.waitForExistence(timeout: 15), "Home did not expose its carousel scroll view.")
         XCTAssertEqual(query.count, 1, "Home exposed an unexpected number of carousel scroll views.")
@@ -689,7 +690,9 @@ private extension AccessibilityAuditUITests {
             abs(left.frame.midX - viewport.midX) < abs(right.frame.midX - viewport.midX)
         }
         return nearest.map { card in
-            let title = descendants(of: card).first(where: { $0.identifier.hasPrefix("home_slideshow_title_") })
+            let title = descendants(of: card).first(where: {
+                $0.identifier.hasPrefix(AccessibilityIdentifiers.homeSlideshowTitlePrefix)
+            })
             return CarouselCard(gallery: title?.identifier, offset: card.frame.midX - viewport.midX)
         }
     }

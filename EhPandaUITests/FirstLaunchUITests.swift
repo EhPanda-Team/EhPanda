@@ -27,16 +27,6 @@ final class FirstLaunchUITests: XCTestCase {
             "Everything in Basic, plus your reading and download activity and your main settings."
     }
 
-    private enum Identifier {
-        static let ageWall = "first_launch_age_wall"
-        static let analyticsChoice = "first_launch_analytics_choice"
-        static let declaration = "first_launch_declaration"
-        static let continueButton = "first_launch_continue"
-        static let intro = "first_launch_analytics_intro"
-        static let privacyLink = "first_launch_privacy_link"
-        static func level(_ name: String) -> String { "first_launch_level_\(name)" }
-    }
-
     /// This case's own request log: XCTest makes one instance of the class for each test method. A constant, so
     /// that the set-up and tear-down overrides, which XCTest declares outside the main actor, never write main-actor
     /// state and may read it.
@@ -59,15 +49,15 @@ final class FirstLaunchUITests: XCTestCase {
         let app = XCUIApplication()
         try launch(app, firstLaunch: "show")
 
-        app.requireElement(Identifier.ageWall)
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAgeWall)
         XCTAssertTrue(app.staticTexts[Copy.ageWallTitle].exists, "The age wall title is missing.")
         XCTAssertTrue(app.staticTexts[Copy.ageWallBody].exists, "The age wall body is missing.")
         XCTAssertTrue(app.staticTexts[Copy.footnote].exists, "The footnote must always be visible.")
-        let declaration = app.switches[Identifier.declaration]
+        let declaration = app.switches[AccessibilityIdentifiers.firstLaunchDeclaration]
         XCTAssertTrue(declaration.exists, "The checkbox card is missing.")
         XCTAssertEqual(declaration.label, Copy.declaration)
 
-        let continueButton = app.buttons[Identifier.continueButton]
+        let continueButton = app.buttons[AccessibilityIdentifiers.firstLaunchContinue]
         XCTAssertTrue(continueButton.exists, "Continue is missing.")
         XCTAssertFalse(continueButton.isEnabled, "Continue must stay dimmed until the statement is ticked.")
         // At the default size the footnote sits in the bar, under Continue (UI-SPEC C-2 item 6).
@@ -83,9 +73,9 @@ final class FirstLaunchUITests: XCTestCase {
         let app = XCUIApplication()
         try launch(app, firstLaunch: "show")
 
-        app.requireElement(Identifier.ageWall)
-        let declaration = app.switches[Identifier.declaration]
-        let continueButton = app.buttons[Identifier.continueButton]
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAgeWall)
+        let declaration = app.switches[AccessibilityIdentifiers.firstLaunchDeclaration]
+        let continueButton = app.buttons[AccessibilityIdentifiers.firstLaunchContinue]
         XCTAssertFalse(declaration.isSelected)
 
         declaration.tapWhenHittable("Statement")
@@ -104,7 +94,7 @@ final class FirstLaunchUITests: XCTestCase {
 
         declaration.tapWhenHittable("Statement")
         continueButton.tapWhenHittable("Continue")
-        app.requireElement(Identifier.analyticsChoice)
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAnalyticsChoice)
         XCTAssertTrue(app.staticTexts[Copy.consentTitle].exists, "The analytics title is missing.")
         XCTAssertFalse(app.staticTexts[Copy.ageWallTitle].exists, "The age wall is still shown.")
     }
@@ -118,11 +108,11 @@ final class FirstLaunchUITests: XCTestCase {
         try ax5.launch(app, extraEnvironment: environment(firstLaunch: "show"))
         app.requireForeground()
 
-        app.requireElement(Identifier.ageWall)
-        let ageWall = app.scrollViews[Identifier.ageWall]
-        let continueButton = app.buttons[Identifier.continueButton]
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAgeWall)
+        let ageWall = app.scrollViews[AccessibilityIdentifiers.firstLaunchAgeWall]
+        let continueButton = app.buttons[AccessibilityIdentifiers.firstLaunchContinue]
         requirePinned(continueButton, in: app)
-        let declaration = app.switches[Identifier.declaration]
+        let declaration = app.switches[AccessibilityIdentifiers.firstLaunchDeclaration]
         let footnote = app.staticTexts[Copy.footnote]
         XCTAssertTrue(footnote.exists, "The footnote must always be rendered.")
         XCTAssertLessThan(declaration.frame.maxY, footnote.frame.minY, "The footnote must follow the checkbox card.")
@@ -136,11 +126,11 @@ final class FirstLaunchUITests: XCTestCase {
         keepScreenshot(named: "age-wall-en-AX5-bottom", of: app)
         continueButton.tap()
 
-        app.requireElement(Identifier.analyticsChoice)
-        let analyticsChoice = app.scrollViews[Identifier.analyticsChoice]
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAnalyticsChoice)
+        let analyticsChoice = app.scrollViews[AccessibilityIdentifiers.firstLaunchAnalyticsChoice]
         requirePinned(continueButton, in: app)
         XCTAssertFalse(continueButton.isEnabled, "Continue must stay dimmed until a level is picked.")
-        let basic = app.buttons[Identifier.level("basic")]
+        let basic = app.buttons[AccessibilityIdentifiers.firstLaunchLevel("basic")]
         tapAfterScrolling(basic, in: analyticsChoice, clearOf: continueButton, name: "Basic")
         XCTAssertTrue(basic.wait(for: \.isSelected, toEqual: true, timeout: 5), "Basic did not become selected.")
         requirePinned(continueButton, in: app)
@@ -156,14 +146,14 @@ final class FirstLaunchUITests: XCTestCase {
         try launch(app, firstLaunch: "show")
         confirmAge(app)
 
-        app.requireElement(Identifier.analyticsChoice)
-        let intro = app.staticTexts[Identifier.intro]
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAnalyticsChoice)
+        let intro = app.staticTexts[AccessibilityIdentifiers.firstLaunchAnalyticsIntro]
         XCTAssertTrue(intro.exists, "The analytics intro is missing.")
         XCTAssertEqual(intro.label, "\(Copy.consentBody) \(Copy.consentFooter)")
 
-        let minimal = app.buttons[Identifier.level("minimal")]
-        let basic = app.buttons[Identifier.level("basic")]
-        let full = app.buttons[Identifier.level("full")]
+        let minimal = app.buttons[AccessibilityIdentifiers.firstLaunchLevel("minimal")]
+        let basic = app.buttons[AccessibilityIdentifiers.firstLaunchLevel("basic")]
+        let full = app.buttons[AccessibilityIdentifiers.firstLaunchLevel("full")]
         for card in [minimal, basic, full] {
             XCTAssertTrue(card.exists, "\(card.identifier) is missing.")
             XCTAssertFalse(card.isSelected, "\(card.identifier) is selected before any tap.")
@@ -179,12 +169,12 @@ final class FirstLaunchUITests: XCTestCase {
         XCTAssertFalse(full.label.contains(Copy.recommended), full.label)
 
         // The Privacy Policy link sits under the intro, above the cards.
-        let privacyLink = app.descendants(matching: .any)[Identifier.privacyLink]
+        let privacyLink = app.descendants(matching: .any)[AccessibilityIdentifiers.firstLaunchPrivacyLink]
         XCTAssertTrue(privacyLink.exists, "The Privacy Policy link is missing.")
         XCTAssertLessThan(intro.frame.maxY, privacyLink.frame.minY)
         XCTAssertLessThan(privacyLink.frame.maxY, minimal.frame.minY)
 
-        let continueButton = app.buttons[Identifier.continueButton]
+        let continueButton = app.buttons[AccessibilityIdentifiers.firstLaunchContinue]
         XCTAssertFalse(continueButton.isEnabled, "Continue must stay dimmed until a level is picked.")
         requireNoAppContent(app)
 
@@ -201,19 +191,19 @@ final class FirstLaunchUITests: XCTestCase {
 
         continueButton.tapWhenHittable("Continue")
         requireAppContent(app)
-        XCTAssertFalse(app.descendants(matching: .any)[Identifier.analyticsChoice].exists)
+        XCTAssertFalse(app.descendants(matching: .any)[AccessibilityIdentifiers.firstLaunchAnalyticsChoice].exists)
     }
 
     func testAnUpgraderWithTheAgeAnsweredOpensOnTheAnalyticsChoice() throws {
         let app = XCUIApplication()
         try launch(app, firstLaunch: "analytics")
 
-        app.requireElement(Identifier.analyticsChoice)
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAnalyticsChoice)
         XCTAssertFalse(app.staticTexts[Copy.ageWallTitle].exists, "An answered age wall was shown again.")
         requireNoAppContent(app)
 
-        app.buttons[Identifier.level("minimal")].tapWhenHittable("Minimal")
-        app.buttons[Identifier.continueButton].tapWhenHittable("Continue")
+        app.buttons[AccessibilityIdentifiers.firstLaunchLevel("minimal")].tapWhenHittable("Minimal")
+        app.buttons[AccessibilityIdentifiers.firstLaunchContinue].tapWhenHittable("Continue")
         requireAppContent(app)
     }
 
@@ -225,7 +215,7 @@ final class FirstLaunchUITests: XCTestCase {
         try app.openCold(galleryURL, extraEnvironment: environment(firstLaunch: "show"))
 
         app.requireForeground()
-        app.requireElement(Identifier.ageWall)
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAgeWall)
         XCTAssertFalse(
             app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].exists,
             "The link opened behind the gate."
@@ -233,13 +223,13 @@ final class FirstLaunchUITests: XCTestCase {
         XCTAssertEqual(loggedRequests(), [], "The link made a request before the age wall was confirmed.")
 
         confirmAge(app)
-        app.requireElement(Identifier.analyticsChoice)
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAnalyticsChoice)
         XCTAssertFalse(
             app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].exists,
             "The link opened behind the choice."
         )
-        app.buttons[Identifier.level("basic")].tapWhenHittable("Basic")
-        app.buttons[Identifier.continueButton].tapWhenHittable("Continue")
+        app.buttons[AccessibilityIdentifiers.firstLaunchLevel("basic")].tapWhenHittable("Basic")
+        app.buttons[AccessibilityIdentifiers.firstLaunchContinue].tapWhenHittable("Continue")
 
         app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertTrue(
@@ -265,9 +255,9 @@ private extension FirstLaunchUITests {
     }
 
     func confirmAge(_ app: XCUIApplication) {
-        app.requireElement(Identifier.ageWall)
-        app.switches[Identifier.declaration].tapWhenHittable("Statement")
-        app.buttons[Identifier.continueButton].tapWhenHittable("Continue")
+        app.requireElement(AccessibilityIdentifiers.firstLaunchAgeWall)
+        app.switches[AccessibilityIdentifiers.firstLaunchDeclaration].tapWhenHittable("Statement")
+        app.buttons[AccessibilityIdentifiers.firstLaunchContinue].tapWhenHittable("Continue")
     }
 
     /// Requires `continueButton` in reach as the screen first appears or wherever it is scrolled to: on screen, in
@@ -326,7 +316,7 @@ private extension FirstLaunchUITests {
         XCTAssertFalse(app.tabBars.firstMatch.exists, "A tab bar is rendered behind the gate.", file: file, line: line)
         XCTAssertFalse(app.buttons["Library"].exists, "A tab is rendered behind the gate.", file: file, line: line)
         XCTAssertFalse(
-            app.descendants(matching: .any)["home_carousel"].exists,
+            app.descendants(matching: .any)[AccessibilityIdentifiers.homeCarousel].exists,
             "Home is rendered behind the gate.",
             file: file,
             line: line

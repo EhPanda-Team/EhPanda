@@ -1,5 +1,6 @@
 import AppComponents
 public import AppModels
+import AutomationIdentifiers
 import CasePathsCore
 import Resources
 public import SwiftUI
@@ -307,7 +308,7 @@ private struct DetailList: View {
                         Button(.RLocalizable.read) { readAction(gallery) }
                     }
                 }
-                .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
+                .accessibilityIdentifier(AccessibilityIdentifiers.galleryListItem(id: gallery.id))
                 .accessibilityFocused(galleryFocus, equals: gallery.id)
                 .galleryRowAnchor(gallery.id)
                 // Fetch-more fires when the trailing row actually becomes visible in the scroll
@@ -417,7 +418,7 @@ private struct GridList: View {
                     detailAction: { navigateAction?(gallery) },
                     readAction: readAction.map { action in { action(gallery) } }
                 ))
-                .accessibilityIdentifier("gallery-list-item-\(gallery.id)")
+                .accessibilityIdentifier(AccessibilityIdentifiers.galleryListItem(id: gallery.id))
                 .accessibilityFocused(galleryFocus, equals: gallery.id)
                 .onScrollVisibilityChange(threshold: 0.1) { isVisible in
                     guard isVisible, gallery == galleries.last else { return }

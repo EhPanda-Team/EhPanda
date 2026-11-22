@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
 import SwiftUI
@@ -39,7 +40,7 @@ struct BlockedCommentRow: View {
         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
         .padding()
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("blocked_comment_" + commentID)
+        .accessibilityIdentifier(AccessibilityIdentifiers.blockedComment(id: commentID))
     }
 
     @ViewBuilder private var buttons: some View {

@@ -14,8 +14,8 @@ final class DuoHomeUITests: XCTestCase {
     func testHomeKeepsPhysicalPaneOrderAndSixRankings() throws {
         let app = XCUIApplication()
         try app.launchStubbed()
-        let left = app.requireElement("home_left_pane", matching: .scrollView)
-        let right = app.requireElement("home_right_pane", matching: .scrollView)
+        let left = app.requireElement(AccessibilityIdentifiers.homeLeftPane, matching: .scrollView)
+        let right = app.requireElement(AccessibilityIdentifiers.homeRightPane, matching: .scrollView)
 
         XCTAssertEqual(left.frame.maxX, app.windows.firstMatch.frame.midX, accuracy: 1)
         XCTAssertEqual(right.frame.minX, app.windows.firstMatch.frame.midX, accuracy: 1)
@@ -46,7 +46,7 @@ final class DuoHomeUITests: XCTestCase {
     func testListsAndGalleriesPresentAcrossTheFold() throws {
         let app = XCUIApplication()
         try app.launchStubbed()
-        let left = app.requireElement("home_left_pane", matching: .scrollView)
+        let left = app.requireElement(AccessibilityIdentifiers.homeLeftPane, matching: .scrollView)
         left.buttons["Show All"].firstMatch.tapWhenHittable("Front Page Show All")
         let frontPage = app.navigationBars["Front Page"]
         XCTAssertTrue(frontPage.waitForExistence(timeout: 15))
@@ -60,7 +60,7 @@ final class DuoHomeUITests: XCTestCase {
         try closeSheet(in: app, onLeft: false)
         XCTAssertTrue(frontPage.waitForNonExistence(timeout: 5))
 
-        app.requireElement("home_right_pane", matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.homeRightPane, matching: .scrollView)
         app.navigationBars["Toplists"].buttons["Show All"].tapWhenHittable("Toplists Show All")
         let toplists = app.navigationBars.matching(NSPredicate(format: "identifier BEGINSWITH 'Toplists - '"))
             .firstMatch
@@ -85,8 +85,8 @@ final class DuoHomeUITests: XCTestCase {
             let app = XCUIApplication()
             app.launchArguments += ["-UIPreferredContentSizeCategoryName", category.rawValue]
             try app.launchStubbed()
-            let left = app.requireElement("home_left_pane", matching: .scrollView)
-            let right = app.requireElement("home_right_pane", matching: .scrollView)
+            let left = app.requireElement(AccessibilityIdentifiers.homeLeftPane, matching: .scrollView)
+            let right = app.requireElement(AccessibilityIdentifiers.homeRightPane, matching: .scrollView)
             let title = app.navigationBars["Home"].staticTexts["Home"]
             let frontPage = left.buttons["Front Page"]
             let ranking = right.buttons.matching(NSPredicate(
@@ -115,7 +115,7 @@ final class DuoHomeUITests: XCTestCase {
         let app = XCUIApplication()
         for title in ["Popular", "Watched", "History"] {
             try app.launchStubbed()
-            let left = app.requireElement("home_left_pane", matching: .scrollView)
+            let left = app.requireElement(AccessibilityIdentifiers.homeLeftPane, matching: .scrollView)
             left.swipeUp()
             let button = left.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", title)).firstMatch
             let other = left.scrollViews.containing(NSPredicate(format: "label BEGINSWITH 'Popular'")).firstMatch
@@ -136,7 +136,7 @@ final class DuoHomeUITests: XCTestCase {
     func testDirectGalleriesAndReaderReturnKeepTheirPhysicalSide() throws {
         let app = XCUIApplication()
         try app.launchStubbed()
-        let carousel = app.requireElement("home_carousel", matching: .scrollView)
+        let carousel = app.requireElement(AccessibilityIdentifiers.homeCarousel, matching: .scrollView)
         let card = try XCTUnwrap(carousel.buttons.allElementsBoundByIndex.first {
             carousel.frame.contains(CGPoint(x: $0.frame.midX, y: $0.frame.midY))
         })
@@ -152,7 +152,7 @@ final class DuoHomeUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(detail.frame.minX, app.windows.firstMatch.frame.midX)
         try closeSheet(in: app, onLeft: false)
 
-        let right = app.requireElement("home_right_pane", matching: .scrollView)
+        let right = app.requireElement(AccessibilityIdentifiers.homeRightPane, matching: .scrollView)
         let ranking = right.buttons.matching(NSPredicate(
             format: "label BEGINSWITH '1, ' AND NOT label CONTAINS '......'"
         )).firstMatch
@@ -170,8 +170,8 @@ final class DuoHomeUITests: XCTestCase {
             let app = XCUIApplication()
             app.launchArguments += ["-UIPreferredContentSizeCategoryName", category.rawValue]
             try app.launchStubbed()
-            let left = app.requireElement("home_left_pane", matching: .scrollView)
-            let right = app.requireElement("home_right_pane", matching: .scrollView)
+            let left = app.requireElement(AccessibilityIdentifiers.homeLeftPane, matching: .scrollView)
+            let right = app.requireElement(AccessibilityIdentifiers.homeRightPane, matching: .scrollView)
             let title = app.navigationBars["Home"].staticTexts["Home"]
             XCTAssertTrue(title.isHittable, "Home title is inaccessible at \(category.rawValue)")
             XCTAssertEqual(left.frame.maxX, app.windows.firstMatch.frame.midX, accuracy: 1)
@@ -183,7 +183,7 @@ final class DuoHomeUITests: XCTestCase {
     func testWarmLinkWhileHomeSheetIsOpen() throws {
         let app = XCUIApplication()
         try app.launchStubbed()
-        let left = app.requireElement("home_left_pane", matching: .scrollView)
+        let left = app.requireElement(AccessibilityIdentifiers.homeLeftPane, matching: .scrollView)
         left.buttons["Show All"].firstMatch.tapWhenHittable("Front Page")
         XCTAssertTrue(app.navigationBars["Front Page"].waitForExistence(timeout: 10))
         let url = try XCTUnwrap(UITestConstants.galleryURL(
@@ -201,8 +201,8 @@ final class DuoHomeUITests: XCTestCase {
         let app = XCUIApplication()
         try app.launchStubbed()
         XCTAssertLessThan(app.windows.firstMatch.frame.width, app.windows.firstMatch.frame.height)
-        XCTAssertFalse(app.scrollViews["home_left_pane"].exists)
-        XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
+        XCTAssertFalse(app.scrollViews[AccessibilityIdentifiers.homeLeftPane].exists)
+        XCTAssertFalse(app.scrollViews[AccessibilityIdentifiers.homeRightPane].exists)
         app.buttons["Show All"].firstMatch.tapWhenHittable("Portrait Front Page Show All")
         let frontPage = app.navigationBars["Front Page"]
         XCTAssertTrue(frontPage.waitForExistence(timeout: 10))
@@ -212,15 +212,15 @@ final class DuoHomeUITests: XCTestCase {
         let back = app.buttons["BackButton"]
         XCTAssertTrue(back.waitForExistence(timeout: 5))
         XCTAssertTrue(back.isHittable)
-        XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
+        XCTAssertFalse(app.scrollViews[AccessibilityIdentifiers.homeRightPane].exists)
         XCTAssertTrue(app.buttons["Seek to Date"].isHittable)
         XCTAssertTrue(app.buttons["Filters"].isHittable)
         assertVerticalTabs(in: app)
         back.tapWhenHittable("Return to split Home")
-        XCTAssertTrue(app.scrollViews["home_right_pane"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.scrollViews[AccessibilityIdentifiers.homeRightPane].waitForExistence(timeout: 5))
         assertVerticalTabs(in: app)
         try DuoPose.set(.landscape)
-        XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
+        XCTAssertFalse(app.scrollViews[AccessibilityIdentifiers.homeRightPane].exists)
         app.buttons["Show All"].firstMatch.tapWhenHittable("Portrait Front Page Show All")
         XCTAssertTrue(frontPage.buttons["Home"].waitForExistence(timeout: 5))
         frontPage.buttons["Home"].tapWhenHittable("Return to Home")

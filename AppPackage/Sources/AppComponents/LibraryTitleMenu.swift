@@ -1,4 +1,5 @@
 public import AppModels
+import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
@@ -48,6 +49,6 @@ public struct LibraryTitleMenu: View {
         .buttonStyle(.plain)
         .menuIndicator(.hidden)
         .accessibilityValue(sourceTitle)
-        .accessibilityIdentifier("library-title-menu")
+        .accessibilityIdentifier(AccessibilityIdentifiers.libraryTitleMenu)
     }
 }

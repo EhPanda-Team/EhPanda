@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 public import Foundation
 public import SwiftUI
 public import UIKit
@@ -65,7 +66,7 @@ public final class SessionWebViewController: UIViewController {
         webView = WKWebView(frame: .zero, configuration: configuration)
         super.init(nibName: nil, bundle: nil)
         webView.scrollView.topEdgeEffect.style = .soft
-        webView.accessibilityIdentifier = "session_web_view"
+        webView.accessibilityIdentifier = AccessibilityIdentifiers.sessionWebView
         // The page's address, so a test can tell which page the sheet holds; never a cookie value.
         webView.accessibilityValue = url.absoluteString
     }

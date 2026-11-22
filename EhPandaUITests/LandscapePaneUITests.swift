@@ -28,8 +28,8 @@ final class LandscapePaneUITests: XCTestCase {
         let app = XCUIApplication()
         try app.launchStubbed()
         let window = app.windows.firstMatch
-        let left = app.requireElement("home_left_pane", matching: .scrollView)
-        let right = app.requireElement("home_right_pane", matching: .scrollView)
+        let left = app.requireElement(AccessibilityIdentifiers.homeLeftPane, matching: .scrollView)
+        let right = app.requireElement(AccessibilityIdentifiers.homeRightPane, matching: .scrollView)
         XCTAssertGreaterThan(window.frame.width, window.frame.height)
         XCTAssertEqual(left.frame.maxX, window.frame.midX, accuracy: 1)
         XCTAssertEqual(right.frame.minX, window.frame.midX, accuracy: 1)
@@ -68,7 +68,7 @@ final class LandscapePaneUITests: XCTestCase {
             defer { app.terminate() }
             assertSingleHomePane(in: app)
             if size == .large {
-                let sections = app.scrollViews["home_sections"]
+                let sections = app.scrollViews[AccessibilityIdentifiers.homeSections]
                 let showAll = sections.buttons["Show All"].firstMatch
                 for _ in 0..<6 where !showAll.isHittable { sections.swipeUp() }
                 showAll.tapWhenHittable("Front Page from single-pane Home")
@@ -102,7 +102,7 @@ final class LandscapePaneUITests: XCTestCase {
         let app = XCUIApplication()
         addTeardownBlock { app.terminate() }
         try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": "home"])
-        let carousel = app.requireElement("home_carousel", matching: .scrollView)
+        let carousel = app.requireElement(AccessibilityIdentifiers.homeCarousel, matching: .scrollView)
         let landscapeCard = try centeredSlideshowCard(in: carousel, width: landscapeCardWidth)
         let initialLabel = landscapeCard.label
         let initialHeight = landscapeCard.frame.height
@@ -171,8 +171,14 @@ final class LandscapePaneUITests: XCTestCase {
             "EHPANDA_AUTOMATION_TAB": "home", UITestConstants.fixtureDirectoryEnvironmentKey: fixtures.root.path()
         ])
         assertSingleHomePane(in: app)
-        for prefix in ["home_slideshow_title_", "home_front_page_title_", "home_ranking_title_"] {
-            let type: XCUIElement.ElementType = prefix == "home_front_page_title_" ? .button : .staticText
+        let prefixes = [
+            AccessibilityIdentifiers.homeSlideshowTitlePrefix,
+            AccessibilityIdentifiers.homeFrontPageTitlePrefix,
+            AccessibilityIdentifiers.homeRankingTitlePrefix
+        ]
+        for prefix in prefixes {
+            let isFrontPage = prefix == AccessibilityIdentifiers.homeFrontPageTitlePrefix
+            let type: XCUIElement.ElementType = isFrontPage ? .button : .staticText
             let title = app.descendants(matching: type)
                 .matching(NSPredicate(format: "identifier BEGINSWITH %@", prefix)).firstMatch
             XCTAssertTrue(title.waitForExistence(timeout: 10), prefix)
@@ -185,13 +191,15 @@ final class LandscapePaneUITests: XCTestCase {
         screenshot.name = "Home sections preserve original titles"
         screenshot.lifetime = .keepAlways
         add(screenshot)
-        let covers = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home_front_page_title_"))
+        let covers = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", AccessibilityIdentifiers.homeFrontPageTitlePrefix)
+        )
         let firstRow = covers.allElementsBoundByIndex.prefix(4).map(\.frame)
         XCTAssertEqual(firstRow.count, 4)
         let firstTop = try XCTUnwrap(firstRow.first).minY
         for frame in firstRow { XCTAssertEqual(frame.minY, firstTop, accuracy: 1) }
         let history = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "History")).firstMatch
-        let sections = app.scrollViews["home_sections"]
+        let sections = app.scrollViews[AccessibilityIdentifiers.homeSections]
         for _ in 0..<12 where !history.isHittable { sections.swipeUp() }
         XCTAssertTrue(history.isHittable)
         let window = app.windows.firstMatch.frame
@@ -216,10 +224,10 @@ final class LandscapePaneUITests: XCTestCase {
             return landscape ? frame.width > frame.height : frame.height > frame.width
         }, object: nil)
         XCTAssertEqual(XCTWaiter.wait(for: [orientation], timeout: 5), .completed)
-        let sections = app.scrollViews["home_sections"]
+        let sections = app.scrollViews[AccessibilityIdentifiers.homeSections]
         XCTAssertTrue(sections.waitForExistence(timeout: 15))
-        XCTAssertFalse(app.scrollViews["home_left_pane"].exists)
-        XCTAssertFalse(app.scrollViews["home_right_pane"].exists)
+        XCTAssertFalse(app.scrollViews[AccessibilityIdentifiers.homeLeftPane].exists)
+        XCTAssertFalse(app.scrollViews[AccessibilityIdentifiers.homeRightPane].exists)
         let window = app.windows.firstMatch.frame
         XCTAssertLessThan(sections.frame.minX, window.midX)
         XCTAssertGreaterThan(sections.frame.maxX, window.midX)
@@ -239,21 +247,21 @@ final class LandscapePaneUITests: XCTestCase {
         ReaderPageProbe(app: app).showPanel()
         assertControls(in: app, onLeft: false)
         print("CAPTURE_READER_RIGHT")
-        app.buttons["reading_move_controls"].tapWhenHittable("Move controls left")
+        app.buttons[AccessibilityIdentifiers.readingMoveControls].tapWhenHittable("Move controls left")
         assertControls(in: app, onLeft: true)
         print("CAPTURE_READER_LEFT")
         if isDuo { try DuoPose.set(.landscape) } else { XCUIDevice.shared.orientation = .portrait }
-        XCTAssertTrue(app.buttons["reading_move_controls"].waitForNonExistence(timeout: 5))
+        XCTAssertTrue(app.buttons[AccessibilityIdentifiers.readingMoveControls].waitForNonExistence(timeout: 5))
         if isDuo { try DuoPose.set(.portrait) } else { XCUIDevice.shared.orientation = .landscapeLeft }
         assertControls(in: app, onLeft: true)
-        app.buttons["reading_move_controls"].tapWhenHittable("Move controls right")
+        app.buttons[AccessibilityIdentifiers.readingMoveControls].tapWhenHittable("Move controls right")
         assertControls(in: app, onLeft: false)
     }
 
     private func assertControls(in app: XCUIApplication, onLeft: Bool) {
         ReaderPageProbe(app: app).showPanel()
-        let panel = app.requireElement("reading_lower_panel")
-        let move = app.buttons["reading_move_controls"]
+        let panel = app.requireElement(AccessibilityIdentifiers.readingLowerPanel)
+        let move = app.buttons[AccessibilityIdentifiers.readingMoveControls]
         XCTAssertTrue(move.waitForExistence(timeout: 5))
         let settled = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
             let middle = app.windows.firstMatch.frame.midX
@@ -268,15 +276,19 @@ final class LandscapePaneUITests: XCTestCase {
         }
         XCTAssertTrue(move.isHittable)
         XCTAssertEqual(move.label, onLeft ? "Move controls right" : "Move controls left")
-        XCTAssertEqual(move.frame.height, app.otherElements["reading_slider_row"].frame.height, accuracy: 1)
+        XCTAssertEqual(
+            move.frame.height, app.otherElements[AccessibilityIdentifiers.readingSliderRow].frame.height, accuracy: 1
+        )
         XCTAssertGreaterThanOrEqual(move.frame.height, 44)
         XCTAssertTrue(panel.sliders.firstMatch.isHittable)
         let close = panel.buttons["Close"]
         XCTAssertEqual(close.exists, !isDuo)
         if !isDuo {
             XCTAssertTrue(close.isHittable)
-            XCTAssertEqual(close.frame.midX, app.otherElements["reading_slider_row"].frame.midX, accuracy: 1)
-            XCTAssertLessThan(close.frame.maxY, app.otherElements["reading_slider_row"].frame.minY)
+            XCTAssertEqual(
+                close.frame.midX, app.otherElements[AccessibilityIdentifiers.readingSliderRow].frame.midX, accuracy: 1
+            )
+            XCTAssertLessThan(close.frame.maxY, app.otherElements[AccessibilityIdentifiers.readingSliderRow].frame.minY)
         }
         XCTAssertEqual(
             app.otherElements[AccessibilityIdentifiers.readingView].buttons.matching(identifier: "Close").count,

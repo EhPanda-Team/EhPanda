@@ -125,7 +125,7 @@ final class ReadingOrientationUITests: XCTestCase {
     }
 
     private func requirePages(in app: XCUIApplication, dual: Bool, containing page: Int? = nil) throws {
-        let element = app.requireElement("reading_pages")
+        let element = app.requireElement(AccessibilityIdentifiers.readingPages)
         let predicate = NSPredicate { _, _ in
             let value = element.value as? String ?? ""
             let position = value.components(separatedBy: " of ").first ?? ""

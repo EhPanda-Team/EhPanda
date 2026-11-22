@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
 import SwiftUI
@@ -39,7 +40,7 @@ struct BlockedCommentCard: View {
         .background(backgroundColor)
         .clipShape(.rect(cornerRadius: CommentCardMetrics.cornerRadius))
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("blocked_comment_card_" + commentID)
+        .accessibilityIdentifier(AccessibilityIdentifiers.blockedCommentCard(id: commentID))
     }
 
     @ViewBuilder private var pills: some View {

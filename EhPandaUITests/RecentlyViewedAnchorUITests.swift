@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -38,7 +39,9 @@ final class RecentlyViewedAnchorUITests: XCTestCase {
         app.requireForeground()
         defer { app.terminate() }
 
-        let covers = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "home_front_page_title_"))
+        let covers = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", AccessibilityIdentifiers.homeFrontPageTitlePrefix)
+        )
         XCTAssertTrue(covers.firstMatch.waitForExistence(timeout: 20), "Front Page has no cover.")
         clearHistory(app)
         app.tabBars.buttons["Home"].tap()
@@ -148,7 +151,7 @@ final class RecentlyViewedAnchorUITests: XCTestCase {
     /// Empties Search's Recently Viewed, which a simulator keeps from one launch to the next.
     private func clearHistory(_ app: XCUIApplication) {
         app.tabBars.buttons["Search"].tap()
-        let remove = app.buttons["search-remove-all-galleries"]
+        let remove = app.buttons[AccessibilityIdentifiers.searchRemoveAllGalleries]
         guard remove.waitForExistence(timeout: 10) else { return XCTFail("Search has no Recently Viewed.") }
         guard remove.isEnabled else { return }
         remove.tap()

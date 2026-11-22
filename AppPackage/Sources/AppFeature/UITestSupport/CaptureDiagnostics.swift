@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import SearchFeature
 import SettingFeature
 #if DEBUG
@@ -48,7 +49,7 @@ struct CaptureRendering: Equatable, Encodable {
 ///
 /// UI tests run outside the app, so the diagnostics travel through the channel they already read:
 /// the accessibility tree. ``CaptureDiagnosticsAnchor`` adds one invisible element, identified
-/// ``accessibilityIdentifier``, whose value is this record as JSON. It exists only in capture
+/// `AccessibilityIdentifiers.captureDiagnostics`, whose value is this record as JSON. It exists only in capture
 /// launches and renders nothing, so no capture shows a label of its own.
 struct CaptureDiagnostics: Equatable, Encodable {
     enum Readiness: String, Encodable {
@@ -60,8 +61,6 @@ struct CaptureDiagnostics: Equatable, Encodable {
         /// shows something other than its configured state.
         case failed
     }
-
-    static let accessibilityIdentifier = "capture_diagnostics"
 
     /// The screen a person sees, or `nil` when it is no capture screen.
     let screenID: CaptureScreen?
@@ -678,7 +677,7 @@ final class CaptureDiagnosticsElement: UIView {
         super.init(frame: .zero)
         isAccessibilityElement = true
         isUserInteractionEnabled = false
-        accessibilityIdentifier = CaptureDiagnostics.accessibilityIdentifier
+        accessibilityIdentifier = AccessibilityIdentifiers.captureDiagnostics
     }
 
     #if canImport(Appshot) && canImport(AppshotProtocol)

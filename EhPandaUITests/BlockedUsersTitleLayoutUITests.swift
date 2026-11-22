@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 /// Keeps a screenshot of the Blocked Users empty state in each of the six app languages, at the default text size and
@@ -10,10 +11,6 @@ import XCTest
 /// case past its time allowance.
 @MainActor
 final class BlockedUsersTitleLayoutUITests: XCTestCase {
-    private enum Identifier {
-        static let blockedUsersRow = "setting_blocked_users"
-    }
-
     override func setUpWithError() throws {
         continueAfterFailure = false
     }
@@ -66,7 +63,7 @@ private extension BlockedUsersTitleLayoutUITests {
             XCTAssertTrue(root.waitForExistence(timeout: 15), "The Settings root is missing.")
             root.buttons.firstMatch.tapWhenHittable("The Account row")
 
-            let row = app.buttons[Identifier.blockedUsersRow]
+            let row = app.buttons[AccessibilityIdentifiers.settingBlockedUsers]
             XCTAssertTrue(row.waitForExistence(timeout: 15), "Account has no Blocked Users row.")
             var swipes = 0
             while !row.isHittable, swipes < Self.maximumSwipes {

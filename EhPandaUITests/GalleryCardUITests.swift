@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -21,10 +22,10 @@ final class GalleryCardUITests: XCTestCase {
             addTeardownBlock { app.terminate() }
             app.launchArguments = ["-UIPreferredContentSizeCategoryName", size.rawValue]
             try launch(app, fixtures: fixtures)
-            app.buttons["gallery-layout-favorites"].tapWhenHittable("Layout")
+            app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")].tapWhenHittable("Layout")
             app.buttons["Grid"].tapWhenHittable("Grid")
-            let first = app.buttons["gallery-list-item-1001"]
-            let second = app.buttons["gallery-list-item-1002"]
+            let first = app.buttons[AccessibilityIdentifiers.galleryListItem(id: "1001")]
+            let second = app.buttons[AccessibilityIdentifiers.galleryListItem(id: "1002")]
             XCTAssertTrue(first.waitForExistence(timeout: 10))
             let window = app.windows.firstMatch.frame
             let hasRoomForSecondColumn = first.frame.maxX + first.frame.width <= window.maxX
@@ -39,8 +40,9 @@ final class GalleryCardUITests: XCTestCase {
                 XCTAssertGreaterThan(first.frame.width, window.width / 2)
             }
             XCTAssertTrue(app.staticTexts[shortTitle].firstMatch.exists)
-            XCTAssertFalse(app.descendants(matching: .any)["gallery-grid-rating-1001"].firstMatch.exists)
-            let title = app.staticTexts["gallery-grid-title-1001"].firstMatch
+            let rating = app.descendants(matching: .any)[AccessibilityIdentifiers.galleryGridRating(id: "1001")]
+            XCTAssertFalse(rating.firstMatch.exists)
+            let title = app.staticTexts[AccessibilityIdentifiers.galleryGridTitle(id: "1001")].firstMatch
             XCTAssertEqual(title.frame.minX, first.frame.minX, accuracy: 1)
             XCTAssertLessThanOrEqual(title.frame.maxX, first.frame.maxX)
             if size == .large {
@@ -64,10 +66,10 @@ final class GalleryCardUITests: XCTestCase {
         addTeardownBlock { app.terminate() }
         try app.launchStubbed(extraEnvironment: ["EHPANDA_AUTOMATION_TAB": "home"])
         app.buttons["Show All"].firstMatch.tapWhenHittable("Front Page")
-        app.buttons["gallery-layout-frontpage"].tapWhenHittable("Front Page layout")
+        app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "frontpage")].tapWhenHittable("Front Page layout")
         app.buttons["Grid"].tapWhenHittable("Front Page Grid")
         let ratings = app.descendants(matching: .any).matching(NSPredicate(
-            format: "identifier BEGINSWITH %@", "gallery-grid-rating-"
+            format: "identifier BEGINSWITH %@", AccessibilityIdentifiers.galleryGridRatingPrefix
         ))
         XCTAssertTrue(ratings.firstMatch.waitForExistence(timeout: 10))
         let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
@@ -82,7 +84,7 @@ final class GalleryCardUITests: XCTestCase {
         addTeardownBlock { app.terminate() }
         try launch(app, fixtures: fixtures)
         for layout in ["List", "Grid"] {
-            app.buttons["gallery-layout-favorites"].tapWhenHittable("Layout")
+            app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")].tapWhenHittable("Layout")
             app.buttons[layout].tapWhenHittable(layout)
             for title in [shortTitle, longTitle] {
                 XCTAssertTrue(app.staticTexts[title].firstMatch.waitForExistence(timeout: 10))
@@ -109,7 +111,9 @@ final class GalleryCardUITests: XCTestCase {
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session",
             UITestConstants.fixtureDirectoryEnvironmentKey: fixtures.path()
         ])
-        XCTAssertTrue(app.buttons["gallery-layout-favorites"].waitForExistence(timeout: 15))
+        XCTAssertTrue(
+            app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")].waitForExistence(timeout: 15)
+        )
     }
 
     private func makeFixtures() throws -> URL {

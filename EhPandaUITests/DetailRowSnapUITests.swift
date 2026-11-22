@@ -27,7 +27,7 @@ final class DetailRowSnapUITests: XCTestCase {
         func isItem(_ element: any XCUIElementSnapshot) -> Bool {
             switch self {
             case .previews: element.elementType == .button && element.label.hasPrefix("Page ")
-            case .comments: element.identifier.hasPrefix("comment_card_")
+            case .comments: element.identifier.hasPrefix(AccessibilityIdentifiers.commentCardPrefix)
             }
         }
     }
