@@ -80,7 +80,7 @@ extension ScenarioCatalog {
             "settings-pages-laboratory": .init(
                 make: { Page.settings([.laboratory(.init())]) }, interact: Page.waitForGlassShadow
             ),
-            "settings-pages-about": .init(make: { Page.settings([.about(.init())]) }),
+            "settings-pages-about": .init(make: { Page.settings([.about(Page.aboutState)]) }),
             "settings-pages-site-settings": .init(make: { Page.siteSettings(.loaded) }),
             "settings-pages-site-settings-confirmation": .init(
                 make: { Page.siteSettings(.deleteConfirmation) },
@@ -145,6 +145,20 @@ enum SettingsScenarios {
         .testing(
             memberID: Defaults.Cookie.mystery, passHash: Defaults.Cookie.mystery, igneous: Defaults.Cookie.mystery
         )
+    }
+
+    /// About with its five featured code contributors already loaded, so its picture is the list and not the
+    /// spinner a fetch still in flight draws. The stack only fetches when an action says so, and none does here.
+    static var aboutState: AboutFeature.State {
+        var state = AboutFeature.State()
+        state.codeContributors = ["aalberrty", "xioxin", "Jimmy-Prime", "vvbbnn00", "remlostime"]
+            .enumerated()
+            .compactMap({ offset, login in
+                URL(string: "https://github.com/\(login)").map({ url in
+                    GitHubContributor(id: offset + 1, login: login, htmlURL: url, accountType: "User")
+                })
+            })
+        return state
     }
 
     /// Account, loaded as the Settings stack loads it when the row is tapped; signed in or out follows the

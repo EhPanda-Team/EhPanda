@@ -77,18 +77,3 @@ public struct SendReportRequest: Request {
         }
     }
 }
-
-private extension Request {
-    /// Accepts a 2xx HTTP response only: a missing page is `.notFound`, anything else `.networkingFailed`.
-    func requireSuccessStatus(_ response: URLResponse) throws(AppError) {
-        guard let httpResponse = response as? HTTPURLResponse else { throw .networkingFailed }
-        switch httpResponse.statusCode {
-        case 200..<300:
-            return
-        case 404:
-            throw .notFound
-        default:
-            throw .networkingFailed
-        }
-    }
-}

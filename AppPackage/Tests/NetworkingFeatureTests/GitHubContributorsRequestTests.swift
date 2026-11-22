@@ -68,4 +68,46 @@ struct GitHubContributorsRequestTests {
         )
         #expect(contributors.map(\.isBot) == [false, true])
     }
+
+    /// GitHub's rate limit answers 403 with a JSON object: it must read as a refused request, once, and not as a
+    /// page that failed to parse.
+    @Test
+    func rateLimitAnswerMapsToNetworkingFailed() async throws {
+        let url = try #require(URL(string: Self.contributorsURLString))
+        let rateLimit = Data(#"{"message":"API rate limit exceeded"}"#.utf8)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 403, data: rateLimit)]])
+        )
+        defer {
+            session.invalidateAndCancel()
+            handle.tearDown()
+        }
+
+        let result = await capture { () async throws(AppError) -> [GitHubContributor] in
+            try await GitHubContributorsRequest(urlSession: session).response()
+        }
+
+        #expect(result == .failure(.networkingFailed))
+        #expect(handle.attempts(for: url) == 1)
+    }
+
+    /// A 200 answer that is not a JSON array is a parse failure.
+    @Test
+    func nonArrayBodyMapsToParseFailed() async throws {
+        let url = try #require(URL(string: Self.contributorsURLString))
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data(#"{"contributors":[]}"#.utf8))]])
+        )
+        defer {
+            session.invalidateAndCancel()
+            handle.tearDown()
+        }
+
+        let result = await capture { () async throws(AppError) -> [GitHubContributor] in
+            try await GitHubContributorsRequest(urlSession: session).response()
+        }
+
+        #expect(result == .failure(.parseFailed))
+        #expect(handle.attempts(for: url) == 1)
+    }
 }

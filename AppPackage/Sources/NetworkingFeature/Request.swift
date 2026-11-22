@@ -95,6 +95,19 @@ extension Request {
         return request
     }
 
+    /// Accepts a 2xx HTTP response only: a missing page is `.notFound`, anything else `.networkingFailed`.
+    func requireSuccessStatus(_ response: URLResponse) throws(AppError) {
+        guard let httpResponse = response as? HTTPURLResponse else { throw .networkingFailed }
+        switch httpResponse.statusCode {
+        case 200..<300:
+            return
+        case 404:
+            throw .notFound
+        default:
+            throw .networkingFailed
+        }
+    }
+
     public func htmlDocument(data: Data) throws -> any HTMLDocument {
         do {
             return try Kanna.HTML(html: data, encoding: .utf8)
@@ -420,6 +433,9 @@ public struct TagTranslatorRequest: Request {
 }
 
 /// The repository's contributors as GitHub lists them, unfiltered; the About page applies its own exclusions.
+///
+/// GitHub's unauthenticated rate limit answers 403 with a JSON object, which without the status check would
+/// read as a parse failure.
 public struct GitHubContributorsRequest: Request {
     public init(urlSession: URLSession = .shared) {
         self.urlSession = urlSession
@@ -431,7 +447,8 @@ public struct GitHubContributorsRequest: Request {
             url: URLUtil.githubContributors(repoName: Defaults.App.repoName),
             allowsCellular: true
         )
-        let (data, _) = try await fetch(request, in: urlSession)
+        let (data, response) = try await fetch(request, in: urlSession)
+        try requireSuccessStatus(response)
         do {
             return try JSONDecoder().decode([GitHubContributor].self, from: data)
         } catch {

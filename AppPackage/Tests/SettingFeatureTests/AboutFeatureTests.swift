@@ -98,4 +98,63 @@ struct AboutFeatureTests {
         }
         #expect(store.state.codeContributors?.count == 5)
     }
+
+    @MainActor
+    @Test
+    func failedFetchLeavesNothingLoadedAndKeepsTheError() async {
+        let store = TestStore(initialState: AboutFeature.State(), reducer: AboutFeature.init) {
+            $0.codeContributorsClient.fetch = { () async throws(AppError) -> [GitHubContributor] in
+                throw .networkingFailed
+            }
+        }
+
+        await store.send(.fetchCodeContributors) {
+            $0.codeContributorsLoadingState = .loading
+        }
+        await store.receive(\.fetchCodeContributorsDone) {
+            $0.codeContributorsLoadingState = .failed(.networkingFailed)
+        }
+        #expect(store.state.codeContributors == nil)
+    }
+
+    // Retry is the same action the presentation sends: from a failure it loads again.
+    @MainActor
+    @Test
+    func retryAfterFailureLoadsTheFeaturedContributors() async throws {
+        let all = try contributorsFixture()
+        var state = AboutFeature.State()
+        state.codeContributorsLoadingState = .failed(.networkingFailed)
+        let store = TestStore(initialState: state, reducer: AboutFeature.init) {
+            $0.codeContributorsClient.fetch = { all }
+        }
+
+        await store.send(.fetchCodeContributors) {
+            $0.codeContributorsLoadingState = .loading
+        }
+        await store.receive(\.fetchCodeContributorsDone) {
+            $0.codeContributors = AboutFeature.featuredCodeContributors(from: all)
+            $0.codeContributorsLoadingState = .idle
+        }
+    }
+
+    // The default `unimplemented` client reports an issue if the guard lets a second fetch run.
+    @MainActor
+    @Test
+    func fetchWhileLoadingChangesNothing() async {
+        var state = AboutFeature.State()
+        state.codeContributorsLoadingState = .loading
+        let store = TestStore(initialState: state, reducer: AboutFeature.init)
+
+        await store.send(.fetchCodeContributors)
+    }
+
+    @MainActor
+    @Test
+    func fetchAfterSuccessChangesNothing() async throws {
+        var state = AboutFeature.State()
+        state.codeContributors = [try contributor("alice")]
+        let store = TestStore(initialState: state, reducer: AboutFeature.init)
+
+        await store.send(.fetchCodeContributors)
+    }
 }
