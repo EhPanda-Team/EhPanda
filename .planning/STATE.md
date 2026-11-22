@@ -5,10 +5,10 @@ current_phase: 20
 current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks"
 status: executing
 stopped_at: Completed 20-14-PLAN.md (Release isolation scan, both flavors 0 findings; phase gate green)
-last_updated: "2026-11-22T19:00:00.000Z"
+last_updated: "2026-11-22T19:09:44.621Z"
 last_activity: 2026-11-23
-last_activity_desc: "Quick task 261123-3tn completed: About drops the AltStore source; Code Contributors load live from GitHub (top 5 all time, bots, maintainers and translators excluded); Translation Contributors stay fixed (owner decision 2026-11-23)"
-state_head: 21a3cfadbd78818e58088e5e89649353627ceaa1
+last_activity_desc: "Completed quick task 261123-3wz: Introduce Sentry crash reporting with privacy-preserving settings"
+state_head: 46e929504959f154ca82f531e05a117d302ebc54
 progress:
   total_phases: 21
   completed_phases: 19
@@ -1177,7 +1177,7 @@ See: .planning/PROJECT.md (updated 2026-11-05)
 Phase: 20 — 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks
 Plan: Not started (no plans yet)
 Status: Ready to discuss and plan; Phase 19 complete with deferred items
-Last activity: 2026-11-23 — Completed quick task 261123-3tn: About view drops AltStore source; Code Contributors load live from GitHub
+Last activity: 2026-11-23 - Completed quick task 261123-3wz: Introduce Sentry crash reporting with privacy-preserving settings
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
 validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); Phase 18.1 closed
@@ -2249,6 +2249,7 @@ None yet.
 | 261123-c7r | A tap on a gallery's cover reads, on every gallery list and grid (D146, owner decision 2026-11-23); a tap elsewhere still opens Detail; one shared `GalleryReadingFeature` replaces Favorites' private reader launch | 2026-11-23 | 1bdf89bef | [261123-c7r-cover-tap-reads-on-every-gallery-list-and-grid](./quick/261123-c7r-cover-tap-reads-on-every-gallery-list-and-grid/) |
 | 261123-1ep | Save Search on the Search and Detail search results pages: an overflow-menu action after Quick Search opens a New Saved Search sheet prefilled with the keyword, with no name; disabled when the keyword is empty, already saved or at the limit; owner decisions D-01 to D-07. The UI check found the editor clipping its search terms, fixed with a native multi-line text field | 2026-11-23 | 84882b1e1 | [261123-1ep-save-the-current-search-keyword-as-a-sav](./quick/261123-1ep-save-the-current-search-keyword-as-a-sav/SUMMARY.md) |
 | 261123-3tn | Refactor About view: remove AltStore source; Code Contributors load live from GitHub (top 5 all time, bots/maintainers/translators excluded); Translation Contributors stay fixed (owner decision) | 2026-11-23 | 21a3cfadb | [261123-3tn-refactor-about-view-remove-altstore-sour](./quick/261123-3tn-refactor-about-view-remove-altstore-sour/) |
+| 261123-3wz | Introduce Sentry crash reporting with privacy-preserving settings | 2026-11-23 | 46e929504 | [261123-3wz-introduce-sentry-crash-reporting-with-pr](./quick/261123-3wz-introduce-sentry-crash-reporting-with-pr/) |
 
 ### Roadmap Evolution
 
