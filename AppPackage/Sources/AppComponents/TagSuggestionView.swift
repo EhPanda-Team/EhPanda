@@ -18,10 +18,10 @@ public struct TagSuggestionView: View {
     public enum Source {
         /// A search field: the typed text is tidied (runs of spaces, full-width colons) as it changes.
         case searchField
-        /// A multi-line `TextEditor` in a form: the text is never rewritten while typing, which would cancel a
+        /// A multi-line text field in a form: the text is never rewritten while typing, which would cancel a
         /// marked (CJK composition) range and move the cursor, and the suggestion rows stay out of the way until
         /// there is something to suggest.
-        case textEditor
+        case multilineField
         /// One tag in a form (My Tags' Add Tag): the text is never rewritten while typing, and a chosen suggestion
         /// replaces it with the tag as the site keeps it, `namespace:tag` (design approved 2026-11-22).
         case tagName
@@ -67,7 +67,7 @@ public struct TagSuggestionView: View {
                 switch source {
                 case .searchField:
                     translationHandler.analyze(text: &keyword, translations: translations)
-                case .textEditor, .tagName:
+                case .multilineField, .tagName:
                     translationHandler.analyze(readingText: keyword, translations: translations)
                 }
             }
@@ -76,7 +76,7 @@ public struct TagSuggestionView: View {
 
     private func complete(with suggestion: TagSuggestion) {
         switch source {
-        case .searchField, .textEditor:
+        case .searchField, .multilineField:
             translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword)
         case .tagName:
             keyword = "\(suggestion.tag.namespace.rawValue):\(suggestion.tag.key)"
@@ -191,7 +191,7 @@ final class TagTranslationHandler {
         analyze(readingText: text, translations: translations)
     }
 
-    /// Suggests from `text` without touching it. A multi-line `TextEditor` must not have its text rewritten
+    /// Suggests from `text` without touching it. A multi-line text field must not have its text rewritten
     /// while the user types: replacing the bound text under a marked (CJK composition) range cancels or
     /// corrupts the composition and moves the cursor. Nothing is lost by leaving the text alone, because
     /// `autoComplete` normalises it when a suggestion is chosen.

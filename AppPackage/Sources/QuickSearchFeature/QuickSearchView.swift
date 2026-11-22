@@ -207,18 +207,27 @@ extension QuickSearchView {
                         .submitLabel(.next).focused(focusedField, equals: .name)
                 }
                 Section(.searchTerms) {
-                    TextEditor(text: $savedSearch.content)
-                        .autocorrectionDisabled(true)
-                        .textInputAutocapitalization(.never)
-                        .focused(focusedField, equals: .content)
-                    // The editor's text is left as typed (`.textEditor`): rewriting it while a Chinese or
+                    // A vertical text field rather than a `TextEditor`: on iOS 27 a `TextEditor` in a form row
+                    // keeps a one-line height without its text insets from the second presentation on, clipping
+                    // the text. The field grows with its text and lines up with the Name field. The section
+                    // header names it on screen, so it shows no placeholder (owner decision, 2026-11-23). A text
+                    // field's label only ever becomes its placeholder, so the label is empty and VoiceOver gets the
+                    // name from an explicit accessibility label.
+                    TextField(text: $savedSearch.content, axis: .vertical) {
+                        EmptyView()
+                    }
+                    .accessibilityLabel(.searchTerms)
+                    .autocorrectionDisabled(true)
+                    .textInputAutocapitalization(.never)
+                    .focused(focusedField, equals: .content)
+                    // The field's text is left as typed (`.multilineField`): rewriting it while a Chinese or
                     // Japanese composition is open would break the composition.
                     TagSuggestionView(
                         keyword: $savedSearch.content,
                         translations: tagTranslator.translations,
                         showsImages: setting.showImagesInTags,
                         isEnabled: setting.showTagsSearchSuggestion,
-                        source: .textEditor
+                        source: .multilineField
                     )
                 }
             }

@@ -103,11 +103,11 @@ struct TagSuggestionTokenizationTests {
         #expect(TagTranslationHandler.searchPrefix(of: term) == expected)
     }
 
-    // The saved-search editor is a `TextEditor`: its text must not be rewritten while the user types,
-    // because rewriting the bound text under a marked (CJK composition) range cancels or corrupts the
-    // composition and moves the cursor. Suggestions are therefore read from the text as it is, and the
-    // normalisation (double spaces, full-width colons) is applied to what the user typed only when a
-    // suggestion is chosen.
+    // The saved-search editor's search terms are a multi-line text field: its text must not be rewritten
+    // while the user types, because rewriting the bound text under a marked (CJK composition) range
+    // cancels or corrupts the composition and moves the cursor. Suggestions are therefore read from the
+    // text as it is, and the normalisation (double spaces, full-width colons) is applied to what the user
+    // typed only when a suggestion is chosen.
     @Test
     func readingSuggestionsNeverNeedsTheTextRewritten() throws {
         let translation = TagTranslation(namespace: .female, key: "cat", value: "貓")
