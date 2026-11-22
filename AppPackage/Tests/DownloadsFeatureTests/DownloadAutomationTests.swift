@@ -15,6 +15,7 @@ import HapticsClient
 import HomeFeature
 import LibraryClient
 import LogsClient
+import MyTagsClient
 import SettingFeature
 import SwiftUI
 import Testing
@@ -250,6 +251,8 @@ struct DownloadAutomationTests: DownloadFeatureTestCase {
                 $0.fileClient = .noop
                 $0.dfClient = .noop
                 $0.logsClient = .noop
+                // The signed-in launch also fetches My Tags, failed here as an offline device would fail it.
+                $0.myTagsClient = .failing(.networkingFailed)
                 // The launch effect also subscribes to the continued-session liveness stream, whose
                 // no-op value finishes immediately and leaves the pump's background rule inert here.
                 $0.downloadClient = .noop

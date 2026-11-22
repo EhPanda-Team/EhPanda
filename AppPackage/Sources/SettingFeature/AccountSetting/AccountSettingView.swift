@@ -21,7 +21,7 @@ struct AccountSettingView: View {
     var body: some View {
         Form {
             Section {
-                Picker(.website, selection: Binding($setting.galleryHost)) {
+                Picker(.website, selection: $store.galleryHost.sending(\.galleryHostChanged)) {
                     ForEach(GalleryHost.allCases) {
                         Text($0.rawValue).tag($0)
                     }

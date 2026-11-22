@@ -25,6 +25,10 @@ public nonisolated extension LocalizedStringResource {
 
         public static var cancel: LocalizedStringResource { .cancel }
 
+        public static var myTagsStateWatched: LocalizedStringResource { .myTagsStateWatched }
+
+        public static var myTagsStateHidden: LocalizedStringResource { .myTagsStateHidden }
+
         public static var actions: LocalizedStringResource { .actions }
 
         public static var ageWallTitle: LocalizedStringResource { .ageWallTitle }

@@ -19,6 +19,13 @@ extension Defaults.URL {
         host.url.appending(path: "mytags")
     }
 
+    /// A tag set's My Tags page. The first set's is the page without a query, as the site's own picker links it.
+    public static func myTags(host: GalleryHost, tagSetID: Int) -> Foundation.URL {
+        let url = myTags(host: host)
+        guard tagSetID > 1 else { return url }
+        return url.appending(queryItems: [.tagset: String(tagSetID)])
+    }
+
     public static func uConfig(host: GalleryHost) -> Foundation.URL {
         host.url.appending(path: "uconfig.php")
     }

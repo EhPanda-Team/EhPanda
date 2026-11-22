@@ -7,13 +7,15 @@ public struct User: Codable, Equatable, Sendable, SchemaVersioned {
         avatarURL: URL? = nil,
         credits: String? = nil,
         galleryPoints: String? = nil,
-        favoriteCategories: [Int: String]? = nil
+        favoriteCategories: [Int: String]? = nil,
+        myTags: MyTags? = nil
     ) {
         self.displayName = displayName
         self.avatarURL = avatarURL
         self.credits = credits
         self.galleryPoints = galleryPoints
         self.favoriteCategories = favoriteCategories
+        self.myTags = myTags
     }
     public static let empty = User()
 
@@ -39,6 +41,11 @@ public struct User: Codable, Equatable, Sendable, SchemaVersioned {
     public var galleryPoints: String?
 
     public var favoriteCategories: [Int: String]?
+
+    /// The account's My Tags, the one copy the tag highlight, Detail's tag menu and the My Tags page read; nil until
+    /// fetched, and cleared with the user on logout. It carries no API credentials. Optional, so a user stored before
+    /// it keeps decoding.
+    public var myTags: MyTags?
 
     /// The favorites slot (0...9) a page's slot name belongs to. A gallery page names its slot but never numbers
     /// it, so the number is recovered from the user's own folder names first (they may have renamed the slots),

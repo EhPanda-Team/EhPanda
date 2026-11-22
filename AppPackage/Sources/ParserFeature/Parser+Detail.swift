@@ -206,7 +206,6 @@ private extension Parser {
                         rawNamespace: namespace, text: text,
                         isVotedUp: aClass == "tup",
                         isVotedDown: aClass == "tdn",
-                        textColor: nil,
                         backgroundColor: nil,
                         voteStrength: tagVoteStrength(cssClasses: divLink.className)
                     )

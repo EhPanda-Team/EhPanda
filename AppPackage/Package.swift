@@ -103,6 +103,7 @@ enum Module: String {
     case liveTextTranslation = "LiveTextTranslation"
     case logsClient = "LogsClient"
     case markdownExt = "MarkdownExt"
+    case myTagsClient = "MyTagsClient"
     case networkingFeature = "NetworkingFeature"
     case osLogExt = "OSLogExt"
     case parserFeature = "ParserFeature"
@@ -447,6 +448,15 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture)
         ]
     ),
+    // My Tags' reads and writes, behind one dependency so a test decides their outcome (port of PR 462 item 10).
+    .target(
+        module: .myTagsClient,
+        dependencies: [
+            .module(.appModels),
+            .module(.networkingFeature),
+            .targetDependency(.composableArchitecture)
+        ]
+    ),
     .target(
         module: .networkingFeature,
         dependencies: [
@@ -685,6 +695,7 @@ let targets: [PackageDescription.Target] = [
             .module(.hapticsClient),
             .module(.libraryClient),
             .module(.logsClient),
+            .module(.myTagsClient),
             .module(.networkingFeature),
             .module(.osLogExt),
             .module(.readingSettingFeature),
@@ -980,6 +991,7 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.sfSafeSymbols),
             .module(.appComponents),
             .module(.logsClient),
+            .module(.myTagsClient),
             .module(.parserFeature),
             .module(.resources),
             .module(.settingFeature),
@@ -1004,6 +1016,7 @@ let targets: [PackageDescription.Target] = [
             .module(.fileClient),
             .module(.hapticsClient),
             .module(.logsClient),
+            .module(.myTagsClient),
             .module(.settingFeature),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
@@ -1035,6 +1048,7 @@ let targets: [PackageDescription.Target] = [
     .testTarget(
         module: .networkingFeatureTests,
         dependencies: [
+            .module(.testingSupport),
             .module(.appModels),
             .module(.networkingFeature),
             .module(.appTools),

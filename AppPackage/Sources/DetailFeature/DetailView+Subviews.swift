@@ -404,6 +404,8 @@ struct ActionSection: View {
 struct TagsSection: View {
     let tags: [GalleryTag]
     let showsImages: Bool
+    /// The account's cached My Tags, whose tags carry their symbol (design approved 2026-11-22).
+    let myTags: MyTags?
     let voteTagAction: (String, Int) -> Void
     // Carries the tapped tag's namespace alongside the assembled search keyword so the reducer can
     // emit the namespace without parsing it back out of the keyword (which would be tag content).
@@ -415,7 +417,7 @@ struct TagsSection: View {
         VStack(alignment: .leading) {
             ForEach(tags) { tag in
                 TagRow(
-                    tag: tag, showsImages: showsImages,
+                    tag: tag, showsImages: showsImages, myTags: myTags,
                     voteTagAction: voteTagAction,
                     navigateSearchAction: navigateSearchAction,
                     navigateTagDetailAction: navigateTagDetailAction,
@@ -435,6 +437,7 @@ extension TagsSection {
 
         let tag: GalleryTag
         let showsImages: Bool
+        let myTags: MyTags?
         let voteTagAction: (String, Int) -> Void
         // Mirrors `TagsSection`: the row passes the namespace it already holds for its header text,
         // so no caller has to recover it from the assembled keyword.
@@ -500,7 +503,8 @@ extension TagsSection {
                     imageURL: translation?.valueImageURL,
                     showsImages: showsImages,
                     font: .subheadline, padding: padding, textColor: .primary,
-                    backgroundColor: backgroundColor
+                    backgroundColor: backgroundColor,
+                    myTag: content.myTagHighlight(in: myTags)
                 )
             }
             .contextMenu {
@@ -576,6 +580,7 @@ extension TagsSection {
                 ])
             ],
             showsImages: false,
+            myTags: nil,
             voteTagAction: { _, _ in },
             navigateSearchAction: { _, _ in },
             navigateTagDetailAction: { _ in },

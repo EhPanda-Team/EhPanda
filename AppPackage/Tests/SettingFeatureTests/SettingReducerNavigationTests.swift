@@ -284,12 +284,13 @@ struct SettingReducerNavigationTests {
         await store.send(.pushLogin)
         let id = try #require(store.state.path.ids.last)
 
-        // Finishing login fans out to the four signed-in fetches; each guards on `didLogin` (false
+        // Finishing login fans out to the five signed-in fetches; each guards on `didLogin` (false
         // under the noop cookie client) so no network effects run.
         await store.send(.path(.element(id: id, action: .login(.loginDone(.success(nil))))))
         await store.receive(\.fetchIgneous)
         await store.receive(\.fetchUserInfo)
         await store.receive(\.fetchFavoriteCategories)
+        await store.receive(\.fetchMyTags)
         await store.receive(\.fetchEhProfileIndex)
     }
 

@@ -26,6 +26,8 @@ public struct AccountSettingReducer: Sendable {
         case pushLogin
         case pushEhSetting
         case pushBlockedUsers
+        /// The Website picker chose the other host; Setting reads My Tags there.
+        case galleryHostChanged
     }
 
     private enum CancelID { case observeCookies }
@@ -37,6 +39,10 @@ public struct AccountSettingReducer: Sendable {
         @Presents public var toast: AppAlertState<Never>?
         public var ehCookiesState: CookiesState = .empty(.ehentai)
         public var exCookiesState: CookiesState = .empty(.exhentai)
+        @Shared(.setting) public var setting: Setting
+
+        /// The host the Website picker shows; get-only, so the picker binds through `galleryHostChanged`.
+        public var galleryHost: GalleryHost { setting.galleryHost }
 
         public init() {}
     }
@@ -53,6 +59,7 @@ public struct AccountSettingReducer: Sendable {
         case onLogoutConfirmButtonTapped
         case loadCookies
         case copyCookies(GalleryHost)
+        case galleryHostChanged(GalleryHost)
     }
 
     @Dependency(\.clipboardClient) private var clipboardClient
@@ -77,6 +84,11 @@ public struct AccountSettingReducer: Sendable {
 
             case .toast:
                 return .none
+
+            case .galleryHostChanged(let host):
+                guard host != state.galleryHost else { return .none }
+                state.$setting.withLock({ $0.galleryHost = host })
+                return .send(.delegate(.galleryHostChanged))
 
             case .destination:
                 return .none

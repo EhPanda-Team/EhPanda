@@ -15,6 +15,7 @@ public struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @SharedReader(.setting) private var setting: Setting
+    @SharedReader(.user) private var user: User
 
     /// At non-accessibility sizes, the badge's inward corner is cut into the cover rather than
     /// drawn by the badge itself, so it scales against the badge's own text style: a 15pt notch
@@ -70,8 +71,10 @@ public struct GalleryThumbnailCell: View {
                             imageURL: translation?.valueImageURL,
                             showsImages: setting.showImagesInTags,
                             font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
-                            textColor: content.backgroundColor != nil ? content.textColor ?? .secondary : .secondary,
-                            backgroundColor: content.backgroundColor ?? tagColor
+                            // The chip keeps the cell's colours; a tag in My Tags carries its symbol instead (design
+                            // approved 2026-11-22).
+                            textColor: .secondary, backgroundColor: tagColor,
+                            myTag: content.myTagHighlight(in: user.myTags)
                         )
                     }
                 }

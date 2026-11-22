@@ -1,6 +1,28 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "my_tags.state.watched" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Beobachtet" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Watched" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フォロー中" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "관심 태그" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已关注" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "追蹤中" } }
+      }
+    },
+    "my_tags.state.hidden" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ausgeblendet" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hidden" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "非表示" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "숨김" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已隐藏" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "已隱藏" } }
+      }
+    },
     "layout" : {
       "extractionState" : "manual",
       "localizations" : {

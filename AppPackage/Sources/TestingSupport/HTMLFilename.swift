@@ -47,4 +47,8 @@ public enum HTMLFilename: String, Sendable {
     case reportSelect = "ReportSelect"
     case reportChild = "ReportChild"
     case reportOther = "ReportOther"
+
+    // My Tags (synthetic pages in the site's markup of 2026-11-22: invented tags and credentials)
+    case myTagsTagSet1 = "MyTagsTagSet1"
+    case myTagsTagSet2 = "MyTagsTagSet2"
 }

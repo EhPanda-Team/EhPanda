@@ -153,6 +153,7 @@ private extension DetailView {
                 if !store.galleryTags.isEmpty {
                     TagsSection(
                         tags: store.galleryTags, showsImages: store.setting.showImagesInTags,
+                        myTags: store.user.myTags,
                         voteTagAction: { store.send(.voteTag(tag: $0, weight: $1)) },
                         navigateSearchAction: { store.send(.tagSearchTapped(keyword: $0, namespace: $1)) },
                         navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },

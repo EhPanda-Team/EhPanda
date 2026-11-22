@@ -92,6 +92,7 @@ public struct Defaults: Sendable {
                 case topcat = "tl"
                 case showUser = "showuser"
                 case fSearch = "f_search"
+                case tagset = "tagset"
 
                 case code = "CODE"
                 case act = "act"
