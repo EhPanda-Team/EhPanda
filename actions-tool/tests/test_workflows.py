@@ -474,7 +474,7 @@ class PalUploadJobTests(unittest.TestCase):
         self.assertNotIn("if", self.job)
         environment = self.job["environment"]
         name = environment["name"] if isinstance(environment, dict) else environment
-        self.assertEqual(name, "pal-notarization")
+        self.assertEqual(name, "app-marketplace")
         self.assertEqual(self.job["permissions"], {"contents": "read"})
         self.assertIn("timeout-minutes", self.job)
         self.assertEqual(self.job["concurrency"], {"group": "pal-upload", "cancel-in-progress": False})
@@ -626,7 +626,7 @@ class PalUploadJobTests(unittest.TestCase):
                 self.assertIn(name, header)
         self.assertTrue(set(PAL_SECRETS) <= used)
         self.assertTrue(set(PAL_VARIABLES) <= used)
-        for needle in ("pal-notarization", "D-07", "D-21", "D-26", "publish-pal.yml"):
+        for needle in ("app-marketplace", "D-07", "D-21", "D-26", "publish-pal.yml"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, header)
 
@@ -723,7 +723,7 @@ class PublishWorkflowTests(unittest.TestCase):
         self.assertNotIn("environment", self.job)
         self.assertNotIn("environment", self.document)
         document = json.dumps(self.document)
-        for needle in ("APP_STORE_CONNECT", "asc.py", "pal-notarization", "marketplace-signing", "xcodebuild", "ASC_"):
+        for needle in ("APP_STORE_CONNECT", "asc.py", "app-marketplace", "marketplace-signing", "xcodebuild", "ASC_"):
             with self.subTest(needle=needle):
                 self.assertNotIn(needle, document)
         self.assertEqual(set(re.findall(r"(?:secrets|vars)\.(\w+)", code(self.text))),

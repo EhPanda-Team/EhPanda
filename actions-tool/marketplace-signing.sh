@@ -16,7 +16,7 @@
 #   marketplace-signing.sh export-options-only <out> <team> <app profile> <share extension profile>
 #       writes only the export options (offline check)
 #
-# Environment (from the `pal-notarization` GitHub environment's secrets; never printed):
+# Environment (from the `app-marketplace` GitHub environment's secrets; never printed):
 #   RUNNER_TEMP                                   where everything is written
 #   APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_PRIVATE_KEY
 #                                                 api-key: the key's ID and the .p8 file's contents

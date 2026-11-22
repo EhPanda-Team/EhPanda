@@ -123,6 +123,18 @@ source_head: b5eca09d1
   published contact link is out of the 3.0 plan (ROADMAP Phase 20 item 4 and SC4, D-05, 20-07, 20-08 amended), and
   UGC-18-01 is marked complete. The App Store Connect Support URL is the GitHub repository page,
   https://github.com/EhPanda-Team/EhPanda (guideline 1.5 is a Notarization guideline; 1.2 is not).
+- **20-06 Task 3 in progress (2026-11-22, owner decisions):** the GitHub environment is named `app-marketplace`
+  (was `pal-notarization`; `deploy.yml`, `marketplace-signing.sh` and the workflow tests renamed), created on
+  EhPanda-Team/EhPanda with the owner (chihchy) as required reviewer and no branch policy.
+  `ALTSTORE_PAL_MARKETPLACE_ID` = 6832942312 is a repository variable, not an environment one, because
+  `publish-pal.yml` runs in no environment and reads it too. On the owner's instruction the agent set
+  `DISTRIBUTION_CERTIFICATE` (Apple Distribution: JYITECH CO.,LTD, expires 2027-11-10),
+  `PROVISIONING_PROFILE_SHARE_EXTENSION` (App Store profile "EhPanda Shared Extension") and `APPLE_TEAM_ID`
+  from the owner's files. `PROVISIONING_PROFILE_APP` is held: the supplied `app.ehpanda.store` profile
+  ("EhPanda") is Ad Hoc (provisioned devices, no `beta-reports-active`) and cannot sign an App Store Connect
+  upload; an App Store profile is needed. Still missing: `PROVISIONING_PROFILE_APP`,
+  `DISTRIBUTION_CERTIFICATE_PASSWORD`, the three `APP_STORE_CONNECT_*` secrets and the
+  `APP_STORE_CONNECT_KEY_ROLE` environment variable.
 - **20-08: first PAL source by hand (2026-11-21, owner decision).** Apple accepted 3.0.0 (163) for Notarization,
   submitted outside `deploy-pal.yml` (no run yet); the App Store Connect key is not available yet, so the first
   `AltStorePAL.json` was made by hand. ADP `453ead28-2d2b-49d1-a398-5a06ca29186b`, fetched with
