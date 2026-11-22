@@ -20,6 +20,7 @@ env:
   ALTSTORE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
   RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
   IPA_ENTITLEMENTS_SCRIPT_PATH: './actions-tool/ipa-entitlements.sh'
+  UPLOAD_DSYMS_SCRIPT_PATH: './actions-tool/upload-dsyms.sh'
   RELEASE_NOTES_DIR: './ReleaseNotes'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
   PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
@@ -102,6 +103,7 @@ jobs:
         env:
           TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
           TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: xcodebuild archive
           -skipMacroValidation
           -skipPackagePluginValidation
@@ -117,6 +119,7 @@ jobs:
           SWIFT_OPTIMIZATION_LEVEL=-O
           TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID"
           TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT"
+          SENTRY_DSN="$SENTRY_DSN"
       - name: Verify analytics credentials
         run: |
           app_info_plist="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
@@ -124,6 +127,11 @@ jobs:
           salt="$(plutil -extract TelemetryDeckSalt raw -o - "$app_info_plist")"
           [[ ! -z "$app_id" ]] || exit 1
           [[ ! -z "$salt" ]] || exit 1
+      - name: Verify crash reporting DSN
+        run: |
+          app_info_plist="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
+          dsn="$(plutil -extract SentryDSN raw -o - "$app_info_plist" 2>/dev/null || true)"
+          [[ "$dsn" == https://* ]] || { echo "::error::The archive carries no crash reporting DSN. Set the repository secret SENTRY_DSN."; exit 1; }
       - name: Verify beta build
         run: |
           set -euo pipefail
@@ -143,6 +151,18 @@ jobs:
           [[ -n "$url_scheme" && "$url_scheme" != "ehpanda" ]] || { echo "::error::The beta registers the regular URL scheme."; exit 1; }
           [[ "$extension_url_scheme" == "$url_scheme" ]] || { echo "::error::The share extension hands off to $extension_url_scheme, not $url_scheme."; exit 1; }
           bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$RUNNER_TEMP/published"/*.json
+      - name: Upload dSYMs
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORGANIZATION: ${{ vars.SENTRY_ORGANIZATION }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+          SENTRY_URL: ${{ vars.SENTRY_URL }}
+        run: bash "$UPLOAD_DSYMS_SCRIPT_PATH" "$ARCHIVE_PATH"
+      - name: Keep the dSYMs
+        uses: actions/upload-artifact@v7
+        with:
+          name: EhPanda-Beta-dSYMs
+          path: ${{ env.ARCHIVE_PATH }}/dSYMs
       - name: Export .ipa file
         run: |
           set -euo pipefail

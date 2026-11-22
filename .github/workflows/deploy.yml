@@ -24,8 +24,9 @@ name: Deploy
 #   APP_STORE_CONNECT_KEY_ROLE            the key's role as recorded when it was made (D-21; written to the call record)
 # It also reads the repository variable ALTSTORE_PAL_MARKETPLACE_ID, the app's Apple ID in App Store Connect (also
 # the PAL source's marketplaceID), kept at repository level because publish-pal.yml, which runs in no environment,
-# reads it too. The PAL archive also reads the repository secrets TELEMETRYDECK_APP_ID and TELEMETRYDECK_SALT, as
-# Deploy's archive does.
+# reads it too. The PAL archive also reads the repository secrets TELEMETRYDECK_APP_ID, TELEMETRYDECK_SALT and
+# SENTRY_DSN (crash reporting), and its dSYM upload the repository secret SENTRY_AUTH_TOKEN and the repository
+# variables SENTRY_ORGANIZATION, SENTRY_PROJECT and SENTRY_URL, as Deploy's archive and upload do.
 #
 # Nothing here creates an App ID, certificate, profile or key: signing is manual with the profiles above, and
 # actions-tool/asc.py refuses every endpoint outside its allow-list (D-07). Its calls are recorded with the key's ID
@@ -42,6 +43,7 @@ env:
   SOURCE_FILTER_PATH: './actions-tool/altstore-add-version.jq'
   PACKAGE_CHANNEL_SCRIPT_PATH: './actions-tool/package-channel.sh'
   IPA_ENTITLEMENTS_SCRIPT_PATH: './actions-tool/ipa-entitlements.sh'
+  UPLOAD_DSYMS_SCRIPT_PATH: './actions-tool/upload-dsyms.sh'
   BUILDS_PATH: '/tmp/action-builds'
   PAYLOAD_PATH: '/tmp/action-builds/Payload'
   # The notes come from ReleaseNotes/<version>.md, never the PR description (ReleaseNotes/README.md).
@@ -129,6 +131,7 @@ jobs:
         env:
           TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
           TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: xcodebuild archive
           -skipMacroValidation
           -skipPackagePluginValidation
@@ -143,6 +146,7 @@ jobs:
           SWIFT_OPTIMIZATION_LEVEL=-O
           TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID"
           TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT"
+          SENTRY_DSN="$SENTRY_DSN"
       - name: Verify analytics credentials
         run: |
           app_info_plist="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
@@ -150,6 +154,23 @@ jobs:
           salt="$(plutil -extract TelemetryDeckSalt raw -o - "$app_info_plist")"
           [[ ! -z "$app_id" ]] || exit 1
           [[ ! -z "$salt" ]] || exit 1
+      - name: Verify crash reporting DSN
+        run: |
+          app_info_plist="$ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
+          dsn="$(plutil -extract SentryDSN raw -o - "$app_info_plist" 2>/dev/null || true)"
+          [[ "$dsn" == https://* ]] || { echo "::error::The archive carries no crash reporting DSN. Set the repository secret SENTRY_DSN."; exit 1; }
+      - name: Upload dSYMs
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORGANIZATION: ${{ vars.SENTRY_ORGANIZATION }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+          SENTRY_URL: ${{ vars.SENTRY_URL }}
+        run: bash "$UPLOAD_DSYMS_SCRIPT_PATH" "$ARCHIVE_PATH"
+      - name: Keep the dSYMs
+        uses: actions/upload-artifact@v7
+        with:
+          name: EhPanda-dSYMs
+          path: ${{ env.ARCHIVE_PATH }}/dSYMs
       - name: Export .ipa files
         run: |
           set -euo pipefail
@@ -444,6 +465,7 @@ jobs:
         env:
           TELEMETRYDECK_APP_ID: ${{ secrets.TELEMETRYDECK_APP_ID }}
           TELEMETRYDECK_SALT: ${{ secrets.TELEMETRYDECK_SALT }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
           set -euo pipefail
           # The generated xcconfig includes Config/Marketplace.xcconfig and selects each target's profile. The
@@ -459,7 +481,8 @@ jobs:
             GCC_OPTIMIZATION_LEVEL=s \
             SWIFT_OPTIMIZATION_LEVEL=-O \
             TELEMETRYDECK_APP_ID="$TELEMETRYDECK_APP_ID" \
-            TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT"
+            TELEMETRYDECK_SALT="$TELEMETRYDECK_SALT" \
+            SENTRY_DSN="$SENTRY_DSN"
       - name: Verify analytics credentials
         run: |
           app_info_plist="$PAL_ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
@@ -467,6 +490,11 @@ jobs:
           salt="$(plutil -extract TelemetryDeckSalt raw -o - "$app_info_plist")"
           [[ ! -z "$app_id" ]] || exit 1
           [[ ! -z "$salt" ]] || exit 1
+      - name: Verify crash reporting DSN
+        run: |
+          app_info_plist="$PAL_ARCHIVE_PATH/Products/Applications/$SCHEME_NAME.app/Info.plist"
+          dsn="$(plutil -extract SentryDSN raw -o - "$app_info_plist" 2>/dev/null || true)"
+          [[ "$dsn" == https://* ]] || { echo "::error::The archive carries no crash reporting DSN. Set the repository secret SENTRY_DSN."; exit 1; }
       - name: Verify marketplace build
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -511,6 +539,18 @@ jobs:
             fi
           done
           bash "$CHECK_BUILD_NUMBER_SCRIPT_PATH" "$build_version" "$RUNNER_TEMP/published"/*.json
+      - name: Upload dSYMs
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORGANIZATION: ${{ vars.SENTRY_ORGANIZATION }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+          SENTRY_URL: ${{ vars.SENTRY_URL }}
+        run: bash "$UPLOAD_DSYMS_SCRIPT_PATH" "$PAL_ARCHIVE_PATH"
+      - name: Keep the dSYMs
+        uses: actions/upload-artifact@v7
+        with:
+          name: EhPanda-AltStorePAL-dSYMs
+          path: ${{ env.PAL_ARCHIVE_PATH }}/dSYMs
       - name: Export and upload
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}

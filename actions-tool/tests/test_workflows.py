@@ -446,7 +446,10 @@ PAL_UPLOAD_STEPS = [
     "Set up signing",
     "Xcode archive",
     "Verify analytics credentials",
+    "Verify crash reporting DSN",
     "Verify marketplace build",
+    "Upload dSYMs",
+    "Keep the dSYMs",
     "Export and upload",
     "Upload the call record",
     "Tear down signing",
@@ -614,7 +617,8 @@ class PalUploadJobTests(unittest.TestCase):
         self.assertNotIn("secrets.", json.dumps(self.job.get("env", {})))
 
     def test_the_checks_see_no_signing_secret(self):
-        for name in ("Read the version", "Install iOS 27 Platform", "Verify analytics credentials"):
+        for name in ("Read the version", "Install iOS 27 Platform", "Verify analytics credentials",
+                     "Verify crash reporting DSN"):
             with self.subTest(step=name):
                 self.assertNotIn("secrets.", json.dumps(step_named(self.job, name).get("env", {})))
 
@@ -803,6 +807,104 @@ class PublishWorkflowTests(unittest.TestCase):
                 self.assertNotIn("secrets.", step.get("run", ""))
                 self.assertNotRegex(step.get("run", ""), r"set -[a-z]*x")
         self.assertNotIn("secrets.", json.dumps(self.job.get("env", {})))
+
+
+@unittest.skipUnless(RUBY, "ruby is not installed")
+class CrashReportingWorkflowTests(unittest.TestCase):
+    """Quick task 261123-3wz: each release archive carries the crash reporting DSN, a release without one fails, and
+    the archive's dSYMs go to Sentry (never failing the release) and stay as a run artifact for `--reupload`."""
+
+    # (workflow file, job, its archive path variable, the step that moves the .app out of the archive or exports
+    # it, the dSYMs artifact)
+    RELEASES = (
+        ("deploy.yml", "Deploy", "ARCHIVE_PATH", "Export .ipa files", "EhPanda-dSYMs"),
+        ("deploy.yml", "AltStorePAL", "PAL_ARCHIVE_PATH", "Export and upload", "EhPanda-AltStorePAL-dSYMs"),
+        ("deploy-beta.yml", "Deploy", "ARCHIVE_PATH", "Export .ipa file", "EhPanda-Beta-dSYMs"),
+    )
+    UPLOAD_ENV = {
+        "SENTRY_AUTH_TOKEN": "${{ secrets.SENTRY_AUTH_TOKEN }}",
+        "SENTRY_ORGANIZATION": "${{ vars.SENTRY_ORGANIZATION }}",
+        "SENTRY_PROJECT": "${{ vars.SENTRY_PROJECT }}",
+        "SENTRY_URL": "${{ vars.SENTRY_URL }}",
+    }
+    SENTRY_NAMES = {"SENTRY_DSN", "SENTRY_AUTH_TOKEN", "SENTRY_ORGANIZATION", "SENTRY_PROJECT", "SENTRY_URL"}
+
+    def each_release(self):
+        for name, job_name, archive, export_step, artifact in self.RELEASES:
+            document = load(WORKFLOWS / name)
+            with self.subTest(workflow=name, job=job_name):
+                yield name, document, document["jobs"][job_name], archive, export_step, artifact
+
+    def test_the_archive_gets_the_dsn_as_a_build_setting(self):
+        for _, _, job, _, _, _ in self.each_release():
+            archive = step_named(job, "Xcode archive")
+            self.assertEqual(archive["env"]["SENTRY_DSN"], "${{ secrets.SENTRY_DSN }}")
+            self.assertIn('SENTRY_DSN="$SENTRY_DSN"', archive["run"])
+            self.assertNotIn("secrets.", archive["run"])
+
+    def test_a_release_without_a_dsn_fails(self):
+        for _, _, job, archive, _, _ in self.each_release():
+            names = [step.get("name") for step in steps(job)]
+            self.assertEqual(names.index("Verify crash reporting DSN"), names.index("Verify analytics credentials") + 1)
+            step = step_named(job, "Verify crash reporting DSN")
+            run = code(step["run"])
+            self.assertIn(f"${archive}/Products/Applications/$SCHEME_NAME.app/Info.plist", run)
+            self.assertIn("plutil -extract SentryDSN raw", run)
+            self.assertIn("https://", run)
+            self.assertIn("::error::", run)
+            self.assertIn("SENTRY_DSN", run)
+            self.assertIn("exit 1", run)
+            # The value is never printed, and the step holds no secret (D-02).
+            self.assertNotRegex(run, r"(echo|printf)[^\n]*\$\{?dsn\b")
+            self.assertNotIn("env", step)
+            self.assertNotIn("secrets.", step["run"])
+
+    def test_the_dsyms_are_uploaded_after_every_verification_and_before_the_app_leaves_the_archive(self):
+        for _, _, job, archive, export_step, _ in self.each_release():
+            names = [step.get("name") for step in steps(job)]
+            upload = names.index("Upload dSYMs")
+            for verify in [step_name for step_name in names if step_name and step_name.startswith("Verify")]:
+                self.assertLess(names.index(verify), upload, verify)
+            self.assertLess(upload, names.index(export_step))
+            step = step_named(job, "Upload dSYMs")
+            self.assertEqual(step["env"], self.UPLOAD_ENV)
+            self.assertEqual(code(step["run"]).strip(), f'bash "$UPLOAD_DSYMS_SCRIPT_PATH" "${archive}"')
+            self.assertNotIn("secrets.", step["run"])
+            # The script's exit-0 contract is what keeps the release going: nothing here suppresses an error.
+            self.assertNotIn("continue-on-error", step)
+
+    def test_the_dsyms_are_kept_as_an_artifact_for_a_later_reupload(self):
+        for _, _, job, archive, _, artifact in self.each_release():
+            names = [step.get("name") for step in steps(job)]
+            self.assertEqual(names.index("Keep the dSYMs"), names.index("Upload dSYMs") + 1)
+            step = step_named(job, "Keep the dSYMs")
+            self.assertEqual(step["uses"], "actions/upload-artifact@v7")
+            self.assertEqual(step["with"], {"name": artifact, "path": f"${{{{ env.{archive} }}}}/dSYMs"})
+
+    def test_the_script_is_named_by_the_workflow_env_and_exists(self):
+        for _, document, _, _, _, _ in self.each_release():
+            self.assertEqual(document["env"]["UPLOAD_DSYMS_SCRIPT_PATH"], "./actions-tool/upload-dsyms.sh")
+        self.assertTrue((ROOT / "actions-tool" / "upload-dsyms.sh").is_file())
+
+    def test_only_the_five_documented_names_are_used(self):
+        for name, _, _, _, _, _ in self.each_release():
+            text = (WORKFLOWS / name).read_text(encoding="utf-8")
+            self.assertEqual(set(re.findall(r"SENTRY_\w+", text)), self.SENTRY_NAMES)
+
+    def test_the_dsn_reaches_only_the_archive_and_the_token_only_the_upload(self):
+        for _, _, job, _, _, _ in self.each_release():
+            for step in steps(job):
+                step_name = step.get("name")
+                text = json.dumps(step)
+                if step_name == "Xcode archive":
+                    self.assertIn("SENTRY_DSN", text)
+                else:
+                    self.assertNotIn("secrets.SENTRY_DSN", text, step_name)
+                if step_name == "Upload dSYMs":
+                    self.assertIn("secrets.SENTRY_AUTH_TOKEN", text)
+                else:
+                    self.assertNotIn("SENTRY_AUTH_TOKEN", text, step_name)
+            self.assertNotIn("SENTRY_", json.dumps(job.get("env", {})))
 
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
