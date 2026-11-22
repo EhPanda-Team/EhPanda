@@ -63,7 +63,18 @@ in [PLAN.md](PLAN.md).
   (57 s under load from the three targets running together). The case that does not write takes
   0.1 s, so the time is the in-memory defaults write, not a wait in the code. A `finish()`
   timeout would have failed the case.
-- Not done: no run in the app or simulator UI.
+- Simulator UI check (owner request, 2026-11-23), on a Debug build of `0358eac52` running on a
+  task-created iPhone Air (iOS 27.2) with the stubbed network fixtures:
+  - Search tab results for `language:english`: Save Search is right after Quick Search and enabled.
+    The sheet shows Cancel and Confirm, an empty name and the keyword in Search Terms. Cancel
+    returned to the results without saving. Confirm with the name "English" returned to the
+    results. The entry appeared in Quick Search, and the action was then disabled.
+  - Submitting the name moved focus to Search Terms, both in the new sheet and in Quick Search's
+    own New Saved Search editor, which confirms the moved submit handling.
+  - Detail tag search results (`o:"non-h imageset$"`): the same menu position and sheet. Confirm
+    saved the entry and disabled the action.
+  - en, de, ja, ko, zh-Hans and zh-Hant: the label fits the menu in each. The action stayed
+    disabled for the saved keyword across relaunches.
 
 ## Notes
 
@@ -73,3 +84,9 @@ in [PLAN.md](PLAN.md).
   executor subagents, because the owner's decisions and the code context were already in hand.
 - No analytics signal was added. The signal set was signed off in 20-13, and a "saved from
   results" signal would need the owner's decision.
+- **Pre-existing defect found during the UI check (not fixed here):** in the saved-search editor
+  on `develop`, the Search Terms text editor often lays out one line tall (22 pt), so a prefilled
+  keyword is clipped at the top and bottom of its row. It shows the same way in Quick Search's
+  existing Edit Saved Search screen, whose layout this task did not change. It is likely tied to
+  the tag-suggestion row that 261113-h72 added to the same section. It shows in the new sheet
+  because the sheet opens with text already in the editor.
