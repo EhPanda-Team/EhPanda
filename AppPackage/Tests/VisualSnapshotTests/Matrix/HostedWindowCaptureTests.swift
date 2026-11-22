@@ -917,7 +917,7 @@ private struct DriftingView: UIViewRepresentable {
 /// then shows a later draw (from a commit in between, or from the capture's own `afterScreenUpdates` commit). A
 /// timer-driven view does not hold on a starved host: one that redrew every 50 ms went 500 ms without a redraw
 /// when the app ran at background priority, and settled.
-private struct ChangingView: UIViewRepresentable {
+struct ChangingView: UIViewRepresentable {
     func makeUIView(context: Context) -> CountingView { CountingView() }
     func updateUIView(_ uiView: CountingView, context: Context) {}
 

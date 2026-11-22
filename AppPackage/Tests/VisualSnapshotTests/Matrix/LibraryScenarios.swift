@@ -715,10 +715,14 @@ extension ScenarioFactory {
     /// user step: the pages whose navigation bar hides a search field on scroll.
     func restingAtTop() -> ScenarioFactory {
         let step = interact
-        return ScenarioFactory(signedIn: signedIn, cookies: cookies, make: make, prepare: prepare, interact: { window in
-            try LibraryScenarios.restAtTop(window)
-            try await LibraryScenarios.awaitClearButtonIfNeeded(window)
-            try await step?(window)
-        }, minimumReads: minimumReads)
+        return ScenarioFactory(
+            signedIn: signedIn, cookies: cookies, make: make, prepare: prepare, still: still,
+            interact: { window in
+                try LibraryScenarios.restAtTop(window)
+                try await LibraryScenarios.awaitClearButtonIfNeeded(window)
+                try await step?(window)
+            },
+            minimumReads: minimumReads
+        )
     }
 }

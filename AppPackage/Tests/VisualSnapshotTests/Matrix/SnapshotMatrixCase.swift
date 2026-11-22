@@ -230,8 +230,8 @@ class SnapshotMatrixCase: XCTestCase {
                 make: {
                     AnyView(try factory.make().environment(\.visibleViewportSampling, sampling))
                 },
-                window: context.window, style: style, interact: factory.interact, minimumReads: factory.minimumReads,
-                freezeViewport: { sampling.isFrozen = $0 }
+                window: context.window, style: style, still: factory.still, interact: factory.interact,
+                minimumReads: factory.minimumReads, freezeViewport: { sampling.isFrozen = $0 }
             )
         }
         try context.writer.appendHeight(
@@ -279,8 +279,8 @@ class SnapshotMatrixCase: XCTestCase {
                     let shifted = shift ? AnyView(view.padding(.top, 1)) : view
                     return AnyView(shifted.environment(\.visibleViewportSampling, sampling))
                 },
-                window: window, style: style, reference: reference, mode: mode, interact: factory.interact,
-                minimumReads: factory.minimumReads,
+                window: window, style: style, reference: reference, mode: mode, still: factory.still,
+                interact: factory.interact, minimumReads: factory.minimumReads,
                 height: CaptureHeight(points: committed, freezeViewport: { sampling.isFrozen = $0 })
             )
         }

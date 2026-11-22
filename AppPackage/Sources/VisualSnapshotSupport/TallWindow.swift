@@ -253,6 +253,7 @@ extension HostedWindowCapture {
     /// A page that fits the screen is `measured` at the screen height in no steps.
     public static func measure(
         make: () throws -> AnyView, window: UIWindow, style: UIUserInterfaceStyle,
+        still: (@MainActor (UIWindow) async throws -> Void)? = nil,
         interact: (@MainActor (UIWindow) async throws -> Void)? = nil, minimumReads: Int = minimumReads,
         freezeViewport: @escaping @MainActor @Sendable (Bool) -> Void
     ) async -> PageMeasurement {
@@ -265,14 +266,16 @@ extension HostedWindowCapture {
         }
         let hosted = host(root, in: window, style: style)
         let measurement = await measureHosted(
-            window: window, interact: interact, minimumReads: minimumReads, freezeViewport: freezeViewport
+            window: window, still: still, interact: interact, minimumReads: minimumReads,
+            freezeViewport: freezeViewport
         )
         await hosted.disposeAfterDismissal()
         return measurement
     }
 
     private static func measureHosted(
-        window: UIWindow, interact: (@MainActor (UIWindow) async throws -> Void)?, minimumReads: Int,
+        window: UIWindow, still: (@MainActor (UIWindow) async throws -> Void)?,
+        interact: (@MainActor (UIWindow) async throws -> Void)?, minimumReads: Int,
         freezeViewport: @MainActor (Bool) -> Void
     ) async -> PageMeasurement {
         let nativeSize = window.bounds.size
@@ -301,6 +304,13 @@ extension HostedWindowCapture {
         }
         let held = GrownWindow(window: window, scene: scene)
         grown = held
+        if let still {
+            do {
+                try await still(window)
+            } catch {
+                return ended(.error, reason: "\(interactionReason):\(stepFailure(error))")
+            }
+        }
         if let interact {
             do {
                 try await interact(window)

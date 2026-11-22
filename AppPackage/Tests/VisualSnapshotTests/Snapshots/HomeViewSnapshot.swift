@@ -14,7 +14,7 @@ enum HomeViewSnapshot: SnapshotProvider {
                 id: "home-loading",
                 heights: .screen,
                 factory: .init(
-                    make: { BrowsingScenarios.home(loading: .loading) }, interact: BrowsingScenarios.freezeIndicators
+                    make: { BrowsingScenarios.home(loading: .loading) }, still: BrowsingScenarios.freezeIndicators
                 )
             ),
             SnapshotState(

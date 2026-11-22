@@ -470,18 +470,28 @@ public enum HostedWindowCapture {
     /// failed it once in four of 90 runs; its reason names the step's failure (``CaptureStepFailure``). In candidate
     /// mode the picture is returned for the caller to write into the run's output; `reference` is never touched.
     ///
-    /// `interact`, when given, runs after hosting and before the settle wait: the user step that brings a scenario
-    /// to its state where no store state can (a moderation alert that its row presents after the row's own action).
-    /// `minimumReads` is passed to ``settle(_:minimumReads:)``.
+    /// A scenario's steps are of two kinds (owner decision 2026-11-23, 「把步驟拆成兩種」, split the steps into two
+    /// kinds; 19-30). `still`, the stillness step, only lets the hosted page finish and hold still (it stops a spinner
+    /// or a caret's blink, or waits for a keyboard, an alert or a glass shadow the state itself brought up); it runs
+    /// right after hosting, at the window's native size. `interact`, the operating step, brings a scenario to its
+    /// state where no store state can (a tap, a menu or a dialog opened, a scroll, typed text, a moderation alert that
+    /// its row presents after the row's own action); it runs after the window has grown. A failed step of either kind
+    /// is an `interaction` error. `minimumReads` is passed to ``settle(_:minimumReads:)``.
+    ///
+    /// The order on the screen-sized path is host, `still`, `interact`, settle, capture, check: the two steps run back
+    /// to back, which is the one step of before. On the tall path it is host, `still`, native settle, freeze and
+    /// verify, grow (status bar companion, size class pins, resize, one sample, geometry check), `interact`, settle,
+    /// capture, check.
     ///
     /// `height`, when given, is the coordinate's committed page height (19-19). A height at or under the window's
-    /// own takes the path above unchanged; a taller one is taken in the window resized to it (``attemptTall``).
+    /// own takes the screen-sized path; a taller one is taken in the window resized to it (``attemptTall``).
     /// Either way the page is then checked against the height: a page that needs more fails with
     /// `page-height: needs <n> pt, committed <m> pt` and keeps its picture. The window is never grown at run time,
     /// and that failure is never retried. `nil` is the path above without the check.
     public static func captureAndCompare(
         make: () throws -> AnyView, window: UIWindow, style: UIUserInterfaceStyle, reference: URL?,
-        mode: SnapshotMode, interact: (@MainActor (UIWindow) async throws -> Void)? = nil,
+        mode: SnapshotMode, still: (@MainActor (UIWindow) async throws -> Void)? = nil,
+        interact: (@MainActor (UIWindow) async throws -> Void)? = nil,
         minimumReads: Int = minimumReads, height: CaptureHeight? = nil
     ) async -> CaptureOutcome {
         let clock = ContinuousClock()
@@ -492,8 +502,8 @@ public enum HostedWindowCapture {
             let result = await attemptOnce(
                 make: make, window: window,
                 request: .init(
-                    style: style, reference: reference, mode: mode, interact: interact, minimumReads: minimumReads,
-                    height: height
+                    style: style, reference: reference, mode: mode, still: still, interact: interact,
+                    minimumReads: minimumReads, height: height
                 )
             )
             let elapsed = seconds(start.duration(to: clock.now))
@@ -562,6 +572,7 @@ public enum HostedWindowCapture {
         let style: UIUserInterfaceStyle
         let reference: URL?
         let mode: SnapshotMode
+        let still: (@MainActor (UIWindow) async throws -> Void)?
         let interact: (@MainActor (UIWindow) async throws -> Void)?
         let minimumReads: Int
         let height: CaptureHeight?
@@ -584,13 +595,27 @@ public enum HostedWindowCapture {
         }
         let hosted = host(root, in: window, style: request.style)
         let attempt: Attempt
-        if let height = request.height {
+        if let failed = await runStill(window: window, request: request) {
+            attempt = failed
+        } else if let height = request.height {
             attempt = await attemptSized(window: window, request: request, height: height)
         } else {
             attempt = await attemptHosted(window: window, request: request)
         }
         await hosted.disposeAfterDismissal()
         return attempt
+    }
+
+    /// Runs the stillness step at the window's native size, right after hosting; a throw ends the attempt as an
+    /// `interaction:` error, which the retry treats as it treats a failed operating step.
+    private static func runStill(window: UIWindow, request: Request) async -> Attempt? {
+        guard let still = request.still else { return nil }
+        do {
+            try await still(window)
+            return nil
+        } catch {
+            return failure("\(interactionReason):\(stepFailure(error))")
+        }
     }
 
     /// The reason of an attempt whose grown window lost the viewport's top, left or right safe area, or its size
