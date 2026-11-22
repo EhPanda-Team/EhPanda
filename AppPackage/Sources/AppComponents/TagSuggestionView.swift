@@ -22,6 +22,9 @@ public struct TagSuggestionView: View {
         /// marked (CJK composition) range and move the cursor, and the suggestion rows stay out of the way until
         /// there is something to suggest.
         case textEditor
+        /// One tag in a form (My Tags' Add Tag): the text is never rewritten while typing, and a chosen suggestion
+        /// replaces it with the tag as the site keeps it, `namespace:tag` (design approved 2026-11-22).
+        case tagName
     }
 
     @Environment(\.searchSuggestionsPlacement) private var searchSuggestionsPlacement
@@ -57,17 +60,26 @@ public struct TagSuggestionView: View {
                 SuggestionCell(
                     suggestion: suggestion,
                     showsImages: showsImages,
-                    action: { translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword) }
+                    action: { complete(with: suggestion) }
                 )
             }
             .onChange(of: keyword) {
                 switch source {
                 case .searchField:
                     translationHandler.analyze(text: &keyword, translations: translations)
-                case .textEditor:
+                case .textEditor, .tagName:
                     translationHandler.analyze(readingText: keyword, translations: translations)
                 }
             }
+        }
+    }
+
+    private func complete(with suggestion: TagSuggestion) {
+        switch source {
+        case .searchField, .textEditor:
+            translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword)
+        case .tagName:
+            keyword = "\(suggestion.tag.namespace.rawValue):\(suggestion.tag.key)"
         }
     }
 }

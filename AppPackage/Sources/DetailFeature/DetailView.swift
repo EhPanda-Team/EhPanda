@@ -4,11 +4,13 @@ import AppTools
 public import ComposableArchitecture
 import CookieClient
 import Kingfisher
+import MyTagEditor
 import ReadingFeature
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
 public import SwiftUI
+import SystemNotification
 import TagTranslationFeature
 
 public struct DetailView: View {
@@ -57,6 +59,7 @@ public struct DetailView: View {
                 }
             }
             .appAlert($store.scope(\.$alert, action: \.alert))
+            .toast($store.scope(\.$toast, action: \.toast))
             .navigationTitle(navigationTitle)
             .toolbarTitleDisplayMode(.inline)
             .toolbar(removing: isHeaderVisible || store.galleryDetail == nil ? .title : nil)
@@ -155,6 +158,8 @@ private extension DetailView {
                         tags: store.galleryTags, showsImages: store.setting.showImagesInTags,
                         myTags: store.user.myTags,
                         voteTagAction: { store.send(.voteTag(tag: $0, weight: $1)) },
+                        addToMyTagsAction: { store.send(.addTagToMyTagsTapped(name: $0)) },
+                        removeFromMyTagsAction: { store.send(.removeTagFromMyTags(tagID: $0)) },
                         navigateSearchAction: { store.send(.tagSearchTapped(keyword: $0, namespace: $1)) },
                         navigateTagDetailAction: { store.send(.tagDetailButtonTapped($0)) },
                         translateAction: {
@@ -251,6 +256,11 @@ private extension DetailView {
             // EhPanda's Report form; it presents the site's page itself when asked (18.1 D-01, P-7).
             .sheet(item: $store.scope(\.$destination, action: \.destination).reportForm) { store in
                 ReportFormView(store: store)
+                    .privacyMask()
+            }
+            // Add Tag, from a tag's Add to My Tags (design approved 2026-11-22).
+            .sheet(item: $store.scope(\.$destination, action: \.destination).myTagEditor) { store in
+                MyTagEditorView(store: store)
                     .privacyMask()
             }
             .sheet(item: $store.destination.newDawn) { greeting in

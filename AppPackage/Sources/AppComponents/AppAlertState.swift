@@ -202,6 +202,14 @@ extension AppAlertState where Action == Never {
     }
 }
 
+extension AppAlertState {
+    /// A native alert for a request that failed, with no buttons of its own (the system adds OK): `title` names what
+    /// failed, `message` is the site's reason or the error's text.
+    public static func failure(title: LocalizedStringResource, message: String) -> Self {
+        Self(title: { TextState(localized: title) }, message: { TextState(message) })
+    }
+}
+
 // MARK: - Native alert presentation
 extension View {
     /// Presents a **native** system alert when presentation state held in a store becomes non-`nil`,

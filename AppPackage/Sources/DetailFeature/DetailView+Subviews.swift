@@ -407,6 +407,10 @@ struct TagsSection: View {
     /// The account's cached My Tags, whose tags carry their symbol (design approved 2026-11-22).
     let myTags: MyTags?
     let voteTagAction: (String, Int) -> Void
+    /// Add to My Tags: the tag's full `namespace:tag`.
+    let addToMyTagsAction: (String) -> Void
+    /// Remove from My Tags: the tag's id in the tag set last chosen on My Tags.
+    let removeFromMyTagsAction: (Int) -> Void
     // Carries the tapped tag's namespace alongside the assembled search keyword so the reducer can
     // emit the namespace without parsing it back out of the keyword (which would be tag content).
     let navigateSearchAction: (String, TagNamespace?) -> Void
@@ -419,6 +423,8 @@ struct TagsSection: View {
                 TagRow(
                     tag: tag, showsImages: showsImages, myTags: myTags,
                     voteTagAction: voteTagAction,
+                    addToMyTagsAction: addToMyTagsAction,
+                    removeFromMyTagsAction: removeFromMyTagsAction,
                     navigateSearchAction: navigateSearchAction,
                     navigateTagDetailAction: navigateTagDetailAction,
                     translateAction: translateAction
@@ -439,6 +445,8 @@ extension TagsSection {
         let showsImages: Bool
         let myTags: MyTags?
         let voteTagAction: (String, Int) -> Void
+        let addToMyTagsAction: (String) -> Void
+        let removeFromMyTagsAction: (Int) -> Void
         // Mirrors `TagsSection`: the row passes the namespace it already holds for its header text,
         // so no caller has to recover it from the assembled keyword.
         let navigateSearchAction: (String, TagNamespace?) -> Void
@@ -532,6 +540,31 @@ extension TagsSection {
             }
             if didLogin {
                 tagVoteButtons(content: content)
+                if let tagSet = myTags?.selectedTagSet {
+                    Divider()
+                    myTagsItem(content: content, tagSet: tagSet)
+                }
+            }
+        }
+
+        /// The tag's My Tags item, after the shipped items (design approved 2026-11-22): Remove from My Tags for a tag
+        /// the tag set last chosen on My Tags holds, which removes it at once; otherwise Add to My Tags, which opens
+        /// Add Tag with the tag filled in.
+        @ContentBuilder
+        private func myTagsItem(content: GalleryTag.Content, tagSet: MyTagSet) -> some View {
+            let name = content.myTagsName
+            if let myTag = tagSet.tags.first(where: { $0.name == name }) {
+                Button(role: .destructive) {
+                    removeFromMyTagsAction(myTag.id)
+                } label: {
+                    Label(.RLocalizable.myTagsRemoveFromMyTags, systemSymbol: .tagSlash)
+                }
+            } else {
+                Button {
+                    addToMyTagsAction(name)
+                } label: {
+                    Label(.myTagsAddToMyTags, systemSymbol: .tag)
+                }
             }
         }
 
@@ -582,6 +615,8 @@ extension TagsSection {
             showsImages: false,
             myTags: nil,
             voteTagAction: { _, _ in },
+            addToMyTagsAction: { _ in },
+            removeFromMyTagsAction: { _ in },
             navigateSearchAction: { _, _ in },
             navigateTagDetailAction: { _ in },
             translateAction: { .init(text: $0, translation: nil) }

@@ -103,6 +103,7 @@ enum Module: String {
     case liveTextTranslation = "LiveTextTranslation"
     case logsClient = "LogsClient"
     case markdownExt = "MarkdownExt"
+    case myTagEditor = "MyTagEditor"
     case myTagsClient = "MyTagsClient"
     case networkingFeature = "NetworkingFeature"
     case osLogExt = "OSLogExt"
@@ -448,6 +449,19 @@ let targets: [PackageDescription.Target] = [
             .targetDependency(.composableArchitecture)
         ]
     ),
+    // My Tags' Add Tag and Edit Tag, presented from Detail and the My Tags page (port of PR 462 item 10).
+    .target(
+        module: .myTagEditor,
+        dependencies: [
+            .module(.appComponents),
+            .module(.appModels),
+            .module(.myTagsClient),
+            .module(.resources),
+            .module(.tagTranslationFeature),
+            .targetDependency(.composableArchitecture)
+        ],
+        resources: [.process(.resources)]
+    ),
     // My Tags' reads and writes, behind one dependency so a test decides their outcome (port of PR 462 item 10).
     .target(
         module: .myTagsClient,
@@ -782,6 +796,8 @@ let targets: [PackageDescription.Target] = [
             .module(.galleryClient),
             .module(.galleryListComponents),
             .module(.hapticsClient),
+            .module(.myTagEditor),
+            .module(.myTagsClient),
             .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.readingFeature),
@@ -1036,6 +1052,8 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.detailFeature),
             .module(.hapticsClient),
+            .module(.myTagEditor),
+            .module(.myTagsClient),
             .targetDependency(.composableArchitecture),
             .module(.appComponents),
             .module(.appLaunchAutomationClient),

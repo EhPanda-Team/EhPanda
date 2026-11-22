@@ -9,6 +9,8 @@ import DownloadClient
 public import Foundation
 import GalleryClient
 import HapticsClient
+public import MyTagEditor
+import MyTagsClient
 public import NetworkingFeature
 public import ReadingFeature
 public import SwiftUI
@@ -39,6 +41,8 @@ public struct DetailReducer: Sendable {
         @ReducerCaseIgnored case tagDetail(TagDetail)
         /// EhPanda's Report form, opened from a comment's Report in the strip (18.1 D-01).
         case reportForm(ReportFormFeature)
+        /// Add Tag, opened from a tag's Add to My Tags (design approved 2026-11-22).
+        case myTagEditor(MyTagEditorFeature)
     }
 
     public enum Alert: Equatable, Sendable {
@@ -59,15 +63,18 @@ public struct DetailReducer: Sendable {
         case postComment(String)
         case voteTag(String)
         case voteComment(String)
+        case myTags(String)
     }
 
     @ObservableState
     public struct State: Equatable {
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
-        @SharedReader(.user) public var user: User
+        // Shared, not read-only: Remove from My Tags writes the account's cached My Tags.
+        @Shared(.user) public var user: User
         @SharedReader(.setting) public var setting: Setting
         @Presents public var destination: Destination.State?
         @Presents public var alert: AppAlertState<Alert>?
+        @Presents public var toast: AppAlertState<Never>?
         public var moderation: CommentModerationFeature.State
         public var commentContent = ""
         public var postCommentFocused = false
@@ -237,6 +244,12 @@ public struct DetailReducer: Sendable {
         case postTapped
         case moderation(CommentModerationFeature.Action)
         case voteTag(tag: String, weight: Int)
+        /// A tag's Add to My Tags: opens Add Tag with the tag filled in, for the tag set last chosen on My Tags.
+        case addTagToMyTagsTapped(name: String)
+        /// A tag's Remove from My Tags: removes the tag from the tag set last chosen on My Tags, at once.
+        case removeTagFromMyTags(tagID: Int)
+        case removeTagFromMyTagsDone(Result<MyTagsPage, AppError>)
+        case toast(PresentationAction<Never>)
         /// A vote cast from a comment card's menu; the same vote the comments screen sends.
         case voteComment(commentID: String, vote: Int)
         case voteCommentDone(commentID: String, result: Result<GalleryCommentVoteResponse, AppError>)
@@ -254,6 +267,7 @@ public struct DetailReducer: Sendable {
     @Dependency(\.galleryClient) var galleryClient
     @Dependency(\.hapticsClient) var hapticsClient
     @Dependency(\.cookieClient) var cookieClient
+    @Dependency(\.myTagsClient) var myTagsClient
     @Dependency(\.appLaunchAutomationClient) var appLaunchAutomationClient
     @Dependency(\.date) var date
     @Dependency(\.commentFilterTerms) var commentFilterTerms
@@ -279,6 +293,8 @@ extension DetailReducer {
             galleryOpsReducer
                 .ifLet(\.$destination, action: \.destination)
                 .ifLet(\.$alert, action: \.alert)
+            myTagsReducer
+                .ifLet(\.$toast, action: \.toast)
         }
         .signalsErrors(of: \.loadingState.failed, on: .detail)
     }

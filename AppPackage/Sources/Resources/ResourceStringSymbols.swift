@@ -29,6 +29,16 @@ public nonisolated extension LocalizedStringResource {
 
         public static var myTagsStateHidden: LocalizedStringResource { .myTagsStateHidden }
 
+        public static var myTagsAddTag: LocalizedStringResource { .myTagsAddTag }
+
+        public static var myTagsRemoveFromMyTags: LocalizedStringResource { .myTagsRemoveFromMyTags }
+
+        public static var myTagsRemoved: LocalizedStringResource { .myTagsRemoved }
+
+        public static var myTagsSaveFailed: LocalizedStringResource { .myTagsSaveFailed }
+
+        public static var myTagsRemoveFailed: LocalizedStringResource { .myTagsRemoveFailed }
+
         public static var actions: LocalizedStringResource { .actions }
 
         public static var ageWallTitle: LocalizedStringResource { .ageWallTitle }

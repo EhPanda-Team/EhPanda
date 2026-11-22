@@ -23,6 +23,61 @@
         "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "已隱藏" } }
       }
     },
+    "my_tags.add_tag" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Tag hinzufügen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Tag" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "タグを追加" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "태그 추가" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "添加标签" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "新增標籤" } }
+      }
+    },
+    "my_tags.remove_from_my_tags" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aus „Meine Tags“ entfernen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove from My Tags" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "マイタグから削除" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "내 태그에서 삭제" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "从我的标签中移除" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "從我的標籤中移除" } }
+      }
+    },
+    "my_tags.removed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aus „Meine Tags“ entfernt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Removed from My Tags" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "マイタグから削除しました" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "내 태그에서 삭제했습니다" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已从我的标签中移除" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "已從我的標籤中移除" } }
+      }
+    },
+    "my_tags.save_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Tag nicht gespeichert" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn’t Save Tag" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "タグを保存できません" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "태그를 저장하지 못함" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法保存标签" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "無法儲存標籤" } }
+      }
+    },
+    "my_tags.remove_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Tag nicht entfernt" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn’t Remove Tag" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "タグを削除できません" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "태그를 삭제하지 못함" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法移除标签" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "無法移除標籤" } }
+      }
+    },
     "layout" : {
       "extractionState" : "manual",
       "localizations" : {
