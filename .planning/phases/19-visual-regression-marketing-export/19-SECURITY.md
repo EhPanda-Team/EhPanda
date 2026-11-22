@@ -9,12 +9,13 @@ below_threshold_open: 0
 accepted: 2
 # accepted_deferred: accepted by the owner on a condition; they are not closed. Condition: carried with the
 # deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication.
-accepted_deferred: 4
+accepted_deferred: 3
 asvs_level: 1
 block_on: high
 created: "2026-11-11"
 audited_head: 058a70613
 closed_at: "2026-11-11"
+updated: "2026-11-22"
 ---
 
 # Phase 19 — Security
@@ -26,14 +27,19 @@ closed_at: "2026-11-11"
 > (includes `test_snapshot_gate.py`, `test_snapshot_fetch.py`, `test_run_shard.py`, `test_snapshot_aggregate.py`),
 > grep of every workflow for `pull_request_target`, `secrets.`, and `${{ }}` inside `run:`. No xcodebuild, no hosted run.
 
-**Verdict: SECURED, with four accepted-deferred threats.** 36 of 40 threats closed (2 of them accepted). The other four
-(T-19-24, T-19-25, T-19-26, T-19-27) belong to the deferred plans 19-12 and 19-13 (owner decision) and are
+**Verdict: SECURED, with three accepted-deferred threats.** 37 of 40 threats closed (2 of them accepted). The other
+three (T-19-25, T-19-26, T-19-27) belong to the deferred plans 19-12 and 19-13 (owner decision) and are
 accepted-deferred by the owner: carried with the deferred 19-12/19-13 screenshot publishing; must be closed
-before any baseline publication. They are not closed and not mitigated yet; three are high and one is medium. None is
-reachable today: no publisher script, no snapshot repository push and no `fingerprints.json` exist, so nothing can be
+before any baseline publication. They are not closed yet; two are high and one is medium. None is reachable today:
+no picture has been pushed to the snapshot repository and no `fingerprints.json` exists, so nothing can be
 published. The gate fails closed while there is no baseline. Everything that runs on hosted runners and everything that
 handles tokens or secrets is closed. `threats_open` is 0 only because of the recorded acceptance; it is not a statement
-that the four mitigations exist.
+that the three mitigations are complete.
+
+*Update (2026-11-22): T-19-24 closed with its evidence (owner decision): the publisher never pushes by itself and the
+public snapshot repository was created after the owner's go-ahead with one README-only commit. UF-3 resolved: the proof
+branch was deleted on 2026-11-12. The 19-13 pre-check (T-19-26's machine check and agent view) has run on the
+candidate sets but its findings are not all decided, and no picture has been pushed.*
 
 *Close-out (2026-11-11): the owner's acceptance was recorded and the frontmatter counts and sign-off were
 updated. No code was changed and no check was re-run; the audit evidence above is the audit of `058a70613`.*
@@ -85,7 +91,7 @@ updated. No code was changed and no check was re-run; the audit evidence above i
 | T-19-21 | Denial of service | gate holding all 5 macOS slots | medium | accept | `Scripts/visual/README.md:107-112` records it (Pitfall 9); `snapshot-gate.yml:47-52` cancels superseded PR runs | closed (accepted, see log) |
 | T-19-22 | Tampering | fault injection reaching main | medium | mitigate | no commit on HEAD sets `EHPANDA_SNAPSHOT_FAULT` in `.github` (`git log -G` on HEAD empty; only on `ci/snapshot-gate`, commits `3140c6665`..`a100173b5`); the switch is env-only in `run-shard.sh:38-41,88` and no workflow sets it | closed |
 | T-19-23 | Tampering | simulator text size left at AX5 | low | mitigate | `NativeVisualPolicyUITests.swift:44,77,199,225` `LiveTextSize.reset()`; `snapshot-gate.yml:435` `content_size large` at the start of each attempt | closed |
-| T-19-24 | Repudiation | public repository created without consent | high | mitigate (deferred) | **Not implemented**: plan 19-12 deferred (owner decision); no publisher script or `test_snapshot_publish.py` exists; the blocking owner checkpoint has not run | **accepted-deferred** (owner decision: carried with the deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication) |
+| T-19-24 | Repudiation | public repository created without consent | high | mitigate | `Scripts/visual/snapshot_publish.py` never pushes by itself (`test_snapshot_publish.py:152-168`, 15 tests OK on 2026-11-22). `EhPanda-Team/ehpanda-snapshot` was created public after the owner's go-ahead, recorded in `19-12-CANDIDATE.md` (owner decision), by the owner's own account, with one signed README-only commit `14a6b03` (GitHub: verified, 1 commit, README equal to `Scripts/visual/snapshot-repo-README.md`). Closed 2026-11-22 (owner decision) | closed |
 | T-19-25 | Information disclosure | personal data in the public repository | medium | mitigate (deferred) | **Not implemented**: the snapshot repository README and the 19-13 pre-check before any push do not exist yet (19-12/19-13 deferred). Phase 19's own `Scripts/visual/README.md` and tests carry no name, home path or address (grep) | **accepted-deferred** (owner decision: carried with the deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication; below the high threshold) |
 | T-19-26 | Information disclosure | real content in a public picture | high | mitigate (deferred) | **Not implemented**: `test_snapshot_precheck.py`, the machine real-content check and the agent view of every picture (19-13 Task 1) are deferred (owner decision). Primary control (synthetic fixtures only) is verified under T-19-11/13/14/16 | **accepted-deferred** (owner decision: carried with the deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication) |
 | T-19-27 | Repudiation | inferred approval | high | mitigate (deferred) | **Not implemented**: the 19-13 decision checkpoint recording the exact owner message has not run; no approval has been given or inferred, no `fingerprints.json` exists | **accepted-deferred** (owner decision: carried with the deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication) |
@@ -103,21 +109,20 @@ updated. No code was changed and no check was re-run; the audit evidence above i
 | T-19-39 | Information disclosure | README with personal details | low | mitigate | grep of `Scripts/**`, `.github/**`, `AppPackage/Tests/{VisualSnapshotTests,LiveCheckTests}` for home paths, `/Users/<name>`, LAN addresses, tokens: no hit except a CI runner path inside a test fixture (`test_snapshot_infra.py:30`, not personal) | closed |
 
 *Status: open · closed · accepted-deferred (accepted by the owner on a condition; not closed)*
-*Counts: 40 threats; closed 36 (including 2 accepted); accepted-deferred 4 (T-19-24, T-19-25, T-19-26, T-19-27); open 0.*
+*Counts: 40 threats; closed 37 (including 2 accepted); accepted-deferred 3 (T-19-25, T-19-26, T-19-27); open 0. T-19-24 closed 2026-11-22.*
 
 ### Accepted-deferred threats (what is missing and how to close it)
 
-Condition for all four (owner decision): carried with the deferred 19-12/19-13 screenshot publishing; must be closed
+Condition for the three still open (owner decision): carried with the deferred 19-12/19-13 screenshot publishing; must be closed
 before any baseline publication.
 
 | Threat | Severity | File / evidence | Close by |
 |--------|----------|-----------------|----------|
-| T-19-24 | high | 19-VALIDATION.md rows 19-12-01..03; no `Scripts/visual/snapshot_publish.py` | Execute 19-12 (publisher never pushes by itself; owner checkpoint before repository creation) |
 | T-19-26 | high | 19-VALIDATION.md row 19-13-01; no `test_snapshot_precheck.py` | Execute 19-13 Task 1 (machine check plus agent view of every picture) before any push |
 | T-19-27 | high | 19-VALIDATION.md rows 19-13-02..03 | Execute 19-13 Task 2; record the owner's exact approval; a partial answer is not approval |
 | T-19-25 | medium | 19-VALIDATION.md rows 19-12-01..03, 19-13-01 | Execute 19-12/19-13; grep the new repository README for names and paths before pushing |
 
-These four share one cause, the owner's deferral. They stay on the books until the deferred plans
+These three share one cause, the owner's deferral. They stay on the books until the deferred plans
 run and each row above is closed with its evidence; the conditional acceptance does not retire them.
 
 ---
@@ -130,7 +135,7 @@ SUMMARY.md files carry no `## Threat Flags` section. These came from reading the
 |------|----------|-----------|-------------------------------|
 | UF-1 | medium | `.github/workflows/dependencies.yml:6-10,16,19-26,36` | Phase 19 added `actions: write` next to `contents: write` and `pull-requests: write`. The job checks out with the default persisted credential, then runs `swift package update` and `xcodebuild -resolvePackageDependencies` (evaluates third-party package manifests) before `peter-evans/create-pull-request@v8` (tag-pinned). Add `persist-credentials: false` to the checkout (the action takes its own token input), scope the permissions to the job, and consider SHA-pinning the action **Resolved** (`fddb75768`): the checkout sets `persist-credentials: false`; `create-pull-request` takes `token: ${{ github.token }}` explicitly and is pinned by full commit SHA (tag in a comment); permissions stay at workflow level. |
 | UF-2 | low | `.github/workflows/deploy.yml:37-50`, `deploy-beta.yml:40-49` | The `Deploy` jobs have no explicit `permissions`, so they take the repository default token scope; they need `contents: write`. State it (`permissions: contents: write`) so a permissive default cannot widen it. The gate jobs are explicit **Resolved** (`d3ae9b98c`): both `Deploy` jobs declare `permissions: contents: write` (no step needs more). |
-| UF-3 | low | `origin/ci/snapshot-gate` (head `a100173b5`) | The remote proof branch still exists (19-10-PROOF.md says deleted) and carries the fault-switch proof workflow. Gate has no secrets, so impact is a stray hosted run. Delete it once the deferred proof is done or abandoned **Open**: delete `origin/ci/snapshot-gate` after run 42951290351 ends. |
+| UF-3 | low | `origin/ci/snapshot-gate` (head `a100173b5`) | The remote proof branch still exists (19-10-PROOF.md says deleted) and carries the fault-switch proof workflow. Gate has no secrets, so impact is a stray hosted run. Delete it once the deferred proof is done or abandoned **Resolved** (checked 2026-11-22): run 42951290351 completed on 2026-11-11 (`failure`), and the branch was deleted on 2026-11-12 (repository activity: `branch_deletion` of `refs/heads/ci/snapshot-gate`); `git ls-remote origin 'refs/heads/ci/*'` lists nothing. |
 | UF-4 | low | `19-10-PROOF.md:317-318,345-346`; `Scripts/visual/run-library-validation.py:19` | Simulator device IDs (not hardware UDIDs) in tracked files; the second one pre-dates phase 19. Scrub if the repository is public **Resolved** (`5bdf7e5f8`): device IDs replaced by neutral labels in `19-10-PROOF.md`; `run-library-validation.py` left as it pre-dates phase 19. |
 | UF-5 | low | `Scripts/visual/validate-preview.py:87-97` (review IN-08) | The preview validator accepts a response that omits `locale`/`variant`/`review`. A review aid only, never a gate; require the fields **Resolved** (`1bef4800d`): a response without `locale`, `variant` or `review` is rejected; existing tests green. |
 | UF-6 | low | `AppPackage/Tests/LiveCheckTests/LiveCheckRunner.swift:199-209` (review IN-07) | Up to four immediate retries per list page; the daily check should not burst on a blocked IP. Add a pause between attempts |
@@ -159,7 +164,7 @@ pictures and logs are synthetic; deploy gating is `needs: snapshot-gate` with th
 
 | Risk ID | Threat Ref | Rationale and condition | Accepted By | Date |
 |---------|------------|-------------------------|-------------|------|
-| AR-19-03 | T-19-24 | Public repository creation needs the publisher script and the owner's go-ahead, both in deferred 19-12. Carried with the deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication (owner decision). Nothing can be published meanwhile | owner | 2026-11-11 |
+| AR-19-03 | T-19-24 | Public repository creation needs the publisher script and the owner's go-ahead, both in deferred 19-12. Carried with the deferred 19-12/19-13 screenshot publishing; must be closed before any baseline publication (owner decision). Nothing can be published meanwhile. **Retired 2026-11-22**: T-19-24 closed with its evidence (owner decision) | owner | 2026-11-11 |
 | AR-19-04 | T-19-25 | The snapshot repository README and the pre-check before any push do not exist yet. Same condition (owner decision) | owner | 2026-11-11 |
 | AR-19-05 | T-19-26 | The machine real-content check and the agent view of every picture are 19-13 Task 1. Same condition (owner decision). Primary control (synthetic fixtures only) is verified under T-19-11/13/14/16 | owner | 2026-11-11 |
 | AR-19-06 | T-19-27 | The decision checkpoint recording the owner's exact approval message is 19-13 Task 2. Same condition (owner decision). No approval has been given or inferred | owner | 2026-11-11 |
@@ -172,6 +177,7 @@ pictures and logs are synthetic; deploy gating is `needs: snapshot-gate` with th
 |------------|---------------|--------|------|--------|
 | 2026-11-11 | 40 | 36 | 4 (3 blocking, 1 non-blocking) | gsd-security-auditor (claude-sonnet-5-5, high effort) |
 | 2026-11-11 | 40 | 36 | 0 open; 4 accepted-deferred (owner decision); UF-3 open (low) | phase close-out records (gsd-executor): acceptance recorded, no re-audit |
+| 2026-11-22 | 40 | 37 | 0 open; 3 accepted-deferred (T-19-25, T-19-26, T-19-27); UF-3 resolved | deferred-items pass: T-19-24 closed with its evidence (owner decision), UF-3 checked on GitHub; no re-audit |
 
 ---
 
@@ -179,10 +185,11 @@ pictures and logs are synthetic; deploy gating is `needs: snapshot-gate` with th
 
 - [x] All threats have a disposition (mitigate / accept / transfer)
 - [x] Accepted risks documented in Accepted Risks Log
-- [x] `threats_open: 0` confirmed (T-19-24, T-19-26 and T-19-27 are accepted-deferred by the owner, not closed)
+- [x] `threats_open: 0` confirmed (T-19-26 and T-19-27 are accepted-deferred by the owner, not closed)
 - [x] `status: verified` set in frontmatter
-- [ ] Accepted-deferred threats T-19-24, T-19-25, T-19-26, T-19-27 closed (owed with 19-12/19-13, before any baseline publication)
-- [ ] UF-3 closed: delete `origin/ci/snapshot-gate` after run 42951290351 ends (open, low)
+- [x] T-19-24 closed (2026-11-22, owner decision)
+- [ ] Accepted-deferred threats T-19-25, T-19-26, T-19-27 closed (owed with 19-12/19-13, before any baseline publication)
+- [x] UF-3 closed: `origin/ci/snapshot-gate` deleted 2026-11-12, after run 42951290351 ended (checked 2026-11-22)
 
 **Approval:** verified 2026-11-11 (threat register), with four threats accepted-deferred by the owner on the
-condition above.
+condition above. Updated 2026-11-22: T-19-24 closed and UF-3 resolved; three threats stay accepted-deferred.
