@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AutomationIdentifiers
 import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -209,7 +210,7 @@ struct GeneralSettingView: View {
             }
         }
         .pickerStyle(.menu)
-        .accessibilityIdentifier("setting_analytics_level")
+        .accessibilityIdentifier(AccessibilityIdentifiers.settingAnalyticsLevel)
     }
 
     /// Opens the website's privacy page in the default browser, like every other external link in the app.
@@ -226,7 +227,7 @@ struct GeneralSettingView: View {
                 }
             }
             .foregroundStyle(.primary)
-            .accessibilityIdentifier("setting_privacy_policy")
+            .accessibilityIdentifier(AccessibilityIdentifiers.settingPrivacyPolicy)
         }
     }
 }

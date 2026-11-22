@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import Network
 import Synchronization
 import XCTest
@@ -14,7 +15,7 @@ final class ShareSheetUITests: XCTestCase {
         let galleryURL = try XCTUnwrap(UITestConstants.galleryURL(scheme: "ehpanda"))
         try app.openCold(galleryURL)
         app.requireForeground()
-        app.requireElement("detail_view", matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertTrue(
             app.buttons[UITestConstants.primaryMarkerTitle].waitForExistence(timeout: 15),
             "The fixture gallery detail did not render."
@@ -41,7 +42,7 @@ final class ShareSheetUITests: XCTestCase {
             "Share did not present the system activity collection view."
         )
         app.buttons["header.closeButton"].firstMatch.tapWhenHittable("Activity Close")
-        app.requireElement("detail_view", matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
     }
 
     func testShareSheetHandoffLandsOnDetail() throws {
@@ -147,7 +148,7 @@ final class ShareSheetUITests: XCTestCase {
             \(safari.debugDescription)
             """
         )
-        app.requireElement("detail_view", matching: .scrollView, timeout: 15)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView, timeout: 15)
         XCTAssertTrue(
             app.buttons[UITestConstants.primaryMarkerTitle]
                 .waitForExistence(timeout: 10),

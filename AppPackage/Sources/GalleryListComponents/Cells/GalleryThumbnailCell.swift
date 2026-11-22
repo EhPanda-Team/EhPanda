@@ -1,6 +1,7 @@
 import AppComponents
 public import AppModels
 import AppTools
+import AutomationIdentifiers
 import Kingfisher
 import SFSafeSymbols
 import Sharing
@@ -61,7 +62,7 @@ public struct GalleryThumbnailCell: View {
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                    .accessibilityIdentifier("gallery-grid-title-\(gallery.id)")
+                    .accessibilityIdentifier(AccessibilityIdentifiers.galleryGridTitle(id: gallery.id))
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in
@@ -86,7 +87,7 @@ public struct GalleryThumbnailCell: View {
 
                 if showsRating {
                     rating
-                        .accessibilityIdentifier("gallery-grid-rating-\(gallery.id)")
+                        .accessibilityIdentifier(AccessibilityIdentifiers.galleryGridRating(id: gallery.id))
                 }
             }
             .padding(.vertical)
@@ -143,7 +144,7 @@ public struct GalleryThumbnailCell: View {
                     .resizable()
                     .scaledToFit()
                     // Marketing captures find which covers a screenshot shows by this identifier.
-                    .accessibilityIdentifier("gallery-grid-cover-\(gallery.id)")
+                    .accessibilityIdentifier(AccessibilityIdentifiers.galleryGridCover(id: gallery.id))
             }
             .overlay {
                 if !dynamicTypeSize.isAccessibilitySize {

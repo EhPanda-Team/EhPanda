@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -43,26 +44,28 @@ final class FirstLaunchCircleTopUITests: XCTestCase {
         app.requireForeground()
         defer { app.terminate() }
 
-        let ageWall = app.scrollViews["first_launch_age_wall"]
+        let ageWall = app.scrollViews[AccessibilityIdentifiers.firstLaunchAgeWall]
         XCTAssertTrue(ageWall.waitForExistence(timeout: 15), "The age wall is missing at \(size).")
-        let declaration = app.switches["first_launch_declaration"]
+        let declaration = app.switches[AccessibilityIdentifiers.firstLaunchDeclaration]
         XCTAssertTrue(declaration.waitUntilHittable(timeout: XCUIElement.hittableTimeout))
         keepAndMeasure(app, card: declaration, name: "age-wall-\(size)", assertAlignment: assertAlignment)
 
-        let continueButton = app.buttons["first_launch_continue"]
+        let continueButton = app.buttons[AccessibilityIdentifiers.firstLaunchContinue]
         scrollIntoReach(declaration, in: ageWall, clearOf: continueButton)
         declaration.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(continueButton.wait(for: \.isEnabled, toEqual: true, timeout: 5), "Continue stayed dimmed.")
         continueButton.tapWhenHittable("Continue")
 
-        let title = app.staticTexts["first_launch_analytics_title"]
+        let title = app.staticTexts[AccessibilityIdentifiers.firstLaunchAnalyticsTitle]
         XCTAssertTrue(title.waitForExistence(timeout: 15), "The analytics choice is missing at \(size).")
         XCTAssertTrue(title.waitUntilHittable(timeout: XCUIElement.hittableTimeout), "The step never settled.")
-        let levels = ["minimal", "basic", "full"].map { app.buttons["first_launch_level_\($0)"] }
+        let levels = ["minimal", "basic", "full"].map({ app.buttons[AccessibilityIdentifiers.firstLaunchLevel($0)] })
         keepAndMeasure(app, cards: levels, name: "analytics-\(size)", assertAlignment: assertAlignment)
 
         let basic = levels[1]
-        scrollIntoReach(basic, in: app.scrollViews["first_launch_analytics_choice"], clearOf: continueButton)
+        scrollIntoReach(
+            basic, in: app.scrollViews[AccessibilityIdentifiers.firstLaunchAnalyticsChoice], clearOf: continueButton
+        )
         basic.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         // The fade between the ring and the filled disc takes 0.15 s.
         _ = app.staticTexts["never-present"].waitForExistence(timeout: 1)
@@ -82,7 +85,7 @@ final class FirstLaunchCircleTopUITests: XCTestCase {
         add(attachment)
         guard assertAlignment else { return }
 
-        let barTop = app.buttons["first_launch_continue"].frame.minY
+        let barTop = app.buttons[AccessibilityIdentifiers.firstLaunchContinue].frame.minY
         var measured = 0
         for card in cards where card.frame.maxY <= barTop {
             guard let result = CircleTopMeasurement(screenshot: screenshot, card: card.frame) else {

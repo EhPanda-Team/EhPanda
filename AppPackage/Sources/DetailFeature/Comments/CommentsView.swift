@@ -1,6 +1,7 @@
 import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 import ComposableArchitecture
 import CookieClient
 import Kingfisher
@@ -52,7 +53,7 @@ struct CommentsView: View {
                     // The moderation alert sits on the row that asked for it (AGENTS.md alert placement).
                     .appAlert(moderationAlert(for: comment))
             }
-            .accessibilityIdentifier("comments_view")
+            .accessibilityIdentifier(AccessibilityIdentifiers.commentsView)
             // Blocking or unblocking collapses or expands every comment of the author at once (C-4, C-6).
             .animation(reduceMotion ? nil : .default, value: store.moderation.blockedMemberIDs)
             .onChange(of: store.moderation.blockedMemberIDs) {
@@ -152,7 +153,7 @@ struct CommentsView: View {
                 linkAction: { store.send(.handleCommentLink($0)) }
             )
             // Here, not on the row: on the row it would replace the collapsed row's own identifier.
-            .accessibilityIdentifier("comment_cell_" + comment.commentID)
+            .accessibilityIdentifier(AccessibilityIdentifiers.commentCell(id: comment.commentID))
             .moderationContextMenu(actions)
             // The swipe buttons are the menu's vote row: a vote already cast reads Withdraw Vote with the slashed thumb
             // and is the same call again, and a vote that cannot be cast is disabled, never left out.
@@ -164,9 +165,7 @@ struct CommentsView: View {
                 // own, whose vote is disabled, which a full swipe could not perform.
                 if comment.editable {
                     Button {
-                        store.send(
-                            .presentPostComment(commentID: comment.commentID, content: comment.plainTextContent)
-                        )
+                        store.send(.editTapped(commentID: comment.commentID))
                     } label: {
                         Label(.editComment, systemSymbol: .squareAndPencil)
                             .labelStyle(.iconOnly)

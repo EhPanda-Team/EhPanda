@@ -53,15 +53,6 @@ public struct GalleryComment: Identifiable, Equatable, Codable, Sendable {
         votedUp = vote > 0
         votedDown = vote < 0
     }
-
-    public var plainTextContent: String {
-        contents
-            .filter({ [.plainText, .linkedText, .singleLink].contains($0.type) })
-            .compactMap({ content in
-                content.type == .singleLink ? content.link?.absoluteString : content.text.map({ String($0.characters) })
-            })
-            .joined()
-    }
 }
 
 extension GalleryComment: DateFormattable {

@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 /// One marketing capture coordinate (D-16): the screen, selection set and rendering axes a single
@@ -680,7 +681,8 @@ extension XCUIApplication {
         as type: Diagnostics.Type,
         during launch: String
     ) throws -> (json: String, diagnostics: Diagnostics) {
-        let element = descendants(matching: .any).matching(identifier: "capture_diagnostics").firstMatch
+        let element = descendants(matching: .any)
+            .matching(identifier: AccessibilityIdentifiers.captureDiagnostics).firstMatch
         XCTAssertTrue(element.waitForExistence(timeout: 30), "The \(launch) did not start a capture.")
         let settles = XCTNSPredicateExpectation(
             predicate: NSPredicate(
@@ -730,7 +732,10 @@ struct CaptureVisibleCover: Encodable, Equatable {
     /// and of Home's front page cells, which hide their covers from accessibility: a cell's cover fills
     /// its top, so a cell in sight counts as its cover, which can only count a cover too often.
     static let prefixes = [
-        "home_slideshow_cover_", "home_ranking_cover_", "gallery-grid-cover-", "home_front_page_title_"
+        AccessibilityIdentifiers.homeSlideshowCoverPrefix,
+        AccessibilityIdentifiers.homeRankingCoverPrefix,
+        AccessibilityIdentifiers.galleryGridCoverPrefix,
+        AccessibilityIdentifiers.homeFrontPageTitlePrefix
     ]
 
     let gid: String

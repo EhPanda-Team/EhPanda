@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 /// The native behaviour the snapshot matrix cannot see, because it lives in transitions (D-19, 17-09-T2): entry at
@@ -268,12 +269,14 @@ final class NativeVisualPolicyUITests: XCTestCase {
         }
         XCUIDevice.shared.orientation = .portrait
         try app.openCold(XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda")))
-        let reader = app.requireElement("reading_view")
+        let reader = app.requireElement(AccessibilityIdentifiers.readingView)
         for orientation in [UIDeviceOrientation.portrait, .landscapeLeft, .portrait] {
             turn(app, to: orientation)
             let width = "\(Int(app.windows.firstMatch.frame.width)) points"
             showReaderPanel(in: app)
-            let indicator = app.staticTexts.matching(identifier: "reading_page_indicator").firstMatch
+            let indicator = app.staticTexts
+                .matching(identifier: AccessibilityIdentifiers.readingPageIndicator)
+                .firstMatch
             XCTAssertTrue(indicator.waitUntilHittable(timeout: 10), "The page indicator overflowed at \(width).")
             XCTAssertTrue(reader.buttons["Close"].firstMatch.isHittable, "Close overflowed at \(width).")
             let more = reader.buttons.matching(UITestConstants.overflowButtonPredicate).firstMatch
@@ -308,7 +311,7 @@ final class NativeVisualPolicyUITests: XCTestCase {
         )
         // Back on the Search root, the query is a recent search that Remove All can clear.
         app.buttons["BackButton"].firstMatch.tapWhenHittable("Back to Search")
-        let source = app.buttons["search-remove-all-keywords"].firstMatch
+        let source = app.buttons[AccessibilityIdentifiers.searchRemoveAllKeywords].firstMatch
         revealElement(source, in: app)
         let confirm = app.buttons.matching(
             // Not either section's own Remove All, which open the dialogs.
@@ -487,9 +490,10 @@ final class NativeVisualPolicyUITests: XCTestCase {
 
     /// Shows the reader's panel, which carries the toolbar, with a tap in the middle of the page.
     func showReaderPanel(in app: XCUIApplication) {
-        let indicator = app.staticTexts.matching(identifier: "reading_page_indicator").firstMatch
+        let indicator = app.staticTexts.matching(identifier: AccessibilityIdentifiers.readingPageIndicator).firstMatch
         guard !indicator.waitForExistence(timeout: 2) else { return }
-        app.requireElement("reading_pages").coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let pages = app.requireElement(AccessibilityIdentifiers.readingPages)
+        pages.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(indicator.waitForExistence(timeout: 5), "The reader did not show its panel.")
     }
 

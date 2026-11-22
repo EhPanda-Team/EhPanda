@@ -1,6 +1,7 @@
 import AppComponents
 public import AppModels
 import AppTools
+import AutomationIdentifiers
 import ColorfulX
 public import Kingfisher
 import SFSafeSymbols
@@ -75,7 +76,7 @@ public struct GalleryCardCell: View {
                             HomeCompactSlideshowContent(gallery: gallery)
                         } else {
                             Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
-                                .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
+                                .accessibilityIdentifier(AccessibilityIdentifiers.homeSlideshowTitle(id: gallery.id))
                                 .font(.title2.bold())
                                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                             HomeSlideshowInformation(gallery: gallery)
@@ -158,7 +159,7 @@ public struct GalleryCardCell: View {
 
     /// Marketing captures find which covers a screenshot shows by this identifier.
     private var coverIdentifier: String {
-        "home_slideshow_cover_\(gallery.id)"
+        AccessibilityIdentifiers.homeSlideshowCover(id: gallery.id)
     }
 
     /// Reserve the same preview height for every gallery at a given arrangement.
@@ -166,7 +167,7 @@ public struct GalleryCardCell: View {
     private func textColumn(titleLines: Int) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
-                .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
+                .accessibilityIdentifier(AccessibilityIdentifiers.homeSlideshowTitle(id: gallery.id))
                 .font(.title3.bold())
                 .lineLimit(titleLines, reservesSpace: true)
                 .fixedSize(horizontal: false, vertical: true)

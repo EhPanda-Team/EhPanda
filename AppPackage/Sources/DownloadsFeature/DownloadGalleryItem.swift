@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AutomationIdentifiers
 import ComposableArchitecture
 import GalleryListComponents
 import Resources
@@ -47,7 +48,7 @@ private extension DownloadGalleryItem {
         ) {
             store.send(.galleryTapped(download.gid))
         }
-        .accessibilityIdentifier("download-gallery-\(download.gid)")
+        .accessibilityIdentifier(AccessibilityIdentifiers.downloadGallery(gid: download.gid))
         .contextMenu {
             detailButton
             readButton
@@ -94,7 +95,7 @@ private extension DownloadGalleryItem {
         ))
         .frame(maxHeight: .infinity, alignment: .top)
         .accessibilityFocused(rowFocus, equals: download.id)
-        .accessibilityIdentifier("download-gallery-\(download.gid)")
+        .accessibilityIdentifier(AccessibilityIdentifiers.downloadGallery(gid: download.gid))
         .contextMenu {
             managementMenu
         } preview: {

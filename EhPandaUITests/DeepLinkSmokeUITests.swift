@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 @MainActor
@@ -19,7 +20,7 @@ final class DeepLinkSmokeUITests: XCTestCase {
             "Cold deep-link delivery did not foreground EhPanda."
         )
         XCTAssertTrue(
-            app.descendants(matching: .any)["detail_view"]
+            app.descendants(matching: .any)[AccessibilityIdentifiers.detailView]
                 .waitForExistence(timeout: 15),
             "Cold deep-link delivery did not reach the gallery detail screen."
         )

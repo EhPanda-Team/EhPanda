@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import CoreGraphics
 import XCTest
 
@@ -7,8 +8,8 @@ extension XCUIApplication {
     func requireLibraryNavigationTitle(
         _ source: String, file: StaticString = #filePath, line: UInt = #line
     ) -> XCUIElement {
-        let sidebar = descendants(matching: .any)["library-categories"].firstMatch
-        let menu = descendants(matching: .any)["library-title-menu"].firstMatch
+        let sidebar = descendants(matching: .any)[AccessibilityIdentifiers.libraryCategories].firstMatch
+        let menu = descendants(matching: .any)[AccessibilityIdentifiers.libraryTitleMenu].firstMatch
         var readyNavigation: XCUIElement?
         var usesSidebar = false
         // Layout can change while the native bar appears. Choose the presentation anew on every sample, and
@@ -19,10 +20,12 @@ extension XCUIApplication {
             guard navigation.exists, navigation.staticTexts[source].isHittable else { return false }
             if hasSidebar, source == "Downloads" {
                 // All Downloads has no selected folder link; its content identifies the selected source.
-                guard self.descendants(matching: .any)["downloads-gallery-list"].firstMatch.exists else { return false }
+                let list = self.descendants(matching: .any)[AccessibilityIdentifiers.downloadsGalleryList]
+                guard list.firstMatch.exists else { return false }
             } else if hasSidebar {
-                let categories = sidebar.descendants(matching: .any)
-                    .matching(NSPredicate(format: "identifier BEGINSWITH %@", "library-favorites-"))
+                let categories = sidebar.descendants(matching: .any).matching(
+                    NSPredicate(format: "identifier BEGINSWITH %@", AccessibilityIdentifiers.libraryFavoritesPrefix)
+                )
                 guard categories.allElementsBoundByIndex.contains(where: { $0.isSelected && $0.isHittable }) else {
                     return false
                 }
@@ -48,7 +51,7 @@ extension XCUIApplication {
     }
 
     func returnFromGalleryDetail(file: StaticString = #filePath, line: UInt = #line) {
-        let detail = descendants(matching: .any)["detail_view"].firstMatch
+        let detail = descendants(matching: .any)[AccessibilityIdentifiers.detailView].firstMatch
         XCTAssertTrue(detail.waitForExistence(timeout: 10), file: file, line: line)
         let close = descendants(matching: .any)["Close"].firstMatch
         let back = descendants(matching: .any)["BackButton"].firstMatch

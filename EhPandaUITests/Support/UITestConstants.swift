@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import Foundation
 
 enum UITestConstants {
@@ -45,7 +46,7 @@ enum UITestConstants {
     /// A gallery of a list in either layout. A grid lays its cards out in a scroll view, not a
     /// collection view, and a list's layout persists on the simulator from earlier tests.
     static var galleryItemPredicate: NSPredicate {
-        NSPredicate(format: "identifier BEGINSWITH %@", "gallery-list-item-")
+        NSPredicate(format: "identifier BEGINSWITH %@", AccessibilityIdentifiers.galleryListItemPrefix)
     }
 
     static func galleryURL(

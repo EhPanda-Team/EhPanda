@@ -20,7 +20,8 @@ struct HistoryView: View {
         GalleryList(
             displayMode: store.setting.galleryListPresentation[.history],
             galleries: store.filteredGalleries,
-            pageNumber: PageNumber(isNextButtonEnabled: store.hasMoreHistory),
+            // History pages through the device's own list, so its cursor is the index of the next entry to fetch.
+            pageNumber: PageNumber(nextCursor: store.hasMoreHistory ? String(store.fetchedCount) : nil),
             loadingState: store.loadingState,
             footerLoadingState: store.footerLoadingState,
             // A leading list section, rather than a pinned top banner, keeps the navigation title

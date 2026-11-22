@@ -84,14 +84,6 @@ public struct FavoritesReducer: Sendable {
         }
 
         public init() {}
-
-        mutating func insertGalleries(favoritesIndex: Int, galleries: [Gallery]) {
-            galleries.forEach { gallery in
-                if rawGalleries[favoritesIndex]?.contains(gallery) == false {
-                    rawGalleries[favoritesIndex]?.append(gallery)
-                }
-            }
-        }
     }
 
     public enum Action: BindableAction {
@@ -266,23 +258,20 @@ public struct FavoritesReducer: Sendable {
                 case .success(let fetchResult):
                     let pageNumber = fetchResult.pageNumber
                     let galleries = fetchResult.galleries
+                    // The page's cursor is kept even when the page is empty, since the next page is fetched from it.
+                    state.rawPageNumber[targetFavIndex] = pageNumber
+                    state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
+                    state.rawGalleries[targetFavIndex] = galleries
                     guard !galleries.isEmpty else {
                         // A keyword search with no hits is "no results": the shared not-found error.
                         guard keyword.isEmpty else {
                             state.rawLoadingState[targetFavIndex] = .failed(.notFound)
-                            guard pageNumber.hasNextPage() else { return .none }
-                            return .send(.fetchMoreGalleries)
+                            return pageNumber.hasNextPage() ? .send(.fetchMoreGalleries) : .none
                         }
                         // Nothing saved in this category: its own empty state, not an error.
-                        state.rawPageNumber[targetFavIndex] = pageNumber
-                        state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
-                        state.rawGalleries[targetFavIndex] = []
                         state.emptyFavoritesIndices.insert(targetFavIndex)
                         return .none
                     }
-                    state.rawPageNumber[targetFavIndex] = pageNumber
-                    state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
-                    state.rawGalleries[targetFavIndex] = galleries
                     // A page whose order was not read keeps the order the server last confirmed.
                     if let sortOrder = fetchResult.sortOrder {
                         state.sortOrder = sortOrder
@@ -294,19 +283,14 @@ public struct FavoritesReducer: Sendable {
                 return .none
 
             case .fetchMoreGalleries:
-                let pageNumber = state.pageNumber ?? .init()
-                guard pageNumber.hasNextPage(),
-                      state.footerLoadingState != .loading,
-                      let lastID = state.galleries?.last?.id,
-                      let lastItemTimestamp = pageNumber.lastItemTimestamp
+                guard state.footerLoadingState != .loading,
+                      let cursor = state.pageNumber?.nextCursor
                 else { return .none }
                 state.rawFooterLoadingState[state.favoritesIndex] = .loading
                 let host = state.setting.galleryHost
                 return .run { [index = state.favoritesIndex, keyword = state.keyword] send in
                     let result = await Result.Swift::init { () async throws(AppError) in
-                        try await galleryClient.fetchMoreFavoritesGalleries(
-                            host, index, lastID, lastItemTimestamp, keyword
-                        )
+                        try await galleryClient.fetchMoreFavoritesGalleries(host, index, cursor, keyword)
                     }
                     await send(.fetchMoreGalleriesDone(index: index, result: result))
                 }
@@ -315,22 +299,18 @@ public struct FavoritesReducer: Sendable {
                 state.rawFooterLoadingState[targetFavIndex] = .idle
                 switch result {
                 case .success(let fetchResult):
-                    let pageNumber = fetchResult.pageNumber
-                    let galleries = fetchResult.galleries
-                    state.rawPageNumber[targetFavIndex] = pageNumber
+                    let previous = state.rawPageNumber[targetFavIndex] ?? .init()
+                    state.rawPageNumber[targetFavIndex] = fetchResult.pageNumber
                     state.rawDateSeekNavigation[targetFavIndex] = fetchResult.dateSeekNavigation
-                    state.insertGalleries(favoritesIndex: targetFavIndex, galleries: galleries)
                     if let sortOrder = fetchResult.sortOrder {
                         state.sortOrder = sortOrder
                     }
-
-                    var effects: [Effect<Action>] = []
-                    if galleries.isEmpty, pageNumber.hasNextPage() {
-                        effects.append(.send(.fetchMoreGalleries))
-                    } else if !galleries.isEmpty {
+                    if state.rawGalleries[targetFavIndex, default: []].appendNew(fetchResult.galleries) > 0 {
                         state.rawLoadingState[targetFavIndex] = .idle
+                        return .none
                     }
-                    return .merge(effects)
+                    // Nothing new leaves the last gallery where it was, so no scroll will ask again: go on from here.
+                    return fetchResult.pageNumber.advances(from: previous) ? .send(.fetchMoreGalleries) : .none
 
                 case .failure(let error):
                     state.rawFooterLoadingState[targetFavIndex] = .failed(error)

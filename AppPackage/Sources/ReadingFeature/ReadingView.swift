@@ -2,6 +2,7 @@ import AnimatedImageFeature
 import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 public import ComposableArchitecture
 import Dependencies
 import LiveTextTranslation
@@ -84,7 +85,7 @@ public struct ReadingView: View {
                 .persistentSystemOverlays(systemOverlayVisibility)
         }
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("reading_view")
+        .accessibilityIdentifier(AccessibilityIdentifiers.readingView)
         .background {
             WindowDeviceObservation { state in
                 deviceState = state

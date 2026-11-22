@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 @MainActor
@@ -12,7 +13,7 @@ final class DuoReadingPanelUITests: XCTestCase {
         try DuoPose.set(.portrait)
         let app = XCUIApplication()
         try app.openCold(XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda")))
-        app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.readingView)
         ReaderPageProbe(app: app).showPanel()
         requirePanel(in: app, landscape: true, onRight: true)
 
@@ -29,7 +30,9 @@ final class DuoReadingPanelUITests: XCTestCase {
         try DuoPose.set(.half)
         requirePanel(in: app, landscape: true, onRight: true)
 
-        app.requireElement("reading_view").buttons["Close"].tapWhenHittable("Reader toolbar Close")
+        app.requireElement(AccessibilityIdentifiers.readingView)
+            .buttons["Close"]
+            .tapWhenHittable("Reader toolbar Close")
         XCTAssertTrue(app.buttons["Read"].firstMatch.waitForExistence(timeout: 5))
     }
 
@@ -39,22 +42,27 @@ final class DuoReadingPanelUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments += ["-AppleTextDirection", "YES", "-NSForceRightToLeftWritingDirection", "YES"]
         try app.openCold(XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda")))
-        app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.readingView)
         requirePanel(in: app, landscape: true, onRight: true)
-        app.buttons["reading_move_controls"].tapWhenHittable("Move controls left in RTL")
-        let panel = app.requireElement("reading_lower_panel")
+        app.buttons[AccessibilityIdentifiers.readingMoveControls].tapWhenHittable("Move controls left in RTL")
+        let panel = app.requireElement(AccessibilityIdentifiers.readingLowerPanel)
         XCTAssertLessThanOrEqual(panel.frame.maxX, app.windows.firstMatch.frame.midX + 1)
-        XCTAssertEqual(app.buttons["reading_move_controls"].label, "Move controls right")
-        XCTAssertGreaterThanOrEqual(app.buttons["reading_move_controls"].frame.minX, app.windows.firstMatch.frame.midX)
+        XCTAssertEqual(app.buttons[AccessibilityIdentifiers.readingMoveControls].label, "Move controls right")
+        XCTAssertGreaterThanOrEqual(
+            app.buttons[AccessibilityIdentifiers.readingMoveControls].frame.minX, app.windows.firstMatch.frame.midX
+        )
     }
 
     private func requirePanel(in app: XCUIApplication, landscape: Bool, onRight: Bool) {
         ReaderPageProbe(app: app).showPanel()
-        let panel = app.requireElement("reading_lower_panel")
+        let panel = app.requireElement(AccessibilityIdentifiers.readingLowerPanel)
         let settled = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
             let viewport = app.windows.firstMatch.frame
             let frame = panel.frame
-            let closeCount = app.otherElements["reading_view"].buttons.matching(identifier: "Close").count
+            let closeCount = app.otherElements[AccessibilityIdentifiers.readingView]
+                .buttons
+                .matching(identifier: "Close")
+                .count
             return (viewport.width > viewport.height) == landscape
                 && (onRight ? frame.minX >= viewport.midX : frame.minX < viewport.midX)
                 && closeCount == (onRight ? 1 : 2)
@@ -64,7 +72,7 @@ final class DuoReadingPanelUITests: XCTestCase {
         XCTAssertLessThanOrEqual(panel.frame.maxX, app.windows.firstMatch.frame.maxX)
         XCTAssertTrue(panel.sliders.firstMatch.isHittable)
         if onRight {
-            let move = app.buttons["reading_move_controls"]
+            let move = app.buttons[AccessibilityIdentifiers.readingMoveControls]
             XCTAssertTrue(move.isHittable)
             XCTAssertLessThanOrEqual(move.frame.maxX, app.windows.firstMatch.frame.midX)
             XCTAssertGreaterThanOrEqual(panel.sliders.firstMatch.frame.minX, app.windows.firstMatch.frame.midX)

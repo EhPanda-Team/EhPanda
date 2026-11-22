@@ -2,6 +2,7 @@ import AppComponents
 import AppLaunchAutomationClient
 import AppModels
 import AppTools
+import AutomationIdentifiers
 import ComposableArchitecture
 import CookieClient
 import Kingfisher
@@ -765,7 +766,7 @@ struct CommentsSection: View {
             // The vote row leads the menu, and the user's own comment keeps it, disabled, as its whole menu.
             let actions = moderationActions(for: comment)
             DetailView.CommentCell(comment: comment, backgroundColor: backgroundColor, moderation: actions)
-                .accessibilityIdentifier("comment_card_" + comment.commentID)
+                .accessibilityIdentifier(AccessibilityIdentifiers.commentCard(id: comment.commentID))
                 .contentShape(.contextMenuPreview, .rect(cornerRadius: CommentCardMetrics.cornerRadius))
                 .contextMenu {
                     CommentModerationButtons(actions: actions)

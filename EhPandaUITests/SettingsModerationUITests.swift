@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 /// Settings end to end for Phase 18: the analytics level picker in General (UI-SPEC C-9) and the Blocked Users row and
@@ -35,11 +36,11 @@ final class SettingsModerationUITests: XCTestCase {
         let app = try launchAtSettings(blockedUsers: [])
         try push(Copy.general, in: app)
 
-        let picker = app.buttons["setting_analytics_level"]
+        let picker = app.buttons[AccessibilityIdentifiers.settingAnalyticsLevel]
         try scrollIntoReach(picker, in: app)
         XCTAssertTrue(app.staticTexts[Copy.minimalDescription].exists, "The footer does not describe Minimal.")
         // A `Link`, so a link element rather than a button.
-        let privacyPolicy = app.links["setting_privacy_policy"]
+        let privacyPolicy = app.links[AccessibilityIdentifiers.settingPrivacyPolicy]
         try scrollIntoReach(privacyPolicy, in: app)
         XCTAssertEqual(privacyPolicy.label, Copy.privacyPolicy, "The Privacy Policy row is mislabelled.")
         try scrollIntoReach(picker, in: app, direction: .downward)
@@ -67,7 +68,7 @@ final class SettingsModerationUITests: XCTestCase {
 
         // Blocking works without an account, so the row is there signed out (D-14a).
         XCTAssertTrue(app.buttons[Copy.logIn].firstMatch.exists, "The launch is not signed out.")
-        let row = app.buttons["setting_blocked_users"]
+        let row = app.buttons[AccessibilityIdentifiers.settingBlockedUsers]
         try scrollIntoReach(row, in: app)
         XCTAssertEqual(row.label, Copy.blockedUsers, "The Blocked Users row is mislabelled.")
         XCTAssertEqual(row.value as? String, "2", "The Blocked Users row does not count two names.")
@@ -112,7 +113,7 @@ final class SettingsModerationUITests: XCTestCase {
         let app = try launchAtSettings(blockedUsers: [])
         try push(Copy.account, in: app)
 
-        let row = app.buttons["setting_blocked_users"]
+        let row = app.buttons[AccessibilityIdentifiers.settingBlockedUsers]
         try scrollIntoReach(row, in: app)
         XCTAssertEqual(row.value as? String, "0", "The Blocked Users row does not show 0.")
 

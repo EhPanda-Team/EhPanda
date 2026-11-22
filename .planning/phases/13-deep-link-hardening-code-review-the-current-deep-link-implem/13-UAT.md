@@ -180,3 +180,5 @@ blocked: 0
 - test: 15
   idea: "all hard-coded strings? no, give them something like AccessibilityIdentifiers.readingView — the accessibility identifiers must be grouped into one shared constants file instead of being re-typed as literals on both sides (7 literals in AppPackage/Sources, 18 literal call sites across 5 EhPandaUITests files, no compile-time link between them)."
   deferred_at: 2026-07-23
+  resolved: 2026-11-22
+  resolution: "The AutomationIdentifiers module's AccessibilityIdentifiers holds the seven identifiers (commentCell(id:) for the interpolated one); the app views and every UI test read it, and the UI-test target links it (STATE.md Deferred Items)."

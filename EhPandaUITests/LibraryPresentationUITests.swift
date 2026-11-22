@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import CryptoKit
 import XCTest
 
@@ -20,15 +21,17 @@ final class LibraryPresentationUITests: XCTestCase {
         let gallery = app.staticTexts["Library Study 01"].firstMatch
         XCTAssertTrue(gallery.waitForExistence(timeout: 15), "Favorites must load the real parsed fixture list.")
         app.requireLibraryNavigationTitle("Favorites")
-        let titleMenu = app.descendants(matching: .any)["library-title-menu"].firstMatch
+        let titleMenu = app.descendants(matching: .any)[AccessibilityIdentifiers.libraryTitleMenu].firstMatch
         let usesTitleMenu = titleMenu.exists
-        let presentation = app.buttons["gallery-layout-favorites"]
+        let presentation = app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")]
         presentation.tapWhenHittable("Favorites presentation")
         app.buttons["Grid"].tapWhenHittable("Favorites Grid")
         assertGrid(in: app)
         XCTAssertTrue(gallery.isHittable)
         gallery.tapWhenHittable("Open a Favorites gallery")
-        XCTAssertTrue(app.descendants(matching: .any)["detail_view"].waitForExistence(timeout: 15))
+        XCTAssertTrue(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].waitForExistence(timeout: 15)
+        )
         if usesTitleMenu {
             XCTAssertTrue(titleMenu.waitForNonExistence(timeout: 5), "Source menu belongs only to the Library root.")
         }
@@ -46,7 +49,7 @@ final class LibraryPresentationUITests: XCTestCase {
         if usesTitleMenu {
             let titleFrame = titleMenu.frame
             let galleryFrame = gallery.frame
-            app.descendants(matching: .any)["favorites-gallery-list"].firstMatch.swipeUp()
+            app.descendants(matching: .any)[AccessibilityIdentifiers.favoritesGalleryList].firstMatch.swipeUp()
             XCTAssertTrue(
                 !gallery.exists || gallery.frame != galleryFrame,
                 "The persistence check must actually scroll the list."
@@ -78,14 +81,16 @@ final class LibraryPresentationUITests: XCTestCase {
             "EHPANDA_AUTOMATION_IPB_MEMBER_ID": "fixture-member",
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
         ])
-        let titleMenu = app.descendants(matching: .any)["library-title-menu"].firstMatch
+        let titleMenu = app.descendants(matching: .any)[AccessibilityIdentifiers.libraryTitleMenu].firstMatch
         if titleMenu.waitForExistence(timeout: 10) {
-            let presentation = app.buttons["gallery-layout-favorites"]
+            let presentation = app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")]
             presentation.tapWhenHittable("Favorites presentation")
             app.buttons["Grid"].tapWhenHittable("Favorites Grid")
             titleMenu.tapWhenHittable("Library source menu")
             app.buttons["Downloads"].tapWhenHittable("Phone Library Downloads")
-            XCTAssertTrue(app.buttons["gallery-layout-downloads"].waitForExistence(timeout: 10))
+            XCTAssertTrue(
+                app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "downloads")].waitForExistence(timeout: 10)
+            )
             app.requireLibraryNavigationTitle("Downloads")
             app.buttons["Filters"].tapWhenHittable("Download folder menu")
             app.buttons["Inbox"].tapWhenHittable("Inbox download folder")
@@ -94,28 +99,30 @@ final class LibraryPresentationUITests: XCTestCase {
             XCTAssertTrue(presentation.waitForExistence(timeout: 10))
             app.requireLibraryNavigationTitle("Favorites")
             assertGrid(in: app)
-            XCTAssertFalse(app.descendants(matching: .any)["library-categories"].exists)
+            XCTAssertFalse(app.descendants(matching: .any)[AccessibilityIdentifiers.libraryCategories].exists)
             let screenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
             screenshot.name = "Phone Library title-menu source switch"
             screenshot.lifetime = .keepAlways
             add(screenshot)
             return
         }
-        let favorites = app.buttons["library-favorites--1"]
+        let favorites = app.buttons[AccessibilityIdentifiers.libraryFavorites(index: -1)]
         favorites.tapWhenHittable("All Favorites category")
-        let picker = app.buttons["gallery-layout-favorites"]
+        let picker = app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "favorites")]
         picker.tapWhenHittable("Favorites presentation")
         app.buttons["Grid"].tapWhenHittable("Favorites Grid")
         if !favorites.isHittable {
             app.descendants(matching: .any)["BackButton"].firstMatch.tapWhenHittable("Return to Library")
         }
-        let categories = app.descendants(matching: .any)["library-categories"].firstMatch
-        let downloads = app.buttons["library-downloads-Inbox"]
+        let categories = app.descendants(matching: .any)[AccessibilityIdentifiers.libraryCategories].firstMatch
+        let downloads = app.buttons[AccessibilityIdentifiers.libraryDownloads(folder: "Inbox")]
         for _ in 0..<5 where !downloads.isHittable {
             categories.swipeDown(velocity: .slow)
         }
         downloads.tapWhenHittable("Inbox download folder after returning")
-        XCTAssertTrue(app.buttons["gallery-layout-downloads"].waitForExistence(timeout: 10))
+        XCTAssertTrue(
+            app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "downloads")].waitForExistence(timeout: 10)
+        )
         if !downloads.isHittable {
             app.descendants(matching: .any)["BackButton"].firstMatch.tapWhenHittable("Return to categories")
         }
@@ -146,11 +153,11 @@ final class LibraryPresentationUITests: XCTestCase {
             "EHPANDA_AUTOMATION_TAB": "downloads",
             "EHPANDA_UITEST_DOWNLOAD_ROOT": root.path()
         ])
-        let picker = app.buttons["gallery-layout-downloads"]
+        let picker = app.buttons[AccessibilityIdentifiers.galleryLayout(scope: "downloads")]
         XCTAssertTrue(picker.waitForExistence(timeout: 15))
         picker.tapWhenHittable("Downloads presentation")
         app.buttons["List"].tapWhenHittable("Downloads Row")
-        let first = app.descendants(matching: .any)["download-gallery-9101"].firstMatch
+        let first = app.descendants(matching: .any)[AccessibilityIdentifiers.downloadGallery(gid: "9101")].firstMatch
         XCTAssertTrue(first.waitForExistence(timeout: 15))
         first.press(forDuration: 1)
         app.buttons["Download Status"].tapWhenHittable("Inspect downloaded pages from row")
@@ -161,8 +168,10 @@ final class LibraryPresentationUITests: XCTestCase {
         app.buttons["Grid"].tapWhenHittable("Downloads Grid")
         XCTAssertTrue(first.waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["download-actions-9101"].exists)
-        XCTAssertFalse(app.descendants(matching: .any)["gallery-grid-rating-9101"].firstMatch.exists)
-        let content = app.descendants(matching: .any)["downloads-gallery-list"].firstMatch
+        XCTAssertFalse(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.galleryGridRating(id: "9101")].firstMatch.exists
+        )
+        let content = app.descendants(matching: .any)[AccessibilityIdentifiers.downloadsGalleryList].firstMatch
         reveal(first, in: content, app: app)
         let gridScreenshot = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         gridScreenshot.name = "Library Downloads grid"
@@ -196,7 +205,7 @@ final class LibraryPresentationUITests: XCTestCase {
         let readTitle = app.staticTexts["Library Download 1"].firstMatch
         reveal(readTitle, in: content, app: app)
         readTitle.doubleTap()
-        let reader = app.descendants(matching: .any)["reading_view"].firstMatch
+        let reader = app.descendants(matching: .any)[AccessibilityIdentifiers.readingView].firstMatch
         XCTAssertTrue(reader.waitForExistence(timeout: 10))
         ReaderPageProbe(app: app).showPanel()
         reader.buttons["Close"].firstMatch.tapWhenHittable("Close local reader")
@@ -220,11 +229,16 @@ final class LibraryPresentationUITests: XCTestCase {
         add(screenshot)
         app.buttons["Delete"].tapWhenHittable("Confirm gallery deletion")
         XCTAssertTrue(first.waitForNonExistence(timeout: 10))
-        XCTAssertTrue(app.buttons["download-gallery-9102"].exists, "Deleting one card must preserve its neighbor.")
+        XCTAssertTrue(
+            app.buttons[AccessibilityIdentifiers.downloadGallery(gid: "9102")].exists,
+            "Deleting one card must preserve its neighbor."
+        )
         app.terminate()
         app.launch()
-        XCTAssertTrue(app.buttons["download-gallery-9102"].waitForExistence(timeout: 15))
-        XCTAssertFalse(app.descendants(matching: .any)["download-gallery-9101"].firstMatch.exists)
+        XCTAssertTrue(app.buttons[AccessibilityIdentifiers.downloadGallery(gid: "9102")].waitForExistence(timeout: 15))
+        XCTAssertFalse(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.downloadGallery(gid: "9101")].firstMatch.exists
+        )
     }
 
     func testFavoritesSingleTapDetailsAndDoubleTapReads() throws {
@@ -240,7 +254,9 @@ final class LibraryPresentationUITests: XCTestCase {
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
         ])
         defer { app.terminate() }
-        try assertLibraryTapActions(in: app, source: "favorites", item: "gallery-list-item-1001")
+        try assertLibraryTapActions(
+            in: app, source: "favorites", item: AccessibilityIdentifiers.galleryListItem(id: "1001")
+        )
     }
 
     func testDownloadsSingleTapDetailsAndDoubleTapReads() throws {
@@ -261,11 +277,13 @@ final class LibraryPresentationUITests: XCTestCase {
             "EHPANDA_AUTOMATION_TAB": "downloads",
             "EHPANDA_UITEST_DOWNLOAD_ROOT": root.path()
         ])
-        try assertLibraryTapActions(in: app, source: "downloads", item: "download-gallery-9101")
+        try assertLibraryTapActions(
+            in: app, source: "downloads", item: AccessibilityIdentifiers.downloadGallery(gid: "9101")
+        )
     }
 
     private func assertLibraryTapActions(in app: XCUIApplication, source: String, item: String) throws {
-        let picker = app.buttons["gallery-layout-\(source)"]
+        let picker = app.buttons[AccessibilityIdentifiers.galleryLayout(scope: source)]
         XCTAssertTrue(picker.waitForExistence(timeout: 15))
         for layout in ["List", "Grid"] {
             picker.tapWhenHittable("Choose Library layout")
@@ -273,13 +291,13 @@ final class LibraryPresentationUITests: XCTestCase {
             let gallery = app.buttons[item].firstMatch
             XCTAssertTrue(gallery.waitForExistence(timeout: 15))
             gallery.tapWhenHittable("Single tap opens Detail")
-            let detail = app.descendants(matching: .any)["detail_view"].firstMatch
+            let detail = app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].firstMatch
             XCTAssertTrue(detail.waitForExistence(timeout: 15))
-            XCTAssertFalse(app.descendants(matching: .any)["reading_view"].firstMatch.exists)
+            XCTAssertFalse(app.descendants(matching: .any)[AccessibilityIdentifiers.readingView].firstMatch.exists)
             app.returnFromGalleryDetail()
             XCTAssertTrue(gallery.waitForExistence(timeout: 10))
             gallery.doubleTap()
-            let reader = app.descendants(matching: .any)["reading_view"].firstMatch
+            let reader = app.descendants(matching: .any)[AccessibilityIdentifiers.readingView].firstMatch
             XCTAssertTrue(reader.waitForExistence(timeout: 15), "Double tap must open reading directly.")
             ReaderPageProbe(app: app).showPanel()
             reader.buttons["Close"].firstMatch.tapWhenHittable("Return from direct reading")
@@ -365,7 +383,7 @@ final class LibraryPresentationUITests: XCTestCase {
             XCTAssertEqual(first.frame.minY, second.frame.minY, accuracy: 1, file: file, line: line)
         } else {
             XCTAssertEqual(first.frame.minX, second.frame.minX, accuracy: 1, file: file, line: line)
-            let card = app.buttons["gallery-list-item-1001"]
+            let card = app.buttons[AccessibilityIdentifiers.galleryListItem(id: "1001")]
             XCTAssertGreaterThan(card.frame.height, card.frame.width, file: file, line: line)
         }
     }

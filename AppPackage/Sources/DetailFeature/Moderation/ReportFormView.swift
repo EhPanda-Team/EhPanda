@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AutomationIdentifiers
 import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -78,7 +79,7 @@ struct ReportFormView: View {
                     }
                     .padding(.horizontal, 32)
                     .accessibilityElement(children: .combine)
-                    .accessibilityIdentifier("report_loading")
+                    .accessibilityIdentifier(AccessibilityIdentifiers.reportLoading)
                 }
             }
         case .ready, .sending:
@@ -93,7 +94,7 @@ struct ReportFormView: View {
                     Text(.reportUnavailableBody(store.site))
                 }
                 .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("report_unavailable")
+                .accessibilityIdentifier(AccessibilityIdentifiers.reportUnavailable)
             }
         }
     }
@@ -132,7 +133,7 @@ struct ReportFormView: View {
             } footer: {
                 if store.reason != nil {
                     Text(.reportHelpIllegalWarning(store.site))
-                        .accessibilityIdentifier("report_illegal_warning")
+                        .accessibilityIdentifier(AccessibilityIdentifiers.reportIllegalWarning)
                 }
             }
 
@@ -149,7 +150,7 @@ struct ReportFormView: View {
                 .onSubmit {
                     focus = .details
                 }
-                .accessibilityIdentifier("report_email")
+                .accessibilityIdentifier(AccessibilityIdentifiers.reportEmail)
             } header: {
                 Text(.reportEmail)
             } footer: {
@@ -163,7 +164,7 @@ struct ReportFormView: View {
                 .lineLimit(5...)
                 .font(.body)
                 .focused($focus, equals: .details)
-                .accessibilityIdentifier("report_details")
+                .accessibilityIdentifier(AccessibilityIdentifiers.reportDetails)
             } header: {
                 Text(.reportDetails)
             } footer: {
@@ -180,7 +181,7 @@ struct ReportFormView: View {
                 AccessibilityNotification.Announcement(String(localized: .reportEmailInvalid)).post()
             }
         }
-        .accessibilityIdentifier("report_form")
+        .accessibilityIdentifier(AccessibilityIdentifiers.reportForm)
     }
 
     private func reasonRow(_ reason: ReportFormFeature.Reason) -> some View {
@@ -205,7 +206,7 @@ struct ReportFormView: View {
             .contentShape(.rect)
         }
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityIdentifier("report_reason_" + reason.type.rawValue)
+        .accessibilityIdentifier(AccessibilityIdentifiers.reportReason(type: reason.type.rawValue))
     }
 
     private func title(for reason: ReportFormFeature.Reason) -> LocalizedStringResource {
@@ -225,7 +226,7 @@ struct ReportFormView: View {
             .font(.footnote)
             .foregroundStyle(.red)
             .accessibilityElement(children: .combine)
-            .accessibilityIdentifier("report_email_invalid")
+            .accessibilityIdentifier(AccessibilityIdentifiers.reportEmailInvalid)
         } else {
             Text(.reportEmailFooter(store.site))
         }
@@ -260,7 +261,7 @@ struct ReportFormView: View {
         }
         .padding(.horizontal, 32)
         .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("report_sent")
+        .accessibilityIdentifier(AccessibilityIdentifiers.reportSent)
     }
 
     // MARK: Pinned button
@@ -307,7 +308,7 @@ private struct ReportPrimaryButton: View {
         .controlSize(.large)
         .tint(.accentColor)
         .keyboardShortcut(.return, modifiers: .command)
-        .accessibilityIdentifier("report_primary_button")
+        .accessibilityIdentifier(AccessibilityIdentifiers.reportPrimaryButton)
     }
 
     @ViewBuilder private var label: some View {

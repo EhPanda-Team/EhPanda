@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AutomationIdentifiers
 import ComposableArchitecture
 import Foundation
 import Resources
@@ -27,7 +28,9 @@ struct AnalyticsChoiceView: View {
     }
 
     var body: some View {
-        FirstLaunchPage(identifier: "first_launch_analytics_choice", compactTop: 32, regularTop: 72) {
+        FirstLaunchPage(
+            identifier: AccessibilityIdentifiers.firstLaunchAnalyticsChoice, compactTop: 32, regularTop: 72
+        ) {
             VStack(spacing: 0) {
                 Image(systemSymbol: .chartBarXaxis)
                     .font(.largeTitle)
@@ -37,13 +40,13 @@ struct AnalyticsChoiceView: View {
                 FirstLaunchTitle(.RLocalizable.consentTitle)
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityFocused(titleFocus, equals: .analyticsChoice)
-                    .accessibilityIdentifier("first_launch_analytics_title")
+                    .accessibilityIdentifier(AccessibilityIdentifiers.firstLaunchAnalyticsTitle)
                     .padding(.top, 16)
                 Text(verbatim: Self.intro)
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                    .accessibilityIdentifier("first_launch_analytics_intro")
+                    .accessibilityIdentifier(AccessibilityIdentifiers.firstLaunchAnalyticsIntro)
                     .padding(.top, 8)
                 privacyLink
                     .padding(.top, 8)
@@ -57,7 +60,7 @@ struct AnalyticsChoiceView: View {
                 }
             }
             .disabled(store.selectedLevel == nil)
-            .accessibilityIdentifier("first_launch_continue")
+            .accessibilityIdentifier(AccessibilityIdentifiers.firstLaunchContinue)
         }
     }
 
@@ -81,7 +84,7 @@ struct AnalyticsChoiceView: View {
             }
             // A link takes the tint, the accent; the spec keeps the accent for selection (UI-SPEC Color).
             .tint(.primary)
-            .accessibilityIdentifier("first_launch_privacy_link")
+            .accessibilityIdentifier(AccessibilityIdentifiers.firstLaunchPrivacyLink)
         }
     }
 
@@ -96,7 +99,7 @@ struct AnalyticsChoiceView: View {
                 ) {
                     store.send(.binding(.set(\.selectedLevel, level)))
                 }
-                .accessibilityIdentifier("first_launch_level_\(level.rawValue)")
+                .accessibilityIdentifier(AccessibilityIdentifiers.firstLaunchLevel(level.rawValue))
             }
         }
         .accessibilityElement(children: .contain)

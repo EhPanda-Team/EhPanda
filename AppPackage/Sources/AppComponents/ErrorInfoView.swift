@@ -1,5 +1,6 @@
 public import AppModels
 import AppTools
+import AutomationIdentifiers
 import ComposableArchitecture
 import DeviceClient
 import Resources
@@ -77,7 +78,7 @@ public struct ErrorInfoView: View {
                     )
                 }
             }
-            .accessibilityIdentifier("error_info_view")
+            .accessibilityIdentifier(AccessibilityIdentifiers.errorInfoView)
             .scrollEdgeEffectStyle(.soft, for: .top)
             .navigationTitle(.error)
             .toolbar {

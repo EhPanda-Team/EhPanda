@@ -1,6 +1,7 @@
 public import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 public import ComposableArchitecture
 import CookieClient
 import DateSeekFeature
@@ -103,7 +104,7 @@ public struct FavoritesView: View {
                 downloadBadges: store.downloadBadges,
                 scrollPositionID: $store.visibleGalleryID
             )
-            .accessibilityIdentifier("favorites-gallery-list")
+            .accessibilityIdentifier(AccessibilityIdentifiers.favoritesGalleryList)
             .overlay {
                 emptyView
                     .animation(.default) {

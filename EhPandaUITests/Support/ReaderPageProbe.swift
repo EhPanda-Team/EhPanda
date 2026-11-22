@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -51,15 +52,15 @@ struct ReaderPageProbe {
     let app: XCUIApplication
 
     private var readingView: XCUIElement {
-        app.descendants(matching: .any).matching(identifier: "reading_view").firstMatch
+        app.descendants(matching: .any).matching(identifier: AccessibilityIdentifiers.readingView).firstMatch
     }
 
     private var pages: XCUIElement {
-        readingView.descendants(matching: .any).matching(identifier: "reading_pages").firstMatch
+        readingView.descendants(matching: .any).matching(identifier: AccessibilityIdentifiers.readingPages).firstMatch
     }
 
     private var indicator: XCUIElement {
-        app.staticTexts.matching(identifier: "reading_page_indicator").firstMatch
+        app.staticTexts.matching(identifier: AccessibilityIdentifiers.readingPageIndicator).firstMatch
     }
 
     private var slider: XCUIElement {
@@ -69,7 +70,7 @@ struct ReaderPageProbe {
     private var moreMenuButton: XCUIElement {
         let navigationBars = readingView.navigationBars.containing(
             .staticText,
-            identifier: "reading_page_indicator"
+            identifier: AccessibilityIdentifiers.readingPageIndicator
         )
         XCTAssertEqual(
             navigationBars.count,

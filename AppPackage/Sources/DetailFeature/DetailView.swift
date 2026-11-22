@@ -1,6 +1,7 @@
 import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 public import ComposableArchitecture
 import CookieClient
 import Kingfisher
@@ -235,7 +236,7 @@ private extension DetailView {
                     $0.visible(store.galleryDetail == nil && error != nil)
                 }
         }
-        .accessibilityIdentifier("detail_view")
+        .accessibilityIdentifier(AccessibilityIdentifiers.detailView)
     }
 
     func modalModifiers<Content: View>(@ContentBuilder content: () -> Content) -> some View {

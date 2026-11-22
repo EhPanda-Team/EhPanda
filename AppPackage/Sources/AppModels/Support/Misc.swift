@@ -106,28 +106,40 @@ extension DateFormattable {
     }
 }
 
+/// Where a gallery list is in the site's paging, and how to ask for the page after it.
+///
+/// The site pages its lists two ways. Toplists number their pages: `current` and `maximum` are zero-based page
+/// indexes, and the next page is `current + 1`. Every other list is paged by a cursor: a page's Next link carries a
+/// `next` value, a gallery ID or, in Favorites, `gid-timestamp`, which the next request sends back unchanged. That
+/// value is `nextCursor`. The cursor comes from the site, not from the last gallery on screen, because a page whose
+/// galleries were all listed already still has to move the list on; asking again from the same last gallery would
+/// fetch that same page forever.
 public struct PageNumber: Equatable, Sendable {
-    public init(
-        current: Int = 0,
-        maximum: Int = 0,
-        lastItemTimestamp: String? = nil,
-        isNextButtonEnabled: Bool = false
-    ) {
+    public init(current: Int = 0, maximum: Int = 0, nextCursor: String? = nil) {
         self.current = current
         self.maximum = maximum
-        self.lastItemTimestamp = lastItemTimestamp
-        self.isNextButtonEnabled = isNextButtonEnabled
+        self.nextCursor = nextCursor
     }
     public var current = 0
     public var maximum = 0
-    public var lastItemTimestamp: String?
-    public var isNextButtonEnabled = false
+    public var nextCursor: String?
 
     public var isSinglePage: Bool {
         current == 0 && maximum == 0
     }
-    public func hasNextPage(isNumericBased: Bool = false) -> Bool {
-        isNumericBased ? current < maximum : isNextButtonEnabled
+    /// Whether the site has a page after this one, in either kind of paging.
+    public func hasNextPage() -> Bool {
+        nextCursor != nil || current < maximum
+    }
+    /// Whether this page, the answer to a request made from `previous`, moves the list on: it has a next page, and
+    /// the site's paging is past `previous`.
+    ///
+    /// A fetch that added no new gallery, because the page was empty or held only galleries already listed, fetches
+    /// the next page at once only when this holds. The list then never stops at such a page waiting for a scroll
+    /// that cannot come, since its last gallery has not changed, and a site that hands the same cursor back cannot
+    /// make it fetch in a loop.
+    public func advances(from previous: PageNumber) -> Bool {
+        hasNextPage() && self != previous
     }
     public mutating func resetPages() {
         self = Self()

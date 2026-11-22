@@ -63,7 +63,7 @@ struct ListParserTests: TestHelper {
         let navigation = try #require(Parser.parseDateSeekNavigation(doc: document, host: Defaults.URL.ehentai))
 
         #expect(pageNumber.hasNextPage())
-        #expect(pageNumber.lastItemTimestamp == "2668517")
+        #expect(pageNumber.nextCursor == "2668517")
         #expect(navigation.newerURL == nil)
         #expect(navigation.olderURL?.absoluteString == "https://e-hentai.org/?next=2668517")
         #expect(DateSeekNavigation.dateFormatter.string(from: navigation.minimumDate) == "2007-03-20")
@@ -147,5 +147,55 @@ struct ListParserTests: TestHelper {
         #expect(pageNumber.maximum == 2)
         #expect(navigation.newerURL?.absoluteString == "https://e-hentai.org/?prev=123")
         #expect(navigation.olderURL?.absoluteString == "https://e-hentai.org/?next=456")
+    }
+
+    /// The Next link's `next` value is the cursor, whole: Favorites' is `gid-timestamp`, and the next request sends
+    /// both parts back. Splitting off the timestamp is what made the request rebuild the gallery ID from the list's
+    /// own last gallery.
+    @Test
+    func cursorPagerKeepsTheWholeNextValue() throws {
+        let document = try Kanna.HTML(html: """
+        <html><body><div class="searchnav">
+        <a href="https://e-hentai.org/favorites.php?prev=1001-1792029000">Prev</a>
+        <a href="https://e-hentai.org/favorites.php?next=1024-1792022400">Next</a>
+        </div></body></html>
+        """, encoding: .utf8)
+
+        let pageNumber = Parser.parsePageNum(doc: document)
+
+        #expect(pageNumber.nextCursor == "1024-1792022400")
+        #expect(pageNumber.hasNextPage())
+    }
+
+    /// A last page shows Next without a link, so it has no cursor and no next page.
+    @Test
+    func cursorPagerWithoutANextLinkHasNoNextPage() throws {
+        let document = try Kanna.HTML(html: """
+        <html><body><div class="searchnav">
+        <a href="https://e-hentai.org/?prev=123">Prev</a><span>Next</span>
+        </div></body></html>
+        """, encoding: .utf8)
+
+        let pageNumber = Parser.parsePageNum(doc: document)
+
+        #expect(pageNumber.nextCursor == nil)
+        #expect(!pageNumber.hasNextPage())
+    }
+
+    /// Toplists number their pages instead. A numbered page before the last has a next page; reading only a cursor
+    /// pager's Next link said it had none, so Toplists never went past their first page.
+    @Test
+    func numberedPagerBeforeItsLastPageHasANextPage() throws {
+        let document = try Kanna.HTML(html: """
+        <html><body><table class="ptt"><tr>
+        <td class="ptds"><a>1</a></td><td><a>2</a></td><td><a>3</a></td>
+        </tr></table></body></html>
+        """, encoding: .utf8)
+
+        let pageNumber = Parser.parsePageNum(doc: document)
+
+        #expect(pageNumber.current == 0)
+        #expect(pageNumber.maximum == 2)
+        #expect(pageNumber.hasNextPage())
     }
 }

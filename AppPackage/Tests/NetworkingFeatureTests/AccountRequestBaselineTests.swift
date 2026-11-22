@@ -474,6 +474,73 @@ struct AccountRequestBaselineTests {
         #expect(throws: AppError.self) { try result.get() }
     }
 
+    // `geteditcomment` answers with the edit form, and the request returns the comment's source from it. The body is
+    // the site's answer for a test comment on 2026-11-22.
+    @Test
+    func editableGalleryCommentRequestLocksJSONAssemblyAndReadsTheSource() async throws {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let expected = [
+            "method": "geteditcomment", "apiuid": "12", "apikey": "dummy-key",
+            "gid": "808", "token": "token", "comment_id": "8830468"
+        ]
+        let body = Data(
+            #"""
+            {"editable_comment":"\n<div class=\"gce\">\n<form method=\"post\" action=\"#c8830468\">\n\#
+            <input type=\"hidden\" name=\"edit_comment\" value=\"8830468\" \/>\n\#
+            <textarea name=\"commenttext_edit\">EhPanda edit check: [b]bold text[\/b] and \#
+            [url=https:\/\/example.com]a link[\/url].<\/textarea>\n\#
+            <p><input type=\"submit\" value=\"Edit Comment\" \/><\/p>\n<\/form>\n<\/div>",\#
+            "comment_id":8830468}
+            """#.utf8
+        )
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: body)]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let source = try await capture { () async throws(AppError) -> String in
+            try await EditableGalleryCommentRequest(
+                host: host, apiuid: 12, apikey: "dummy-key", gid: 808, token: "token", commentID: 8830468,
+                urlSession: session
+            )
+            .response()
+        }
+        .get()
+        let request = try #require(handle.receivedRequests.first)
+
+        #expect(source == "EhPanda edit check: [b]bold text[/b] and [url=https://example.com]a link[/url].")
+        expectJSONRequest(request, url: url, fields: expected)
+    }
+
+    // Another member's comment answers an error, as the site did on 2026-11-22; that and an answer without the form
+    // are failures, so the editor is never opened without the source.
+    @Test(arguments: [
+        #"{"error":"Can only edit own comment"}"#,
+        "",
+        "not json",
+        #"{"comment_id":8830468}"#,
+        #"{"editable_comment":"<div class=\"gce\"><\/div>","comment_id":8830468}"#
+    ])
+    func editableGalleryCommentRequestFailsWithoutTheSource(body: String) async {
+        let host = GalleryHost.ehentai
+        let url = Defaults.URL.api(host: host)
+        let (session, handle) = makeStubbedSession(
+            script: StubScript([url: [.http(status: 200, data: Data(body.utf8))]])
+        )
+        defer { cleanUp(session: session, handle: handle) }
+
+        let result = await capture { () async throws(AppError) -> String in
+            try await EditableGalleryCommentRequest(
+                host: host, apiuid: 12, apikey: "k", gid: 808, token: "token", commentID: 8830468,
+                urlSession: session
+            )
+            .response()
+        }
+
+        #expect(throws: AppError.self) { try result.get() }
+    }
+
     @Test
     func voteGalleryTagRequestLocksJSONAssemblyAndVoidMapping() async throws {
         let host = GalleryHost.ehentai

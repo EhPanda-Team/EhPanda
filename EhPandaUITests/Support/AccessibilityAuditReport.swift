@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 // The report model `AccessibilityAuditUITests` judges every audit issue with, and the pre-audit
@@ -65,7 +66,7 @@ struct SurfaceInventory {
             default:
                 break
             }
-            if node.identifier == "toast_message" { occludingFrames.append(node.frame) }
+            if node.identifier == AccessibilityIdentifiers.toastMessage { occludingFrames.append(node.frame) }
             // XCTest describes an element by its identifier when it has one, else by its label.
             let name = node.identifier.isEmpty ? node.label : node.identifier
             if !name.isEmpty { framesByName[name, default: []].append(node.frame) }

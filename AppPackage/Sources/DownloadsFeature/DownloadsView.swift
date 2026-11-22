@@ -1,6 +1,7 @@
 public import AppComponents
 import AppModels
 import AppTools
+import AutomationIdentifiers
 public import ComposableArchitecture
 import DetailFeature
 import GalleryListComponents
@@ -86,7 +87,7 @@ private extension DownloadsView {
 
         default:
             downloadContent(for: store.setting.galleryListPresentation[.downloads])
-            .accessibilityIdentifier("downloads-gallery-list")
+            .accessibilityIdentifier(AccessibilityIdentifiers.downloadsGalleryList)
             .refreshable { store.send(.refreshDownloads) }
             // Scoped to row IDENTITY, never to the snapshot: `observeDownloads` re-emits the whole
             // list as pages land, so animating on `filteredDownloads` would animate every progress

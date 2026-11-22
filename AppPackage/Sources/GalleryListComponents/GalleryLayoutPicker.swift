@@ -1,4 +1,5 @@
 public import AppModels
+import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
@@ -30,6 +31,6 @@ public struct GalleryLayoutPicker: View {
         }
         .accessibilityLabel(.RLocalizable.layout)
         .accessibilityValue(setting.galleryListPresentation[scope] == .row ? .RLocalizable.list : .RLocalizable.grid)
-        .accessibilityIdentifier("gallery-layout-\(scope.rawValue)")
+        .accessibilityIdentifier(AccessibilityIdentifiers.galleryLayout(scope: scope.rawValue))
     }
 }

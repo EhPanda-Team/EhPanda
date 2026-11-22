@@ -56,14 +56,6 @@ public struct ToplistsReducer: Sendable {
         }
 
         public init() {}
-
-        mutating func insertGalleries(type: ToplistsType, galleries: [Gallery]) {
-            galleries.forEach { gallery in
-                if rawGalleries[type]?.contains(gallery) == false {
-                    rawGalleries[type]?.append(gallery)
-                }
-            }
-        }
     }
 
     public enum Action: BindableAction {
@@ -170,14 +162,12 @@ public struct ToplistsReducer: Sendable {
                 state.rawLoadingState[type] = .idle
                 switch result {
                 case .success(let (pageNumber, galleries)):
-                    guard !galleries.isEmpty else {
-                        state.rawLoadingState[type] = .failed(.notFound)
-                        guard pageNumber.hasNextPage() else { return .none }
-                        return .send(.fetchMoreGalleries)
-                    }
+                    // The page's index is kept even when the page is empty, since the next page is fetched from it.
                     state.rawPageNumber[type] = pageNumber
                     state.rawGalleries[type] = galleries
-                    return .none
+                    guard galleries.isEmpty else { return .none }
+                    state.rawLoadingState[type] = .failed(.notFound)
+                    return pageNumber.hasNextPage() ? .send(.fetchMoreGalleries) : .none
                 case .failure(let error):
                     state.rawLoadingState[type] = .failed(error)
                 }
@@ -203,16 +193,15 @@ public struct ToplistsReducer: Sendable {
                 state.rawFooterLoadingState[type] = .idle
                 switch result {
                 case .success(let (pageNumber, galleries)):
+                    let previous = state.rawPageNumber[type] ?? .init()
                     state.rawPageNumber[type] = pageNumber
-                    state.insertGalleries(type: type, galleries: galleries)
-
-                    var effects: [Effect<Action>] = []
-                    if galleries.isEmpty, pageNumber.hasNextPage() {
-                        effects.append(.send(.fetchMoreGalleries))
-                    } else if !galleries.isEmpty {
+                    if state.rawGalleries[type, default: []].appendNew(galleries) > 0 {
                         state.rawLoadingState[type] = .idle
+                        return .none
                     }
-                    return .merge(effects)
+                    // A ranking shifts while it is read, so a page can hold only galleries already listed. Nothing new
+                    // leaves the last gallery where it was, so no scroll will ask again: go on from here.
+                    return pageNumber.advances(from: previous) ? .send(.fetchMoreGalleries) : .none
 
                 case .failure(let error):
                     state.rawFooterLoadingState[type] = .failed(error)

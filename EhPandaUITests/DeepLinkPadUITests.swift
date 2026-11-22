@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -39,7 +40,7 @@ final class DeepLinkPadUITests: XCTestCase {
         )
         firstGalleryRow.tap()
 
-        app.requireElement("detail_view", matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertTrue(
             app.buttons[UITestConstants.primaryMarkerTitle]
                 .waitForExistence(timeout: 15),
@@ -63,6 +64,6 @@ final class DeepLinkPadUITests: XCTestCase {
                 .waitForExistence(timeout: 15),
             "The deep link did not replace the open tab-modal with the linked gallery."
         )
-        app.requireElement("detail_view", matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
     }
 }

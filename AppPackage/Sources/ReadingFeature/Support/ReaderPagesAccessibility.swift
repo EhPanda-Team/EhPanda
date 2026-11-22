@@ -1,4 +1,5 @@
 import AppModels
+import AutomationIdentifiers
 import ComposableArchitecture
 import SwiftUI
 
@@ -24,7 +25,7 @@ struct ReaderPagesAccessibility: ViewModifier {
         let pages = shownPages
         content
             .accessibilityElement(children: .ignore)
-            .accessibilityIdentifier("reading_pages")
+            .accessibilityIdentifier(AccessibilityIdentifiers.readingPages)
             .accessibilityLabel(.accessibilityPageSlider)
             .accessibilityValue(description(of: pages))
             .accessibilityAdjustableAction { direction in

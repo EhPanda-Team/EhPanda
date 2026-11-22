@@ -30,7 +30,7 @@ public struct CommentsReducer: Sendable {
     }
 
     private enum CancelID {
-        case postComment, voteComment, fetchGallery
+        case postComment, voteComment, fetchGallery, fetchEditableComment
     }
 
     @ObservableState
@@ -70,6 +70,8 @@ public struct CommentsReducer: Sendable {
         case toast(PresentationAction<Never>)
         case destination(PresentationAction<Destination.Action>)
         case presentPostComment(commentID: String, content: String? = nil)
+        /// A comment's Edit: fetches the comment's source, then opens the editor with it.
+        case editTapped(commentID: String)
         /// The editor's Post: sends the comment and closes the editor, or holds both for the posting warning.
         case postTapped
         case moderation(CommentModerationFeature.Action)
@@ -92,6 +94,7 @@ public struct CommentsReducer: Sendable {
         case performCommentActionDone(Result<Void, AppError>)
         case fetchGallery(url: URL, isGalleryImageURL: Bool)
         case fetchGalleryDone(url: URL, result: Result<Gallery, AppError>)
+        case fetchEditableCommentDone(commentID: String, result: Result<String, AppError>)
     }
 
     @Dependency(\.applicationClient) private var applicationClient
@@ -121,7 +124,7 @@ public struct CommentsReducer: Sendable {
             case let .presentPostComment(commentID, content):
                 // Reset on present (not on dismiss): the sheet is a raw case binding, so an
                 // interactive swipe-down never sends `.destination(.dismiss)`. Editing passes the
-                // comment's text as `content`; the new-comment button passes nil to clear it.
+                // comment's source as `content`; the new-comment button passes nil to clear it.
                 state.commentContent = content ?? ""
                 state.postCommentFocused = false
                 state.destination = .postComment(commentID)
@@ -259,6 +262,38 @@ public struct CommentsReducer: Sendable {
                         await send(.performCommentActionDone(result))
                     }
                     .cancellable(id: CancelID.postComment)
+                }
+
+            // The editor opens with the comment's source from the site, never with the rendered text, which has lost
+            // the BBCode: saving that would strip the comment's formatting. Without the source the editor stays shut.
+            case .editTapped(let commentID):
+                guard let gid = Int(state.gid), let commentIDValue = Int(commentID),
+                      let apiuid = Int(cookieClient.apiuid(host: state.setting.galleryHost))
+                else {
+                    state.toast = .error()
+                    return .none
+                }
+                state.toast = .loading()
+                return .run { [host = state.setting.galleryHost, token = state.token, apiKey = state.apiKey] send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await EditableGalleryCommentRequest(
+                            host: host, apiuid: apiuid, apikey: apiKey, gid: gid, token: token,
+                            commentID: commentIDValue
+                        )
+                        .response()
+                    }
+                    await send(.fetchEditableCommentDone(commentID: commentID, result: result))
+                }
+                .cancellable(id: CancelID.fetchEditableComment)
+
+            case .fetchEditableCommentDone(let commentID, let result):
+                switch result {
+                case .success(let source):
+                    state.toast = nil
+                    return .send(.presentPostComment(commentID: commentID, content: source))
+                case .failure:
+                    state.toast = .error()
+                    return .none
                 }
 
             case .voteComment(let gid, let token, let apiKey, let commentID, let vote):

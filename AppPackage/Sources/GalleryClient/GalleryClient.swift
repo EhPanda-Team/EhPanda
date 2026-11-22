@@ -26,7 +26,7 @@ public struct GalleryClient: Sendable {
         _ host: GalleryHost,
         _ keyword: String,
         _ filter: AppModels.Filter,
-        _ lastID: String
+        _ cursor: String
     ) async throws(AppError) -> GalleriesResult
     /// The date seek of Front Page, Watched, Search and Favorites.
     public var fetchDateSeekGalleries: @Sendable (
@@ -42,7 +42,7 @@ public struct GalleryClient: Sendable {
     public var fetchMoreFrontPageGalleries: @Sendable (
         _ host: GalleryHost,
         _ filter: AppModels.Filter,
-        _ lastID: String
+        _ cursor: String
     ) async throws(AppError) -> GalleriesResult
     /// The Popular list.
     public var fetchPopularGalleries: @Sendable (
@@ -59,7 +59,7 @@ public struct GalleryClient: Sendable {
     public var fetchMoreWatchedGalleries: @Sendable (
         _ host: GalleryHost,
         _ filter: AppModels.Filter,
-        _ lastID: String,
+        _ cursor: String,
         _ keyword: String
     ) async throws(AppError) -> GalleriesResult
     /// The first page of Favorites.
@@ -73,8 +73,7 @@ public struct GalleryClient: Sendable {
     public var fetchMoreFavoritesGalleries: @Sendable (
         _ host: GalleryHost,
         _ favIndex: Int,
-        _ lastID: String,
-        _ lastTimestamp: String,
+        _ cursor: String,
         _ keyword: String
     ) async throws(AppError) -> FavoritesGalleriesResult
     /// The first page of Toplists.
@@ -134,9 +133,9 @@ extension GalleryClient {
         host: GalleryHost,
         keyword: String,
         filter: AppModels.Filter,
-        lastID: String
+        cursor: String
     ) async throws(AppError) -> GalleriesResult {
-        try await MoreSearchGalleriesRequest(host: host, keyword: keyword, filter: filter, lastID: lastID).response()
+        try await MoreSearchGalleriesRequest(host: host, keyword: keyword, filter: filter, cursor: cursor).response()
     }
 
     private static func dateSeekGalleries(
@@ -156,9 +155,9 @@ extension GalleryClient {
     private static func moreFrontPageGalleries(
         host: GalleryHost,
         filter: AppModels.Filter,
-        lastID: String
+        cursor: String
     ) async throws(AppError) -> GalleriesResult {
-        try await MoreFrontPageGalleriesRequest(host: host, filter: filter, lastID: lastID).response()
+        try await MoreFrontPageGalleriesRequest(host: host, filter: filter, cursor: cursor).response()
     }
 
     private static func popularGalleries(
@@ -179,10 +178,10 @@ extension GalleryClient {
     private static func moreWatchedGalleries(
         host: GalleryHost,
         filter: AppModels.Filter,
-        lastID: String,
+        cursor: String,
         keyword: String
     ) async throws(AppError) -> GalleriesResult {
-        try await MoreWatchedGalleriesRequest(host: host, filter: filter, lastID: lastID, keyword: keyword).response()
+        try await MoreWatchedGalleriesRequest(host: host, filter: filter, cursor: cursor, keyword: keyword).response()
     }
 
     private static func favoritesGalleries(
@@ -200,14 +199,11 @@ extension GalleryClient {
     private static func moreFavoritesGalleries(
         host: GalleryHost,
         favIndex: Int,
-        lastID: String,
-        lastTimestamp: String,
+        cursor: String,
         keyword: String
     ) async throws(AppError) -> FavoritesGalleriesResult {
-        try await MoreFavoritesGalleriesRequest(
-            host: host, favIndex: favIndex, lastID: lastID, lastTimestamp: lastTimestamp, keyword: keyword
-        )
-        .response()
+        try await MoreFavoritesGalleriesRequest(host: host, favIndex: favIndex, cursor: cursor, keyword: keyword)
+            .response()
     }
 
     private static func toplistsGalleries(

@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -33,20 +34,8 @@ final class ReportFormUITests: XCTestCase {
     }
 
     private enum Identifier {
-        static let form = "report_form"
-        static let loading = "report_loading"
-        static let unavailable = "report_unavailable"
-        static let sent = "report_sent"
-        static let primary = "report_primary_button"
-        static let email = "report_email"
-        static let details = "report_details"
-        static let illegalWarning = "report_illegal_warning"
-        static let emailInvalid = "report_email_invalid"
-        static let child = "report_reason_child"
-        static let other = "report_reason_other"
-        static let sessionWebView = "session_web_view"
-        static let commentsView = "comments_view"
-        static let commentCell = "comment_cell_" + UITestConstants.commentID
+        static let child = AccessibilityIdentifiers.reportReason(type: "child")
+        static let other = AccessibilityIdentifiers.reportReason(type: "other")
     }
 
     /// Where every report request goes: the stub logs the gallery path without its `report` query.
@@ -76,7 +65,7 @@ final class ReportFormUITests: XCTestCase {
     /// [31] The page takes 6 s: after 0.3 s the spinner and its line show, and Send Report waits, dimmed.
     func testLoadingShowsTheSpinnerAndADimmedSend() throws {
         let app = try openReportForm(scenario: "slowLoad", waitsForForm: false)
-        let loading = app.descendants(matching: .any)[Identifier.loading]
+        let loading = app.descendants(matching: .any)[AccessibilityIdentifiers.reportLoading]
         XCTAssertTrue(loading.waitForExistence(timeout: 5), "The loading state shows no spinner.")
         keepScreenshot("report-31-loading", app: app)
         XCTAssertTrue(
@@ -87,7 +76,8 @@ final class ReportFormUITests: XCTestCase {
         XCTAssertTrue(primary.exists, "The loading state has no pinned button.")
         XCTAssertFalse(primary.isEnabled, "Send Report is enabled while the form loads.")
         XCTAssertTrue(
-            app.descendants(matching: .any)[Identifier.form].waitForExistence(timeout: 15), "The form never loaded."
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportForm].waitForExistence(timeout: 15),
+            "The form never loaded."
         )
         XCTAssertFalse(loading.exists, "The spinner stayed after the form loaded.")
         app.terminate()
@@ -109,7 +99,10 @@ final class ReportFormUITests: XCTestCase {
         XCTAssertLessThan(child.frame.minY, other.frame.minY, "Child pornography does not come first.")
         XCTAssertFalse(child.isSelected, "A reason is picked before the user picks one.")
         XCTAssertFalse(other.isSelected, "A reason is picked before the user picks one.")
-        XCTAssertFalse(app.descendants(matching: .any)[Identifier.illegalWarning].exists, "The warning shows unasked.")
+        XCTAssertFalse(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportIllegalWarning].exists,
+            "The warning shows unasked."
+        )
 
         let primary = primaryButton(in: app)
         XCTAssertEqual(primary.label, Copy.send, "The pinned button does not read Send Report.")
@@ -136,7 +129,7 @@ final class ReportFormUITests: XCTestCase {
         app.buttons[Identifier.child].tapWhenHittable("Child pornography")
         XCTAssertTrue(app.buttons[Identifier.child].isSelected, "The picked reason is not selected.")
         XCTAssertTrue(
-            app.descendants(matching: .any)[Identifier.illegalWarning].waitForExistence(timeout: 5),
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportIllegalWarning].waitForExistence(timeout: 5),
             "Picking a reason shows no warning."
         )
         XCTAssertFalse(app.keyboards.element.exists, "Picking a reason opened the keyboard.")
@@ -151,14 +144,14 @@ final class ReportFormUITests: XCTestCase {
             (details.value as? String)?.contains(Copy.typedDetails) == true, "Switching the reason lost the text."
         )
 
-        let email = app.textFields[Identifier.email]
+        let email = app.textFields[AccessibilityIdentifiers.reportEmail]
         email.tapWhenHittable("Email")
         email.typeText("a")
         let primary = primaryButton(in: app)
         XCTAssertTrue(primary.waitForEnabled(), "Send Report stays dimmed on a filled-in form.")
         primary.tapWhenHittable("Send Report")
 
-        let invalid = app.descendants(matching: .any)[Identifier.emailInvalid]
+        let invalid = app.descendants(matching: .any)[AccessibilityIdentifiers.reportEmailInvalid]
         XCTAssertTrue(invalid.waitForExistence(timeout: 5), "A malformed email shows no error.")
         XCTAssertTrue(invalid.label.contains(Copy.emailInvalid), "The error reads \(invalid.label).")
         keepScreenshot("report-26-invalid-email", app: app)
@@ -191,9 +184,15 @@ final class ReportFormUITests: XCTestCase {
         let close = app.navigationBars[Copy.title].buttons[Copy.close]
         XCTAssertFalse(close.isEnabled, "Close can be tapped while sending.")
         app.navigationBars[Copy.title].swipeDown(velocity: .fast)
-        XCTAssertTrue(app.descendants(matching: .any)[Identifier.form].exists, "A swipe down closed the sheet.")
+        XCTAssertTrue(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportForm].exists,
+            "A swipe down closed the sheet."
+        )
 
-        XCTAssertTrue(app.descendants(matching: .any)[Identifier.sent].waitForExistence(timeout: 20), "It never sent.")
+        XCTAssertTrue(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportSent].waitForExistence(timeout: 20),
+            "It never sent."
+        )
         XCTAssertEqual(try loggedRequests().filter({ $0 == Self.reportPost }).count, 1, "The report was not sent once.")
         app.terminate()
     }
@@ -205,11 +204,14 @@ final class ReportFormUITests: XCTestCase {
         try fillInTheForm(in: app)
         primaryButton(in: app).tapWhenHittable("Send Report")
 
-        let sent = app.descendants(matching: .any)[Identifier.sent]
+        let sent = app.descendants(matching: .any)[AccessibilityIdentifiers.reportSent]
         XCTAssertTrue(sent.waitForExistence(timeout: 10), "The sent state did not show.")
         XCTAssertTrue(app.staticTexts[Copy.sentTitle].exists, "The sent state has no title.")
         XCTAssertTrue(app.staticTexts[Copy.sentBody].exists, "The sent state has no body.")
-        XCTAssertFalse(app.descendants(matching: .any)[Identifier.form].exists, "The form stayed under the sent state.")
+        XCTAssertFalse(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportForm].exists,
+            "The form stayed under the sent state."
+        )
         XCTAssertFalse(app.buttons[Copy.close].exists, "The sent state keeps Close.")
         let primary = primaryButton(in: app)
         XCTAssertEqual(primary.label, Copy.done, "The pinned button does not read Done.")
@@ -218,7 +220,10 @@ final class ReportFormUITests: XCTestCase {
 
         primary.tapWhenHittable("Done")
         XCTAssertTrue(sent.waitForNonExistence(timeout: 10), "Done did not close the sheet.")
-        XCTAssertTrue(app.collectionViews[Identifier.commentsView].exists, "Done did not return to the comments.")
+        XCTAssertTrue(
+            app.collectionViews[AccessibilityIdentifiers.commentsView].exists,
+            "Done did not return to the comments."
+        )
         app.terminate()
     }
 
@@ -243,7 +248,11 @@ final class ReportFormUITests: XCTestCase {
         XCTAssertTrue(
             (detailsField(in: app).value as? String)?.contains(Copy.typedDetails) == true, "Cancel lost the details."
         )
-        XCTAssertEqual(app.textFields[Identifier.email].value as? String, Copy.validEmail, "Cancel lost the email.")
+        XCTAssertEqual(
+            app.textFields[AccessibilityIdentifiers.reportEmail].value as? String,
+            Copy.validEmail,
+            "Cancel lost the email."
+        )
 
         primary.tapWhenHittable("Send Report again")
         XCTAssertTrue(alert.waitForExistence(timeout: 10), "The second failure raised no alert.")
@@ -252,13 +261,16 @@ final class ReportFormUITests: XCTestCase {
         XCTAssertTrue(alert.waitForExistence(timeout: 10), "The failed retry raised no alert.")
 
         alert.buttons[Copy.openReportPage].tapWhenHittable("Open Report Page")
-        let webView = app.webViews[Identifier.sessionWebView]
+        let webView = app.webViews[AccessibilityIdentifiers.sessionWebView]
         XCTAssertTrue(webView.waitForExistence(timeout: 15), "Open Report Page did not show the site's page.")
         XCTAssertEqual(webView.value as? String, Self.reportPageURL, "The sheet holds another page.")
         keepScreenshot("report-29-site-page", app: app)
         topmostClose(in: app).tap()
         XCTAssertTrue(webView.waitForNonExistence(timeout: 10), "The site's page did not close.")
-        XCTAssertTrue(app.descendants(matching: .any)[Identifier.form].exists, "Closing the page lost the form.")
+        XCTAssertTrue(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportForm].exists,
+            "Closing the page lost the form."
+        )
         XCTAssertTrue(
             (detailsField(in: app).value as? String)?.contains(Copy.typedDetails) == true, "The form lost the details."
         )
@@ -269,17 +281,20 @@ final class ReportFormUITests: XCTestCase {
     /// Report Page shows the site's page.
     func testUnavailableOffersTheSitesPage() throws {
         let app = try openReportForm(scenario: "unavailable", waitsForForm: false)
-        let unavailable = app.descendants(matching: .any)[Identifier.unavailable]
+        let unavailable = app.descendants(matching: .any)[AccessibilityIdentifiers.reportUnavailable]
         XCTAssertTrue(unavailable.waitForExistence(timeout: 10), "The unavailable state did not show.")
         keepScreenshot("report-30-unavailable", app: app)
         XCTAssertEqual(unavailable.buttons.count, 0, "The unavailable view holds an action.")
-        XCTAssertFalse(app.descendants(matching: .any)[Identifier.form].exists, "The form shows on the first step.")
+        XCTAssertFalse(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportForm].exists,
+            "The form shows on the first step."
+        )
         let primary = primaryButton(in: app)
         XCTAssertEqual(primary.label, Copy.openReportPage, "The pinned button reads \(primary.label).")
         XCTAssertTrue(primary.isEnabled, "Open Report Page is dimmed.")
 
         primary.tapWhenHittable("Open Report Page")
-        let webView = app.webViews[Identifier.sessionWebView]
+        let webView = app.webViews[AccessibilityIdentifiers.sessionWebView]
         XCTAssertTrue(webView.waitForExistence(timeout: 15), "Open Report Page did not show the site's page.")
         XCTAssertEqual(webView.value as? String, Self.reportPageURL, "The sheet holds another page.")
         topmostClose(in: app).tap()
@@ -315,7 +330,7 @@ final class ReportFormUITests: XCTestCase {
             throw XCTSkip("Frame 34 is the iPad form sheet.")
         }
         let app = try openReportForm(scenario: "ready")
-        let form = app.descendants(matching: .any)[Identifier.form]
+        let form = app.descendants(matching: .any)[AccessibilityIdentifiers.reportForm]
         let window = app.windows.firstMatch.frame
         XCTAssertLessThan(form.frame.width, window.width - 100, "The form fills the screen: \(form.frame).")
         keepScreenshot("report-34-ipad", app: app)
@@ -330,7 +345,8 @@ final class ReportFormUITests: XCTestCase {
         keepScreenshot("report-34-ipad-ready", app: app)
         app.typeKey("\n", modifierFlags: .command)
         XCTAssertTrue(
-            app.descendants(matching: .any)[Identifier.sent].waitForExistence(timeout: 10), "⌘↩ did not send."
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportSent].waitForExistence(timeout: 10),
+            "⌘↩ did not send."
         )
         XCTAssertEqual(try loggedRequests().filter({ $0 == Self.reportPost }).count, 1, "⌘↩ did not send once.")
         app.terminate()
@@ -358,8 +374,9 @@ private extension ReportFormUITests {
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
         ])
         app.requireForeground()
-        let comments = app.requireElement(Identifier.commentsView, matching: .collectionView)
-        let cell = app.descendants(matching: .any).matching(identifier: Identifier.commentCell).firstMatch
+        let comments = app.requireElement(AccessibilityIdentifiers.commentsView, matching: .collectionView)
+        let cellID = AccessibilityIdentifiers.commentCell(id: UITestConstants.commentID)
+        let cell = app.descendants(matching: .any).matching(identifier: cellID).firstMatch
         // At the largest text sizes the link's scroll sometimes stops short of the comment, whose row is then not
         // in the tree yet; scroll down to it, as a reader would.
         var swipes = 0
@@ -367,7 +384,7 @@ private extension ReportFormUITests {
             comments.swipeUp()
             swipes += 1
         }
-        XCTAssertTrue(cell.exists, "EhPanda did not present \(Identifier.commentCell).")
+        XCTAssertTrue(cell.exists, "EhPanda did not present \(cellID).")
         XCTAssertTrue(
             cell.waitUntilHittable(timeout: XCUIElement.hittableTimeout), "The linked comment is out of reach."
         )
@@ -379,7 +396,7 @@ private extension ReportFormUITests {
         app.buttons[Copy.reportOnSite].firstMatch.tapWhenHittable("Report in the menu")
         XCTAssertEqual(app.alerts.count, 0, "Report raised an alert instead of the form.")
         if waitsForForm {
-            app.requireElement(Identifier.form)
+            app.requireElement(AccessibilityIdentifiers.reportForm)
             XCTAssertTrue(
                 app.buttons[Identifier.child].waitForExistence(timeout: 10), "The form shows no reasons."
             )
@@ -398,19 +415,19 @@ private extension ReportFormUITests {
         details.tapWhenHittable("Details")
         requireKeyboardFocus(details, "Details after tapping it")
         details.typeText(Copy.typedDetails)
-        let email = app.textFields[Identifier.email]
+        let email = app.textFields[AccessibilityIdentifiers.reportEmail]
         email.tapWhenHittable("Email")
         email.typeText(Copy.validEmail)
         XCTAssertTrue(primaryButton(in: app).waitForEnabled(), "Send Report stays dimmed on a filled-in form.")
     }
 
     func primaryButton(in app: XCUIApplication) -> XCUIElement {
-        app.buttons[Identifier.primary].firstMatch
+        app.buttons[AccessibilityIdentifiers.reportPrimaryButton].firstMatch
     }
 
     /// Details is a vertical `TextField`, which XCUITest lists as a text field.
     func detailsField(in app: XCUIApplication) -> XCUIElement {
-        app.textFields[Identifier.details].firstMatch
+        app.textFields[AccessibilityIdentifiers.reportDetails].firstMatch
     }
 
     /// The Close button on top: with the site's page over the form, both sheets have one.

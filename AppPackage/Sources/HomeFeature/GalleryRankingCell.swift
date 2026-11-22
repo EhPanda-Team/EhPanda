@@ -1,6 +1,7 @@
 import AppComponents
 public import AppModels
 import AppTools
+import AutomationIdentifiers
 import Sharing
 public import SwiftUI
 
@@ -59,7 +60,7 @@ public struct GalleryRankingCell: View {
     private var cover: some View {
         GalleryCover(url: gallery.coverURL, style: showsRichInformation ? .homeRanking : .compact, contentMode: .fill)
             // Marketing captures find which covers a screenshot shows by this identifier.
-            .accessibilityIdentifier("home_ranking_cover_\(gallery.id)")
+            .accessibilityIdentifier(AccessibilityIdentifiers.homeRankingCover(id: gallery.id))
     }
 
     private var rankNumber: some View {
@@ -72,7 +73,7 @@ public struct GalleryRankingCell: View {
     private var textColumn: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
-                .accessibilityIdentifier("home_ranking_title_\(gallery.id)")
+                .accessibilityIdentifier(AccessibilityIdentifiers.homeRankingTitle(id: gallery.id))
                 .bold()
                 .lineLimit(textLineLimit(2))
                 .fixedSize(horizontal: false, vertical: true)

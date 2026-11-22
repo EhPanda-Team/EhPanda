@@ -38,7 +38,7 @@ struct GalleryRequestBaselineTests {
             host: galleryHost,
             keyword: "baseline",
             filter: Filter(),
-            lastID: "123"
+            cursor: "123"
         )
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
@@ -48,7 +48,7 @@ struct GalleryRequestBaselineTests {
                 host: galleryHost,
                 keyword: "baseline",
                 filter: Filter(),
-                lastID: "123",
+                cursor: "123",
                 urlSession: session
             )
             .response()
@@ -99,7 +99,7 @@ struct GalleryRequestBaselineTests {
 
     @Test
     func moreFrontPageGalleriesRequestLocksURLAndParsing() async throws {
-        let expectedURL = URLUtil.moreFrontPageList(host: galleryHost, filter: Filter(), lastID: "456")
+        let expectedURL = URLUtil.moreFrontPageList(host: galleryHost, filter: Filter(), cursor: "456")
         let (session, handle) = listSession(url: expectedURL)
         defer { cleanUp(session: session, handle: handle) }
 
@@ -107,7 +107,7 @@ struct GalleryRequestBaselineTests {
             try await MoreFrontPageGalleriesRequest(
                 host: galleryHost,
                 filter: Filter(),
-                lastID: "456",
+                cursor: "456",
                 urlSession: session
             )
             .response()
@@ -162,7 +162,7 @@ struct GalleryRequestBaselineTests {
         let expectedURL = URLUtil.moreWatchedList(
             host: galleryHost,
             filter: Filter(),
-            lastID: "789",
+            cursor: "789",
             keyword: "watched"
         )
         let (session, handle) = listSession(url: expectedURL)
@@ -172,7 +172,7 @@ struct GalleryRequestBaselineTests {
             try await MoreWatchedGalleriesRequest(
                 host: galleryHost,
                 filter: Filter(),
-                lastID: "789",
+                cursor: "789",
                 keyword: "watched",
                 urlSession: session
             )
@@ -231,8 +231,7 @@ struct GalleryRequestBaselineTests {
         let expectedURL = URLUtil.moreFavoritesList(
             host: galleryHost,
             favIndex: 2,
-            lastID: "100",
-            lastTimestamp: "200",
+            cursor: "100-200",
             keyword: "favorite"
         )
         let (session, handle) = listSession(url: expectedURL)
@@ -243,8 +242,7 @@ struct GalleryRequestBaselineTests {
             try await MoreFavoritesGalleriesRequest(
                 host: galleryHost,
                 favIndex: 2,
-                lastID: "100",
-                lastTimestamp: "200",
+                cursor: "100-200",
                 keyword: "favorite",
                 urlSession: session
             )

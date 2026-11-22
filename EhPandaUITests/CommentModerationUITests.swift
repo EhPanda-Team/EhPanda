@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 /// Comment moderation end to end (UI-SPEC C-4 to C-8): the comments list's `…` menu and context menu, Report opening
@@ -43,13 +44,9 @@ final class CommentModerationUITests: XCTestCase {
     }
 
     private enum Identifier {
-        static let commentsView = "comments_view"
-        static let detailView = "detail_view"
-        static let reportForm = "report_form"
-        static let commentCell = "comment_cell_" + UITestConstants.commentID
-        static let blockedRow = "blocked_comment_" + UITestConstants.commentID
-        static let stripCard = "comment_card_" + Copy.stripCommentID
-        static let blockedCard = "blocked_comment_card_" + Copy.stripCommentID
+        static let blockedRow = AccessibilityIdentifiers.blockedComment(id: UITestConstants.commentID)
+        static let stripCard = AccessibilityIdentifiers.commentCard(id: Copy.stripCommentID)
+        static let blockedCard = AccessibilityIdentifiers.blockedCommentCard(id: Copy.stripCommentID)
     }
 
     /// This case's own request log: XCTest makes one instance of the class for each test method. A constant, so
@@ -84,13 +81,13 @@ final class CommentModerationUITests: XCTestCase {
 
         // Report opens the form directly (18.1 D-01): no confirmation comes first.
         report.tapWhenHittable("Report")
-        app.requireElement(Identifier.reportForm)
+        app.requireElement(AccessibilityIdentifiers.reportForm)
         XCTAssertTrue(app.navigationBars[Copy.reportOnSite].exists, "The form is not titled \(Copy.reportOnSite).")
         XCTAssertEqual(app.alerts.count, 0, "Report raised an alert before the form.")
         keepScreenshot("comments-report-form", app: app)
         app.navigationBars[Copy.reportOnSite].buttons[Copy.close].tapWhenHittable("Close the form")
         XCTAssertTrue(
-            app.descendants(matching: .any)[Identifier.reportForm].waitForNonExistence(timeout: 10),
+            app.descendants(matching: .any)[AccessibilityIdentifiers.reportForm].waitForNonExistence(timeout: 10),
             "The form did not close."
         )
         app.terminate()
@@ -132,8 +129,8 @@ final class CommentModerationUITests: XCTestCase {
     /// in the upper part of the list, under the navigation bar, and its author in reach.
     func testACommentLinkAtTheLargestTextSizeLandsOnTheComment() throws {
         let app = try openComments(blockedUsers: [], signedIn: false, contentSizeCategory: Copy.largestTextSize)
-        let list = app.collectionViews[Identifier.commentsView]
-        let cell = app.descendants(matching: .any)[Identifier.commentCell]
+        let list = app.collectionViews[AccessibilityIdentifiers.commentsView]
+        let cell = app.descendants(matching: .any)[AccessibilityIdentifiers.commentCell(id: UITestConstants.commentID)]
         // The link's scroll starts 0.75 s after the list appears and the row fades for two seconds after that.
         Thread.sleep(forTimeInterval: 4)
         keepScreenshot("comments-link-landed-ax5", app: app)
@@ -162,7 +159,8 @@ final class CommentModerationUITests: XCTestCase {
         let row = app.descendants(matching: .any)[Identifier.blockedRow]
         XCTAssertTrue(row.waitForExistence(timeout: 10), "The comment did not collapse.")
         row.buttons[Copy.show].tapWhenHittable("Show")
-        let revealed = app.staticTexts.matching(identifier: Identifier.commentCell)
+        let revealed = app.staticTexts
+            .matching(identifier: AccessibilityIdentifiers.commentCell(id: UITestConstants.commentID))
             .matching(NSPredicate(format: "label BEGINSWITH %@", Copy.author)).firstMatch
         XCTAssertTrue(revealed.waitForExistence(timeout: 10), "Show did not reveal the comment.")
         Thread.sleep(forTimeInterval: 1)
@@ -226,9 +224,9 @@ final class CommentModerationUITests: XCTestCase {
 
         card.press(forDuration: 1.2)
         app.buttons[Copy.reportOnSite].firstMatch.tapWhenHittable("Report in the card's menu")
-        app.requireElement(Identifier.reportForm)
+        app.requireElement(AccessibilityIdentifiers.reportForm)
         XCTAssertEqual(app.alerts.count, 0, "Report raised an alert before the form.")
-        let details = app.textFields["report_details"].firstMatch
+        let details = app.textFields[AccessibilityIdentifiers.reportDetails].firstMatch
         XCTAssertTrue(details.waitForExistence(timeout: 10), "The form has no Details.")
         XCTAssertTrue(
             (details.value as? String)?.contains(Copy.stripAuthor) == true, "Details does not name the card's author."
@@ -342,7 +340,7 @@ private extension CommentModerationUITests {
             blockedUsers: blockedUsers, signedIn: signedIn, displayName: displayName
         ))
         app.requireForeground()
-        app.requireElement(Identifier.commentsView, matching: .collectionView)
+        app.requireElement(AccessibilityIdentifiers.commentsView, matching: .collectionView)
         return app
     }
 
@@ -353,12 +351,12 @@ private extension CommentModerationUITests {
             blockedUsers: blockedUsers, signedIn: false, displayName: nil
         ))
         app.requireForeground()
-        app.requireElement(Identifier.detailView, matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         return app
     }
 
     func requireCell(in app: XCUIApplication) -> XCUIElement {
-        let cell = app.requireElement(Identifier.commentCell)
+        let cell = app.requireElement(AccessibilityIdentifiers.commentCell(id: UITestConstants.commentID))
         // The linked row fades to 25 % and back over two seconds; let it finish before reading or touching it.
         XCTAssertTrue(
             cell.waitUntilHittable(timeout: XCUIElement.hittableTimeout), "The linked comment is out of reach."
@@ -373,7 +371,7 @@ private extension CommentModerationUITests {
     /// the window.
     func requireStripElement(_ identifier: String, in app: XCUIApplication) throws -> XCUIElement {
         let element = app.descendants(matching: .any)[identifier]
-        let detail = app.scrollViews[Identifier.detailView].firstMatch
+        let detail = app.scrollViews[AccessibilityIdentifiers.detailView].firstMatch
         XCTAssertTrue(detail.waitForExistence(timeout: 10), "The Detail screen is not shown.")
         let visible = detail.frame
         let window = app.windows.firstMatch

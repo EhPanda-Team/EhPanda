@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 /// Run on the Duo cover display in landscape, where tabs and list tools compete for vertical space.
@@ -11,7 +12,7 @@ final class DuoToolbarUITests: XCTestCase {
     func testListToolsAndEveryTabStayReachable() throws {
         let app = XCUIApplication()
         try app.launchStubbed()
-        app.requireElement("home_carousel", matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.homeCarousel, matching: .scrollView)
         app.buttons["Show All"].firstMatch.tapWhenHittable("Front Page")
         let frontPage = app.navigationBars["Front Page"]
         XCTAssertTrue(frontPage.waitForExistence(timeout: 10))

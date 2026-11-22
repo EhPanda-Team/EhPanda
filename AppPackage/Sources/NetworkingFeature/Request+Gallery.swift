@@ -46,23 +46,24 @@ public struct MoreSearchGalleriesRequest: Request {
         host: GalleryHost,
         keyword: String,
         filter: Filter,
-        lastID: String,
+        cursor: String,
         urlSession: URLSession = .shared
     ) {
         self.host = host
         self.keyword = keyword
         self.filter = filter
-        self.lastID = lastID
+        self.cursor = cursor
         self.urlSession = urlSession
     }
     public let host: GalleryHost
     public let keyword: String
     public let filter: Filter
-    public let lastID: String
+    /// The `next` value of the previous page's Next link (`PageNumber.nextCursor`).
+    public let cursor: String
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> GalleriesResult {
-        let url = URLUtil.moreSearchList(host: host, keyword: keyword, filter: filter, lastID: lastID)
+        let url = URLUtil.moreSearchList(host: host, keyword: keyword, filter: filter, cursor: cursor)
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
@@ -149,21 +150,22 @@ public struct MoreFrontPageGalleriesRequest: Request {
     public init(
         host: GalleryHost,
         filter: Filter,
-        lastID: String,
+        cursor: String,
         urlSession: URLSession = .shared
     ) {
         self.host = host
         self.filter = filter
-        self.lastID = lastID
+        self.cursor = cursor
         self.urlSession = urlSession
     }
     public let host: GalleryHost
     public let filter: Filter
-    public let lastID: String
+    /// The `next` value of the previous page's Next link (`PageNumber.nextCursor`).
+    public let cursor: String
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> GalleriesResult {
-        let url = URLUtil.moreFrontPageList(host: host, filter: filter, lastID: lastID)
+        let url = URLUtil.moreFrontPageList(host: host, filter: filter, cursor: cursor)
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
         do {
             let document = try htmlDocument(data: data)
@@ -248,19 +250,20 @@ public struct MoreWatchedGalleriesRequest: Request {
     public init(
         host: GalleryHost,
         filter: Filter,
-        lastID: String,
+        cursor: String,
         keyword: String,
         urlSession: URLSession = .shared
     ) {
         self.host = host
         self.filter = filter
-        self.lastID = lastID
+        self.cursor = cursor
         self.keyword = keyword
         self.urlSession = urlSession
     }
     public let host: GalleryHost
     public let filter: Filter
-    public let lastID: String
+    /// The `next` value of the previous page's Next link (`PageNumber.nextCursor`).
+    public let cursor: String
     public let keyword: String
     public let urlSession: URLSession
 
@@ -268,7 +271,7 @@ public struct MoreWatchedGalleriesRequest: Request {
         let url = URLUtil.moreWatchedList(
             host: host,
             filter: filter,
-            lastID: lastID,
+            cursor: cursor,
             keyword: keyword
         )
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)
@@ -337,22 +340,20 @@ public struct MoreFavoritesGalleriesRequest: Request {
     public init(
         host: GalleryHost,
         favIndex: Int,
-        lastID: String,
-        lastTimestamp: String,
+        cursor: String,
         keyword: String,
         urlSession: URLSession = .shared
     ) {
         self.host = host
         self.favIndex = favIndex
-        self.lastID = lastID
-        self.lastTimestamp = lastTimestamp
+        self.cursor = cursor
         self.keyword = keyword
         self.urlSession = urlSession
     }
     public let host: GalleryHost
     public let favIndex: Int
-    public let lastID: String
-    public var lastTimestamp: String
+    /// The `next` value of the previous page's Next link, `gid-timestamp` (`PageNumber.nextCursor`).
+    public let cursor: String
     public let keyword: String
     public let urlSession: URLSession
 
@@ -360,8 +361,7 @@ public struct MoreFavoritesGalleriesRequest: Request {
         let url = URLUtil.moreFavoritesList(
             host: host,
             favIndex: favIndex,
-            lastID: lastID,
-            lastTimestamp: lastTimestamp,
+            cursor: cursor,
             keyword: keyword
         )
         let (data, _) = try await fetch(URLRequest(url: url), in: urlSession)

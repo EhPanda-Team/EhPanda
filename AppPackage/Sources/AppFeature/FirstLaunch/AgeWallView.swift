@@ -1,4 +1,5 @@
 import AppComponents
+import AutomationIdentifiers
 import ComposableArchitecture
 import Resources
 import SwiftUI
@@ -23,13 +24,13 @@ struct AgeWallView: View {
     }
 
     var body: some View {
-        FirstLaunchPage(identifier: "first_launch_age_wall", compactTop: 48, regularTop: 96) {
+        FirstLaunchPage(identifier: AccessibilityIdentifiers.firstLaunchAgeWall, compactTop: 48, regularTop: 96) {
             VStack(spacing: 0) {
                 appIcon
                 FirstLaunchTitle(.RLocalizable.ageWallTitle)
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityFocused(titleFocus, equals: .ageWall)
-                    .accessibilityIdentifier("first_launch_age_wall_title")
+                    .accessibilityIdentifier(AccessibilityIdentifiers.firstLaunchAgeWallTitle)
                     .padding(.top, 24)
                 Text(.RLocalizable.ageWallBody)
                     .font(.body)
@@ -40,7 +41,7 @@ struct AgeWallView: View {
                     Text(.RLocalizable.ageWallDeclaration)
                 }
                 .toggleStyle(CheckboxToggleStyle())
-                .accessibilityIdentifier("first_launch_declaration")
+                .accessibilityIdentifier(AccessibilityIdentifiers.firstLaunchDeclaration)
                 .padding(.top, 32)
                 if dynamicTypeSize.isAccessibilitySize {
                     footnote
@@ -54,7 +55,7 @@ struct AgeWallView: View {
                 }
                 .disabled(!store.isDeclarationTicked)
                 .accessibilityHint(.RLocalizable.ageWallContinueHint, isEnabled: !store.isDeclarationTicked)
-                .accessibilityIdentifier("first_launch_continue")
+                .accessibilityIdentifier(AccessibilityIdentifiers.firstLaunchContinue)
                 if !dynamicTypeSize.isAccessibilitySize {
                     footnote
                 }

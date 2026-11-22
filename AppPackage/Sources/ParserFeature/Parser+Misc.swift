@@ -37,29 +37,16 @@ extension Parser {
               let currentStr = link.at_xpath("//td [@class='ptds']")?.text
         else {
             if let link = doc.at_xpath("//div [@class='searchnav']") {
-                var timestamp: String?
-                var isEnabled = false
-
-                for aLink in link.xpath("//a") where aLink.text?.contains("Next") == true {
-                    timestamp = aLink["href"]
-                        .map(URLComponents.init)??
-                        .queryItems?
-                        .first(where: { $0.name == "next" })?
-                        .value?
-                        .split(separator: "-")
-                        .last
-                        .map(String.init)
-
-                    isEnabled = true
-                    break
-                }
-
-                return PageNumber(
-                    lastItemTimestamp: timestamp,
-                    isNextButtonEnabled: isEnabled
-                )
+                // The Next link's `next` value, whole: the request for the next page sends it back as it is.
+                let nextCursor = link.xpath("//a")
+                    .first(where: { $0.text?.contains("Next") == true })?["href"]
+                    .flatMap(URLComponents.init)?
+                    .queryItems?
+                    .first(where: { $0.name == "next" })?
+                    .value
+                return PageNumber(nextCursor: nextCursor)
             } else {
-                return PageNumber(isNextButtonEnabled: false)
+                return PageNumber()
             }
         }
 

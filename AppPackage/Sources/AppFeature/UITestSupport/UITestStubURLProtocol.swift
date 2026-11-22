@@ -245,9 +245,10 @@ final class UITestStubURLProtocol: URLProtocol {
             return "GalleryArchive.html"
         }
         if path == "/favorites.php" {
-            let hasNextPage = URLComponents(url: url, resolvingAgainstBaseURL: false)?
-                .queryItems?.contains(where: { $0.name == "next" }) == true
-            return hasNextPage ? "LibraryGalleriesNext.html" : "LibraryGalleries.html"
+            return libraryFixtureName(next: URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?
+                .first(where: { $0.name == "next" })?
+                .value)
         }
         if path.hasPrefix("/g/2930572") {
             return "GalleryDetailAlt.html"
@@ -264,6 +265,20 @@ final class UITestStubURLProtocol: URLProtocol {
             return "FrontPageList.html"
         }
         return nil
+    }
+
+    /// The Library page for the `next` cursor a request sends, or `nil` (a 404) for a cursor no page gave.
+    ///
+    /// The first page's Next link leads to a page holding only galleries the first page already listed, under a cursor
+    /// of its own, and that cursor leads to the page with the next new gallery. A list reaches it only by following the
+    /// site's cursor past a page that added nothing; asking again from its own last gallery gets a 404.
+    static func libraryFixtureName(next: String?) -> String? {
+        switch next {
+        case nil: "LibraryGalleries.html"
+        case "1024-1792022400": "LibraryGalleriesRepeat.html"
+        case "1020-1792022000": "LibraryGalleriesNext.html"
+        default: nil
+        }
     }
 
     private static let htmlMIMEType = "text/html; charset=utf-8"
