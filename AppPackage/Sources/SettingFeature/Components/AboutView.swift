@@ -99,10 +99,6 @@ struct AboutView: View {
         .init(
             urlString: String(localized: .Constant.contactTelegram),
             text: .Constant.contactTelegramLink
-        ),
-        .init(
-            urlString: String(localized: .Constant.contactAltStoreLink),
-            text: .altStoreSource
         )
     ]}()
 

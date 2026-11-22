@@ -757,48 +757,6 @@
         }
       }
     },
-    "contact.altStore_link": {
-      "extractionState": "manual",
-      "shouldTranslate": false,
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json"
-          }
-        }
-      }
-    },
     "contact.discord": {
       "extractionState": "manual",
       "shouldTranslate": false,
