@@ -716,7 +716,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 15/17 | Complete with deferred items | 2026-11-11 |
+| 19. Visual Regression & Daily Live-Parsing Check | 15/29 | Complete with deferred items; follow-up plans 19-18 to 19-29 planned | 2026-11-11 |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 8/14 | In Progress |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1491,7 +1491,7 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 15/17 plans executed; phase complete 2026-11-11 with deferred items: 19-12 and 19-13 are not executed, and the hosted parts of 19-10 (green gate run) and 19-17 (controlled regression) are owed (owner decision); security: four threats accepted-deferred (owner decision); success criteria 2, 3 and 4 are not proven until those run, see `19-VERIFICATION.md` (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
+**Plans**: 15/29 plans executed; phase complete 2026-11-11 with deferred items (follow-up plans 19-18 to 19-29 added 2026-11-22 for the owner's full-page capture design and pre-check fixes; 19-12 Task 2 and 19-13 run again after 19-29): 19-12 and 19-13 are not executed, and the hosted parts of 19-10 (green gate run) and 19-17 (controlled regression) are owed (owner decision); security: four threats accepted-deferred (owner decision); success criteria 2, 3 and 4 are not proven until those run, see `19-VERIFICATION.md` (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
@@ -1535,6 +1535,18 @@ Plans:
 **Wave 8**
 
 - [x] 19-17-PLAN.md — the README rewrite, preview review docs, the controlled regression (red then green) and the phase gate *(checkpoints: the hosted regression and the owner's required-check choice)* — done except the hosted controlled regression (deferred, owner decision) and the real preview render; required check: not required (owner decision), for now; local gate green with the UITests first-run flakes and iPad retries accepted (owner decision), so `nyquist_compliant` is true ([summary](phases/19-visual-regression-marketing-export/19-17-SUMMARY.md))
+- [ ] 19-18-PLAN.md — harness A: `SnapshotProvider` and one `*ViewSnapshot.swift` per view, a pure move proven against the old pictures and `baseline2`
+- [ ] 19-19-PLAN.md — harness B: the tall window with the Phase 17 remedies and the `page-height` check (tracer heights on `settings-root`)
+- [ ] 19-20-PLAN.md — the measuring mode, `snapshot_heights.py`, the pre-check's committed-height check, D-08 and README
+- [ ] 19-21-PLAN.md — app fixes C1, C2 and C11
+- [ ] 19-22-PLAN.md — app fixes C3, C5 and C16
+- [ ] 19-23-PLAN.md — the causes of C6 and C9 *(checkpoint: the owner decides C9's fixture and layout)*
+- [ ] 19-24-PLAN.md — the decided C6 and C9 fixes, and C7's row-anchored delete confirmations
+- [ ] 19-25-PLAN.md — C15, insufficient funds on Archives *(checkpoint: the owner approves the option and the six-locale copy)*
+- [ ] 19-26-PLAN.md — the whole matrix measured and its heights committed *(checkpoint: the owner decides every conflict with the design)*
+- [ ] 19-27-PLAN.md — run-to-run comparison tooling, native policy, shard cost *(checkpoint: push and hosted run A)*
+- [ ] 19-28-PLAN.md — hosted run B, the A–B comparison and a fix for each cause *(checkpoint: run B)*
+- [ ] 19-29-PLAN.md — two confirming hosted runs of one commit, then the hand-back to 19-12 Task 2 and 19-13 *(checkpoints: push and runs C and D)*
 
 Cross-cutting constraints:
 

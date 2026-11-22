@@ -402,9 +402,11 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   page: each picture is taken at a fixed, committed height that covers the whole page, one value per device ×
   orientation × text size (the tallest of the six languages), declared per view in a `*ViewSnapshot.swift` file
   through a test-only `SnapshotProvider` protocol (proven with swift-snapshot-testing 1.19.6 first). Design:
-  `19-FULL-PAGE-CAPTURE-DESIGN.md` (approved). T-19-24 closed and UF-3 resolved (`19-SECURITY.md`). Next: new Phase 19
-  plans for the harness change, the app fixes and the run-to-run variation, then a new candidate run (every picture
-  changes) and 19-13 again.
+  `19-FULL-PAGE-CAPTURE-DESIGN.md` (approved). T-19-24 closed and UF-3 resolved (`19-SECURITY.md`). Planned the same
+  day: 19-18 to 19-29 (one sequential chain, waves 9 to 20; plan check passed, its warnings applied): harness
+  (19-18 to 19-20), app fixes (19-21 to 19-25), heights (19-26), run-to-run variation on hosted runs (19-27 to 19-29).
+  Every push and hosted run in them is an owner checkpoint. After 19-29, 19-12 Task 2 (a new candidate run; every
+  picture changes) and 19-13 run again; their frontmatter is unchanged. Not executed yet.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
@@ -1257,11 +1259,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 319/321 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 319/333 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 15 of 17 plans executed (19-12 and 19-13 are deferred, owner decision); Phase 20
+5 of 5 plans complete. Phase 19 has 15 of 29 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
