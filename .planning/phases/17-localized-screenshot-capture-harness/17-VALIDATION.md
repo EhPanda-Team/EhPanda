@@ -2,7 +2,7 @@
 phase: "17"
 slug: localized-screenshot-capture-harness
 status: validated
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: true
 created: "2026-10-02"
 signed_off: "2026-11-04"
@@ -11,6 +11,7 @@ validated: "2026-11-05"
 validated_head: "48c3bda08"
 validation_effort: "low (resolved from .planning/config.json)"
 validation_result: "partial: kept scope automated except the WR-01 rebuild wiring, which is escalated to manual-only (Phase 18 Step 4b)"
+gaps_closed: "2026-11-22: G1 and G2 (RTL) covered by ReaderRebuildUITests (e96c72847, 18-08), green in the 18-12 gate at f08a6a781"
 ---
 
 # Phase17 validation strategy
@@ -298,10 +299,15 @@ test are therefore escalated to manual-only instead of being filled (auditor ret
 - [x] Sampling continuity: no three consecutive kept tasks without automated verification
 - [x] Wave 0 for the kept scope (17-01, 17-24) complete; moved producers belong to Phase 18
 - [x] No watch-mode flags
-- [ ] `nyquist_compliant: true`: **not set**. G1 (and G2) need committed UI tests, planned in Phase 18 Step 4b
+- [x] `nyquist_compliant: true`: set 2026-11-22. G1 and G2 (RTL) have committed UI tests since Phase 18 Step 4b
+  (see "G1 and G2 closed" below). It was **not set** at the 2026-11-05 audit
 
 **Verdict:** PARTIAL, not Nyquist-compliant. Kept scope is automated except the WR-01 rebuild wiring and
 RTL page sync, which are escalated to manual-only with UAT evidence that is not a committed test.
+
+### G1 and G2 closed, 2026-11-22
+
+Phase 18 Step 4b committed the UI tests these gaps were waiting for (`e96c72847`, 18-08-SUMMARY.md). `EhPandaUITests/ReaderRebuildUITests.swift` holds four tests: Reload All Images then a turn and its R5-1 drop-idle variant, and a direction change during Auto-Play (G1); and the LTR/RTL switch (G2). All four passed on the iPhone and the iPad in the 18-12 full UITests gate at `f08a6a781` (18-12-SUMMARY.md; 18-VERIFICATION.md truth 8). The WR-01 and RTL rows under "Manual-only verifications" are now automated. The iPad landscape two-page spread stays a known limit with no test (DD-03), as before. With that, every kept requirement has an automated command or an owner-accepted manual-only reason, so `nyquist_compliant` is now `true`. The 2026-11-05 verdict below is kept as it was recorded.
 
 ## Validation Audit 2026-11-05
 
