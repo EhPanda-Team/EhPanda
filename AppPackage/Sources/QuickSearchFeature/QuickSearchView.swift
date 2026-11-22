@@ -139,15 +139,6 @@ public struct QuickSearchView: View {
         }
     }
 
-    private func onTextFieldSubmitted() {
-        switch focusedField {
-        case .name:
-            focusedField = .content
-        default:
-            focusedField = nil
-        }
-    }
-
     private func toolbar() -> some ToolbarContent {
         Group {
             ToolbarItem(placement: .cancellationAction) {
@@ -176,7 +167,6 @@ public struct QuickSearchView: View {
                 : .editSavedSearch,
             savedSearch: $store.editingSavedSearch,
             focusedField: $focusedField,
-            submitAction: onTextFieldSubmitted,
             confirmAction: {
                 store.send(kind == .new ? .appendSavedSearch : .editSavedSearch)
             },
@@ -192,7 +182,6 @@ extension QuickSearchView {
         private let title: LocalizedStringResource
         @Binding private var savedSearch: SavedSearch
         private let focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding
-        private let submitAction: () -> Void
         private let confirmAction: () -> Void
         private let tagTranslator: TagTranslator
         private let setting: Setting
@@ -200,13 +189,12 @@ extension QuickSearchView {
         init(
             title: LocalizedStringResource, savedSearch: Binding<SavedSearch>,
             focusedField: FocusState<QuickSearchReducer.FocusField?>.Binding,
-            submitAction: @escaping () -> Void, confirmAction: @escaping () -> Void,
+            confirmAction: @escaping () -> Void,
             tagTranslator: TagTranslator, setting: Setting
         ) {
             self.title = title
             _savedSearch = savedSearch
             self.focusedField = focusedField
-            self.submitAction = submitAction
             self.confirmAction = confirmAction
             self.tagTranslator = tagTranslator
             self.setting = setting
@@ -236,8 +224,18 @@ extension QuickSearchView {
             }
             .scrollEdgeEffectStyle(.soft, for: .top)
             .toolbar(content: toolbar)
-            .onSubmit(of: .text, submitAction)
+            .onSubmit(of: .text, onTextFieldSubmitted)
             .navigationTitle(title)
+        }
+
+        /// Submitting the name moves on to the search terms; submitting anything else ends editing.
+        private func onTextFieldSubmitted() {
+            switch focusedField.wrappedValue {
+            case .name:
+                focusedField.wrappedValue = .content
+            default:
+                focusedField.wrappedValue = nil
+            }
         }
 
         private func toolbar() -> some ToolbarContent {

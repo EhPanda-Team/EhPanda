@@ -15,6 +15,7 @@ public struct DetailSearchReducer: Sendable {
     public enum Destination {
         case filters(FiltersReducer)
         case quickSearch(QuickSearchReducer)
+        case newSavedSearch(NewSavedSearchFeature)
     }
 
     public enum Delegate: Equatable, Sendable {
@@ -30,6 +31,7 @@ public struct DetailSearchReducer: Sendable {
         @SharedReader(.searchFilter) public var searchFilter: Filter
         @SharedReader(.tagTranslator) public var tagTranslator: TagTranslator
         @SharedReader(.setting) public var setting: Setting
+        @SharedReader(.savedSearches) public var savedSearches: [SavedSearch]
         public var reading = GalleryReadingFeature.State()
         @Presents public var destination: Destination.State?
         public var keyword = ""
@@ -45,6 +47,10 @@ public struct DetailSearchReducer: Sendable {
             self.lastKeyword = keyword
         }
 
+        /// Whether Save Search is enabled for the keyword this page shows.
+        public var canSaveSearch: Bool {
+            NewSavedSearchFeature.canSave(keyword: lastKeyword, into: savedSearches)
+        }
     }
 
     public enum Action: BindableAction {
@@ -53,6 +59,7 @@ public struct DetailSearchReducer: Sendable {
         case reading(GalleryReadingFeature.Action)
         case filtersButtonTapped
         case quickSearchButtonTapped
+        case saveSearchButtonTapped
         case destination(PresentationAction<Destination.Action>)
 
         case onPresented
@@ -65,6 +72,7 @@ public struct DetailSearchReducer: Sendable {
     @Dependency(\.analyticsClient) private var analyticsClient
     @Dependency(\.galleryClient) private var galleryClient
     @Dependency(\.hapticsClient) private var hapticsClient
+    @Dependency(\.uuid) private var uuid
 
     public init() {}
 
@@ -102,6 +110,11 @@ public struct DetailSearchReducer: Sendable {
             case .quickSearchButtonTapped:
                 state.destination = .quickSearch(QuickSearchReducer.State())
                 return .run(operation: { _ in analyticsClient.send(.quickSearchPanelOpened(.detailSearch)) })
+
+            case .saveSearchButtonTapped:
+                guard state.canSaveSearch else { return .none }
+                state.destination = .newSavedSearch(NewSavedSearchFeature.State(id: uuid(), keyword: state.lastKeyword))
+                return .none
 
             case .destination:
                 return .none
@@ -194,6 +207,11 @@ public struct DetailSearchReducer: Sendable {
         .haptics(
             unwrapping: \.destination,
             case: \.quickSearch,
+            hapticsClient: hapticsClient
+        )
+        .haptics(
+            unwrapping: \.destination,
+            case: \.newSavedSearch,
             hapticsClient: hapticsClient
         )
         .haptics(

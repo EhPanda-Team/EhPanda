@@ -35,6 +35,22 @@ public struct QuickSearchButton: View {
     }
 }
 
+/// Saves a search results page's keyword as a saved search. It sits right after `QuickSearchButton`
+/// in the overflow menu, and the host disables it when the keyword cannot be saved.
+public struct SaveSearchButton: View {
+    private let action: () -> Void
+
+    public init(action: @escaping () -> Void) {
+        self.action = action
+    }
+
+    public var body: some View {
+        Button(action: action) {
+            Label(.RLocalizable.saveSearch, systemSymbol: .textBadgePlus)
+        }
+    }
+}
+
 public struct JumpPageButton: View {
     private let pageNumber: PageNumber
     private let action: () -> Void

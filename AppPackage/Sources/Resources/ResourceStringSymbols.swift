@@ -184,6 +184,8 @@ public nonisolated extension LocalizedStringResource {
 
         public static var quickSearch: LocalizedStringResource { .quickSearch }
 
+        public static var saveSearch: LocalizedStringResource { .saveSearch }
+
         public static var layout: LocalizedStringResource { .layout }
 
         public static var list: LocalizedStringResource { .list }

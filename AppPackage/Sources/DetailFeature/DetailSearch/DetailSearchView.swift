@@ -41,6 +41,12 @@ struct DetailSearchView: View {
             .privacyMask()
         }
         .sheet(
+            item: $store.scope(\.$destination, action: \.destination).newSavedSearch
+        ) { store in
+            NewSavedSearchView(store: store)
+                .privacyMask()
+        }
+        .sheet(
             item: $store.scope(\.$destination, action: \.destination).filters
         ) { store in
             FiltersView(store: store)
@@ -69,6 +75,10 @@ struct DetailSearchView: View {
             QuickSearchButton {
                 store.send(.quickSearchButtonTapped)
             }
+            SaveSearchButton {
+                store.send(.saveSearchButtonTapped)
+            }
+            .disabled(!store.canSaveSearch)
         }
     }
 }
