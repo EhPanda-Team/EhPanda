@@ -37,15 +37,22 @@ struct ScenarioFactory {
 
 /// One group file's registrations and the plan that fills it (19-02): `ScenarioCatalog+Browsing.swift` (19-05),
 /// `+Library.swift` (19-06), `+Gallery.swift` (19-07) and `+Settings.swift` (19-08), so those plans never edit the
-/// same file.
+/// same file. The states not yet moved into a `Snapshots/` provider (19-18) are still registered here.
 struct ScenarioGroup {
     let plan: String
     let factories: [String: ScenarioFactory]
 }
 
-/// Scenario ID → factory. Every registered ID must be in `scenarios.json` under the plan of its group file
-/// (`ScenarioInventoryTests`).
+/// Scenario ID → state. Every registered ID must be in `scenarios.json` (`ScenarioInventoryTests`).
 enum ScenarioCatalog {
+    /// Every view's snapshot provider (19-18), one line each. Swift has no type discovery, so a new provider is
+    /// listed here; `ScenarioInventoryTests` fails until the inventory and the list agree.
+    static var providers: [any SnapshotProvider.Type] {
+        [
+            SettingViewSnapshot.self
+        ]
+    }
+
     static var groups: [ScenarioGroup] {
         [
             ScenarioGroup(plan: "19-05", factories: browsing),
@@ -55,20 +62,24 @@ enum ScenarioCatalog {
         ]
     }
 
-    /// Every group's factories. An ID registered twice keeps its first factory; `ScenarioInventoryTests` fails.
-    static var factories: [String: ScenarioFactory] {
-        groups.reduce(into: [:]) { result, group in
-            result.merge(group.factories) { first, _ in first }
-        }
+    /// Every provider's states, then the group registrations not yet moved, each with the screen's own height. An ID
+    /// declared twice appears twice: ``state(_:)`` keeps the first, and `ScenarioInventoryTests` fails.
+    @MainActor
+    static var states: [SnapshotState] {
+        providers.flatMap({ $0.states }) + groups.flatMap({ group in
+            group.factories.map({ SnapshotState(id: $0.key, heights: .screen, factory: $0.value) })
+        })
     }
 
+    @MainActor
     static var registeredIDs: Set<String> {
-        Set(factories.keys)
+        Set(states.map(\.id))
     }
 
-    static func factory(_ id: String) throws -> ScenarioFactory {
-        guard let factory = factories[id] else { throw ScenarioCatalogError.unregistered(id) }
-        return factory
+    @MainActor
+    static func state(_ id: String) throws -> SnapshotState {
+        guard let state = states.first(where: { $0.id == id }) else { throw ScenarioCatalogError.unregistered(id) }
+        return state
     }
 }
 
@@ -81,7 +92,7 @@ extension SnapshotMatrixCase {
     /// Captures the catalog's scenario `id`.
     @MainActor
     func capture(scenario id: String) async throws {
-        let factory = try ScenarioCatalog.factory(id)
+        let factory = try ScenarioCatalog.state(id).factory
         try await factory.prepare?()
         try await capture(scenario: id, factory: factory)
     }

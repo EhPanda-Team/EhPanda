@@ -3,7 +3,8 @@
 # fails on a failed or empty run or on any changed, missing (compare mode), timeout or error picture (19-02).
 #
 # usage: Scripts/visual/run-snapshot-local.sh --device phone|pad --config <locale>-<size>[,...] --classes A,B
-#            --mode candidate|compare [--refs DIR] [--orientation portrait|landscape] [--workers N] --out DIR
+#            --mode candidate|compare [--refs DIR] [--orientation portrait|landscape] [--workers N]
+#            [--simulator NAME] --out DIR
 #
 # Only one xcodebuild runs on this host at a time (.planning/codebase/TESTING.md): the script waits for any other
 # run to finish first. The simulator settings follow 19-01-MEASURE.md: Reduce Motion and the app accessibility
@@ -12,14 +13,19 @@
 # Several configurations run in one invocation, one after another. --workers N runs the classes on N simulator clones;
 # without it the run is not parallel, as on the hosted check. Clones boot in portrait whatever the turned iPad shows
 # (19-10-PROOF.md), so an iPad landscape run takes no --workers.
+#
+# The simulator is found by its exact name (the default is `EhPanda iPhone Air` or `EhPanda iPad Pro 11-inch (M5)`;
+# --simulator NAME names another for either --device), never by a prefix: other sessions on this host keep their own
+# `EhPanda iPhone Air (<suffix>)`, which a prefix match picked up. Every xcodebuild gets `-collect-test-diagnostics
+# never`, so a failing run does not idle in `simctl diagnose` (19-18).
 set -euo pipefail
 
 usage() {
-    sed -n '5,6p' "$0" >&2
+    sed -n '5,7p' "$0" >&2
     exit 2
 }
 
-DEVICE='' CONFIG='' CLASSES='' MODE='' REFS='' OUT='' ORIENTATION='' WORKERS=''
+DEVICE='' CONFIG='' CLASSES='' MODE='' REFS='' OUT='' ORIENTATION='' WORKERS='' SIMULATOR=''
 while [ $# -gt 0 ]; do
     case "$1" in
         --device) DEVICE=${2:-}; shift 2 ;;
@@ -30,6 +36,7 @@ while [ $# -gt 0 ]; do
         --out) OUT=${2:-}; shift 2 ;;
         --orientation) ORIENTATION=${2:-}; shift 2 ;;
         --workers) WORKERS=${2:-}; shift 2 ;;
+        --simulator) SIMULATOR=${2:-}; shift 2 ;;
         *) usage ;;
     esac
 done
@@ -38,6 +45,7 @@ case "$DEVICE" in
     pad) NAME='EhPanda iPad Pro 11-inch (M5)'; ORIENTATION=${ORIENTATION:-portrait} ;;
     *) usage ;;
 esac
+NAME=${SIMULATOR:-$NAME}
 case "$MODE" in candidate | compare) ;; *) usage ;; esac
 case "$ORIENTATION" in '' | portrait | landscape) ;; *) usage ;; esac
 case "$WORKERS" in '' | [1-9]) ;; *) usage ;; esac
@@ -53,11 +61,21 @@ fi
 
 ROOT=$(CDPATH='' cd "$(dirname "$0")/../.." && pwd)
 cd "$ROOT"
-UDID=$(xcrun simctl list devices available | grep -F "$NAME (" | grep -Eo '[0-9A-F-]{36}' | head -1)
-if [ -z "$UDID" ]; then
-    echo "No simulator named $NAME." >&2
-    exit 2
-fi
+MATCHES=$(xcrun simctl list devices available -j | python3 -c '
+import json
+import sys
+
+name = sys.argv[1]
+for devices in json.load(sys.stdin)["devices"].values():
+    for device in devices:
+        if device["name"] == name and device.get("isAvailable", True):
+            print(device["udid"])
+' "$NAME")
+case "$(printf '%s' "$MATCHES" | grep -c .)" in
+    0) echo "No simulator named $NAME." >&2; exit 2 ;;
+    1) UDID=$MATCHES ;;
+    *) echo "Several simulators named $NAME." >&2; exit 2 ;;
+esac
 mkdir -p "$OUT"
 OUT=$(CDPATH='' cd "$OUT" && pwd)
 LOG="$OUT/xcodebuild.log"
@@ -81,7 +99,7 @@ if [ "$DEVICE" = pad ]; then
     wait_for_host
     prepare_simulator
     if ! xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan UITests \
-        -destination "platform=iOS Simulator,id=$UDID" \
+        -destination "platform=iOS Simulator,id=$UDID" -collect-test-diagnostics never \
         -only-testing:"EhPandaUITests/VisualCaptureOrientationUITests/$TURN" >"$OUT/orientation.log" 2>&1; then
         echo "Could not turn the iPad ($OUT/orientation.log)." >&2
         exit 1
@@ -115,7 +133,7 @@ if [ -n "$ORIENTATION" ]; then
 fi
 STATUS=0
 env "${VARIABLES[@]}" xcodebuild test -project EhPanda.xcodeproj -scheme EhPanda -testPlan SnapshotMatrix \
-    "${CONFIGURATIONS[@]}" -destination "platform=iOS Simulator,id=$UDID" \
+    "${CONFIGURATIONS[@]}" -destination "platform=iOS Simulator,id=$UDID" -collect-test-diagnostics never \
     -resultBundlePath "$OUT/run.xcresult" ${PARALLEL[@]+"${PARALLEL[@]}"} "${ONLY[@]}" >"$LOG" 2>&1 || STATUS=$?
 
 grep -E 'Executed [0-9]+ test|TEST (SUCCEEDED|FAILED)' "$LOG" | sort -u || true

@@ -25,7 +25,6 @@ extension ScenarioCatalog {
     private static var settingsRoot: [String: ScenarioFactory] {
         typealias Page = SettingsScenarios
         return [
-            "settings-root": .init(make: { Page.settings([]) }),
             "settings-account-signed-in": .init(
                 cookies: Page.memberCookies, make: { Page.account(confirmingLogout: false) }
             ),

@@ -11,12 +11,13 @@ final class BrowsingStepTests: XCTestCase {
         UITestAutomation.prepareIfNeeded()
     }
 
+    @MainActor
     func testEveryScenarioSettlesOnAtLeastSixReads() {
         XCTAssertGreaterThanOrEqual(HostedWindowCapture.minimumReads, 6)
         XCTAssertEqual(ScenarioCatalog.firstLaunchMinimumReads, HostedWindowCapture.minimumReads)
-        XCTAssertFalse(ScenarioCatalog.factories.isEmpty)
-        for (id, factory) in ScenarioCatalog.factories {
-            XCTAssertGreaterThanOrEqual(factory.minimumReads, 6, id)
+        XCTAssertFalse(ScenarioCatalog.states.isEmpty)
+        for state in ScenarioCatalog.states {
+            XCTAssertGreaterThanOrEqual(state.factory.minimumReads, 6, state.id)
         }
     }
 
