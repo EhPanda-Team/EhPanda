@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 /// Builds the reader's pager anew in the middle of reading, by each route that does so, and requires that the panel's
@@ -105,7 +106,7 @@ final class ReaderRebuildUITests: XCTestCase {
         let pageURL = try XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda"))
         try app.openCold(pageURL, extraEnvironment: extraEnvironment)
         app.requireForeground()
-        app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.readingView)
         let reader = ReaderPageProbe(app: app)
         reader.showPanel()
         return reader

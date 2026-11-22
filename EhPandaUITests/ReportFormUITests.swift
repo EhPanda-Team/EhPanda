@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -45,8 +46,6 @@ final class ReportFormUITests: XCTestCase {
         static let child = "report_reason_child"
         static let other = "report_reason_other"
         static let sessionWebView = "session_web_view"
-        static let commentsView = "comments_view"
-        static let commentCell = "comment_cell_" + UITestConstants.commentID
     }
 
     /// Where every report request goes: the stub logs the gallery path without its `report` query.
@@ -218,7 +217,10 @@ final class ReportFormUITests: XCTestCase {
 
         primary.tapWhenHittable("Done")
         XCTAssertTrue(sent.waitForNonExistence(timeout: 10), "Done did not close the sheet.")
-        XCTAssertTrue(app.collectionViews[Identifier.commentsView].exists, "Done did not return to the comments.")
+        XCTAssertTrue(
+            app.collectionViews[AccessibilityIdentifiers.commentsView].exists,
+            "Done did not return to the comments."
+        )
         app.terminate()
     }
 
@@ -358,8 +360,9 @@ private extension ReportFormUITests {
             "EHPANDA_AUTOMATION_IPB_PASS_HASH": "fixture-session"
         ])
         app.requireForeground()
-        let comments = app.requireElement(Identifier.commentsView, matching: .collectionView)
-        let cell = app.descendants(matching: .any).matching(identifier: Identifier.commentCell).firstMatch
+        let comments = app.requireElement(AccessibilityIdentifiers.commentsView, matching: .collectionView)
+        let cellID = AccessibilityIdentifiers.commentCell(id: UITestConstants.commentID)
+        let cell = app.descendants(matching: .any).matching(identifier: cellID).firstMatch
         // At the largest text sizes the link's scroll sometimes stops short of the comment, whose row is then not
         // in the tree yet; scroll down to it, as a reader would.
         var swipes = 0
@@ -367,7 +370,7 @@ private extension ReportFormUITests {
             comments.swipeUp()
             swipes += 1
         }
-        XCTAssertTrue(cell.exists, "EhPanda did not present \(Identifier.commentCell).")
+        XCTAssertTrue(cell.exists, "EhPanda did not present \(cellID).")
         XCTAssertTrue(
             cell.waitUntilHittable(timeout: XCUIElement.hittableTimeout), "The linked comment is out of reach."
         )

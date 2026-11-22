@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import CoreGraphics
 import XCTest
 
@@ -48,7 +49,7 @@ extension XCUIApplication {
     }
 
     func returnFromGalleryDetail(file: StaticString = #filePath, line: UInt = #line) {
-        let detail = descendants(matching: .any)["detail_view"].firstMatch
+        let detail = descendants(matching: .any)[AccessibilityIdentifiers.detailView].firstMatch
         XCTAssertTrue(detail.waitForExistence(timeout: 10), file: file, line: line)
         let close = descendants(matching: .any)["Close"].firstMatch
         let back = descendants(matching: .any)["BackButton"].firstMatch

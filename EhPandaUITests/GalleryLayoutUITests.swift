@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -96,7 +97,7 @@ final class GalleryLayoutUITests: XCTestCase {
         search.tapWhenHittable("Favorites search")
         search.typeText("Library")
         app.buttons["gallery-list-item-1001"].tapWhenHittable("Open a searched gallery")
-        let detail = app.descendants(matching: .any)["detail_view"].firstMatch
+        let detail = app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].firstMatch
         XCTAssertTrue(detail.waitForExistence(timeout: 10))
         app.returnFromGalleryDetail()
         XCTAssertTrue(search.waitForExistence(timeout: 10))

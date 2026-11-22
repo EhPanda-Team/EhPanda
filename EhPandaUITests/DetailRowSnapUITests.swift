@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -55,7 +56,7 @@ final class DetailRowSnapUITests: XCTestCase {
         try app.openCold(url, extraEnvironment: [UITestConstants.fixtureDirectoryEnvironmentKey: fixtures.root.path()])
         app.requireForeground()
         defer { app.terminate() }
-        let detail = app.requireElement("detail_view", matching: .scrollView)
+        let detail = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
 
         let heading = app.staticTexts[row.heading].firstMatch
         XCTAssertTrue(heading.waitForExistence(timeout: 20), "\(row.heading) is missing.")

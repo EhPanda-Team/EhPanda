@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -109,7 +110,7 @@ final class ReadingOrientationUITests: XCTestCase {
     private func openReader() throws -> XCUIApplication {
         let app = XCUIApplication()
         try app.openCold(XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda")))
-        app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.readingView)
         ReaderPageProbe(app: app).showPanel()
         return app
     }
@@ -142,21 +143,24 @@ final class ReadingOrientationUITests: XCTestCase {
     }
 
     private func indicatedPage(in app: XCUIApplication) throws -> Int {
-        let text = app.staticTexts["reading_page_indicator"].label
+        let text = app.staticTexts[AccessibilityIdentifiers.readingPageIndicator].label
         return try XCTUnwrap(text.split(separator: "/").first.flatMap({
             Int($0.trimmingCharacters(in: .whitespaces))
         }))
     }
 
     private func readAgain(in app: XCUIApplication) {
-        app.requireElement("reading_view").buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
+        app.requireElement(AccessibilityIdentifiers.readingView)
+            .buttons["Close"]
+            .firstMatch
+            .tapWhenHittable("Reader Close")
         app.buttons["Read"].firstMatch.tapWhenHittable("Read again")
-        app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.readingView)
         ReaderPageProbe(app: app).showPanel()
     }
 
     private func openSettings(in app: XCUIApplication) {
-        let reader = app.requireElement("reading_view")
+        let reader = app.requireElement(AccessibilityIdentifiers.readingView)
         reader.buttons.matching(UITestConstants.overflowButtonPredicate).firstMatch
             .tapWhenHittable("Reader More")
         app.buttons["Reading Settings"].firstMatch.tapWhenHittable("Reading Settings")

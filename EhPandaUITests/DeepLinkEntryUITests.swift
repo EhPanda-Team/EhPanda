@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 @MainActor
@@ -17,7 +18,7 @@ final class DeepLinkEntryUITests: XCTestCase {
         )
 
         app.requireForeground()
-        app.requireElement("detail_view", matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertTrue(
             app.buttons[UITestConstants.primaryMarkerTitle]
                 .waitForExistence(timeout: 5),
@@ -32,7 +33,7 @@ final class DeepLinkEntryUITests: XCTestCase {
         try app.openCold(commentURL)
 
         app.requireForeground()
-        app.requireElement("comments_view", matching: .collectionView)
+        app.requireElement(AccessibilityIdentifiers.commentsView, matching: .collectionView)
         let linkedGallery = app.staticTexts[UITestConstants.alternateMarkerTitle]
         XCTAssertTrue(
             linkedGallery.waitForExistence(timeout: 5),
@@ -45,7 +46,7 @@ final class DeepLinkEntryUITests: XCTestCase {
 
         linkedGallery.tap()
 
-        app.requireElement("detail_view", matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertTrue(
             app.buttons[UITestConstants.alternateMarkerTitle]
                 .waitForExistence(timeout: 15),

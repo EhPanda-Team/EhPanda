@@ -7,6 +7,7 @@
 //
 
 import AppComponents
+import AutomationIdentifiers
 import ComposableArchitecture
 import SFSafeSymbols
 import SwiftUI
@@ -45,7 +46,7 @@ struct ToastMessageView: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("toast_message")
+        .accessibilityIdentifier(AccessibilityIdentifiers.toastMessage)
     }
 
     @ContentBuilder

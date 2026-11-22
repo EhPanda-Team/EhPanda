@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -307,8 +308,8 @@ final class AccessibilityAuditUITests: XCTestCase {
         let commentURL = try XCTUnwrap(UITestConstants.commentURL(scheme: "ehpanda"))
         try app.openCold(commentURL)
         app.requireForeground()
-        app.requireElement("comments_view", matching: .collectionView)
-        let linkedComment = app.requireElement("comment_cell_" + UITestConstants.commentID)
+        app.requireElement(AccessibilityIdentifiers.commentsView, matching: .collectionView)
+        let linkedComment = app.requireElement(AccessibilityIdentifiers.commentCell(id: UITestConstants.commentID))
         // The linked row is highlighted by a fade to 25 % and back over two seconds; auditing
         // mid-pulse measured the dimmed row as three contrast failures. Let the pulse finish.
         settle(app, for: 2.5)
@@ -322,8 +323,8 @@ final class AccessibilityAuditUITests: XCTestCase {
         let commentURL = try XCTUnwrap(UITestConstants.commentURL(scheme: "ehpanda"))
         try app.openCold(commentURL, extraEnvironment: [UITestConstants.reportScenarioEnvironmentKey: "ready"])
         app.requireForeground()
-        app.requireElement("comments_view", matching: .collectionView)
-        let linkedComment = app.requireElement("comment_cell_" + UITestConstants.commentID)
+        app.requireElement(AccessibilityIdentifiers.commentsView, matching: .collectionView)
+        let linkedComment = app.requireElement(AccessibilityIdentifiers.commentCell(id: UITestConstants.commentID))
         settle(app, for: 2.5)
         // The `…` button never reads as hittable inside the cell's combined element, so it is tapped where it sits.
         let menu = linkedComment.images["ellipsis"].firstMatch
@@ -373,11 +374,11 @@ final class AccessibilityAuditUITests: XCTestCase {
         let malformedURL = try XCTUnwrap(UITestConstants.malformedURL(scheme: "ehpanda"))
         try app.openCold(malformedURL)
         app.requireForeground()
-        let toast = app.requireElement("toast_message")
+        let toast = app.requireElement(AccessibilityIdentifiers.toastMessage)
         try audit(app, surface: "Toast (unsupported link)")
         XCTAssertTrue(toast.exists, "The toast left the screen before it could be tapped.")
         toast.tap()
-        app.requireElement("error_info_view")
+        app.requireElement(AccessibilityIdentifiers.errorInfoView)
         try audit(app, surface: "Error info sheet")
     }
 
@@ -402,7 +403,7 @@ final class AccessibilityAuditUITests: XCTestCase {
         let firstGalleryRow = homeApp.buttons.matching(UITestConstants.galleryItemPredicate).firstMatch
         XCTAssertTrue(firstGalleryRow.waitForExistence(timeout: 15), "Front Page did not render a gallery row.")
         firstGalleryRow.tap()
-        homeApp.requireElement("detail_view", matching: .scrollView)
+        homeApp.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         try audit(homeApp, surface: "Gallery Detail (iPad modal)")
     }
 }
@@ -715,7 +716,7 @@ private extension AccessibilityAuditUITests {
         let galleryURL = try XCTUnwrap(UITestConstants.galleryURL(scheme: "ehpanda"))
         try app.openCold(galleryURL)
         app.requireForeground()
-        let detailView = app.requireElement("detail_view", matching: .scrollView)
+        let detailView = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertTrue(
             app.buttons[UITestConstants.primaryMarkerTitle].waitForExistence(timeout: 15),
             "The gallery marker title did not render from the hermetic fixture."
@@ -728,14 +729,14 @@ private extension AccessibilityAuditUITests {
         let pageURL = try XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda"))
         try app.openCold(pageURL)
         app.requireForeground()
-        app.requireElement("detail_view", matching: .scrollView)
-        return app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
+        return app.requireElement(AccessibilityIdentifiers.readingView)
     }
 
     func showReadingControlPanel(in app: XCUIApplication) throws {
         let readingView = try openReader(in: app)
         readingView.tap()
-        app.requireElement("reading_page_indicator", matching: .staticText, timeout: 5)
+        app.requireElement(AccessibilityIdentifiers.readingPageIndicator, matching: .staticText, timeout: 5)
     }
 
     /// Waits for the element, scrolls it into the hittable area if the screen is longer than what

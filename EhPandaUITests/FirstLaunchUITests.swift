@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 /// The first launch end to end (AGE-18-01, CONSENT-18-01; UI-SPEC C-1 to C-3): the age wall, then the analytics
@@ -225,16 +226,22 @@ final class FirstLaunchUITests: XCTestCase {
 
         app.requireForeground()
         app.requireElement(Identifier.ageWall)
-        XCTAssertFalse(app.descendants(matching: .any)["detail_view"].exists, "The link opened behind the gate.")
+        XCTAssertFalse(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].exists,
+            "The link opened behind the gate."
+        )
         XCTAssertEqual(loggedRequests(), [], "The link made a request before the age wall was confirmed.")
 
         confirmAge(app)
         app.requireElement(Identifier.analyticsChoice)
-        XCTAssertFalse(app.descendants(matching: .any)["detail_view"].exists, "The link opened behind the choice.")
+        XCTAssertFalse(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].exists,
+            "The link opened behind the choice."
+        )
         app.buttons[Identifier.level("basic")].tapWhenHittable("Basic")
         app.buttons[Identifier.continueButton].tapWhenHittable("Continue")
 
-        app.requireElement("detail_view", matching: .scrollView)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertTrue(
             app.buttons[UITestConstants.primaryMarkerTitle].waitForExistence(timeout: 15),
             "The queued link did not open its gallery after the first launch."

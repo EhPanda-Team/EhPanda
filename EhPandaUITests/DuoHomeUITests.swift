@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -52,7 +53,7 @@ final class DuoHomeUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(frontPage.frame.minX, app.windows.firstMatch.frame.midX)
 
         app.collectionViews.buttons.firstMatch.tapWhenHittable("Front Page gallery")
-        let detail = app.requireElement("detail_view", matching: .scrollView)
+        let detail = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertLessThanOrEqual(detail.frame.maxX, app.windows.firstMatch.frame.midX)
         try closeSheet(in: app, onLeft: true)
         XCTAssertTrue(frontPage.exists, "Closing Detail must retain its presenting list")
@@ -66,7 +67,7 @@ final class DuoHomeUITests: XCTestCase {
         XCTAssertTrue(toplists.waitForExistence(timeout: 15))
         XCTAssertLessThanOrEqual(toplists.frame.maxX, app.windows.firstMatch.frame.midX)
         app.collectionViews.buttons.firstMatch.tapWhenHittable("Toplists gallery")
-        let rightDetail = app.requireElement("detail_view", matching: .scrollView)
+        let rightDetail = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         let onRight = NSPredicate { _, _ in rightDetail.frame.minX >= app.windows.firstMatch.frame.midX }
         let positioned = XCTNSPredicateExpectation(predicate: onRight, object: nil)
         let result = XCTWaiter.wait(for: [positioned], timeout: 5)
@@ -140,10 +141,10 @@ final class DuoHomeUITests: XCTestCase {
             carousel.frame.contains(CGPoint(x: $0.frame.midX, y: $0.frame.midY))
         })
         card.tapWhenHittable("Slideshow gallery")
-        let detail = app.requireElement("detail_view", matching: .scrollView)
+        let detail = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertGreaterThanOrEqual(detail.frame.minX, app.windows.firstMatch.frame.midX)
         app.buttons["Read"].firstMatch.tapWhenHittable("Read")
-        let reader = app.requireElement("reading_view")
+        let reader = app.requireElement(AccessibilityIdentifiers.readingView)
         XCTAssertEqual(reader.frame.width, app.windows.firstMatch.frame.width, accuracy: 1)
         ReaderPageProbe(app: app).showPanel()
         reader.buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
@@ -156,7 +157,7 @@ final class DuoHomeUITests: XCTestCase {
             format: "label BEGINSWITH '1, ' AND NOT label CONTAINS '......'"
         )).firstMatch
         ranking.tapWhenHittable("Toplists gallery")
-        let leftDetail = app.requireElement("detail_view", matching: .scrollView)
+        let leftDetail = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertLessThanOrEqual(leftDetail.frame.maxX, app.windows.firstMatch.frame.midX)
         try closeSheet(in: app, onLeft: true)
     }

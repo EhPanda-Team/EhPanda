@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
 import SFSafeSymbolsExt
@@ -35,7 +36,7 @@ struct ReadingToolbar: ToolbarContent {
                 .fixedSize(horizontal: true, vertical: false)
                 .monospacedDigit()
                 .contentTransition(.numericText())
-                .accessibilityIdentifier("reading_page_indicator")
+                .accessibilityIdentifier(AccessibilityIdentifiers.readingPageIndicator)
                 .animation(.default, value: title)
                 .padding(.horizontal, 12)
                 // Match the native toolbar glass height while allowing taller content to grow.

@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import Foundation
 import XCTest
 
@@ -46,7 +47,7 @@ final class ReaderSliderPreviewUITests: XCTestCase {
         let pageURL = try XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda"))
         try app.openCold(pageURL)
         app.requireForeground()
-        _ = app.requireElement("reading_view")
+        _ = app.requireElement(AccessibilityIdentifiers.readingView)
         let reader = ReaderPageProbe(app: app)
         reader.showPanel()
         // The direction persists between launches and the slider runs the way the pages do. A reader that another

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		A17000000000000000000011 /* VisualSnapshotSupport in Frameworks */ = {isa = PBXBuildFile; productRef = A17000000000000000000010 /* VisualSnapshotSupport */; };
+		A13080000000000000000021 /* AutomationIdentifiers in Frameworks */ = {isa = PBXBuildFile; productRef = A13080000000000000000020 /* AutomationIdentifiers */; };
 		A0F00000000000000000F001 /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = A0F00000000000000000F002 /* AppFeature */; };
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EA0C92592C3EB49500D211F6 /* README.cht.md in Resources */ = {isa = PBXBuildFile; fileRef = EA0C92532C3EB49500D211F6 /* README.cht.md */; };
@@ -184,6 +185,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A13080000000000000000021 /* AutomationIdentifiers in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -342,6 +344,7 @@
 			);
 			name = EhPandaUITests;
 			packageProductDependencies = (
+				A13080000000000000000020 /* AutomationIdentifiers */,
 			);
 			productName = EhPandaUITests;
 			productReference = A13080000000000000000001 /* EhPandaUITests.xctest */;
@@ -1020,6 +1023,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A13080000000000000000020 /* AutomationIdentifiers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A0F00000000000000000F003 /* XCLocalSwiftPackageReference "AppPackage" */;
+			productName = AutomationIdentifiers;
+		};
 		A17000000000000000000010 /* VisualSnapshotSupport */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = A0F00000000000000000F003 /* XCLocalSwiftPackageReference "AppPackage" */;

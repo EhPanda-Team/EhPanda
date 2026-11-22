@@ -79,6 +79,7 @@ enum Module: String {
     case appModels = "AppModels"
     case appTools = "AppTools"
     case applicationClient = "ApplicationClient"
+    case automationIdentifiers = "AutomationIdentifiers"
     case backgroundProcessingClient = "BackgroundProcessingClient"
     case clipboardClient = "ClipboardClient"
     case cookieClient = "CookieClient"
@@ -357,6 +358,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
+            .module(.automationIdentifiers),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols)
         ]
@@ -458,6 +460,7 @@ let targets: [PackageDescription.Target] = [
         module: .appComponents,
         dependencies: [
             .module(.sfSafeSymbolsExt),
+            .module(.automationIdentifiers),
             .module(.appModels),
             .module(.appTools),
             .module(.deviceClient),
@@ -511,6 +514,11 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .targetDependency(.sfSafeSymbols)
         ]
+    ),
+    // The accessibility identifiers the app's views carry and the UI tests find them by. No dependencies, so the
+    // UI-test target links it without linking any app code.
+    .target(
+        module: .automationIdentifiers
     ),
     // App-owned local dominant-color module. Clean-room reimplementation of the
     // app-needed dominant-color surface, replacing the external jathu/UIImageColors
@@ -751,6 +759,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appModels),
             .module(.appTools),
             .module(.applicationClient),
+            .module(.automationIdentifiers),
             .module(.clipboardClient),
             .module(.cookieClient),
             .module(.downloadClient),
@@ -781,6 +790,7 @@ let targets: [PackageDescription.Target] = [
             .module(.appComponents),
             .module(.appModels),
             .module(.appTools),
+            .module(.automationIdentifiers),
             .module(.clipboardClient),
             .module(.cookieClient),
             .module(.downloadClient),

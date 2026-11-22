@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 /// Changes the reader's page by every route a UI test can drive and requires, after each, that the
@@ -109,7 +110,10 @@ final class ReaderPageSyncUITests: XCTestCase {
         let left = try reader.requirePage("After dragging the slider", where: { $0 > 10 })
 
         let app = reader.app
-        app.requireElement("reading_view").buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
+        app.requireElement(AccessibilityIdentifiers.readingView)
+            .buttons["Close"]
+            .firstMatch
+            .tapWhenHittable("Reader Close")
         let readButton = app.buttons["Read"].firstMatch
         XCTAssertTrue(readButton.waitForExistence(timeout: 10), "Gallery Detail did not expose Read.")
         XCTAssertTrue(
@@ -125,7 +129,7 @@ final class ReaderPageSyncUITests: XCTestCase {
             Duration.seconds(15),
             "Portrait restoration exceeded the 15-second screen-readiness budget."
         )
-        app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.readingView)
         reader.showPanel()
 
         try reader.requirePage("On reading again", where: { $0 == left })
@@ -179,7 +183,7 @@ final class ReaderPageSyncUITests: XCTestCase {
         let pageURL = try XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda"))
         try app.openCold(pageURL)
         app.requireForeground()
-        app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.readingView)
         let reader = ReaderPageProbe(app: app)
         reader.showPanel()
         return reader
@@ -188,11 +192,14 @@ final class ReaderPageSyncUITests: XCTestCase {
     /// Closes the reader and reads the gallery again, which resumes on the page left, and shows the panel.
     private func readAgain(_ reader: ReaderPageProbe) {
         let app = reader.app
-        app.requireElement("reading_view").buttons["Close"].firstMatch.tapWhenHittable("Reader Close")
+        app.requireElement(AccessibilityIdentifiers.readingView)
+            .buttons["Close"]
+            .firstMatch
+            .tapWhenHittable("Reader Close")
         let readButton = app.buttons["Read"].firstMatch
         XCTAssertTrue(readButton.waitForExistence(timeout: 10), "Gallery Detail did not expose Read.")
         readButton.tapWhenHittable("Gallery Detail Read")
-        app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.readingView)
         reader.showPanel()
     }
 

@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import XCTest
 
 @MainActor
@@ -106,7 +107,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
         line: UInt = #line
     ) {
         app.requireForeground(file: file, line: line)
-        app.requireElement("detail_view", matching: .scrollView, file: file, line: line)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView, file: file, line: line)
         XCTAssertTrue(
             app.buttons[UITestConstants.primaryMarkerTitle]
                 .waitForExistence(timeout: 5),
@@ -115,7 +116,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
             line: line
         )
         XCTAssertFalse(
-            app.descendants(matching: .scrollView)["reading_view"]
+            app.descendants(matching: .scrollView)[AccessibilityIdentifiers.readingView]
                 .waitForExistence(timeout: 2),
             "A gallery-only link unexpectedly opened the reader.",
             file: file,
@@ -129,9 +130,9 @@ final class DeepLinkSchemeUITests: XCTestCase {
         line: UInt = #line
     ) throws {
         app.requireForeground(file: file, line: line)
-        app.requireElement("detail_view", matching: .scrollView, file: file, line: line)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView, file: file, line: line)
         let readingView = app.requireElement(
-            "reading_view",
+            AccessibilityIdentifiers.readingView,
             file: file,
             line: line
         )
@@ -139,7 +140,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
         readingView.tap()
 
         let pageIndicator = app.requireElement(
-            "reading_page_indicator",
+            AccessibilityIdentifiers.readingPageIndicator,
             matching: .staticText,
             timeout: 5,
             file: file,
@@ -170,9 +171,9 @@ final class DeepLinkSchemeUITests: XCTestCase {
         line: UInt = #line
     ) {
         app.requireForeground(file: file, line: line)
-        app.requireElement("comments_view", matching: .collectionView, file: file, line: line)
+        app.requireElement(AccessibilityIdentifiers.commentsView, matching: .collectionView, file: file, line: line)
         let linkedComment = app.requireElement(
-            "comment_cell_" + UITestConstants.commentID,
+            AccessibilityIdentifiers.commentCell(id: UITestConstants.commentID),
             file: file,
             line: line
         )
@@ -191,7 +192,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
             line: line
         )
         backButton.tap()
-        app.requireElement("detail_view", matching: .scrollView, file: file, line: line)
+        app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView, file: file, line: line)
     }
 
     private func assertMalformedLinkDestination(
@@ -200,7 +201,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
         line: UInt = #line
     ) {
         app.requireForeground(file: file, line: line)
-        let toast = app.requireElement("toast_message", file: file, line: line)
+        let toast = app.requireElement(AccessibilityIdentifiers.toastMessage, file: file, line: line)
         XCTAssertTrue(
             toast.label.contains(UITestConstants.unsupportedLinkDescription),
             "The malformed-link toast did not explain that the link is unsupported; "
@@ -209,7 +210,7 @@ final class DeepLinkSchemeUITests: XCTestCase {
             line: line
         )
         XCTAssertFalse(
-            app.descendants(matching: .scrollView)["detail_view"]
+            app.descendants(matching: .scrollView)[AccessibilityIdentifiers.detailView]
                 .waitForExistence(timeout: 2),
             "A malformed link unexpectedly opened a gallery detail screen.",
             file: file,
@@ -223,6 +224,6 @@ final class DeepLinkSchemeUITests: XCTestCase {
         // the toast to take it, as it would for any control behind a transition.
         toast.tapWhenHittable("The malformed-link toast", file: file, line: line)
 
-        app.requireElement("error_info_view", file: file, line: line)
+        app.requireElement(AccessibilityIdentifiers.errorInfoView, file: file, line: line)
     }
 }

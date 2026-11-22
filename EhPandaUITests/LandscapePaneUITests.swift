@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -43,7 +44,7 @@ final class LandscapePaneUITests: XCTestCase {
         XCTAssertGreaterThanOrEqual(frontPage.frame.minX, window.frame.midX)
         print("CAPTURE_LANDSCAPE_SHEET")
         app.buttons.matching(UITestConstants.galleryItemPredicate).firstMatch.tapWhenHittable("Gallery")
-        let detail = app.requireElement("detail_view", matching: .scrollView)
+        let detail = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         XCTAssertLessThanOrEqual(detail.frame.maxX, window.frame.midX)
         let sheetClose = try XCTUnwrap(app.buttons.matching(identifier: "Close").allElementsBoundByIndex.first {
             $0.isHittable && $0.frame.midX < window.frame.midX
@@ -234,7 +235,7 @@ final class LandscapePaneUITests: XCTestCase {
         try prepareLandscape()
         let app = XCUIApplication()
         try app.openCold(XCTUnwrap(UITestConstants.singlePageURL(scheme: "ehpanda")))
-        app.requireElement("reading_view")
+        app.requireElement(AccessibilityIdentifiers.readingView)
         ReaderPageProbe(app: app).showPanel()
         assertControls(in: app, onLeft: false)
         print("CAPTURE_READER_RIGHT")
@@ -277,6 +278,9 @@ final class LandscapePaneUITests: XCTestCase {
             XCTAssertEqual(close.frame.midX, app.otherElements["reading_slider_row"].frame.midX, accuracy: 1)
             XCTAssertLessThan(close.frame.maxY, app.otherElements["reading_slider_row"].frame.minY)
         }
-        XCTAssertEqual(app.otherElements["reading_view"].buttons.matching(identifier: "Close").count, isDuo ? 1 : 2)
+        XCTAssertEqual(
+            app.otherElements[AccessibilityIdentifiers.readingView].buttons.matching(identifier: "Close").count,
+            isDuo ? 1 : 2
+        )
     }
 }

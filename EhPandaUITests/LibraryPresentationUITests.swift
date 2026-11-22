@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import CryptoKit
 import XCTest
 
@@ -28,7 +29,9 @@ final class LibraryPresentationUITests: XCTestCase {
         assertGrid(in: app)
         XCTAssertTrue(gallery.isHittable)
         gallery.tapWhenHittable("Open a Favorites gallery")
-        XCTAssertTrue(app.descendants(matching: .any)["detail_view"].waitForExistence(timeout: 15))
+        XCTAssertTrue(
+            app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].waitForExistence(timeout: 15)
+        )
         if usesTitleMenu {
             XCTAssertTrue(titleMenu.waitForNonExistence(timeout: 5), "Source menu belongs only to the Library root.")
         }
@@ -196,7 +199,7 @@ final class LibraryPresentationUITests: XCTestCase {
         let readTitle = app.staticTexts["Library Download 1"].firstMatch
         reveal(readTitle, in: content, app: app)
         readTitle.doubleTap()
-        let reader = app.descendants(matching: .any)["reading_view"].firstMatch
+        let reader = app.descendants(matching: .any)[AccessibilityIdentifiers.readingView].firstMatch
         XCTAssertTrue(reader.waitForExistence(timeout: 10))
         ReaderPageProbe(app: app).showPanel()
         reader.buttons["Close"].firstMatch.tapWhenHittable("Close local reader")
@@ -273,13 +276,13 @@ final class LibraryPresentationUITests: XCTestCase {
             let gallery = app.buttons[item].firstMatch
             XCTAssertTrue(gallery.waitForExistence(timeout: 15))
             gallery.tapWhenHittable("Single tap opens Detail")
-            let detail = app.descendants(matching: .any)["detail_view"].firstMatch
+            let detail = app.descendants(matching: .any)[AccessibilityIdentifiers.detailView].firstMatch
             XCTAssertTrue(detail.waitForExistence(timeout: 15))
-            XCTAssertFalse(app.descendants(matching: .any)["reading_view"].firstMatch.exists)
+            XCTAssertFalse(app.descendants(matching: .any)[AccessibilityIdentifiers.readingView].firstMatch.exists)
             app.returnFromGalleryDetail()
             XCTAssertTrue(gallery.waitForExistence(timeout: 10))
             gallery.doubleTap()
-            let reader = app.descendants(matching: .any)["reading_view"].firstMatch
+            let reader = app.descendants(matching: .any)[AccessibilityIdentifiers.readingView].firstMatch
             XCTAssertTrue(reader.waitForExistence(timeout: 15), "Double tap must open reading directly.")
             ReaderPageProbe(app: app).showPanel()
             reader.buttons["Close"].firstMatch.tapWhenHittable("Return from direct reading")

@@ -1,3 +1,4 @@
+import AutomationIdentifiers
 import UIKit
 import XCTest
 
@@ -29,7 +30,7 @@ final class DetailNavigationTitleUITests: XCTestCase {
         let galleryURL = try XCTUnwrap(UITestConstants.galleryURL(scheme: "ehpanda"))
         try app.openCold(galleryURL)
         app.requireForeground()
-        let content = app.requireElement("detail_view", matching: .scrollView)
+        let content = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         let headerTitle = app.buttons[UITestConstants.primaryMarkerTitle].firstMatch
         XCTAssertTrue(headerTitle.waitForExistence(timeout: 15))
         let read = app.buttons["Read"].firstMatch
@@ -71,7 +72,7 @@ final class DetailNavigationTitleUITests: XCTestCase {
             UITestConstants.fixtureDirectoryEnvironmentKey: fixtureDirectory.path()
         ])
         app.requireForeground()
-        let content = app.requireElement("detail_view", matching: .scrollView)
+        let content = app.requireElement(AccessibilityIdentifiers.detailView, matching: .scrollView)
         let headerTitle = app.buttons[UITestConstants.primaryMarkerTitle].firstMatch
         XCTAssertTrue(headerTitle.waitForExistence(timeout: 15))
         XCTAssertTrue(
