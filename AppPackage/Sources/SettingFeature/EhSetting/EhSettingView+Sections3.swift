@@ -246,17 +246,20 @@ struct ExcludeToggle: View {
     @Binding var isOn: Bool
 
     var body: some View {
-        Color.clear
-            .overlay {
-                Image(systemSymbol: isOn ? .nosign : .circle)
-                    .foregroundStyle(isOn ? .red : .primary)
-                    .font(.title)
-            }
-            .onTapGesture {
-                withAnimation { isOn.toggle() }
-                hapticsClient.generateFeedback(.soft)
-            }
-            .accessibilityRepresentation {
+        Button {
+            withAnimation { isOn.toggle() }
+            hapticsClient.generateFeedback(.soft)
+        } label: {
+            Color.clear
+                .overlay {
+                    Image(systemSymbol: isOn ? .nosign : .circle)
+                        .foregroundStyle(isOn ? .red : .primary)
+                        .font(.title)
+                }
+        }
+        .buttonStyle(.unhighlighted)
+        .interactiveIconHover(clippedAt: [.leading, .trailing])
+        .accessibilityRepresentation {
                 Toggle(isOn: $isOn) {
                     Text(.accessibilityExcludeLanguage(String(localized: title), String(localized: category.value)))
                 }

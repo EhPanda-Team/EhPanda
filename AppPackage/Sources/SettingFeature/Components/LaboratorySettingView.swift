@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -65,22 +66,27 @@ struct LaboratoryCell: View {
     /// label, the on/off value, the toggle trait and the Voice Control name all come from one
     /// representation while the tinted rendering and its animated colour change stay untouched.
     var body: some View {
-        Label {
-            Text(title)
-                .bold()
-        } icon: {
-            Image(systemSymbol: symbol)
+        Button {
+            isOn.toggle()
+        } label: {
+            Label {
+                Text(title)
+                    .bold()
+            } icon: {
+                Image(systemSymbol: symbol)
+            }
+            .foregroundStyle(contentColor)
+            .font(.title2)
+            .frame(maxWidth: .infinity)
+            .contentShape(.rect)
         }
-        .foregroundStyle(contentColor)
-        .font(.title2)
-        .frame(maxWidth: .infinity)
-        .contentShape(.rect)
-        .onTapGesture(perform: { isOn.toggle() })
+        .buttonStyle(.unhighlighted)
         .padding(.vertical, 20)
         .background(bgColor)
         .clipShape(.rect(cornerRadius: 15))
         .animation(.default, value: isOn)
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 15))
+        .hoverShape(.rect(cornerRadius: 15))
         .accessibilityRepresentation {
             Toggle(isOn: $isOn) {
                 Text(title)

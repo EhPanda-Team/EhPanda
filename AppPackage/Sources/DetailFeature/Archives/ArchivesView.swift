@@ -399,6 +399,7 @@ private struct DownloadBannerStyle: ButtonStyle {
             }
             .clipShape(.rect(cornerRadius: 30))
             .glassEffect(.regular.interactive())
+            .hoverShape(.capsule)
     }
 }
 
