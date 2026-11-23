@@ -88,6 +88,13 @@ struct PointerHoverAuditTests {
             count: 1,
             reason: "DownloadBannerStyle's interactive glass draws its own pointer response (D-11 G3); "
                 + "hoverShape gives it the glass capsule."
+        ),
+        HoverAuditAllowance(
+            file: "AppPackage/Sources/DetailFeature/Moderation/CommentModerationMenu.swift",
+            kind: .plainButtonStyle,
+            count: 1,
+            reason: "The pointer hover is on the Menu's label, after the label's frame, not after the plain style: "
+                + "on the Menu it redrew the ellipsis of the second row at the extra-small size in iPhone landscape."
         )
     ]
 

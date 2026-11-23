@@ -227,6 +227,9 @@ struct CommentModerationButtons: View {
 /// The glyph is `.secondary` gray (UI-SPEC "Muted"), so the button takes the plain style: the borderless style draws
 /// the label in the app's accent and overrides its foreground style. Any style but the automatic one also keeps a tap
 /// on the rest of the list row from opening the menu.
+///
+/// The pointer hover sits on the label, not on the `Menu`: on the `Menu` it redrew the `…` of the second row at the
+/// extra-small text size in iPhone landscape.
 struct CommentModerationMenuButton: View {
     let actions: CommentModerationActions
 
@@ -238,10 +241,10 @@ struct CommentModerationMenuButton: View {
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .frame(minWidth: 44, minHeight: 44)
+                .interactiveIconHover()
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
-        .interactiveIconHover()
         .padding(.vertical, -12)
         .padding(.trailing, -12)
         .accessibilityHidden(true)
