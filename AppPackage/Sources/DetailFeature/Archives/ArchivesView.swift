@@ -195,6 +195,7 @@ private struct HathArchivesView: View {
                     )
                     .tint(.primary).multilineTextAlignment(.center)
                 }
+                .hoverShape(.rect(cornerRadius: 10))
             }
         }
         .padding(.top, 40)

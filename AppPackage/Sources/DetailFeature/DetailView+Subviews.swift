@@ -516,6 +516,7 @@ extension TagsSection {
                     myTag: content.myTagHighlight(in: myTags)
                 )
             }
+            .hoverShape(.rect(cornerRadius: 5))
             .contextMenu {
                 tagContextMenu(content: content, translation: translation)
             }
@@ -653,6 +654,7 @@ struct PreviewsSection: View {
                             PreviewThumbnail(url: previewURL)
                                 .frame(width: width, height: height)
                         }
+                        .hoverShape(GalleryCover.clipShape)
                         // The thumbnail is the button's only content; the page it opens is its name.
                         .accessibilityLabel(.accessibilityPreviewPage(page: index))
                     }

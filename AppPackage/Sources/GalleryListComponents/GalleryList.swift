@@ -1,5 +1,6 @@
 import AppComponents
 public import AppModels
+import AppTools
 import AutomationIdentifiers
 import CasePathsCore
 import Resources
@@ -418,6 +419,7 @@ private struct GridList: View {
                     detailAction: { navigateAction?(gallery) },
                     readAction: readAction.map { action in { action(gallery) } }
                 ))
+                .hoverShape(.rect(cornerRadius: 15))
                 .accessibilityIdentifier(AccessibilityIdentifiers.galleryListItem(id: gallery.id))
                 .accessibilityFocused(galleryFocus, equals: gallery.id)
                 .onScrollVisibilityChange(threshold: 0.1) { isVisible in

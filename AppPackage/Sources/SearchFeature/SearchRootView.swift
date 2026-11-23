@@ -314,6 +314,7 @@ private struct HistoryGalleriesSection: View {
                                 GalleryHistoryCell(gallery: gallery)
                                     .tint(.primary).multilineTextAlignment(.leading)
                             }
+                            .hoverShape(GalleryCover.clipShape)
                             .frame(maxHeight: .infinity, alignment: .top)
                             .onGeometryChange(for: CGFloat.self, of: \.size.width) { keeper.cardWidth = $0 }
                             .recordsLeadingEdge(of: gallery.id)

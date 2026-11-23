@@ -254,6 +254,7 @@ struct CardSlideSection: View, Equatable {
             .tint(.primary)
             .multilineTextAlignment(.leading)
         }
+        .hoverShape(.rect(cornerRadius: 15))
         .frame(width: cardWidth)
         // Nearest-center handoff: `.viewAligned` settles on the nearest alignment, so the card
         // whose actual bounds cross the viewport midpoint is the card the scroll will land on.
@@ -390,6 +391,7 @@ struct VerticalCoverStack: View {
         } label: {
             HomeFrontPageCell(gallery: gallery, showsRichInformation: false)
         }
+        .hoverShape(GalleryCover.clipShape)
         .tint(.primary)
         .multilineTextAlignment(.leading)
     }
@@ -633,6 +635,7 @@ struct MiscGridSection: View {
                             } label: {
                                 HomeDestinationCard(type: type)
                             }
+                            .hoverShape(.rect(cornerRadius: 15))
                             // The card is sized against the scroll view's container, which a content
                             // margin would shrink, so its 20pt inset is padding that belongs to the
                             // snap target: a snapped card rests at the inset the first one does.
@@ -650,6 +653,7 @@ struct MiscGridSection: View {
                             } label: {
                                 MiscGridItem(title: type.title, symbol: type.symbol).tint(.primary)
                             }
+                            .hoverShape(.rect(cornerRadius: 15))
                             .padding(.trailing, type == types.last ? 0 : 10)
                         }
                     }
