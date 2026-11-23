@@ -51,11 +51,15 @@ struct WebtoonReadingTests {
         return state
     }
 
+    /// A store of `state`. A test that receives the flush of the debounced progress passes a `TestClock` and advances
+    /// it: `ImmediateClock` yields at background priority, which a busy machine can starve past the receive's timeout.
     @MainActor
-    private func makeStore(_ state: ReadingReducer.State, defaults: UserDefaults) -> TestStoreOf<ReadingReducer> {
+    private func makeStore(
+        _ state: ReadingReducer.State, defaults: UserDefaults, clock: any Clock<Duration> = ImmediateClock()
+    ) -> TestStoreOf<ReadingReducer> {
         TestStore(initialState: state, reducer: ReadingReducer.init) {
             $0.analyticsClient = .noop
-            $0.continuousClock = ImmediateClock()
+            $0.continuousClock = clock
             $0.date = .constant(now)
             $0.defaultAppStorage = defaults
             $0.hapticsClient = .noop
@@ -170,7 +174,8 @@ struct WebtoonReadingTests {
             gid: validGID, setting: Setting(alwaysReadsWebtoonsVertically: true), page: 1, tallPages: [4, 5, 6],
             defaults: defaults
         )
-        let store = makeStore(state, defaults: defaults)
+        let clock = TestClock()
+        let store = makeStore(state, defaults: defaults, clock: clock)
 
         await store.send(.pagerSettled(shown: 5, generation: 0)) {
             _ = $0.position.pagerSettled(shown: 5, generation: 0)
@@ -179,6 +184,7 @@ struct WebtoonReadingTests {
         await store.receive(\.syncReadingProgress) {
             $0.visitedPages = [5]
         }
+        await clock.advance(by: .seconds(1))
         await store.receive(\.flushReadingProgress)
         await store.finish()
 
@@ -198,7 +204,8 @@ struct WebtoonReadingTests {
             gid: validGID, setting: Setting(readingDirection: .rightToLeft), page: 1, tallPages: [4, 5, 6],
             defaults: defaults
         )
-        let store = makeStore(state, defaults: defaults)
+        let clock = TestClock()
+        let store = makeStore(state, defaults: defaults, clock: clock)
 
         await store.send(.pagerSettled(shown: 5, generation: 0)) {
             _ = $0.position.pagerSettled(shown: 5, generation: 0)
@@ -206,6 +213,7 @@ struct WebtoonReadingTests {
         await store.receive(\.syncReadingProgress) {
             $0.visitedPages = [5]
         }
+        await clock.advance(by: .seconds(1))
         await store.receive(\.flushReadingProgress)
         await store.finish()
 
