@@ -642,4 +642,32 @@ extension CookieClient {
         )
     }
 }
+
+extension CookieClient {
+    /// A client that forwards every call to whichever client `current` returns at that moment.
+    ///
+    /// A process holds one cookie client (`DidLoginKey`), and a hosted visual test needs the jar of the scenario it
+    /// captures to be the one every reader reads, including a view that is created again after the scenario's
+    /// task-local scope has ended (a page that renders from the main run loop after a step changed it). The test
+    /// prepares this client once for its dependency context and points `current` at the running scenario's jar, so the
+    /// jar can change from scenario to scenario while the client the process keeps does not.
+    ///
+    /// It lives here because most of a client's closures are private. A change stream is the one `current` returned
+    /// when it was asked for: a subscription does not follow a later change of `current`.
+    public static func forwarding(to current: @escaping @Sendable () -> CookieClient) -> Self {
+        .init(
+            clearAll: { current().clearAll() },
+            cookiesDidChange: { current().cookiesDidChange() },
+            getCookie: { url, key in current().getCookie(url, key) },
+            cookiesForURL: { url in current().cookiesForURL(url) },
+            removeCookie: { url, key in current().removeCookie(url, key) },
+            checkExistence: { url, key in current().checkExistence(url, key) },
+            initializeCookie: { cookie, value in current().initializeCookie(cookie, value) },
+            storeCookie: { cookie in current().storeCookie(cookie) },
+            setCookieValue: { url, key, value, path, expiresTime, sessionOnly in
+                current().setCookieValue(url, key, value, path, expiresTime, sessionOnly)
+            }
+        )
+    }
+}
 #endif

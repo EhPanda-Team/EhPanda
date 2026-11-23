@@ -1,6 +1,7 @@
 import AppModels
 import CookieClient
 import Foundation
+import Synchronization
 import Testing
 
 struct CookieClientTests {
@@ -372,6 +373,32 @@ struct CookieClientTests {
         #expect(cookieValue(in: client, url: ehentaiURL, name: CookieName.igneous).isEmpty)
         #expect(cookieValue(in: client, url: exhentaiURL, name: CookieName.igneous) == "igneous-fixture")
         #expect(cookieValue(in: client, url: siblingURL, name: CookieName.igneous) == "igneous-fixture")
+    }
+
+    @Test
+    func forwardingClientReadsTheCurrentClientAtEveryCall() async throws {
+        let signedOut = CookieClient.testing()
+        let signedIn = CookieClient.testing()
+        seedCredentials(in: signedIn, for: .ehentai)
+        let current = Mutex(signedOut)
+        let forwarding = CookieClient.forwarding(to: { current.withLock({ $0 }) })
+        #expect(!forwarding.didLogin)
+
+        // The change stream is the current client's at the moment it is asked for.
+        current.withLock({ $0 = signedIn })
+        #expect(forwarding.didLogin)
+        var changes = forwarding.cookiesDidChange().makeAsyncIterator()
+        signedIn.setOrEditCookie(for: GalleryHost.ehentai.url, key: CookieName.skipServer, value: "1")
+        #expect(await changes.next() != nil)
+
+        // Writes and reads land in the current client, not the one that was current before.
+        forwarding.setOrEditCookie(for: GalleryHost.ehentai.url, key: "forwarded", value: "value")
+        #expect(cookieValue(in: signedIn, url: GalleryHost.ehentai.url, name: "forwarded") == "value")
+        #expect(cookieValue(in: signedOut, url: GalleryHost.ehentai.url, name: "forwarded").isEmpty)
+        #expect(cookieValue(in: forwarding, url: GalleryHost.ehentai.url, name: "forwarded") == "value")
+        forwarding.clearAll()
+        #expect(!signedIn.didLogin)
+        #expect(!forwarding.didLogin)
     }
 }
 

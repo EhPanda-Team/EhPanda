@@ -28,10 +28,13 @@ import XCTest
 /// 43681082788). Several CI jobs still run at once, no serial trait is involved, and every other test stays
 /// parallel (AGENTS.md test parallelism).
 class SnapshotMatrixCase: XCTestCase {
+    /// The scenario this test method captures. XCTest makes one instance per method, so this is the method's own.
+    private var scenarioOfThisMethod = OneScenarioPerMethod()
+
     override func setUp() {
         super.setUp()
         // Dependencies clears prepared values before each XCTest case; restore the opt-in host defaults.
-        UITestAutomation.prepareIfNeeded()
+        UITestAutomation.prepareIfNeeded(cookieClient: ScenarioCookieClient.forwarding)
         Self.discardHeldTaps()
         MainActor.assumeIsolated {
             KeyboardWatch.start()
@@ -69,6 +72,10 @@ class SnapshotMatrixCase: XCTestCase {
         }
         if let only = run.only, !only.contains(id) {
             throw XCTSkip("Not selected by EHPANDA_SNAPSHOT_ONLY")
+        }
+        guard scenarioOfThisMethod.admits(id) else {
+            XCTFail("\(id): a test method captures one scenario (ScenarioCookieClient), and this one captured another")
+            return
         }
         let writer = SnapshotResultWriter(output: output)
         let scene = try await Self.foregroundScene()
@@ -195,23 +202,31 @@ class SnapshotMatrixCase: XCTestCase {
     }
 
     /// Runs `operation` in the dependencies every scenario's pictures are taken in.
+    ///
+    /// The scenario's cookie client is chosen once and set twice: in the task-local scope, where the first render and
+    /// the step read it, and in ``ScenarioCookieClient``, which the process's own dependency context forwards to, so a
+    /// view that is created again outside the scope (a page that changes after a step's tap renders from the main run
+    /// loop) reads the same jar. It is the inert jar again whichever way `operation` ends.
     @MainActor
-    private func inScenarioDependencies<Result>(
+    static func inScenarioDependencies<Result>(
         _ factory: ScenarioFactory, operation: @MainActor () async -> Result
     ) async -> Result {
         let appStorage = UserDefaults.inMemory
-        return await withDependencies {
-            $0.context = .preview
-            $0.cookieClient = factory.cookies ?? (factory.signedIn ? .previewLoggedIn : .noop)
-            // The device the picture is taken on: the preview client reports a phone, and the error information
-            // sheet's Device row read "iPhone" in every iPad picture (candidate run 44025665174).
-            $0.deviceClient = .live
-            $0.date.now = PublicVisualFixtures.fixedDate
-            $0.uuid = .incrementing
-            $0.defaultAppStorage = appStorage
-            $0.defaultInMemoryStorage = InMemoryStorage()
-        } operation: {
-            await operation()
+        let cookieClient = factory.cookies ?? (factory.signedIn ? .previewLoggedIn : .noop)
+        return await ScenarioCookieClient.hold(cookieClient) {
+            await withDependencies {
+                $0.context = .preview
+                $0.cookieClient = cookieClient
+                // The device the picture is taken on: the preview client reports a phone, and the error information
+                // sheet's Device row read "iPhone" in every iPad picture (candidate run 44025665174).
+                $0.deviceClient = .live
+                $0.date.now = PublicVisualFixtures.fixedDate
+                $0.uuid = .incrementing
+                $0.defaultAppStorage = appStorage
+                $0.defaultInMemoryStorage = InMemoryStorage()
+            } operation: {
+                await operation()
+            }
         }
     }
 
@@ -225,7 +240,7 @@ class SnapshotMatrixCase: XCTestCase {
         let sampling = VisibleViewportSampling()
         MainThreadWatch.context = coordinate.key
         defer { MainThreadWatch.context = "" }
-        let measurement = await inScenarioDependencies(factory) {
+        let measurement = await Self.inScenarioDependencies(factory) {
             await HostedWindowCapture.measure(
                 make: {
                     AnyView(try factory.make().environment(\.visibleViewportSampling, sampling))
@@ -280,7 +295,7 @@ class SnapshotMatrixCase: XCTestCase {
         let sampling = VisibleViewportSampling()
         MainThreadWatch.context = coordinate.key
         defer { MainThreadWatch.context = "" }
-        let outcome = await inScenarioDependencies(factory) {
+        let outcome = await Self.inScenarioDependencies(factory) {
             await HostedWindowCapture.captureAndCompare(
                 make: {
                     let view = try factory.make()
@@ -645,5 +660,19 @@ struct ScenarioInventory: Decodable {
         return scenario.notApplicable?.first(where: { rule in
             rule.when.allSatisfy({ axes[$0.key] == $0.value })
         })?.reason
+    }
+}
+
+/// The one scenario a test method may capture. A cookie jar is read for one scenario per method
+/// (``ScenarioCookieClient``), so a second, different scenario in the same method is refused rather than captured
+/// against a jar that could be stale.
+struct OneScenarioPerMethod {
+    private var id: String?
+
+    /// Whether `id` may be captured: the first one is remembered, and only the same one is admitted afterwards.
+    mutating func admits(_ id: String) -> Bool {
+        if let held = self.id, held != id { return false }
+        self.id = id
+        return true
     }
 }

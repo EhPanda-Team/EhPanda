@@ -5,7 +5,7 @@ import AppModels
 import AppTools
 import ClipboardClient
 import ComposableArchitecture
-import CookieClient
+public import CookieClient
 import DeviceClient
 import DFClient
 import DownloadClient
@@ -30,9 +30,12 @@ public enum UITestAutomation {
         #endif
     }
 
-    public static func prepareIfNeeded() {
+    /// Prepares the opt-in host defaults of an automated launch. `cookieClient` is the one a visual host's dependency
+    /// context holds for the whole process: a hosted visual test passes a client that forwards to its current
+    /// scenario's jar (see `CookieClient.forwarding(to:)`), every other caller the inert default.
+    public static func prepareIfNeeded(cookieClient: CookieClient = .noop) {
         #if DEBUG
-        prepare(environment: ProcessInfo.processInfo.environment)
+        prepare(environment: ProcessInfo.processInfo.environment, cookieClient: cookieClient)
         #endif
     }
 
@@ -183,7 +186,8 @@ public enum UITestAutomation {
     @discardableResult
     static func prepare(
         environment: [String: String],
-        now: Date = .now
+        now: Date = .now,
+        cookieClient: CookieClient = .noop
     ) -> Configuration? {
         let resolved: Configuration?
         do {
@@ -240,7 +244,9 @@ public enum UITestAutomation {
                 if configuration.shouldUseVisualTestHost {
                     // The hosted test process renders the app before XCTest enters any test case.
                     // Prepare explicit inert clients before the first Store or shared key is built.
-                    configureVisualTestHost(&$0, firstLaunch: configuration.firstLaunchPreset)
+                    configureVisualTestHost(
+                        &$0, firstLaunch: configuration.firstLaunchPreset, cookieClient: cookieClient
+                    )
                 }
                 if let clipboardClient = configuration.clipboardClient {
                     $0.clipboardClient = clipboardClient
@@ -318,16 +324,18 @@ public enum UITestAutomation {
     }
 
     /// `configureVisualTestHost(_:)` with the first-launch answers `firstLaunch` asks for, written
-    /// into the host's fresh storage; `nil` leaves that storage's never-answered defaults.
+    /// into the host's fresh storage; `nil` leaves that storage's never-answered defaults. `cookieClient` is the
+    /// host's cookie client, inert unless a hosted visual test forwards it to its scenario's jar.
     static func configureVisualTestHost(
         _ dependencies: inout DependencyValues,
-        firstLaunch: FirstLaunchPreset?
+        firstLaunch: FirstLaunchPreset?,
+        cookieClient: CookieClient = .noop
     ) {
         dependencies.analyticsClient = .noop
         dependencies.appLaunchAutomationClient = .none
         dependencies.applicationClient = .noop
         dependencies.clipboardClient = .noop
-        dependencies.cookieClient = .noop
+        dependencies.cookieClient = cookieClient
         dependencies.deviceClient = .live
         dependencies.downloadClient = .noop
         dependencies.hapticsClient = .noop
