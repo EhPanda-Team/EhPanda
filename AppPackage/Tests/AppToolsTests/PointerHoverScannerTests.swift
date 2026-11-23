@@ -942,7 +942,7 @@ struct PointerHoverScannerTests {
     @Test
     func aHandWrittenIconTapShapeIsDetected() {
         let written = [
-            "x.contentShape(.interaction, HoverTargetCircle(clippedAt: .leading))",
+            "x.contentShape(.interaction, HoverTargetCircle())",
             "x.contentShape(\n    .interaction,\n    HoverTargetCircle()\n)"
         ]
         let other = [

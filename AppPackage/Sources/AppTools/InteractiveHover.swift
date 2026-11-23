@@ -54,15 +54,15 @@ extension View {
         contentShape(.hoverEffect, shape)
     }
 
-    /// Gives an icon-only button the system highlight in a ``HoverTargetCircle``, with `edges` cut at the view's own
-    /// bounds where the enlarged circle would reach a neighbouring control.
+    /// Gives an icon-only button the system highlight in a ``HoverTargetCircle``.
     ///
     /// The same circle is the tap area (`.interaction`) and the hover area at once, so the two can never drift. Only
     /// this helper sets that tap shape; no call site writes it by hand. The view's frame does not change: the circle
-    /// grows the hit region, not the layout.
-    public func interactiveIconHover(clippedAt edges: Edge.Set = []) -> some View {
-        contentShape(.interaction, HoverTargetCircle(clippedAt: edges))
-            .interactiveHover(.highlight, in: HoverTargetCircle(clippedAt: edges))
+    /// grows the hit region, not the layout. The circle is sized by the view it is applied to, so apply it to the
+    /// control's own view (the glyph), never to a flexible cell around it.
+    public func interactiveIconHover() -> some View {
+        contentShape(.interaction, HoverTargetCircle())
+            .interactiveHover(.highlight, in: HoverTargetCircle())
     }
 }
 
@@ -85,43 +85,21 @@ private struct InteractiveHoverModifier<HoverShape: Shape>: ViewModifier {
 ///
 /// 44 pt is the minimum comfortable pointer and touch target, so a small glyph still gets a full circle. A view
 /// longer than 44 pt keeps its own length as the diameter, so the circle never falls inside the view it belongs to.
-///
-/// Where the enlarged circle would reach a neighbouring control, `clippedAt` cuts it with a straight line at the
-/// view's own bounds on that side: the circle never takes a neighbour's tap or hover. A clipped side keeps the
-/// view's own edge, and the opposite side still reaches the circle, so clipping both sides keeps the view's width and
-/// the circle's full height. The geometry is written left to right, `.leading` is the minimum x, and the shape
-/// mirrors for a right-to-left layout so `.leading` stays the reading-order side.
+/// The circle is symmetric, so it needs no mirroring for a right-to-left layout.
 public struct HoverTargetCircle: Shape {
     /// The smallest circle diameter, in points.
     public static let minimumDiameter: CGFloat = 44
 
-    /// The edges where the circle stops at the view's bounds.
-    public let clippedEdges: Edge.Set
-
-    public init(clippedAt edges: Edge.Set = []) {
-        clippedEdges = edges
-    }
-
-    public var layoutDirectionBehavior: LayoutDirectionBehavior {
-        .mirrors
-    }
+    public init() {}
 
     public func path(in rect: CGRect) -> Path {
         let diameter = max(Self.minimumDiameter, rect.width, rect.height)
-        let circleBounds = CGRect(
+        return Circle().path(in: CGRect(
             x: rect.midX - diameter / 2,
             y: rect.midY - diameter / 2,
             width: diameter,
             height: diameter
-        )
-        let circle = Circle().path(in: circleBounds)
-        guard !clippedEdges.isEmpty else { return circle }
-        let minX = clippedEdges.contains(.leading) ? rect.minX : circleBounds.minX
-        let maxX = clippedEdges.contains(.trailing) ? rect.maxX : circleBounds.maxX
-        let minY = clippedEdges.contains(.top) ? rect.minY : circleBounds.minY
-        let maxY = clippedEdges.contains(.bottom) ? rect.maxY : circleBounds.maxY
-        let clip = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
-        return circle.intersection(Path(clip))
+        ))
     }
 }
 
