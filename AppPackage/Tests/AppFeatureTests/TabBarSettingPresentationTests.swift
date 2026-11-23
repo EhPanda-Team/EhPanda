@@ -15,8 +15,10 @@ import SettingFeature
 import Sharing
 import SwiftUI
 import Testing
+import TestingSupport
 import UserDefaultsClient
 
+@Suite(.isolatedAppStorage)
 struct TabBarSettingPresentationTests {
     @MainActor
     @Test
@@ -163,11 +165,9 @@ private extension TabBarSettingPresentationTests {
         clock: TestClock<Duration> = TestClock(),
         launchAutomation: AppLaunchAutomation? = nil
     ) -> TestStoreOf<AppReducer> {
-        let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
 
         return withDependencies {
-            $0.defaultAppStorage = appStorage
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             var initialState = AppReducer.State()
@@ -187,7 +187,6 @@ private extension TabBarSettingPresentationTests {
                     $0.clipboardClient = .noop
                     $0.continuousClock = clock
                     $0.cookieClient = .noop
-                    $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
                     $0.downloadClient = .noop
                     $0.hapticsClient = .noop

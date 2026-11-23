@@ -926,7 +926,9 @@ let targets: [PackageDescription.Target] = [
         module: .testingSupport,
         dependencies: [
             .module(.analyticsClient),
-            .targetDependency(.kanna)
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kanna),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)]
     ),
@@ -1078,7 +1080,8 @@ let targets: [PackageDescription.Target] = [
             .module(.ehSettingClient),
             .module(.libraryClient),
             .module(.networkingFeature),
-            .module(.readingSettingFeature)
+            .module(.readingSettingFeature),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1099,7 +1102,8 @@ let targets: [PackageDescription.Target] = [
             .module(.networkingFeature),
             .module(.quickSearchFeature),
             .module(.readingFeature),
-            .targetDependency(.sharing)
+            .targetDependency(.sharing),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1116,7 +1120,8 @@ let targets: [PackageDescription.Target] = [
         module: .appModelsTests,
         dependencies: [
             .module(.appModels),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1169,7 +1174,8 @@ let targets: [PackageDescription.Target] = [
         module: .galleryListComponentsTests,
         dependencies: [
             .module(.appModels),
-            .module(.galleryListComponents)
+            .module(.galleryListComponents),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1196,7 +1202,8 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.systemNotification),
             .module(.appComponents),
-            .module(.appModels)
+            .module(.appModels),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1207,7 +1214,8 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
-            .module(.deviceClient)
+            .module(.deviceClient),
+            .module(.testingSupport)
         ]
     ),
     // The `.appTools` edge supplies `Defaults.Cookie`, which the cookie redaction test builds its names from.
@@ -1225,6 +1233,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appModels),
             .module(.quickSearchFeature),
+            .module(.testingSupport),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
         ]
@@ -1260,7 +1269,8 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.downloadClient),
             .module(.galleryClient),
-            .module(.hapticsClient)
+            .module(.hapticsClient),
+            .module(.testingSupport)
         ]
     ),
     .liveCheckTestTarget(

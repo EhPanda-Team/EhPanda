@@ -10,10 +10,12 @@ import Foundation
 import HapticsClient
 import ReadingFeature
 import Testing
+import TestingSupport
 
 /// Favorites hosts the shared list reader (`GalleryReadingFeature`, whose own behavior is covered in
 /// DetailFeatureTests). These cases pin the host's side: which route a tap takes, and that a route the
 /// user takes while a reader is being opened wins over the late result.
+@Suite(.isolatedAppStorage)
 @MainActor
 struct ReadingEntryTests {
     @Test
@@ -70,27 +72,21 @@ struct ReadingEntryTests {
     private func makeStore(
         download: DownloadedGallery? = nil, manifestGate: AsyncStream<Void>? = nil
     ) -> TestStoreOf<FavoritesReducer> {
-        let appStorage = UserDefaults.inMemory
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            TestStore(initialState: FavoritesReducer.State(), reducer: FavoritesReducer.init) {
-                $0.defaultAppStorage = appStorage
-                $0.analyticsClient = .noop
-                $0.appLaunchAutomationClient = .none
-                $0.date = .constant(.distantPast)
-                $0.cookieClient = .noop
-                $0.downloadClient = .noop
-                $0.downloadClient.loadManifest = { _ in
-                    if let manifestGate {
-                        for await _ in manifestGate { break }
-                    }
-                    guard let download else { throw AppError.notFound }
-                    return (download, download.manifest)
+        TestStore(initialState: FavoritesReducer.State(), reducer: FavoritesReducer.init) {
+            $0.analyticsClient = .noop
+            $0.appLaunchAutomationClient = .none
+            $0.date = .constant(.distantPast)
+            $0.cookieClient = .noop
+            $0.downloadClient = .noop
+            $0.downloadClient.loadManifest = { _ in
+                if let manifestGate {
+                    for await _ in manifestGate { break }
                 }
-                $0.hapticsClient = .noop
-                $0.uuid = .incrementing
+                guard let download else { throw AppError.notFound }
+                return (download, download.manifest)
             }
+            $0.hapticsClient = .noop
+            $0.uuid = .incrementing
         }
     }
 }

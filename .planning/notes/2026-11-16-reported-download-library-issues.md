@@ -1,6 +1,7 @@
 ---
 date: "2026-11-16T16:53:00Z"
-promoted: false
+promoted: true
+promoted_to: .planning/quick/261123-1dk-download-queue-order-and-queue-operation/
 ---
 
 # Reported download and Library issues — recorded, deferred
@@ -12,7 +13,7 @@ This note captures requests and owner-reported observations only, not verified f
 
 ## 1. Download queue operations — feature request
 
-**Status: recorded/deferred per owner decision. Investigation and implementation are not authorized now.**
+**Status: done by quick task 261123-1dk (owner authorized 2026-11-23; decisions B-1 to B-6).** Download Now (the interrupted gallery waits next), Download Next, Move Up, Move Down and Download Last, in the context menu and VoiceOver actions; paused items take Download Now and Download Next. "Pause without losing its place" was not approved. See `.planning/quick/261123-1dk-download-queue-order-and-queue-operation/`.
 
 For a selected queued item **other than the item currently downloading**, the owner requested:
 

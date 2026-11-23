@@ -58,7 +58,7 @@ final class VisualTracerTests: XCTestCase {
             attachment.lifetime = .keepAlways
             add(attachment)
         }
-        let appStorage = UserDefaults.inMemory
+        let appStorage = try makeIsolatedAppStorage()
         let inMemoryStorage = InMemoryStorage()
         try await withDependencies {
             $0.continuousClock = TestClock()
@@ -171,7 +171,7 @@ final class VisualTracerTests: XCTestCase {
         defer { UIView.setAnimationsEnabled(animationsEnabled) }
         let galleries = try Self.homeGalleries()
         try await Self.cacheCoverImages(galleries)
-        let appStorage = UserDefaults.inMemory
+        let appStorage = try makeIsolatedAppStorage()
         let inMemoryStorage = InMemoryStorage()
         let outputDirectory = URL(filePath: NSTemporaryDirectory(), directoryHint: .isDirectory)
             .appending(component: "ehpanda-phase17-tracer-\(UUID().uuidString)", directoryHint: .isDirectory)

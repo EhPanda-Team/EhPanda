@@ -2,7 +2,9 @@
 import AppModels
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadedGalleryManifestModelTests {
     @Test
     func testManifestCompletedPageCountDerivesFromNonEmptyHashes() throws {

@@ -8,14 +8,19 @@ import Foundation
 import Sharing
 import SwiftUI
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct UITestStubTests {
     @MainActor
     @Test
     func hostedStoreKeepsItsFixturesWhenTheCallingTestScopeChanges() async {
+        @Dependency(\.defaultAppStorage) var appStorage
         let store = Store(
             initialState: AppReducer.State(), reducer: AppReducer.init,
-            withDependencies: UITestAutomation.configureVisualTestHost
+            withDependencies: {
+                UITestAutomation.configureVisualTestHost(&$0, firstLaunch: .answered, appStorage: appStorage)
+            }
         )
 
         await withDependencies {
@@ -100,27 +105,23 @@ struct UITestStubTests {
 
     @Test
     func thePresetWritesBothAnswersAndShowClearsThem() {
-        withDependencies {
-            $0.defaultAppStorage = .inMemory
-        } operation: {
-            @Shared(.setting) var setting
-            UITestAutomation.applyFirstLaunchPreset(.answered)
-            #expect(setting.ageDeclarationVersion == AgeDeclaration.currentVersion)
-            #expect(setting.analyticsLevel == .minimal)
+        @Shared(.setting) var setting
+        UITestAutomation.applyFirstLaunchPreset(.answered)
+        #expect(setting.ageDeclarationVersion == AgeDeclaration.currentVersion)
+        #expect(setting.analyticsLevel == .minimal)
 
-            UITestAutomation.applyFirstLaunchPreset(.cleared)
-            #expect(setting.ageDeclarationVersion == nil)
-            #expect(setting.analyticsLevel == nil)
+        UITestAutomation.applyFirstLaunchPreset(.cleared)
+        #expect(setting.ageDeclarationVersion == nil)
+        #expect(setting.analyticsLevel == nil)
 
-            $setting.withLock({ $0.analyticsLevel = .full })
-            UITestAutomation.applyFirstLaunchPreset(.ageConfirmed)
-            #expect(setting.ageDeclarationVersion == AgeDeclaration.currentVersion)
-            #expect(setting.analyticsLevel == nil)
+        $setting.withLock({ $0.analyticsLevel = .full })
+        UITestAutomation.applyFirstLaunchPreset(.ageConfirmed)
+        #expect(setting.ageDeclarationVersion == AgeDeclaration.currentVersion)
+        #expect(setting.analyticsLevel == nil)
 
-            $setting.withLock({ $0.analyticsLevel = .full })
-            UITestAutomation.applyFirstLaunchPreset(nil)
-            #expect(setting.analyticsLevel == .full)
-        }
+        $setting.withLock({ $0.analyticsLevel = .full })
+        UITestAutomation.applyFirstLaunchPreset(nil)
+        #expect(setting.analyticsLevel == .full)
     }
 
     // MARK: Stubbed-launch storage, request log and reader keys
@@ -166,36 +167,28 @@ struct UITestStubTests {
 
     @Test
     func theStoragePresetReplacesTheBlockListAndTheDisplayName() {
-        withDependencies {
-            $0.defaultAppStorage = .inMemory
-        } operation: {
-            @Shared(.blockedCommentUsers) var blockedUsers
-            @Shared(.user) var user
-            $blockedUsers.withLock({ $0 = [.init(memberID: "9", name: "Earlier")] })
-            $user.withLock({ $0.displayName = "Earlier" })
+        @Shared(.blockedCommentUsers) var blockedUsers
+        @Shared(.user) var user
+        $blockedUsers.withLock({ $0 = [.init(memberID: "9", name: "Earlier")] })
+        $user.withLock({ $0.displayName = "Earlier" })
 
-            let preset: [BlockedCommentUser] = [.init(memberID: "1", name: "A"), .init(memberID: "2", name: "B")]
-            UITestAutomation.StoragePreset(blockedCommentUsers: preset, displayName: "X").apply()
-            expectNoDifference(blockedUsers, preset)
-            expectNoDifference(user.displayName, "X")
+        let preset: [BlockedCommentUser] = [.init(memberID: "1", name: "A"), .init(memberID: "2", name: "B")]
+        UITestAutomation.StoragePreset(blockedCommentUsers: preset, displayName: "X").apply()
+        expectNoDifference(blockedUsers, preset)
+        expectNoDifference(user.displayName, "X")
 
-            UITestAutomation.StoragePreset(blockedCommentUsers: [], displayName: nil).apply()
-            expectNoDifference(blockedUsers, [])
-            expectNoDifference(user.displayName, nil)
-        }
+        UITestAutomation.StoragePreset(blockedCommentUsers: [], displayName: nil).apply()
+        expectNoDifference(blockedUsers, [])
+        expectNoDifference(user.displayName, nil)
     }
 
     @Test
     func theStoragePresetClearsTheRememberedLibraryPickerChoice() {
-        withDependencies {
-            $0.defaultAppStorage = .inMemory
-        } operation: {
-            @Shared(.libraryPickerChoice) var pickerChoice
-            $pickerChoice.withLock({ $0 = LibraryPickerChoice(group: .downloads(.folder("Reading"))) })
+        @Shared(.libraryPickerChoice) var pickerChoice
+        $pickerChoice.withLock({ $0 = LibraryPickerChoice(group: .downloads(.folder("Reading"))) })
 
-            UITestAutomation.StoragePreset(blockedCommentUsers: [], displayName: nil).apply()
-            expectNoDifference(pickerChoice, nil)
-        }
+        UITestAutomation.StoragePreset(blockedCommentUsers: [], displayName: nil).apply()
+        expectNoDifference(pickerChoice, nil)
     }
 
     @Test
@@ -327,8 +320,9 @@ struct UITestStubTests {
     @MainActor
     @Test
     func aVisualHostShownTheFirstLaunchStartsLocked() {
+        @Dependency(\.defaultAppStorage) var appStorage
         let store = Store(initialState: AppReducer.State(), reducer: AppReducer.init) {
-            UITestAutomation.configureVisualTestHost(&$0, firstLaunch: .cleared)
+            UITestAutomation.configureVisualTestHost(&$0, firstLaunch: .cleared, appStorage: appStorage)
         }
         #expect(!store.isUnlocked)
     }

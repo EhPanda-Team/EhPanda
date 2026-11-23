@@ -2,7 +2,9 @@
 @testable import AppFeature
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct CaptureSDKAvailabilityTests {
     @Test(arguments: [false, true])
     func absentSceneKeepsOrdinaryLaunch(_ isTesting: Bool) throws {

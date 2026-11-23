@@ -4,6 +4,7 @@ import DownloadClient
 import Foundation
 import Resources
 import Testing
+import TestingSupport
 
 /// D-SSOT-07: what the inspector's per-page states are DERIVED from.
 ///
@@ -28,6 +29,7 @@ import Testing
 /// file to show (the record's claim, pre-verify) and a page can read `.pending` with a file
 /// sitting at its path (the totality case). Verify is the single tap that senses such a
 /// divergence and reconciles it durably; nothing else is allowed to sense it.
+@Suite(.isolatedAppStorage)
 struct DownloadInspectionBasisTests: DownloadFeatureTestCase {
     /// Claim-vs-disk divergence, PRE-verify: an externally deleted page still reads the record's
     /// claim, so the page list and the badge cannot disagree.

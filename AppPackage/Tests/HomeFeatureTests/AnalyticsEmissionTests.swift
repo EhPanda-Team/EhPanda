@@ -34,7 +34,7 @@ import TestingSupport
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsEmissionTests {
 
     // MARK: Home sections (HomeReducer)
@@ -120,88 +120,68 @@ struct AnalyticsEmissionTests {
     @Test
     func openingTheFrontPageFilterPanelRecordsOneSignalNamingFrontPage() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.hapticsClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.filtersButtonTapped)
-            await store.skipInFlightEffects(strict: false)
-
-            expectNoDifference(recorded.value, [.filterPanelOpened(.frontPage)])
+        let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.filtersButtonTapped)
+        await store.skipInFlightEffects(strict: false)
+
+        expectNoDifference(recorded.value, [.filterPanelOpened(.frontPage)])
     }
 
     @MainActor
     @Test
     func openingThePopularFilterPanelRecordsOneSignalNamingPopular() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: PopularReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.hapticsClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.filtersButtonTapped)
-            await store.skipInFlightEffects(strict: false)
-
-            expectNoDifference(recorded.value, [.filterPanelOpened(.popular)])
+        let store = TestStore(initialState: .init(), reducer: PopularReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.filtersButtonTapped)
+        await store.skipInFlightEffects(strict: false)
+
+        expectNoDifference(recorded.value, [.filterPanelOpened(.popular)])
     }
 
     @MainActor
     @Test
     func openingTheWatchedFilterPanelRecordsOneSignalNamingWatched() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: WatchedReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.cookieClient = .noop
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.downloadClient = .noop
-                $0.hapticsClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.filtersButtonTapped)
-            await store.skipInFlightEffects(strict: false)
-
-            expectNoDifference(recorded.value, [.filterPanelOpened(.watched)])
+        let store = TestStore(initialState: .init(), reducer: WatchedReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.cookieClient = .noop
+            $0.downloadClient = .noop
+            $0.hapticsClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.filtersButtonTapped)
+        await store.skipInFlightEffects(strict: false)
+
+        expectNoDifference(recorded.value, [.filterPanelOpened(.watched)])
     }
 
     @MainActor
     @Test
     func openingTheWatchedQuickSearchPanelRecordsOneQuickSearchSignal() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: WatchedReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.cookieClient = .noop
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.downloadClient = .noop
-                $0.hapticsClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.quickSearchButtonTapped)
-            await store.skipInFlightEffects(strict: false)
-
-            expectNoDifference(recorded.value, [.quickSearchPanelOpened(.watched)])
+        let store = TestStore(initialState: .init(), reducer: WatchedReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.cookieClient = .noop
+            $0.downloadClient = .noop
+            $0.hapticsClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.quickSearchButtonTapped)
+        await store.skipInFlightEffects(strict: false)
+
+        expectNoDifference(recorded.value, [.quickSearchPanelOpened(.watched)])
     }
 
     // MARK: Inline errors (sub-screen reducers)
@@ -210,94 +190,74 @@ struct AnalyticsEmissionTests {
     @Test
     func aFailedFrontPageFetchRecordsOneErrorSignalNamingFrontPage() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.hapticsClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
-            await store.finish()
-
-            expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .frontPage)])
+        let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .frontPage)])
     }
 
     @MainActor
     @Test
     func aFailedFrontPageFooterFetchRecordsOneErrorSignalNamingFrontPage() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.hapticsClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.fetchMoreGalleriesDone(.failure(.parseFailed)))
-            await store.finish()
-
-            expectNoDifference(recorded.value, [.errorSurfaced(.parseFailed, screen: .frontPage)])
+        let store = TestStore(initialState: .init(), reducer: FrontPageReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchMoreGalleriesDone(.failure(.parseFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.parseFailed, screen: .frontPage)])
     }
 
     @MainActor
     @Test
     func aFailedPopularFetchRecordsOneErrorSignalNamingPopular() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: PopularReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.hapticsClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
-            await store.finish()
-
-            expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .popular)])
+        let store = TestStore(initialState: .init(), reducer: PopularReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.networkingFailed, screen: .popular)])
     }
 
     @MainActor
     @Test
     func failedWatchedListAndFooterFetchesRecordOneErrorSignalEach() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: WatchedReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.cookieClient = .noop
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.downloadClient = .noop
-                $0.hapticsClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
-            await store.finish()
-            await store.send(.fetchMoreGalleriesDone(.failure(.parseFailed)))
-            await store.finish()
-
-            expectNoDifference(
-                recorded.value,
-                [
-                    .errorSurfaced(.networkingFailed, screen: .watched),
-                    .errorSurfaced(.parseFailed, screen: .watched)
-                ]
-            )
+        let store = TestStore(initialState: .init(), reducer: WatchedReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.cookieClient = .noop
+            $0.downloadClient = .noop
+            $0.hapticsClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleriesDone(.failure(.networkingFailed)))
+        await store.finish()
+        await store.send(.fetchMoreGalleriesDone(.failure(.parseFailed)))
+        await store.finish()
+
+        expectNoDifference(
+            recorded.value,
+            [
+                .errorSurfaced(.networkingFailed, screen: .watched),
+                .errorSurfaced(.parseFailed, screen: .watched)
+            ]
+        )
     }
 
     // Each toplists type keeps its own state, so a second type failing is its own transition.
@@ -305,32 +265,27 @@ struct AnalyticsEmissionTests {
     @Test
     func failedToplistsFetchesRecordOneErrorSignalPerTypeAndFooter() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: ToplistsReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.hapticsClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.fetchGalleriesDone(type: .yesterday, result: .failure(.networkingFailed)))
-            await store.finish()
-            await store.send(.fetchGalleriesDone(type: .pastMonth, result: .failure(.networkingFailed)))
-            await store.finish()
-            await store.send(.fetchMoreGalleriesDone(type: .yesterday, result: .failure(.parseFailed)))
-            await store.finish()
-
-            expectNoDifference(
-                recorded.value,
-                [
-                    .errorSurfaced(.networkingFailed, screen: .toplists),
-                    .errorSurfaced(.networkingFailed, screen: .toplists),
-                    .errorSurfaced(.parseFailed, screen: .toplists)
-                ]
-            )
+        let store = TestStore(initialState: .init(), reducer: ToplistsReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.hapticsClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleriesDone(type: .yesterday, result: .failure(.networkingFailed)))
+        await store.finish()
+        await store.send(.fetchGalleriesDone(type: .pastMonth, result: .failure(.networkingFailed)))
+        await store.finish()
+        await store.send(.fetchMoreGalleriesDone(type: .yesterday, result: .failure(.parseFailed)))
+        await store.finish()
+
+        expectNoDifference(
+            recorded.value,
+            [
+                .errorSurfaced(.networkingFailed, screen: .toplists),
+                .errorSurfaced(.networkingFailed, screen: .toplists),
+                .errorSurfaced(.parseFailed, screen: .toplists)
+            ]
+        )
     }
 
     // An empty local history is shown as not found, and counts as its own kind (owner decision, 2026-11-21).
@@ -339,23 +294,18 @@ struct AnalyticsEmissionTests {
     @Test
     func anEmptyHistoryRecordsOneNotFoundSignalNamingHistory() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: HistoryReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.defaultAppStorage = UserDefaults.inMemory
-                $0.downloadClient = .noop
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.fetchGalleries)
-            await store.finish()
-            await store.send(.fetchGalleries)
-            await store.finish()
-
-            expectNoDifference(recorded.value, [.errorSurfaced(.notFound, screen: .history)])
+        let store = TestStore(initialState: .init(), reducer: HistoryReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
+            $0.downloadClient = .noop
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchGalleries)
+        await store.finish()
+        await store.send(.fetchGalleries)
+        await store.finish()
+
+        expectNoDifference(recorded.value, [.errorSurfaced(.notFound, screen: .history)])
     }
 
     // Home shows only the popular block's failure; the front-page and toplists cards never show theirs.
@@ -481,27 +431,20 @@ private extension AnalyticsEmissionTests {
 
     @MainActor
     func makeHomeStore(analyticsClient: AnalyticsClient) -> TestStoreOf<HomeReducer> {
-        let appStorage = UserDefaults.inMemory
+        var state = HomeReducer.State()
+        // Populated so the Home root's own presentation load stays out of these assertions.
+        state.popularGalleries = [.preview]
 
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            var state = HomeReducer.State()
-            // Populated so the Home root's own presentation load stays out of these assertions.
-            state.popularGalleries = [.preview]
-
-            return TestStore(
-                initialState: state,
-                reducer: HomeReducer.init,
-                withDependencies: {
-                    $0.analyticsClient = analyticsClient
-                    $0.cookieClient = .noop
-                    $0.date = .constant(.init(timeIntervalSince1970: 0))
-                    $0.defaultAppStorage = appStorage
-                    $0.downloadClient = .noop
-                }
-            )
-        }
+        return TestStore(
+            initialState: state,
+            reducer: HomeReducer.init,
+            withDependencies: {
+                $0.analyticsClient = analyticsClient
+                $0.cookieClient = .noop
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
+                $0.downloadClient = .noop
+            }
+        )
     }
 }
 

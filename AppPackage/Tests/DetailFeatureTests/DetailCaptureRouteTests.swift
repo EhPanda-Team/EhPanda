@@ -8,12 +8,13 @@ import Foundation
 @testable import ReadingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // A capture route to the comments or the reader passes through its gallery's detail: once the
 // detail has loaded, it sends what that screen's own control sends. A route that ends at the
 // detail, a route to another gallery, or a detail still loading leaves the detail where it is.
 // @MainActor sits on members, as in the other Detail suites: TCA's `TestStore` is main-actor-isolated.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DetailCaptureRouteTests {
     @MainActor
     @Test
@@ -102,24 +103,18 @@ struct DetailCaptureRouteTests {
         route: AppLaunchAutomation.CaptureRoute,
         loaded: Bool = true
     ) -> TestStoreOf<DetailReducer> {
-        let appStorage = UserDefaults.inMemory
-        let store = withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            var state = DetailReducer.State(gallery: Self.gallery)
-            if loaded {
-                state.galleryDetail = .preview
-            }
-            return TestStore(initialState: state, reducer: DetailReducer.init) {
-                $0.analyticsClient = .noop
-                $0.appLaunchAutomationClient = AppLaunchAutomationClient(
-                    current: { AppLaunchAutomation(captureRoute: route) }
-                )
-                // Writing reading progress and presenting the reader both read the date.
-                $0.date = .constant(Date(timeIntervalSince1970: 0))
-                $0.defaultAppStorage = appStorage
-                $0.downloadClient = .noop
-            }
+        var state = DetailReducer.State(gallery: Self.gallery)
+        if loaded {
+            state.galleryDetail = .preview
+        }
+        let store = TestStore(initialState: state, reducer: DetailReducer.init) {
+            $0.analyticsClient = .noop
+            $0.appLaunchAutomationClient = AppLaunchAutomationClient(
+                current: { AppLaunchAutomation(captureRoute: route) }
+            )
+            // Writing reading progress and presenting the reader both read the date.
+            $0.date = .constant(Date(timeIntervalSince1970: 0))
+            $0.downloadClient = .noop
         }
         store.exhaustivity = .off
         return store

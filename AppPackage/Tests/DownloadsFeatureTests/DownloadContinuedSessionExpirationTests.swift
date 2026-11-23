@@ -3,6 +3,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// Expiration and teardown semantics of the continued-processing session: what the queue, the
 /// scheduling-blocked bookkeeping, and the client seam must look like once the system — or a
@@ -11,7 +12,7 @@ import Testing
 ///
 /// Split whole out of `DownloadContinuedSessionTests`, which sits against the 1000-line
 /// `file_length` gate. Every case moved with its body and its doc comment unchanged.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
     /// SC2's "consistent with an in-app cancel", checked literally rather than paraphrased: the
     /// expected state is computed by running the identical fixture and pausing each gallery

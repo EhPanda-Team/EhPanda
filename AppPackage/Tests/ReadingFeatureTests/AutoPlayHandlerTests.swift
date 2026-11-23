@@ -6,13 +6,14 @@ import Foundation
 @testable import ReadingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // Auto-play is one of the ways the reader's page changes without the user touching it. The handler
 // measures its interval on the injected clock, so every case here drives a `TestClock` and nothing
 // sleeps. Each case that expects silence makes the handler tick first: a clock no sleeper was ever
 // registered on stays silent whatever the handler does, and that would pass vacuously.
 @MainActor
-@Suite
+@Suite(.isolatedAppStorage)
 struct AutoPlayHandlerTests {
     private let clock = TestClock()
 
@@ -105,11 +106,7 @@ struct AutoPlayHandlerTests {
     func aTickIsSentAsTheOneTurnIntent() async {
         var gallery = Gallery.preview
         gallery.pageCount = 10
-        var state = withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            ReadingReducer.State(gallery: gallery)
-        }
+        var state = ReadingReducer.State(gallery: gallery)
         state.readingProgress = 3
         let store = TestStore(initialState: state, reducer: ReadingReducer.init)
         let handler = PageHandler()

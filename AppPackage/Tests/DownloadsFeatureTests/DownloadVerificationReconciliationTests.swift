@@ -4,6 +4,7 @@ import DownloadClient
 import Foundation
 import Resources
 import Testing
+import TestingSupport
 
 /// D-G5B-01 and D-SSOT-01: what a `.missingFiles` verification verdict is allowed to make DURABLE, and
 /// what it must leave transient.
@@ -26,6 +27,7 @@ import Testing
 /// after a RELAUNCH — a second coordinator built over the same storage root — because durability is
 /// the whole point of the durable arm and the refusal arm's residual is only honest if its
 /// post-relaunch reading is stated rather than assumed.
+@Suite(.isolatedAppStorage)
 struct DownloadVerificationReconciliationTests: DownloadFeatureTestCase {
     /// The durable arm: a partially-missing gallery is corrected on disk by the verification that
     /// found it, so the record, the count and the start gates all read one truth.

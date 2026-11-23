@@ -13,6 +13,7 @@ import HapticsClient
 import LogsClient
 import Sharing
 import Testing
+import TestingSupport
 import UserDefaultsClient
 
 // Exact-sequence proof for every AppFeature emission site. Each case drives a reducer through a
@@ -24,7 +25,7 @@ import UserDefaultsClient
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsEmissionTests {
 
     // MARK: Tab opens (AppReducer)
@@ -262,11 +263,9 @@ private extension AnalyticsEmissionTests {
         analyticsClient: AnalyticsClient,
         initialTab: TabBarItemType
     ) -> TestStoreOf<AppReducer> {
-        let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
 
         return withDependencies {
-            $0.defaultAppStorage = appStorage
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             var initialState = AppReducer.State()
@@ -284,7 +283,6 @@ private extension AnalyticsEmissionTests {
                     $0.clipboardClient = .noop
                     $0.continuousClock = TestClock()
                     $0.cookieClient = .noop
-                    $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
                     $0.downloadClient = .noop
                     $0.hapticsClient = .noop

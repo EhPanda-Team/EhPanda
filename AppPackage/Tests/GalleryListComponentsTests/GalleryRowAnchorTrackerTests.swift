@@ -2,7 +2,9 @@ import CoreGraphics
 import CustomDump
 @testable import GalleryListComponents
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 @MainActor
 struct GalleryRowAnchorTrackerTests {
     /// Bars cover y < 100 and y >= 700.

@@ -2,10 +2,12 @@
 import Foundation
 import Resources
 import Testing
+import TestingSupport
 
 /// A count of one must read as singular wherever the UI shows a count next to its noun, or a
 /// one-page gallery says "1 pages". English and German have the `one` category; the other locales
 /// have no singular, so their single variant needs no coverage.
+@Suite(.isolatedAppStorage)
 struct GalleryCountWordingTests {
     struct Wording: Sendable {
         let locale: String

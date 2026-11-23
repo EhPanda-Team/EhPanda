@@ -2,8 +2,10 @@ import AppModels
 @testable import DetailFeature
 import Foundation
 import Testing
+import TestingSupport
 
 /// The comment prefill (18.1 D-07, DD-04): English, the approved wording, and a UTC date whatever the device uses.
+@Suite(.isolatedAppStorage)
 struct ReportPrefillTests {
     static let date = Date(timeIntervalSince1970: 1_793_883_840) // 2026-11-05 13:04:00 UTC
 

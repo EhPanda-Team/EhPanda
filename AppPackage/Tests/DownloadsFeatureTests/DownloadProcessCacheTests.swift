@@ -5,8 +5,10 @@ import DownloadClient
 import Foundation
 import LibraryClient
 import Testing
+import TestingSupport
 import UIKit
 
+@Suite(.isolatedAppStorage)
 struct DownloadProcessCacheTests: DownloadFeatureTestCase {
     @Test
     func testProcessDownloadClearsRemoteAssetCacheAfterSuccessfulDownload() async throws {
@@ -273,7 +275,7 @@ private extension DownloadProcessCacheTests {
     ) async throws {
         var deadline = ProgressDeadline(.seconds(1))
         while cachedKeys.contains(where: isCached),
-              deadline.hasTimeLeft() {
+              deadline.hasTimeLeft(), !Task.isCancelled {
             await sleepIgnoringCancellation(for: .milliseconds(10))
         }
     }

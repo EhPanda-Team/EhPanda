@@ -24,7 +24,7 @@ import TestingSupport
 //
 // @MainActor sits on store-driving members only. The pure-helper cases need no actor and are
 // deliberately left free to run off the main actor.
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsEmissionTests: DownloadFeatureTestCase {
 
     // MARK: Layer 1 — the pure transition diff

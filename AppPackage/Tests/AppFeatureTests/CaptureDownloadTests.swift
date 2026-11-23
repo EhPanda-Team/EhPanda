@@ -9,11 +9,13 @@ import Foundation
 import Kingfisher
 import LibraryClient
 import Testing
+import TestingSupport
 
 // A capture of the Downloads screen lists real download folders: the selection's galleries, each
 // seeded into capture-owned storage as a download leaves it, with the page files it holds and a
 // manifest that records their hashes. These cases seed the folders, read them back with the app's
 // own scan and verification, and refuse every selection a folder could not truthfully show.
+@Suite(.isolatedAppStorage)
 struct CaptureDownloadTests {
     /// The saved detail page every test gallery shows has this many pages.
     private static let pageCount = 156
@@ -31,6 +33,7 @@ struct CaptureDownloadTests {
         expectNoDifference(index.downloads.map(\.badge.progress.completedPageCount), [2, Self.pageCount])
         expectNoDifference(index.downloads.map(\.pageCount), [Self.pageCount, Self.pageCount])
         expectNoDifference(index.downloads.map(\.runProgress), [.init(creditedPageIndices: [1, 2]), nil])
+        expectNoDifference(index.downloads.map(\.queuePlace), [nil, nil])
         let store = DownloadStore(rootURL: root)
         for download in index.downloads {
             let held = download.gid == "101" ? Set(1...2) : Set(1...Self.pageCount)
@@ -69,7 +72,30 @@ struct CaptureDownloadTests {
         expectNoDifference(index.downloads.map(\.displayStatus), [.queued, .updateAvailable, .inactive])
         expectNoDifference(index.downloads.map(\.badge.progress.completedPageCount), [0, Self.pageCount, 3])
         expectNoDifference(index.downloads.map(\.localPageURLs.count), [0, Self.pageCount, 3])
+        expectNoDifference(
+            index.downloads.map(\.queuePlace),
+            [DownloadQueuePlace(position: 1, waitingCount: 1), nil, nil]
+        )
         #expect(index.downloads.allSatisfy({ $0.runProgress == nil }))
+    }
+
+    /// A capture has no coordinator, so the waiting rows take their places from the selection's order (A-1).
+    @Test
+    func waitingDownloadsTakeTheirPlacesInTheSelectionsOrder() throws {
+        let fixture = try Self.fixture(downloads: [
+            .init(gallery: "101", status: .queued, completedPages: 0),
+            .init(gallery: "105", status: .queued, completedPages: 3),
+            .init(gallery: "104", status: .completed, completedPages: nil)
+        ])
+        let root = try makeTemporaryDirectory().appending(path: "Downloads", directoryHint: .isDirectory)
+
+        let index = try #require(try makeScene(fixture, scenarioID: "downloads").downloads).seed(into: root)
+
+        expectNoDifference(
+            index.downloads.map(\.queuePlace),
+            [DownloadQueuePlace(position: 1, waitingCount: 2), DownloadQueuePlace(position: 2, waitingCount: 2), nil]
+        )
+        expectNoDifference(index.downloads.map(\.badge.waitingPosition), [1, 2, nil])
     }
 
     /// Owner decision: a mocked complete download is its record and status alone. Its manifest marks

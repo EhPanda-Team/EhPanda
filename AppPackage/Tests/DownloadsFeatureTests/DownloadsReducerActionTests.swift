@@ -13,11 +13,13 @@ import GalleryClient
 import HapticsClient
 import ReadingFeature
 import Testing
+import TestingSupport
 
 // `@MainActor` here is compiler-required, not stylistic: the annotated cases build a TCA
 // `TestStore`, whose `init` and `state` accessor are main-actor-isolated. The unannotated
 // cases deliberately stay nonisolated so they keep running concurrently rather than being
 // hopped onto the main actor by a suite-wide annotation.
+@Suite(.isolatedAppStorage)
 struct DownloadsReducerActionTests: DownloadFeatureTestCase {
     @MainActor
     @Test

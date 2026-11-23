@@ -2,6 +2,7 @@ import AppModels
 @testable import DetailFeature
 import Foundation
 import Testing
+import TestingSupport
 
 /// D-G5D-01: which of Detail's two error-button destinations a record earns.
 ///
@@ -19,7 +20,7 @@ import Testing
 /// pass against the predicate this plan replaces, whose completed-count conjunct was `== 0` — a
 /// condition that held only AFTER a repair run's blanking loop had already emptied the record, never
 /// at the moment a user faced the button.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DetailDownloadRepairPredicateTests {
     /// The old predicate's only true row, kept: a zero-completed record satisfies the widened
     /// conjunct trivially, so the swept case is a strict superset rather than a replacement.

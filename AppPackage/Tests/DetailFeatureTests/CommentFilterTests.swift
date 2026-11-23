@@ -1,12 +1,14 @@
 @testable import DetailFeature
 import Foundation
 import Testing
+import TestingSupport
 
 /// The posting filter's matching rules (DD-04, research §5.3) over a synthetic list, and the bundled list's shape.
 ///
 /// The rules are proved on invented terms; the bundled list is checked for what it must be (six non-empty language
 /// groups, nothing else, every entry stable under normalisation) and, for the short CJK terms with exception words,
 /// against the ordinary and the insulting sentences the language review named.
+@Suite(.isolatedAppStorage)
 struct CommentFilterTests {
     private static let synthetic = CommentFilterTerms(groups: [
         "en": ["Slur", "go away now"],

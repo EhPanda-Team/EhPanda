@@ -4,12 +4,13 @@ import CustomDump
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// Pins the coordinator-side session-identity invariant installed by the round-two gap closure.
 ///
 /// These cases live outside the established lifecycle suite because that file sits at the
 /// project's hard file-length boundary (IN-09).
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadContinuedSessionIdentityTests: DownloadFeatureTestCase {
     /// CR-01: a push that crossed the client seam under S1 must be rejected if S2 becomes the
     /// held client session before that push reaches the client's identity guard.

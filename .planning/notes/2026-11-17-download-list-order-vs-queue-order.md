@@ -1,6 +1,7 @@
 ---
 date: "2026-11-17T13:00:00Z"
-promoted: false
+promoted: true
+promoted_to: .planning/quick/261123-1dk-download-queue-order-and-queue-operation/
 ---
 
 # Download list order vs queue order: recorded, deferred
@@ -11,7 +12,7 @@ Owner direction: record this as a deferred task; do not work on it for now.
 
 ## Investigation task, not a bug
 
-**Status: recorded/deferred per owner decision. Investigation is not authorized now.**
+**Status: resolved by quick task 261123-1dk (owner authorized 2026-11-23; decision A-1).** Findings: the list sorts by display status, then newest folder first, and never reads the queue; the queue runs FIFO by last enqueue; no record ever specified that they match (the sort predates the persisted queue). Owner decision: the waiting group now follows queue order. See `.planning/quick/261123-1dk-download-queue-order-and-queue-operation/` (`261123-1dk-CONTEXT.md` holds the evidence).
 
 The owner observes that the order of the downloads list does not match the queue order. The owner
 notes this may be a misunderstanding of the intended behavior, so this item is an investigation,

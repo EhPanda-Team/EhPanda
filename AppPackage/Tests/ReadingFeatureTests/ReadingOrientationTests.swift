@@ -4,7 +4,9 @@ import Foundation
 @testable import ReadingFeature
 import Sharing
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct ReadingOrientationTests {
     @MainActor
     @Test(arguments: [true, false])
@@ -174,17 +176,13 @@ struct ReadingOrientationTests {
         setting: Setting = .init(), isLandscape: Bool? = nil, supportsAutomaticLayout: Bool = false,
         pageCount: Int = 1, page: Int = 1
     ) -> TestStoreOf<ReadingReducer> {
-        withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            var gallery = Gallery.preview
-            gallery.pageCount = pageCount
-            var state = ReadingReducer.State(gallery: gallery)
-            state.$setting.withLock({ $0 = setting })
-            state.layoutIsLandscape = isLandscape
-            state.supportsAutomaticLayout = supportsAutomaticLayout
-            state.readingProgress = page
-            return TestStore(initialState: state, reducer: ReadingReducer.init)
-        }
+        var gallery = Gallery.preview
+        gallery.pageCount = pageCount
+        var state = ReadingReducer.State(gallery: gallery)
+        state.$setting.withLock({ $0 = setting })
+        state.layoutIsLandscape = isLandscape
+        state.supportsAutomaticLayout = supportsAutomaticLayout
+        state.readingProgress = page
+        return TestStore(initialState: state, reducer: ReadingReducer.init)
     }
 }

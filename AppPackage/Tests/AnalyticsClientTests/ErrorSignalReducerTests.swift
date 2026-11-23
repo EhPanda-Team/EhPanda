@@ -2,6 +2,7 @@ import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import Testing
+import TestingSupport
 
 // The transition semantics of `signalsErrors`, proven on a fixture reducer whose actions do nothing but write
 // the observed state. Every case asserts the exact sequence of recorded signals, because the operator's whole
@@ -10,7 +11,7 @@ import Testing
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated,
 // so every store-driving case needs it. Annotating the type instead would make the suite's protocol
 // conformances main-actor-isolated too (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct ErrorSignalReducerTests {
     // Distinctive enough that a substring search for it cannot collide with any rendering a signal carries.
     private static let sentinel = "zqxsentinelerrorsignal5203"

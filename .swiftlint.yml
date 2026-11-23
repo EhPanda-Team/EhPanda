@@ -267,6 +267,22 @@ custom_rules:
       - string
     severity: error
 
+  # Bans Sharing's `UserDefaults.inMemory` in tests (quick task 261123-bcj, D-1): it names its suite by a path under
+  # the temporary directory, and such file-backed suites stop reflecting new writes under parallel test load.
+  # `(?!\s*\()` keeps `.inMemory("key")` (InMemoryKey) legal; the lookbehinds keep FileStorage's `.inMemory` legal.
+  no_in_memory_user_defaults:
+    name: "No In-Memory UserDefaults"
+    included:
+      - '.*/AppPackage/Tests/.*'
+      - '.*/EhPandaUITests/.*'
+    regex: '(?<!FileStorage)(?<!defaultFileStorage = )\.inMemory\b(?!\s*\()'
+    message: 'UserDefaults.inMemory is a file-backed suite that goes stale under parallel test load. Give the suite .isolatedAppStorage (TestingSupport) and read @Dependency(\.defaultAppStorage); an XCTest case calls makeIsolatedAppStorage().'
+    excluded_match_kinds:
+      - comment
+      - doccomment
+      - string
+    severity: error
+
   no_minimum_scale_factor:
     name: "No minimumScaleFactor"
     # Banned outright, not grandfathered (Phase 16 D-14). Landed only once the tree reached 0 sites,

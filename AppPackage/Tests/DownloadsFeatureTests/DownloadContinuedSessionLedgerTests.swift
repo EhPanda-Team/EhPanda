@@ -3,6 +3,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// The multi-gallery half of the continued session's arithmetic: what the card reports as galleries
 /// leave the schedulable set — by finishing or by being paused — and what it reports when one of
@@ -30,7 +31,7 @@ import Testing
 /// to prove the product's entry point reaches the ledger. It converges on `scheduleNextIfNeeded`,
 /// whose tail reconciles the session, so that case asserts the last recorded update rather than a
 /// list of them.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// The pair a drained three-gallery queue owes, whatever order its galleries finished in.
     ///

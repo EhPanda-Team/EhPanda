@@ -5,6 +5,7 @@ import CookieClient
 import Foundation
 import Sharing
 import Testing
+import TestingSupport
 
 // Two groups, split along the seam the source is split on. `snapshot` is pure, so its group is a
 // plain exhaustive sweep with no shared state at all — every enum case, both states of every flag,
@@ -12,7 +13,7 @@ import Testing
 // back from the source. The one `live` test is the only one that touches process-global storage,
 // and it exists to prove the single thing the sweeps cannot: that `live` re-reads the shared
 // setting on every call instead of snapshotting it once (D-11, research Pitfall 7).
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsDefaultParametersTests {
     private static let keys: Set<String> = [
         "App.host", "App.loggedIn", "App.readingDirection",
@@ -222,13 +223,11 @@ struct AnalyticsDefaultParametersTests {
     // value at configuration time this would fail on the second read — which is exactly the D-11
     // regression this test exists to catch. Exactly one `@SharedReader(.didLogin)` is alive at a time
     // (each `live` call opens and closes its own), honoring the one-live-reader constraint the
-    // `DidLoginKeyTests` header documents; the shared setting is isolated to in-memory defaults so the
-    // suite neither pollutes nor is polluted by the process-wide holder.
+    // `DidLoginKeyTests` header documents; the shared setting lives in the case's own suite from
+    // `.isolatedAppStorage`, so the suite neither pollutes nor is polluted by the process-wide holder.
     @Test
     func liveReReadsTheSharedSettingOnEveryCall() {
-        let defaults = UserDefaults.inMemory
         withDependencies {
-            $0.defaultAppStorage = defaults
             $0.cookieClient = .testing()
         } operation: {
             @Shared(.setting) var setting

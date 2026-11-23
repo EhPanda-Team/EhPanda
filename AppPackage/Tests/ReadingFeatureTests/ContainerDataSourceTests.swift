@@ -1,12 +1,13 @@
 import AppModels
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 
 // Wave-0 regression guard for DEP-05. Freezes `ReadingReducer.State.containerDataSource` — the
 // dual-page / cover-exception stack collapsing that produces the `[Int]` the pager pages over —
 // so the paging-construct swap cannot silently change what a "page" is. `isLandscape:` is always
 // passed explicitly; the suite never reads the `DeviceUtil.isLandscape` process global.
-@Suite
+@Suite(.isolatedAppStorage)
 struct ContainerDataSourceTests {
     private func makeState(pageCount: Int) -> ReadingReducer.State {
         var gallery = Gallery.preview

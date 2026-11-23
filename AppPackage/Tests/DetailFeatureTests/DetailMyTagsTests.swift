@@ -9,12 +9,14 @@ import MyTagsClient
 import Resources
 import Sharing
 import Testing
+import TestingSupport
 
 // A tag's My Tags item on Detail (port of PR 462 item 10, design approved 2026-11-22): Add to My Tags opens Add Tag
 // for the tag set last chosen, Remove from My Tags removes the tag from that set at once. The tags and sets are
 // invented.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated.
+@Suite(.isolatedAppStorage)
 struct DetailMyTagsTests {
     private static let refusal = "No matching tag found"
     private static let glasses = MyTag(
@@ -108,25 +110,19 @@ struct DetailMyTagsTests {
         myTags: MyTags?,
         client: (inout MyTagsClient) -> Void = { _ in }
     ) -> TestStoreOf<DetailReducer> {
-        let defaults = UserDefaults.inMemory
         var myTagsClient = MyTagsClient.unimplemented
         client(&myTagsClient)
-        return withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            let state = DetailReducer.State(
-                gallery: Gallery(
-                    gid: "42", token: "abc123", title: "Seed", rating: 4.5, tags: [],
-                    category: .doujinshi, pageCount: 30, postedDate: .init(timeIntervalSince1970: 0),
-                    coverURL: nil, galleryURL: .mock
-                )
+        let state = DetailReducer.State(
+            gallery: Gallery(
+                gid: "42", token: "abc123", title: "Seed", rating: 4.5, tags: [],
+                category: .doujinshi, pageCount: 30, postedDate: .init(timeIntervalSince1970: 0),
+                coverURL: nil, galleryURL: .mock
             )
-            state.$user.withLock({ $0.myTags = myTags })
-            return TestStore(initialState: state, reducer: DetailReducer.init) {
-                $0.analyticsClient = .noop
-                $0.defaultAppStorage = defaults
-                $0.myTagsClient = myTagsClient
-            }
+        )
+        state.$user.withLock({ $0.myTags = myTags })
+        return TestStore(initialState: state, reducer: DetailReducer.init) {
+            $0.analyticsClient = .noop
+            $0.myTagsClient = myTagsClient
         }
     }
 

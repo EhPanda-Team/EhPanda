@@ -1,6 +1,7 @@
 @testable import AnalyticsClient
 import AppModels
 import Testing
+import TestingSupport
 
 // Every spelling is pinned case by case rather than derived from `allCases`. These raw values are
 // dashboard column values: renaming a case silently renames the column and orphans every signal
@@ -11,7 +12,7 @@ struct TabFixture: Sendable {
     let tab: AppTab
 }
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsVocabularyTests {
     @Test
     func homeSectionSpellsEveryCase() {

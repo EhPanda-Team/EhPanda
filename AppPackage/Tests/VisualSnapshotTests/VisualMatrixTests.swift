@@ -110,10 +110,11 @@ final class VisualMatrixTests: XCTestCase {
             to: coordinateFixtures, sourceDigest: configuration.fixtureDigest,
             scenarios: Data(contentsOf: fixtures.appending(path: "scenarios.json"))
         )
+        let appStorage = try makeIsolatedAppStorage()
         try await withDependencies {
             $0.continuousClock = TestClock()
             $0.date.now = PublicVisualFixtures.fixedDate
-            $0.defaultAppStorage = UserDefaults.inMemory
+            $0.defaultAppStorage = appStorage
             $0.defaultInMemoryStorage = InMemoryStorage()
             $0.uuid = .incrementing
             $0.deviceClient = .live

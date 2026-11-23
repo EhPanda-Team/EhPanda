@@ -1,6 +1,7 @@
 @testable import AnalyticsClient
 import AppModels
 import Testing
+import TestingSupport
 
 struct ErrorKindFixture: Sendable {
     let error: AppError
@@ -12,7 +13,7 @@ struct ErrorCategoryFixture: Sendable {
     let category: AnalyticsErrorCategory
 }
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct AppErrorKindTests {
     // Distinctive enough that a substring search for it cannot collide with a case name or any
     // other rendering the mirrored value legitimately carries.

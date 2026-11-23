@@ -3,6 +3,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// Pins ACTIVE-OWNERSHIP CONVERGENCE across the removal exits and the folder-move exits.
 ///
@@ -11,7 +12,7 @@ import Testing
 /// both the scheduling and post-failure observer assertions; a branch-only case would preserve only
 /// the path the review happened to report. The move cases below extend the same invariant to the
 /// one family member the phase's convergence rounds never swept.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadOwnershipConvergenceTests: DownloadFeatureTestCase {
     @Test(arguments: RemovalFailureCase.all)
     func testAFailedRemovalStillConvergesTheQueue(

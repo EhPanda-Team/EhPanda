@@ -7,6 +7,7 @@ import DownloadClient
 import Foundation
 import HapticsClient
 import Testing
+import TestingSupport
 
 // Presentation-driven lifecycle for the two routes that install a gallery detail *modally* rather
 // than by pushing it: the tap route of a window regular in both dimensions (`presentGalleryDetail`)
@@ -20,6 +21,7 @@ import Testing
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
+@Suite(.isolatedAppStorage)
 struct PresentationLifecycleTests {
     @MainActor
     @Test

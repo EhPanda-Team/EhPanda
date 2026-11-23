@@ -4,6 +4,7 @@ import DownloadClient
 import Foundation
 import Synchronization
 import Testing
+import TestingSupport
 
 /// Sub-page credit for transfers still in flight (G-15-2D): what it counts, when it may move, and
 /// how it hands over to whole-page credit.
@@ -11,7 +12,7 @@ import Testing
 /// **The `now` seam is frozen throughout.** The push throttle compares against it, so a real clock
 /// would make "no push inside one second" a measurement of machine load rather than of the rule.
 /// Every case that needs time to pass moves the frozen date explicitly.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadPageTransferProgressTests: DownloadFeatureTestCase {
     private static let pageCount = 6
     private static let completedPageCount = 2

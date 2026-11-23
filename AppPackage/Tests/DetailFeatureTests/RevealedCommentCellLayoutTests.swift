@@ -3,6 +3,7 @@ import AppModels
 import Foundation
 import SwiftUI
 import Testing
+import TestingSupport
 import UIKit
 
 /// A revealed comment in the list (UI-SPEC C-7) keeps its whole header at every size: offered the height it asks for,
@@ -10,6 +11,7 @@ import UIKit
 /// each child's ideal, so the C-7 line above the comment could take a share the comment needed, and the comment's
 /// header, the one part of it that gives way, lost its date's second line to an ellipsis at AX5 (18-UAT, UI review
 /// top fix 1). The comment alone, before the block, has no sibling to share with.
+@Suite(.isolatedAppStorage)
 @MainActor
 struct RevealedCommentCellLayoutTests {
     private static let comment = GalleryComment(

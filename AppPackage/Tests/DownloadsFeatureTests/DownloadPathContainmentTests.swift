@@ -1,7 +1,9 @@
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadPathContainmentTests {
     @Test(arguments: [URL.DirectoryHint.isDirectory, .notDirectory])
     func relativePathsIgnoreDirectoryHints(_ hint: URL.DirectoryHint) {

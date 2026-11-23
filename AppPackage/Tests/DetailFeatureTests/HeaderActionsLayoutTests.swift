@@ -2,8 +2,9 @@ import CoreGraphics
 @testable import DetailFeature
 import Foundation
 import Testing
+import TestingSupport
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct HeaderActionsLayoutTests {
     @Test
     func categoryBoundarySelectsAllActionsThenTwoPlusOne() {

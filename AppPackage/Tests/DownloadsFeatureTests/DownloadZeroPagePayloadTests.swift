@@ -5,6 +5,7 @@ import ComposableArchitecture
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 import UIKit
 
 /// Zero-page payload coverage for G-15-14.
@@ -28,6 +29,7 @@ import UIKit
 /// (`pageCount > 0 ? … : [:]`) and `reusableExistingManifest` (`pageCount > 0 ? Set(1...) : Set()`),
 /// which establish that zero is a modeled input rather than an impossible one — plus post-fix GREEN
 /// below.
+@Suite(.isolatedAppStorage)
 struct DownloadZeroPagePayloadTests: DownloadFeatureTestCase {
     // MARK: - Fixtures
 

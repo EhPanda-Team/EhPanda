@@ -8,6 +8,7 @@ import DownloadClient
 import Foundation
 @testable import HomeFeature
 import Testing
+import TestingSupport
 
 // Presentation-driven lifecycle: pushing a screen is what starts its work, so these tests assert the
 // load effects fire on the navigation transition rather than on a view callback, and that the guards
@@ -21,6 +22,7 @@ import Testing
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
+@Suite(.isolatedAppStorage)
 struct HomePresentationLifecycleTests {
     @MainActor
     @Test
@@ -192,27 +194,20 @@ struct HomePresentationLifecycleTests {
 private extension HomePresentationLifecycleTests {
     @MainActor
     func makeHomeStore(downloadClient: DownloadClient = .noop) -> TestStoreOf<HomeReducer> {
-        let appStorage = UserDefaults.inMemory
+        var state = HomeReducer.State()
+        // Populated so the Home root's own presentation load stays out of these assertions.
+        state.popularGalleries = [.preview]
 
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            var state = HomeReducer.State()
-            // Populated so the Home root's own presentation load stays out of these assertions.
-            state.popularGalleries = [.preview]
-
-            return TestStore(
-                initialState: state,
-                reducer: HomeReducer.init,
-                withDependencies: {
-                    $0.analyticsClient = .noop
-                    $0.cookieClient = .noop
-                    $0.defaultAppStorage = appStorage
-                    $0.downloadClient = downloadClient
-                    $0.date = .constant(.init(timeIntervalSince1970: 0))
-                }
-            )
-        }
+        return TestStore(
+            initialState: state,
+            reducer: HomeReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.cookieClient = .noop
+                $0.downloadClient = downloadClient
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
+            }
+        )
     }
 }
 

@@ -44,6 +44,10 @@ import UIKit
 ///   a dropped tap. It is the same refusal the inspector reports (WR-05), seen from this screen, and
 ///   the failure arm now sets `toast` through the shared `actionFailureToast` mapping. The success
 ///   arm stays silent: `observeDownloads` re-renders the row with its new status.
+/// - `performQueueOperationDone` — **reports** failure through the same `actionFailureToast` mapping, for the
+///   reason `toggleDownloadPauseDone` does: a refused queue operation (`.notFound` for a record deleted
+///   underneath the row, `.unknown` for a status or queue place that no longer allows it) moves nothing on
+///   screen. The success arm stays silent: `observeDownloads` re-renders the list in its new order.
 @Reducer
 public struct DownloadsReducer: Sendable {
     @CasePathable
@@ -157,6 +161,8 @@ public struct DownloadsReducer: Sendable {
         )
         case toggleDownloadPause(String)
         case toggleDownloadPauseDone(Result<Void, AppError>)
+        case performQueueOperation(gid: String, operation: DownloadQueueOperation)
+        case performQueueOperationDone(Result<Void, AppError>)
         case updateDownload(String)
         case updateDownloadDone(Result<Void, AppError>)
         case deleteDownload(String)
@@ -409,6 +415,23 @@ public struct DownloadsReducer: Sendable {
                 // never registered. No reload accompanies it, unlike the inspector's: the rows ARE
                 // the live `observeDownloads` stream, so both refusal arms are already reflected
                 // there. The success arm is silent for that same reason.
+                if case .failure(let error) = result {
+                    state.toast = error.actionFailureToast
+                }
+                return .none
+
+            case .performQueueOperation(let gid, let operation):
+                return .run { send in
+                    try await downloadClient.performQueueOperation(gid, operation)
+                    await send(.performQueueOperationDone(.success(())))
+                } catch: { error, send in
+                    await send(.performQueueOperationDone(.failure(AppError(error))))
+                }
+
+            case .performQueueOperationDone(let result):
+                // Disposition (list-level policy on `DownloadsReducer`): reports on failure, as
+                // `toggleDownloadPauseDone` does: a refused queue operation moves nothing on screen. The
+                // success arm is silent: `observeDownloads` re-renders the list in its new order.
                 if case .failure(let error) = result {
                     state.toast = error.actionFailureToast
                 }

@@ -1,6 +1,7 @@
 @testable import AnalyticsClient
 import AppModels
 import Testing
+import TestingSupport
 
 // One fixture per assertion pair. A named struct rather than a positional tuple: the table below
 // is long, and `.0`/`.1` reads would carry no meaning at the assertion site.
@@ -10,7 +11,7 @@ struct SearchShapeFixture: Sendable {
     let usedTagSyntax: Bool
 }
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct SearchShapeTests {
     // Distinctive enough that a substring search for it cannot collide with a bucket spelling or
     // any other rendering the reduced value legitimately contains.

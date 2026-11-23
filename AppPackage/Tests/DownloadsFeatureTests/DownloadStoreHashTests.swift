@@ -4,7 +4,9 @@ import DownloadClient
 import Foundation
 import Resources
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadStoreHashTests {
     @Test
     func testVerifyReportsCorruptedPageImageData() throws {

@@ -5,8 +5,9 @@ import ComposableArchitecture
 import GalleryClient
 import NetworkingFeature
 import Testing
+import TestingSupport
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct GridPaginationTests {
     @MainActor
     @Test

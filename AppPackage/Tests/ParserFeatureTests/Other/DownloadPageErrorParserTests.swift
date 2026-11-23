@@ -8,6 +8,7 @@ import ParserFeature
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadPageErrorParserTests: TestHelper {
     @Test
     func testIPBannedPageMapsToIPBanned() throws {

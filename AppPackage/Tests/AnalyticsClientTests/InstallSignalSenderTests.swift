@@ -5,14 +5,15 @@ import CryptoKit
 import Foundation
 import Sharing
 import Testing
+import TestingSupport
 
 // D-06b and D-06c as tests: the one install signal is one request in the SDK's wire format, with seven
 // fields and a payload of exactly one key, sent once per install. JSON is checked by key set, decoded
 // through `JSONSerialization`, so a field added to the request fails here rather than shipping.
 //
-// Each case gets its own in-memory defaults for `@Shared(.installSignal)`, so the cases run in
-// parallel; a "relaunch" is a new sender over the same defaults.
-@Suite
+// Each case's `@Shared(.installSignal)` lives in the case's own suite from `.isolatedAppStorage`, so the
+// cases run in parallel; a "relaunch" is a new sender over the same suite.
+@Suite(.isolatedAppStorage)
 struct InstallSignalSenderTests {
     private static let appID = "TEST-APP-ID"
     private static let salt = "test-salt"
@@ -26,7 +27,7 @@ struct InstallSignalSenderTests {
     func theFirstSendIsOneRequestInTheSDKWireFormat(channel: DistributionChannel) async throws {
         let harness = Harness(responses: [.status(200)], channel: channel)
 
-        await harness.ensureSent()
+        await harness.sender.ensureSent()
 
         let request = try #require(harness.transport.requests.value.first)
         #expect(harness.transport.requests.value.count == 1)
@@ -65,8 +66,8 @@ struct InstallSignalSenderTests {
     func aSecondSendOnTheSameSenderMakesNoRequest() async {
         let harness = Harness(responses: [.status(200), .status(200)])
 
-        await harness.ensureSent()
-        await harness.ensureSent()
+        await harness.sender.ensureSent()
+        await harness.sender.ensureSent()
 
         #expect(harness.transport.requests.value.count == 1)
     }
@@ -74,10 +75,10 @@ struct InstallSignalSenderTests {
     @Test
     func aRelaunchOverTheSameStorageMakesNoRequest() async {
         let harness = Harness(responses: [.status(200), .status(200)])
-        await harness.ensureSent()
+        await harness.sender.ensureSent()
 
         let relaunched = harness.relaunched()
-        await relaunched.ensureSent()
+        await relaunched.sender.ensureSent()
 
         #expect(harness.transport.requests.value.count == 1)
         #expect(relaunched.transport.requests.value.isEmpty)
@@ -88,13 +89,9 @@ struct InstallSignalSenderTests {
         let harness = Harness(responses: [.status(200), .status(200)], yieldsInTransport: true)
 
         let sender = harness.sender
-        await withDependencies {
-            $0.defaultAppStorage = harness.defaults
-        } operation: {
-            async let first: Void = sender.ensureSent()
-            async let second: Void = sender.ensureSent()
-            _ = await (first, second)
-        }
+        async let first: Void = sender.ensureSent()
+        async let second: Void = sender.ensureSent()
+        _ = await (first, second)
 
         #expect(harness.transport.requests.value.count == 1)
         #expect(harness.state.settled)
@@ -106,7 +103,7 @@ struct InstallSignalSenderTests {
     func aServerErrorIsRetriedOnceAfterTenSecondsWithTheSameUser() async throws {
         let harness = Harness(responses: [.status(500), .status(200)])
 
-        await harness.ensureSent()
+        await harness.sender.ensureSent()
 
         let requests = harness.transport.requests.value
         #expect(requests.count == 2)
@@ -120,7 +117,7 @@ struct InstallSignalSenderTests {
     func transportErrorsBackOffThenWaitForTheNextApplyWithTheSameUser() async throws {
         let harness = Harness(responses: [.failure, .failure, .failure, .failure, .status(200)])
 
-        await harness.ensureSent()
+        await harness.sender.ensureSent()
 
         #expect(harness.transport.requests.value.count == 4)
         #expect(harness.sleeps.value == [.seconds(10), .seconds(20), .seconds(40)])
@@ -129,7 +126,7 @@ struct InstallSignalSenderTests {
 
         // The next apply (here, a relaunch) sends once more, as the same user, and settles.
         let relaunched = harness.relaunched()
-        await relaunched.ensureSent()
+        await relaunched.sender.ensureSent()
 
         let request = try #require(relaunched.transport.requests.value.first)
         #expect(relaunched.transport.requests.value.count == 1)
@@ -142,7 +139,7 @@ struct InstallSignalSenderTests {
     func aRejectedSignalSettlesWithoutARetry(status: Int) async {
         let harness = Harness(responses: [.status(status), .status(200)])
 
-        await harness.ensureSent()
+        await harness.sender.ensureSent()
 
         #expect(harness.transport.requests.value.count == 1)
         #expect(harness.sleeps.value.isEmpty)
@@ -153,7 +150,7 @@ struct InstallSignalSenderTests {
     func everySuccessStatusSettles(status: Int) async {
         let harness = Harness(responses: [.status(status)])
 
-        await harness.ensureSent()
+        await harness.sender.ensureSent()
 
         #expect(harness.transport.requests.value.count == 1)
         #expect(harness.state.settled)
@@ -163,7 +160,7 @@ struct InstallSignalSenderTests {
     func otherStatusesAreRetried(status: Int) async {
         let harness = Harness(responses: [.status(status), .status(200)])
 
-        await harness.ensureSent()
+        await harness.sender.ensureSent()
 
         #expect(harness.transport.requests.value.count == 2)
         #expect(harness.state.settled)
@@ -175,8 +172,8 @@ struct InstallSignalSenderTests {
     func aNilAppIDNeverCallsTheTransport() async {
         let harness = Harness(responses: [.status(200)], appID: nil)
 
-        await harness.ensureSent()
-        await harness.ensureSent()
+        await harness.sender.ensureSent()
+        await harness.sender.ensureSent()
 
         #expect(harness.transport.requests.value.isEmpty)
         #expect(harness.state == InstallSignalState())
@@ -277,10 +274,9 @@ final class RecordingTransport: Sendable {
     }
 }
 
-/// One sender over its own in-memory defaults, with a fixed clock, numbered UUIDs and a sleep that
+/// One sender over the case's suite, with a fixed clock, numbered UUIDs and a sleep that
 /// records its duration and returns at once.
 struct Harness {
-    let defaults: UserDefaults
     let transport: RecordingTransport
     let sleeps = LockIsolated<[Duration]>([])
     let sender: InstallSignalSender
@@ -293,10 +289,8 @@ struct Harness {
         responses: [CannedResponse],
         channel: DistributionChannel = .source,
         appID: String? = "TEST-APP-ID",
-        yieldsInTransport: Bool = false,
-        defaults: UserDefaults = .inMemory
+        yieldsInTransport: Bool = false
     ) {
-        self.defaults = defaults
         let transport = RecordingTransport(responses: responses, yields: yieldsInTransport)
         self.transport = transport
         let counter = LockIsolated(0)
@@ -319,23 +313,11 @@ struct Harness {
 
     /// A new sender over the same storage, as after a relaunch.
     func relaunched(responses: [CannedResponse] = []) -> Self {
-        Self(responses: responses, defaults: defaults)
-    }
-
-    func ensureSent() async {
-        await withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            await sender.ensureSent()
-        }
+        Self(responses: responses)
     }
 
     var state: InstallSignalState {
-        withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            @Shared(.installSignal) var state
-            return state
-        }
+        @Shared(.installSignal) var state
+        return state
     }
 }

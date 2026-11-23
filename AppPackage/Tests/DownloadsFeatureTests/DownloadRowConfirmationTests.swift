@@ -6,6 +6,7 @@ import DownloadClient
 @testable import DownloadsFeature
 import Foundation
 import Testing
+import TestingSupport
 
 /// The delete confirmation belongs to one row, and these assertions are only possible because it
 /// does.
@@ -41,6 +42,7 @@ import Testing
 /// touched. The one programmatic filter write — `fetchFoldersDone` resetting a vanished folder to
 /// `.all` — WIDENS the visible set, so it cannot remove a row either. A speculative case there would
 /// pin a path no user can take.
+@Suite(.isolatedAppStorage)
 struct DownloadRowConfirmationTests: DownloadFeatureTestCase {
     @MainActor
     @Test

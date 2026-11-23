@@ -6,6 +6,7 @@ import Foundation
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadImageParsingCacheTests: DownloadFeatureTestCase {
     @Test
     func testCachedKokomadePlaceholderStoredUnderNormalImageURLIsRejected() async throws {

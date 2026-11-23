@@ -2,9 +2,11 @@
 import ComposableArchitecture
 import Foundation
 import Testing
+import TestingSupport
 
 /// The compact Library picker's remembered group (261117-tyj, owner decisions A-1 and A-2): the full group, a strict
 /// versioned decode, and a key whose absence means nothing is remembered.
+@Suite(.isolatedAppStorage)
 struct LibraryPickerChoiceTests {
     @Test(arguments: [
         LibraryGroup.favorites(-1),
@@ -44,41 +46,28 @@ struct LibraryPickerChoiceTests {
 
     @Test
     func noStoredDataReadsNothingRemembered() {
-        withDependencies {
-            $0.defaultAppStorage = .inMemory
-        } operation: {
-            @Shared(.libraryPickerChoice) var choice
-            #expect(choice == nil)
-        }
+        @Shared(.libraryPickerChoice) var choice
+        #expect(choice == nil)
     }
 
     @Test
     func aCorruptBlobReadsNothingRemembered() {
-        let defaults = UserDefaults.inMemory
+        @Dependency(\.defaultAppStorage) var defaults
         defaults.set(Data("not json".utf8), forKey: "libraryPickerChoice")
-        withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            @Shared(.libraryPickerChoice) var choice
-            #expect(choice == nil)
-        }
+        @Shared(.libraryPickerChoice) var choice
+        #expect(choice == nil)
     }
 
     @Test
     func aNilWriteReadsBackAsNothingRemembered() {
-        let defaults = UserDefaults.inMemory
-        withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            @Shared(.libraryPickerChoice) var choice
-            $choice.withLock({ $0 = LibraryPickerChoice(group: .downloads(.folder("Reading"))) })
-            #expect(choice != nil)
+        @Shared(.libraryPickerChoice) var choice
+        $choice.withLock({ $0 = LibraryPickerChoice(group: .downloads(.folder("Reading"))) })
+        #expect(choice != nil)
 
-            $choice.withLock({ $0 = nil })
-            #expect(choice == nil)
-            @Shared(.libraryPickerChoice) var reopened
-            #expect(reopened == nil)
-        }
+        $choice.withLock({ $0 = nil })
+        #expect(choice == nil)
+        @Shared(.libraryPickerChoice) var reopened
+        #expect(reopened == nil)
     }
 }
 

@@ -6,10 +6,11 @@ import HapticsClient
 import QuickSearchFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // Save Search on the tag search results page reached from a gallery's details (261123-1ep). Each
-// case owns its in-memory defaults, so the suite runs in parallel.
-@Suite
+// case owns its app storage, so the suite runs in parallel.
+@Suite(.isolatedAppStorage)
 struct DetailSearchSaveSearchTests {
     private static let keyword = "language:english"
 
@@ -62,20 +63,14 @@ struct DetailSearchSaveSearchTests {
 
     @MainActor
     private func makeStore(keyword: String, existing: [SavedSearch] = []) -> TestStoreOf<DetailSearchReducer> {
-        let appStorage = UserDefaults.inMemory
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            @Shared(.savedSearches) var savedSearches
-            $savedSearches.withLock({ $0 = existing })
-            return TestStore(
-                initialState: DetailSearchReducer.State(keyword: keyword),
-                reducer: DetailSearchReducer.init
-            ) {
-                $0.defaultAppStorage = appStorage
-                $0.hapticsClient = .noop
-                $0.uuid = .incrementing
-            }
+        @Shared(.savedSearches) var savedSearches
+        $savedSearches.withLock({ $0 = existing })
+        return TestStore(
+            initialState: DetailSearchReducer.State(keyword: keyword),
+            reducer: DetailSearchReducer.init
+        ) {
+            $0.hapticsClient = .noop
+            $0.uuid = .incrementing
         }
     }
 }

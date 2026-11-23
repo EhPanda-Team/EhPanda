@@ -4,7 +4,9 @@ import FileClient
 import Foundation
 import HapticsClient
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct TorrentsFeatureTests {
     @MainActor
     @Test

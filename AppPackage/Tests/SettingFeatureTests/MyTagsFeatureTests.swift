@@ -10,12 +10,14 @@ import Resources
 @testable import SettingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // The My Tags page (port of PR 462 item 10, design approved 2026-11-22): reading, choosing a tag set, its Enabled flag
 // and default colour, Add Tag and Edit Tag, removing, the site's page as the fallback, and the Account row that opens
 // it. The tags, sets and credentials are invented.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated.
+@Suite(.isolatedAppStorage)
 struct MyTagsFeatureTests {
     private static let refusal = "No matching tag found"
     private static let green = SiteColor(red: 0x22, green: 0xAA, blue: 0x55)
@@ -287,18 +289,12 @@ struct MyTagsFeatureTests {
     @MainActor
     @Test
     func theAccountRowPushesThePageWhichReads() async throws {
-        let defaults = UserDefaults.inMemory
-        let store = withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            var state = SettingReducer.State()
-            state.path.append(.account(.init()))
-            return TestStore(initialState: state, reducer: SettingReducer.init) {
-                $0.analyticsClient = .noop
-                $0.cookieClient = .previewLoggedIn
-                $0.defaultAppStorage = defaults
-                $0.myTagsClient.fetchMyTags = { (_: GalleryHost) async throws(AppError) in Self.response }
-            }
+        var state = SettingReducer.State()
+        state.path.append(.account(.init()))
+        let store = TestStore(initialState: state, reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
+            $0.cookieClient = .previewLoggedIn
+            $0.myTagsClient.fetchMyTags = { (_: GalleryHost) async throws(AppError) in Self.response }
         }
         store.exhaustivity = .off
         let accountID = try #require(store.state.path.ids.last)
@@ -321,24 +317,18 @@ struct MyTagsFeatureTests {
         clock: any Clock<Duration> = TestClock(),
         client: (inout MyTagsClient) -> Void = { _ in }
     ) -> TestStoreOf<MyTagsFeature> {
-        let defaults = UserDefaults.inMemory
         var myTagsClient = MyTagsClient.unimplemented
         client(&myTagsClient)
-        return withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            var state = MyTagsFeature.State()
-            state.$user.withLock({ $0.myTags = myTags })
-            if credentials {
-                state.apiuid = 1234567
-                state.apikey = "0123456789abcdef"
-            }
-            return TestStore(initialState: state, reducer: MyTagsFeature.init) {
-                $0.continuousClock = clock
-                $0.cookieClient = signedIn ? .previewLoggedIn : .noop
-                $0.defaultAppStorage = defaults
-                $0.myTagsClient = myTagsClient
-            }
+        var state = MyTagsFeature.State()
+        state.$user.withLock({ $0.myTags = myTags })
+        if credentials {
+            state.apiuid = 1234567
+            state.apikey = "0123456789abcdef"
+        }
+        return TestStore(initialState: state, reducer: MyTagsFeature.init) {
+            $0.continuousClock = clock
+            $0.cookieClient = signedIn ? .previewLoggedIn : .noop
+            $0.myTagsClient = myTagsClient
         }
     }
 

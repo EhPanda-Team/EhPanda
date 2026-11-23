@@ -5,6 +5,7 @@ import DownloadClient
 import Foundation
 import Resources
 import Testing
+import TestingSupport
 
 /// CR-03: an ordinary READ of a downloaded gallery may not destroy one of its files.
 ///
@@ -28,6 +29,7 @@ import Testing
 /// exactly what these routes never touched. The record side is stated twice over — the manifest
 /// bytes on disk, and the reading a FRESH coordinator derives from them — so "the record still
 /// claims it" means the persisted basis rather than this session's memory of it.
+@Suite(.isolatedAppStorage)
 struct DownloadReadPathNonMutationTests: DownloadFeatureTestCase {
     /// Opening a downloaded gallery whose only page file has been truncated behind the app's back.
     ///

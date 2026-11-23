@@ -1,11 +1,12 @@
 import CoreGraphics
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 
 // Pins which touches count as on the reader slider's thumb. The preview opens for a touch that begins on the thumb and
 // for none that begins on the track away from it. The slider is 248.4 pt wide on an iPhone 11, its thumb 37 pt wide,
 // so the thumb's centre travels from 18.5 pt to 229.9 pt.
-@Suite
+@Suite(.isolatedAppStorage)
 struct SliderThumbTests {
     private let range: ClosedRange<Float> = 1...156
     private let width: CGFloat = 248.4

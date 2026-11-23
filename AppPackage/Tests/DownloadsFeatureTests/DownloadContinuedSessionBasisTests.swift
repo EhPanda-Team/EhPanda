@@ -3,6 +3,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// The session's counted basis and the monotonic floor above it: what the card reports when the
 /// coordinator itself CORRECTS that basis (D-G6-01) or SCOPES the read that computes it (WR-01).
@@ -32,7 +33,7 @@ import Testing
 /// product's own `pause`. The correction's push is the announcing wrapper's own. The only
 /// test-issued pushes are macro-cadence ones between settled steps, which is this suite family's
 /// documented idiom for asserting arithmetic rather than scheduling timing.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadContinuedSessionBasisTests: DownloadFeatureTestCase {
     /// D-G6-01, at the one shape a serial queue can actually fail in: a counted gallery is
     /// corrected, departs WITHOUT re-earning the blanked pages, and the survivor's next pushes

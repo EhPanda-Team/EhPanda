@@ -2,11 +2,12 @@ import AppModels
 import CoreGraphics
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 
 /// The height a page of the vertical strip takes before its image loads and after (`StripPageLayout`), at the widths
 /// of the iPhones (three pixels per point) and iPads (two) the reader runs on, portrait and landscape, for pages of no
 /// known size and of the sizes galleries serve.
-@Suite
+@Suite(.isolatedAppStorage)
 struct StripPageLayoutTests {
     struct WidthCase: CustomTestStringConvertible {
         let width: CGFloat

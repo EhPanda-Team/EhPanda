@@ -6,10 +6,11 @@ import QuickSearchFeature
 @testable import SearchFeature
 import Sharing
 import Testing
+import TestingSupport
 
-// Save Search on the Search tab's results page (261123-1ep). Each case owns its in-memory defaults,
+// Save Search on the Search tab's results page (261123-1ep). Each case owns its app storage,
 // so the suite runs in parallel.
-@Suite
+@Suite(.isolatedAppStorage)
 struct SaveSearchTests {
     private static let keyword = "language:english"
 
@@ -62,17 +63,11 @@ struct SaveSearchTests {
 
     @MainActor
     private func makeStore(keyword: String, existing: [SavedSearch] = []) -> TestStoreOf<SearchReducer> {
-        let appStorage = UserDefaults.inMemory
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            @Shared(.savedSearches) var savedSearches
-            $savedSearches.withLock({ $0 = existing })
-            return TestStore(initialState: SearchReducer.State(keyword: keyword), reducer: SearchReducer.init) {
-                $0.defaultAppStorage = appStorage
-                $0.hapticsClient = .noop
-                $0.uuid = .incrementing
-            }
+        @Shared(.savedSearches) var savedSearches
+        $savedSearches.withLock({ $0 = existing })
+        return TestStore(initialState: SearchReducer.State(keyword: keyword), reducer: SearchReducer.init) {
+            $0.hapticsClient = .noop
+            $0.uuid = .incrementing
         }
     }
 }

@@ -7,6 +7,7 @@ import DownloadClient
 import Foundation
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 
 // The reader's load used to be kicked off by `ReadingView.onAppear`. It is now sent by whoever
 // presents the reader, in the same transition that sets the destination. Both of Detail's
@@ -16,7 +17,7 @@ import Testing
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DetailReadingLifecycleTests {
     private func makeState() -> DetailReducer.State {
         var state = DetailReducer.State(

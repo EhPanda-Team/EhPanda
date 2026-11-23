@@ -1,7 +1,9 @@
 @testable import AppComponents
 import AppModels
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 @MainActor
 struct TagSuggestionTokenizationTests {
     @Test(arguments: ["location:sch", "LOCATION:sch", "location:"])

@@ -6,6 +6,7 @@ import Foundation
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadImageParsingTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedLimitImageMapsToImageLimitReached() async throws {

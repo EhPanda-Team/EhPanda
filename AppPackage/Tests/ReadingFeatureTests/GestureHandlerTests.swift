@@ -2,6 +2,7 @@ import AppModels
 @testable import ReadingFeature
 import SwiftUI
 import Testing
+import TestingSupport
 
 // Wave-0 baseline lock for the reader gesture arithmetic before Plan 05-09 replaces the gesture
 // sources. These cases freeze the container-relative clamp, anchor, and tap-zone calculations so
@@ -10,7 +11,7 @@ import Testing
 // `init`, `containerSize`/`scale`/`scaleAnchor` and edge/tap math are all isolated), so every
 // case touching one needs it. Annotating the type would isolate its conformances too
 // (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct GestureHandlerTests {
     private enum TapOutcome: Equatable {
         case pageOffset(Int)

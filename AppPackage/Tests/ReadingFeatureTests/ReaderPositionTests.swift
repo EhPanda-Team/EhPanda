@@ -1,6 +1,7 @@
 @testable import ReadingFeature
 import SwiftUI
 import Testing
+import TestingSupport
 
 // Pins the rules that keep the reader's one page (`ReaderPosition`) on the page the screen shows, ported from the
 // turn gate they replace (17-READER-ROOT-CAUSE.md §3). The paging ScrollView can drop a position handed to it while
@@ -8,7 +9,7 @@ import Testing
 // the pager is at rest, and a pager at rest on another page than the turn's is sent again, until the page shown is
 // committed instead (DD-02). Every observation carries the generation of the pager that made it; a rebuilt pager
 // starts a new one, and an older pager's observations change nothing.
-@Suite
+@Suite(.isolatedAppStorage)
 struct ReaderPositionTests {
     private static let pageCount = 200
 

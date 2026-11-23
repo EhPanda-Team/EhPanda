@@ -7,13 +7,14 @@ import Foundation
 import HapticsClient
 import NetworkingFeature
 import Testing
+import TestingSupport
 
 // A vote's answer updates the comment: the site's `comment_vote` returns the new score and the user's vote, and both
 // screens show them at once. Before, the answer was discarded and the comments screen kept the copy it was pushed with,
 // so nothing changed.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated.
-@Suite
+@Suite(.isolatedAppStorage)
 struct CommentVoteReducerTests {
     // MARK: Comments screen
 

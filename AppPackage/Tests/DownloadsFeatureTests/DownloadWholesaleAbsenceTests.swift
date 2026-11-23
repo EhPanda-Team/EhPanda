@@ -4,6 +4,7 @@ import Clocks
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// B1 (product lead decision): a whole-gallery repair stopped before its run ever scanned
 /// the folder reads Paused 0 of N with Resume, not "Downloaded N of N".
@@ -18,7 +19,7 @@ import Testing
 /// positively absent. Validation alone still never blanks a whole gallery (G-15-2G), and the
 /// evidence is dropped by everything that makes it stale: a delete, a redownload, a folder move, a
 /// completion, a file reappearing, and a relaunch (it is held in memory only).
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadWholesaleAbsenceTests: DownloadFeatureTestCase {
     /// K0-b through the in-app Pause: the run is parked before its preparation, so it never scans.
     @Test

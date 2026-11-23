@@ -1,7 +1,9 @@
 import AppModels
 @testable import HomeFeature
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct HomeSlideshowTagSelectionTests {
     @Test(arguments: ["()", "[]", "{}", "<>", "（）", "［］", "｛｝", "〈〉", "《》", "「」", "『』", "【】", "〔〕"])
     func excludesNamesInDifferentBrackets(_ pair: String) throws {

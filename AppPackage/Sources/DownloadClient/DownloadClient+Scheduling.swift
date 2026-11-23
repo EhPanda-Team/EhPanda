@@ -30,7 +30,8 @@ extension DownloadCoordinator {
         // guards and its happy path). That is what keeps a live session matched to queue
         // state, and what stops one being left running after the last active download is
         // paused or deleted — those paths null the active task directly, but they still
-        // reschedule afterwards, so they arrive here too.
+        // reschedule afterwards, so they arrive here too. Download Now's interrupt
+        // (`+QueueOperations.swift`) nulls it the same way and arrives here as well.
         await scheduleNextIfNeededCore()
         await reconcileContinuedSession()
     }

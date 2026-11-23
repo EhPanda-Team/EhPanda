@@ -3,6 +3,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// D-SSOT-10: what the in-app download surfaces read while a run's own measurement stands.
 ///
@@ -27,7 +28,7 @@ import Testing
 /// production routes; the run's measurement is announced only by
 /// `prepareWorkingSeedAnnouncingProgress`; every run exit is a real `processDownload` against a stub
 /// that refuses the detail fetch; and every observed row is production-published.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadRunProgressOverlayTests: DownloadFeatureTestCase {
     /// The reported defect, end to end: a repair of a complete-claiming record whose files are all
     /// gone reads the RUN from the announce, climbs with each flush, and returns to the record's own

@@ -10,6 +10,7 @@ import HapticsClient
 import Resources
 import Sharing
 import Testing
+import TestingSupport
 
 // Moderation in the reducers (UGC-18-01). The filter list is injected (`commentFilterTerms`), so these cases test the
 // decision, not the bundled terms.
@@ -19,7 +20,7 @@ import Testing
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated
 // (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct CommentModerationReducerTests {
 
     // MARK: Posting warning (D-12, P-8)
@@ -369,18 +370,13 @@ extension CommentModerationReducerTests {
     @MainActor
     @Test
     func aRevealDoesNotOutliveTheScreen() async {
-        let storage = UserDefaults.inMemory
-        let store = makeModerationCommentsStore(storage: storage)
+        let store = makeModerationCommentsStore()
         await block(Self.first, in: store)
         await store.send(.moderation(.show(commentID: Self.first.commentID))) {
             $0.moderation.revealedCommentIDs = [Self.first.commentID]
         }
 
-        let nextScreen = withDependencies {
-            $0.defaultAppStorage = storage
-        } operation: {
-            CommentsReducer.State(galleryURL: Self.galleryURL, comments: Self.comments)
-        }
+        let nextScreen = CommentsReducer.State(galleryURL: Self.galleryURL, comments: Self.comments)
         #expect(nextScreen.moderation.revealedCommentIDs.isEmpty)
         #expect(nextScreen.moderation.isCollapsed(Self.first))
     }
@@ -476,11 +472,7 @@ extension CommentModerationReducerTests {
     @MainActor
     @Test
     func blockingCollapsesTheIDsRevealedCommentsUnderAnyName() {
-        var state = withDependencies {
-            $0.defaultAppStorage = .inMemory
-        } operation: {
-            CommentModerationFeature.State(galleryURL: Self.galleryURL)
-        }
+        var state = CommentModerationFeature.State(galleryURL: Self.galleryURL)
         let renamed = Self.comment(id: "9", author: "Renamed", memberID: Self.memberID)
         state.revealedCommentIDs = [Self.first.commentID, renamed.commentID, Self.other.commentID]
 
@@ -493,32 +485,27 @@ extension CommentModerationReducerTests {
     // posters not blocked change nothing.
     @Test
     func refreshingStoresTheNewNameOfABlockedID() {
-        let storage = UserDefaults.inMemory
-        withDependencies {
-            $0.defaultAppStorage = storage
-        } operation: {
-            var state = CommentModerationFeature.State(galleryURL: Self.galleryURL)
-            state.$blockedUsers.withLock({
-                $0 = [.init(memberID: Self.memberID, name: "Roobubba-old"), .init(memberID: "4764920", name: "Pokom")]
-            })
-            let comments = [
-                Self.comment(id: "1", author: "Roobubba", memberID: Self.memberID),
-                Self.comment(id: "2", author: "Pokom", memberID: "4764920"),
-                Self.comment(id: "3", author: "Roobubba-old", memberID: "555")
-            ]
+        var state = CommentModerationFeature.State(galleryURL: Self.galleryURL)
+        state.$blockedUsers.withLock({
+            $0 = [.init(memberID: Self.memberID, name: "Roobubba-old"), .init(memberID: "4764920", name: "Pokom")]
+        })
+        let comments = [
+            Self.comment(id: "1", author: "Roobubba", memberID: Self.memberID),
+            Self.comment(id: "2", author: "Pokom", memberID: "4764920"),
+            Self.comment(id: "3", author: "Roobubba-old", memberID: "555")
+        ]
 
-            state.refreshBlockedNames(from: comments)
+        state.refreshBlockedNames(from: comments)
 
-            @Shared(.blockedCommentUsers) var stored
-            #expect(stored.map(\.memberID) == [Self.memberID, "4764920"])
-            #expect(stored.map(\.name) == ["Roobubba", "Pokom"])
-            #expect(state.blockedMemberIDs == [Self.memberID, "4764920"])
-            #expect(state.isBlocked(comments[0]))
-            #expect(!state.isBlocked(comments[2]))
+        @Shared(.blockedCommentUsers) var stored
+        #expect(stored.map(\.memberID) == [Self.memberID, "4764920"])
+        #expect(stored.map(\.name) == ["Roobubba", "Pokom"])
+        #expect(state.blockedMemberIDs == [Self.memberID, "4764920"])
+        #expect(state.isBlocked(comments[0]))
+        #expect(!state.isBlocked(comments[2]))
 
-            state.refreshBlockedNames(from: comments)
-            #expect(stored.map(\.name) == ["Roobubba", "Pokom"])
-        }
+        state.refreshBlockedNames(from: comments)
+        #expect(stored.map(\.name) == ["Roobubba", "Pokom"])
     }
 }
 
@@ -529,14 +516,9 @@ extension CommentModerationReducerTests {
     @MainActor
     @Test
     func ownCommentsGetNoReportOrBlock() async {
-        let storage = UserDefaults.inMemory
-        withDependencies {
-            $0.defaultAppStorage = storage
-        } operation: {
-            @Shared(.user) var user
-            $user.withLock({ $0.displayName = Self.ownName })
-        }
-        let store = makeModerationCommentsStore(storage: storage, cookieClient: .previewLoggedIn)
+        @Shared(.user) var user
+        $user.withLock({ $0.displayName = Self.ownName })
+        let store = makeModerationCommentsStore(cookieClient: .previewLoggedIn)
         let editable = Self.comment(id: "7", author: "someone", editable: true)
         let byName = Self.comment(id: "8", author: Self.ownName)
 
@@ -724,17 +706,11 @@ extension CommentModerationReducerTests {
     @MainActor
     func makeModerationCommentsStore(
         galleryURL: URL = galleryURL,
-        storage: UserDefaults = .inMemory,
         cookieClient: CookieClient = .noop,
         analyticsClient: AnalyticsClient = .noop
     ) -> TestStoreOf<CommentsReducer> {
-        let state = withDependencies {
-            $0.defaultAppStorage = storage
-        } operation: {
-            CommentsReducer.State(galleryURL: galleryURL, comments: Self.comments)
-        }
+        let state = CommentsReducer.State(galleryURL: galleryURL, comments: Self.comments)
         return TestStore(initialState: state, reducer: CommentsReducer.init) {
-            $0.defaultAppStorage = storage
             $0.analyticsClient = analyticsClient
             $0.cookieClient = cookieClient
             $0.hapticsClient = .noop

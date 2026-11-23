@@ -7,6 +7,7 @@ import ParserFeature
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct ListParserTests: TestHelper {
     @Test
     func testExample() throws {

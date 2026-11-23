@@ -4,23 +4,19 @@ import Foundation
 @testable import QuickSearchFeature
 import Sharing
 import Testing
+import TestingSupport
 
-// Each case reads and writes `@Shared(.savedSearches)` through its own in-memory defaults, so the
-// suite runs in parallel. Reads stay on the `@Shared` reference, never on raw defaults.
-@Suite
+// Each case reads and writes `@Shared(.savedSearches)` in its own app storage, so the suite runs in parallel.
+@Suite(.isolatedAppStorage)
 struct NewSavedSearchFeatureTests {
     // MARK: Prefill
 
     @Test
     func theDraftCarriesTheKeywordAsSearchTermsAndNoName() {
-        withDependencies {
-            $0.defaultAppStorage = .inMemory
-        } operation: {
-            let state = NewSavedSearchFeature.State(id: UUID(0), keyword: "language:english")
-            #expect(state.savedSearch.id == UUID(0))
-            #expect(state.savedSearch.name.isEmpty)
-            #expect(state.savedSearch.content == "language:english")
-        }
+        let state = NewSavedSearchFeature.State(id: UUID(0), keyword: "language:english")
+        #expect(state.savedSearch.id == UUID(0))
+        #expect(state.savedSearch.name.isEmpty)
+        #expect(state.savedSearch.content == "language:english")
     }
 
     // MARK: Eligibility
@@ -96,16 +92,10 @@ struct NewSavedSearchFeatureTests {
     private func makeStore(
         keyword: String, existing: [SavedSearch], dismissed: LockIsolated<Bool>
     ) -> TestStoreOf<NewSavedSearchFeature> {
-        let appStorage = UserDefaults.inMemory
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            let state = NewSavedSearchFeature.State(id: UUID(0), keyword: keyword)
-            state.$savedSearches.withLock({ $0 = existing })
-            return TestStore(initialState: state, reducer: NewSavedSearchFeature.init) {
-                $0.defaultAppStorage = appStorage
-                $0.dismiss = DismissEffect({ dismissed.setValue(true) })
-            }
+        let state = NewSavedSearchFeature.State(id: UUID(0), keyword: keyword)
+        state.$savedSearches.withLock({ $0 = existing })
+        return TestStore(initialState: state, reducer: NewSavedSearchFeature.init) {
+            $0.dismiss = DismissEffect({ dismissed.setValue(true) })
         }
     }
 }

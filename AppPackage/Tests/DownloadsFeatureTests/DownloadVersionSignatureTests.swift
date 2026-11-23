@@ -3,7 +3,9 @@ import AppModels
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadVersionSignatureTests: DownloadFeatureTestCase {
     @Test
     func testDownloadCoordinatorReconcilePreservesIndexedFinalFolder() async throws {

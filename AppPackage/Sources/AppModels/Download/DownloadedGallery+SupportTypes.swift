@@ -29,14 +29,16 @@ extension DownloadedGallery {
     /// record's page count either way — the run's target is the whole gallery.
     ///
     /// `completedPageCount`, `isIncomplete`, `canVerifyImages` and every gate below stay on the
-    /// RECORD. Only what a user is shown moves.
+    /// RECORD. Only what a user is shown moves. `waitingPosition` carries the waiting place for VoiceOver alone
+    /// (B-6).
     public var badge: DownloadBadge {
         DownloadBadge(
             status: displayStatus,
             progress: DownloadProgress(
                 completedPageCount: runProgress?.creditedPageCount ?? completedPageCount,
                 pageCount: pageCount
-            )
+            ),
+            waitingPosition: queuePlace?.position
         )
     }
 

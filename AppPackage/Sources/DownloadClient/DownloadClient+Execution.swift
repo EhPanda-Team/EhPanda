@@ -26,11 +26,11 @@ extension DownloadCoordinator {
             )
             // The row's overlay is retired with the run (D-SSOT-10), so the record's own reading has
             // to be published once it is gone. An OWNING exit already publishes, inside
-            // `finishActiveTaskIfOwned`'s task. A non-owning one does not — `pause`, `delete` and
-            // D-11's expiration sweep each null the active slot while the run they interrupt is
-            // still executing — so without this the paused row would keep the run's reading until
-            // some unrelated publish came along, which for the refusal family means a row showing
-            // k-of-N over a record that reads N-of-N.
+            // `finishActiveTaskIfOwned`'s task. A non-owning one does not — `pause`, `delete`, D-11's
+            // expiration sweep and Download Now's interrupt each null the active slot while the run
+            // they interrupt is still executing — so without this the paused row would keep the run's
+            // reading until some unrelated publish came along, which for the refusal family means a
+            // row showing k-of-N over a record that reads N-of-N.
             if withdrewMeasurement && !publishedOnExit {
                 await notifyObservers()
             }
@@ -310,9 +310,10 @@ extension DownloadCoordinator {
     /// run's entry for the same gallery, which is correct: that run is over too.
     ///
     /// **The overlapping-run disposition.** `scheduleNextIfNeededCore` will not start a second run
-    /// while `activeTask` is live, but `pause`, `delete` and the folder operations each null
-    /// `activeTask` while the run they interrupt is still executing, so a following resume can
-    /// legitimately schedule a successor for the same gallery at a new `activeTaskGeneration`. An
+    /// while `activeTask` is live, but `pause`, `delete`, the folder operations and Download Now's interrupt
+    /// each null `activeTask` while the run they interrupt is still executing, so a following resume, or the
+    /// interrupted gallery's own turn after Download Now, can legitimately schedule a successor for the same
+    /// gallery at a new `activeTaskGeneration`. An
     /// ungated retirement in the predecessor's `defer` would then drop the SUCCESSOR's measurement,
     /// which is the G-15-26 zero-progress card reintroduced by its own fix. So a run whose
     /// gallery's active slot is held by a live run at a different generation retires nothing and
@@ -371,8 +372,8 @@ extension DownloadCoordinator {
     /// all-or-nothing guard still refuses an act that would account for every claimed page.
     ///
     /// **Why the exit, and why this gate.** `processDownload`'s `defer` is the one point all five
-    /// run exits pass (`retireRunProgressBasis` lists them), and a pause, a delete and a folder
-    /// operation each await the cancelled run before acting, so the write-back lands before any of
+    /// run exits pass (`retireRunProgressBasis` lists them), and a pause, a delete, a folder operation and
+    /// Download Now's interrupt each await the cancelled run before acting, so the write-back lands before any of
     /// them proceeds. It acts only while the run's measurement still stands with page debt
     /// outstanding: a run that announced nothing has no evidence to add, a completed run owes
     /// nothing, and a run superseded by a live successor leaves the folder to that successor, whose

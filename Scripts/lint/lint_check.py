@@ -4,6 +4,11 @@ The one exception is a warning inside a third-party package.
 
     python3 Scripts/lint/lint_check.py --output <directory>
 
+Before the builds it checks the app-storage isolation rule over the test sources (`app_storage_isolation.py`, whose
+docstring states the rule and the targets it leaves out): every Swift Testing suite that can reach app storage carries
+TestingSupport's `.isolatedAppStorage` trait, and no other suite does. It reads the sources alone, so it needs no
+build. Each break is an error finding, and so is a tree the check cannot read.
+
 It builds every test plan of the app scheme for testing into a build folder of its own. A fresh folder compiles
 every file of every target once (the app, the share extension, the package's modules and test targets, the
 app-hosted tests and the UI tests), and a file only says what the compiler has against it when it is compiled: an
@@ -37,6 +42,8 @@ import subprocess
 import sys
 from typing import NamedTuple, Optional
 import xml.etree.ElementTree as ElementTree
+
+import app_storage_isolation
 
 ROOT = Path(__file__).resolve().parents[2]
 PROJECT = 'EhPanda.xcodeproj'
@@ -227,6 +234,16 @@ def lint(binary, output):
     return found
 
 
+def app_storage_findings(root):
+    """The breaks of the app-storage isolation rule, each an error at its place; a tree the check cannot read is
+    one finding."""
+    try:
+        broken = app_storage_isolation.violations(root)
+    except app_storage_isolation.ScopeError as error:
+        return {Finding('', 0, 0, 'error', f'The app-storage isolation check could not read the tree: {error}')}
+    return {Finding(item.path, item.line, 1 if item.line else 0, 'error', item.message) for item in broken}
+
+
 def annotate(found):
     """GitHub's workflow commands for the findings that have a place, so they show beside the code."""
     def escaped(text):
@@ -254,7 +271,10 @@ def summary(failing, allowed=()):
     if failing:
         lines = [f'{len(failing)} finding(s): each one fails the gate.', ''] + table(failing)
     else:
-        lines = ['No compiler warning or error and no SwiftLint violation in any target of this repository.']
+        lines = [
+            'No compiler warning or error, no SwiftLint violation in any target of this repository, and no break of '
+            'the app-storage isolation rule.'
+        ]
     if allowed:
         lines += ['', f'{len(allowed)} warning(s) inside third-party packages, allowed.', ''] + table(allowed)
     return '\n'.join(lines) + '\n'
@@ -277,7 +297,8 @@ def main(argv: Optional[list] = None):
 
     # Where the build keeps the packages it fetched: their checkouts and binary artifacts.
     packages = arguments.cloned_packages or output / 'derived-data' / 'SourcePackages'
-    found = set()
+    print('Checking the app-storage isolation rule.', flush=True)
+    found = app_storage_findings(ROOT)
     for plan in scheme_test_plans(ROOT / PROJECT / 'xcshareddata' / 'xcschemes' / f'{SCHEME}.xcscheme'):
         print(f'Building the {plan} plan.', flush=True)
         found |= build(plan, output, arguments.destination, arguments.cloned_packages)

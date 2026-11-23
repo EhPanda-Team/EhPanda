@@ -5,11 +5,13 @@ import Foundation
 @testable import LiveTextTranslation
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 import Translation
 
 // The reader translates the pages Live Text recognized, except in a capture launch, whose screens must
 // not depend on the system's translation models; turning Live Text off lets a page that failed be
 // tried again.
+@Suite(.isolatedAppStorage)
 @MainActor
 struct LiveTextHandlerTranslationTests {
     private static let gid = "1979820"

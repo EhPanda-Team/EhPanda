@@ -9,6 +9,7 @@ import LogsClient
 import ReadingSettingFeature
 @testable import SettingFeature
 import Testing
+import TestingSupport
 
 // The Setting screens' loads used to be kicked off by their views' `onAppear`; they are now sent by
 // `SettingReducer` on the push that presents them, and the EhSetting teardown that used to run in
@@ -17,7 +18,7 @@ import Testing
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
-@Suite
+@Suite(.isolatedAppStorage)
 struct SettingPresentationTests {
     // MARK: Screen → load-action mapping
 

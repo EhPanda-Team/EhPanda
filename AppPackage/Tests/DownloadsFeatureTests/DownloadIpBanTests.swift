@@ -5,6 +5,7 @@ import Foundation
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadIpBanTests: DownloadFeatureTestCase {
     @Test
     func testIpBannedDoesNotRetryImmediately() async throws {

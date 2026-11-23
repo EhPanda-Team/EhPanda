@@ -4,10 +4,12 @@ import ComposableArchitecture
 import Foundation
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 
 // What the reader records of each page's size: the size of the page's original file that a multi-page viewer's image
 // list names, replaced by the size the served URL names, replaced in turn by the size of the image the page decodes,
 // which no later URL replaces.
+@Suite(.isolatedAppStorage)
 struct ReadingReducerPageSizeTests {
     private static func servedURL(width: Int, height: Int) throws -> URL {
         try #require(URL(string: """

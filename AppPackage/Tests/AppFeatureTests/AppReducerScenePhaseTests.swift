@@ -18,12 +18,14 @@ import SettingFeature
 import Sharing
 import SwiftUI
 import Testing
+import TestingSupport
 import UserDefaultsClient
 
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
+@Suite(.isolatedAppStorage)
 struct AppReducerScenePhaseTests {
     /// Every list that opens a reader directly (D146) is registered with the scene-phase router, so a
     /// background force-quit keeps that reader's last page.
@@ -35,25 +37,16 @@ struct AppReducerScenePhaseTests {
             category: .manga, uploader: "", pageCount: 10, postedDate: .distantPast,
             coverURL: nil, galleryURL: nil
         )
-        let appStorage = UserDefaults.inMemory
-        var reader = withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            ReadingReducer.State(gallery: gallery)
-        }
+        var reader = ReadingReducer.State(gallery: gallery)
         reader.readingProgress = 7
         let store = makeStore(
-            detectLinksFromClipboard: false, privacyMaskIntensity: 0, appStorage: appStorage,
+            detectLinksFromClipboard: false, privacyMaskIntensity: 0,
             prepare: { host.present(reader, in: &$0) }
         )
         store.exhaustivity = .off
         await store.send(.onScenePhaseChange(.background))
         await store.finish()
-        let history = withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            Shared<[GalleryHistoryEntry]>(.galleryHistory)
-        }
+        let history = Shared<[GalleryHistoryEntry]>(.galleryHistory)
         #expect(history.wrappedValue.readingProgress(gid: gallery.id) == 7)
     }
 
@@ -180,13 +173,11 @@ private extension AppReducerScenePhaseTests {
         detectLinksFromClipboard: Bool,
         privacyMaskIntensity: Double,
         hasLoadedInitialSetting: Bool = true,
-        appStorage: UserDefaults = .inMemory,
         prepare: (inout AppReducer.State) -> Void = { _ in }
     ) -> TestStoreOf<AppReducer> {
         let inMemoryStorage = InMemoryStorage()
 
         return withDependencies {
-            $0.defaultAppStorage = appStorage
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             var initialState = AppReducer.State()
@@ -220,7 +211,6 @@ private extension AppReducerScenePhaseTests {
                     $0.clipboardClient = clipboardDetectionCount.map(ClipboardClient.countingDetections) ?? .noop
                     $0.continuousClock = TestClock()
                     $0.cookieClient = .noop
-                    $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
                     $0.downloadClient = .noop
                     $0.logsClient = .noop

@@ -11,10 +11,12 @@ import SettingFeature
 import Sharing
 import SwiftUI
 import Testing
+import TestingSupport
 
 // A capture launch turns two environment keys into a validated, isolated, offline scene. These
 // cases drive the pure steps (decode, validate, build, isolate) and never `install`, which changes
 // process-wide state that would leak into every other test in the process.
+@Suite(.isolatedAppStorage)
 struct CaptureSceneTests {
     // MARK: Configuration
 
@@ -514,41 +516,38 @@ struct CaptureSceneTests {
 
     @Test
     func theIsolatedStoresKeepPersonalSettingsOutOfTheScene() async throws {
-        let personal = UserDefaults.inMemory
-        withDependencies {
-            $0.defaultAppStorage = personal
-        } operation: {
+        do {
             @Shared(.setting) var setting
             $setting.withLock({ $0.detectLinksFromClipboard = true })
         }
         let storage = try CaptureStorage.reset(at: makeTemporaryDirectory().appending(path: "EhPandaCapture"))
         let scene = try makeScene(try MarketingFixtureBuilder.standard())
 
-        try await withDependencies {
-            $0.defaultAppStorage = personal
-            CaptureScenePreparation.isolate(
-                &$0,
-                scene: scene,
-                storage: storage,
-                libraryClient: .noop,
-                launch: CaptureLaunchInputs(downloads: .empty, family: .phone)
-            )
-        } operation: {
-            @Dependency(\.date.now) var now
-            @Dependency(\.homeClient) var homeClient
-            @Dependency(\.uuid) var uuid
-            expectNoDifference(now, UITestAutomation.fixedDate)
-            expectNoDifference(uuid(), UUID(0))
-            let popular = try await homeClient.fetchPopularGalleries(.ehentai, Filter())
-            expectNoDifference(popular.map(\.gid), MarketingFixtureBuilder.heroGIDs)
+        try await withIsolatedAppStorage { sceneStorage in
+            try await withDependencies {
+                $0.defaultAppStorage = sceneStorage
+                CaptureScenePreparation.isolate(
+                    &$0,
+                    scene: scene,
+                    storage: storage,
+                    libraryClient: .noop,
+                    launch: CaptureLaunchInputs(downloads: .empty, family: .phone)
+                )
+            } operation: {
+                @Dependency(\.date.now) var now
+                @Dependency(\.homeClient) var homeClient
+                @Dependency(\.uuid) var uuid
+                expectNoDifference(now, UITestAutomation.fixedDate)
+                expectNoDifference(uuid(), UUID(0))
+                let popular = try await homeClient.fetchPopularGalleries(.ehentai, Filter())
+                expectNoDifference(popular.map(\.gid), MarketingFixtureBuilder.heroGIDs)
 
-            let state = AppReducer.State()
-            expectNoDifference(state.settingState.setting, CaptureScenePreparation.sceneSetting(family: .phone))
-            state.settingState.$setting.withLock({ $0.showNewDawnGreeting.toggle() })
+                let state = AppReducer.State()
+                expectNoDifference(state.settingState.setting, CaptureScenePreparation.sceneSetting(family: .phone))
+                state.settingState.$setting.withLock({ $0.showNewDawnGreeting.toggle() })
+            }
         }
-        withDependencies {
-            $0.defaultAppStorage = personal
-        } operation: {
+        do {
             @SharedReader(.setting) var setting
             #expect(setting.detectLinksFromClipboard)
             #expect(setting.bypassSNIFiltering == false)

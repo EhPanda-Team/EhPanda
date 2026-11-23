@@ -1,10 +1,11 @@
 import AppModels
 @testable import SettingFeature
 import Testing
+import TestingSupport
 
 // The download settings slider steps through whole numbers of concurrent downloads. It binds the
 // setting's limit as a `Double`, and a value between two steps writes the nearer one.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadSettingSliderTests {
     @Test
     func theSliderReadsTheLimit() {

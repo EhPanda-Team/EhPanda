@@ -3,8 +3,9 @@ import ComposableArchitecture
 @testable import DetailFeature
 import Foundation
 import Testing
+import TestingSupport
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct GalleryNavigationTests {
     // A minimal gallery whose `id` ("1") drives the detail route key that dedup compares.
     private let galleryOne = Gallery(

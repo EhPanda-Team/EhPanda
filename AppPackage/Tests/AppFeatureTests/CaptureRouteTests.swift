@@ -17,11 +17,13 @@ import SearchFeature
 import SettingFeature
 import Sharing
 import Testing
+import TestingSupport
 import UserDefaultsClient
 
 // A marketing capture opens each of its eight screens through the app's own navigation. These
 // cases build each screen's route from the selection and drive the launch automation that follows
 // it, through the actions a person's taps send, in a compact window and in a regular one.
+@Suite(.isolatedAppStorage)
 struct CaptureRouteTests {
     // MARK: Routes
 
@@ -249,11 +251,9 @@ private extension CaptureRouteTests {
         route: AppLaunchAutomation.CaptureRoute,
         window: WindowSizeClasses
     ) -> TestStoreOf<AppReducer> {
-        let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
 
         let store = withDependencies {
-            $0.defaultAppStorage = appStorage
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             var initialState = AppReducer.State()
@@ -269,7 +269,6 @@ private extension CaptureRouteTests {
                     )
                     $0.cookieClient = .noop
                     $0.date = .constant(UITestAutomation.fixedDate)
-                    $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
                     $0.downloadClient = .noop
                     $0.hapticsClient = .noop

@@ -133,7 +133,7 @@ extension DownloadFeatureTestCase {
         condition: @escaping @MainActor () -> Bool
     ) async {
         var deadline = ProgressDeadline(timeout)
-        while !condition() && deadline.hasTimeLeft() {
+        while !condition() && deadline.hasTimeLeft() && !Task.isCancelled {
             await store.skipReceivedActions(strict: false)
             await sleepIgnoringCancellation(for: .milliseconds(10))
         }
@@ -989,7 +989,7 @@ func waitUntil(
     _ condition: @Sendable () async -> Bool
 ) async throws {
     var deadline = ProgressDeadline(timeout)
-    while await !condition(), deadline.hasTimeLeft() {
+    while await !condition(), deadline.hasTimeLeft(), !Task.isCancelled {
         await sleepIgnoringCancellation(for: .milliseconds(10))
     }
     try #require(await condition(), "Timed out waiting for condition.")

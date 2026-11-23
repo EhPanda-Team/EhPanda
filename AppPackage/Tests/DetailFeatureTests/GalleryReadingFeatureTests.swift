@@ -10,8 +10,10 @@ import HapticsClient
 import NetworkingFeature
 import ReadingFeature
 import Testing
+import TestingSupport
 
 /// The reader a gallery list opens directly (D89, D146): its source, its failure and its late results.
+@Suite(.isolatedAppStorage)
 @MainActor
 struct GalleryReadingFeatureTests {
     private let gallery = Gallery(
@@ -116,7 +118,6 @@ struct GalleryReadingFeatureTests {
             $0.analyticsClient = .noop
             $0.appLaunchAutomationClient = .none
             $0.date = .constant(Date(timeIntervalSince1970: 0))
-            $0.defaultAppStorage = .inMemory
             $0.downloadClient = .noop
             $0.galleryClient = .noop
             $0.hapticsClient = .noop

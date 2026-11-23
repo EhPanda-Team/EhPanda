@@ -13,33 +13,17 @@ import HapticsClient
 import HomeFeature
 import LogsClient
 import Testing
+import TestingSupport
 import UserDefaultsClient
 
 /// What the Library remembers across launches (261117-tyj, owner decisions A-1 and A-2): the group last chosen on the
 /// compact layout's title-menu picker, restored when the compact layout has no selection, and never written from the
 /// sidebar layout.
 ///
-/// Every case holds ONE defaults suite, used both while building the state and as the store's storage, so the
-/// remembered record never leaks between cases.
-///
-/// The suite is a plain-named one, not Sharing's `UserDefaults.inMemory`: these cases read the stored record straight
-/// from the suite, and `inMemory` names its suite by a path under the temporary directory, which makes it file-backed.
-/// In the simulator test process, under parallel load, every file-backed suite at once can stop reflecting new writes,
-/// so a raw read returns an earlier value although the shared reference holds the new one. A plain-named suite stays
-/// read-after-write consistent; Swift Testing builds one suite instance per case, and `deinit` removes its domain.
+/// Every case's stored record lives in the case's own suite from `.isolatedAppStorage`, read straight from it.
+@Suite(.isolatedAppStorage)
 @MainActor
-final class LibraryPickerChoicePersistenceTests {
-    private let suiteName = "library-picker-choice-\(UUID().uuidString)"
-    private let appStorage: UserDefaults
-
-    init() throws {
-        appStorage = try #require(UserDefaults(suiteName: suiteName))
-    }
-
-    isolated deinit {
-        appStorage.removePersistentDomain(forName: suiteName)
-    }
-
+struct LibraryPickerChoicePersistenceTests {
     /// A layout that shows the Library sidebar.
     enum SidebarLayout: CaseIterable {
         case pad
@@ -245,6 +229,7 @@ final class LibraryPickerChoicePersistenceTests {
 private extension LibraryPickerChoicePersistenceTests {
     /// The record decoded from the suite's stored data; `nil` when nothing is stored or a cleared key stored `null`.
     func stored() throws -> LibraryPickerChoice? {
+        @Dependency(\.defaultAppStorage) var appStorage
         guard let data = appStorage.data(forKey: "libraryPickerChoice") else { return nil }
         return try JSONDecoder().decode(LibraryPickerChoice?.self, from: data)
     }
@@ -256,35 +241,30 @@ private extension LibraryPickerChoicePersistenceTests {
         viewport: CGSize = .zero,
         folders: [String] = []
     ) -> TestStoreOf<AppReducer> {
-        withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            @Shared(.libraryPickerChoice) var choice
-            $choice.withLock({ $0 = remembered.map({ LibraryPickerChoice(group: $0) }) })
+        @Shared(.libraryPickerChoice) var choice
+        $choice.withLock({ $0 = remembered.map({ LibraryPickerChoice(group: $0) }) })
 
-            var initialState = AppReducer.State()
-            initialState.libraryState.device = device
-            initialState.libraryState.viewport = viewport
-            let store = TestStore(
-                initialState: initialState,
-                reducer: AppReducer.init,
-                withDependencies: {
-                    $0.analyticsClient = .noop
-                    $0.cookieClient = .noop
-                    $0.defaultAppStorage = appStorage
-                    $0.downloadClient = {
-                        var client = DownloadClient.noop
-                        client.fetchFolders = { folders }
-                        return client
-                    }()
-                    $0.hapticsClient = .noop
-                    $0.homeClient = .noop
-                    $0.logsClient = .noop
-                    $0.userDefaultsClient = .noop
-                }
-            )
-            store.exhaustivity = .off(showSkippedAssertions: false)
-            return store
-        }
+        var initialState = AppReducer.State()
+        initialState.libraryState.device = device
+        initialState.libraryState.viewport = viewport
+        let store = TestStore(
+            initialState: initialState,
+            reducer: AppReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.cookieClient = .noop
+                $0.downloadClient = {
+                    var client = DownloadClient.noop
+                    client.fetchFolders = { folders }
+                    return client
+                }()
+                $0.hapticsClient = .noop
+                $0.homeClient = .noop
+                $0.logsClient = .noop
+                $0.userDefaultsClient = .noop
+            }
+        )
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        return store
     }
 }

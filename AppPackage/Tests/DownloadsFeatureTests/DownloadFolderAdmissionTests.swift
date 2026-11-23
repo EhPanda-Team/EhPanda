@@ -3,6 +3,7 @@ import AppModels
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// The POSITIVE half of the user-folder name catalog: a folder the app's own listing produced must
 /// be mutable from inside the app, whatever its name looks like.
@@ -19,6 +20,7 @@ import Testing
 /// `Documents/`, so a folder created in the Files app named `Art  Books`, ` Photos`, `Manga\Vol1`
 /// or `Misc etc.` is listed, is a usable download destination, and must therefore also be
 /// deletable and renamable.
+@Suite(.isolatedAppStorage)
 struct DownloadFolderAdmissionTests: DownloadFeatureTestCase {
     /// The listing produces the name verbatim, and the delete that follows converges every record.
     ///

@@ -4,6 +4,7 @@ import DownloadClient
 import Foundation
 import Synchronization
 import Testing
+import TestingSupport
 
 /// WR-03: what the REPAIR-SEED route owes after it has destroyed a page file — the same debt the
 /// verify route has paid since CR-02, on the copy that inherited the ordering without the
@@ -37,6 +38,7 @@ import Testing
 /// The suite owns its two doubles rather than growing `DownloadFeatureTestHelpers.swift`, which sits
 /// at 992 of its 1000-line ceiling. Both are count-gated and single-purpose, and both name in their
 /// own docs the exact production call they key on and the invocation index they act at.
+@Suite(.isolatedAppStorage)
 struct DownloadSeedRecoveryTests: DownloadFeatureTestCase {
     /// Exit 3 on the seed route: the blanking loop's manifest write throws with the refuted file
     /// already destroyed, and the record must not be left claiming it.

@@ -4,11 +4,12 @@ import Foundation
 @testable import ReadingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // The reader's pages are one accessibility element in every reading direction (owner, 2026-10-11). These cases pin
 // what the element reads; `ReaderPageSyncUITests.testThePagesAreOneElementReadingTheirPage` finds it in the app.
 @MainActor
-@Suite
+@Suite(.isolatedAppStorage)
 struct ReaderPagesAccessibilityTests {
     @Test
     func aPageReadsItsPosition() {
@@ -95,11 +96,7 @@ struct ReaderPagesAccessibilityTests {
     private static func state(page: Int, isLandscape: Bool? = nil) -> ReadingReducer.State {
         var gallery = Gallery.preview
         gallery.pageCount = 10
-        var state = withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            ReadingReducer.State(gallery: gallery)
-        }
+        var state = ReadingReducer.State(gallery: gallery)
         state.$setting.withLock({ $0 = Setting(readingDirection: .leftToRight, enableDualPageMode: true) })
         state.layoutIsLandscape = isLandscape
         state.readingProgress = page

@@ -7,30 +7,26 @@ import DownloadClient
 import Foundation
 import HapticsClient
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct SortSelectionTests {
     @MainActor
     @Test
     func selectingWhileLoadingAndFailedResponsePreserveConfirmedOrder() async {
-        let appStorage = UserDefaults.inMemory
-        let store = withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            var state = FavoritesReducer.State()
-            state.sortOrder = .lastUpdateTime
-            state.rawLoadingState[-1] = .loading
-            return TestStore(
-                initialState: state,
-                reducer: FavoritesReducer.init,
-                withDependencies: {
-                    $0.analyticsClient = .noop
-                    $0.defaultAppStorage = appStorage
-                    $0.cookieClient = .noop
-                    $0.downloadClient = .noop
-                    $0.hapticsClient = .noop
-                }
-            )
-        }
+        var state = FavoritesReducer.State()
+        state.sortOrder = .lastUpdateTime
+        state.rawLoadingState[-1] = .loading
+        let store = TestStore(
+            initialState: state,
+            reducer: FavoritesReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.cookieClient = .noop
+                $0.downloadClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
 
         // A second selection cannot optimistically replace the server-confirmed order.
         await store.send(.selectSortOrder(.favoritedTime))

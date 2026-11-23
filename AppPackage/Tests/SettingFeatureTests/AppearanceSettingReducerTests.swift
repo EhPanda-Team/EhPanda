@@ -4,11 +4,13 @@ import AppModels
 import ComposableArchitecture
 @testable import SettingFeature
 import Testing
+import TestingSupport
 
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
+@Suite(.isolatedAppStorage)
 struct AppearanceSettingReducerTests {
     // The theme picker writes into `@Shared(.setting)`; the reducer applies the interface style through
     // a non-capturable client, so this pins that the change action is handled and runs to completion.

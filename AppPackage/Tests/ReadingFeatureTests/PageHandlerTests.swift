@@ -1,6 +1,7 @@
 import AppModels
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 
 // Wave-0 regression guard for DEP-05. These cases freeze `PageHandler.mapToPager`/`mapFromPager` —
 // the pure stack-index ↔ reading-page mapping, including the dual-page cover-exception math —
@@ -10,7 +11,7 @@ import Testing
 // `DeviceUtil.isLandscape` process global and stays deterministic off-device. Since the reader's
 // page moved into `ReaderPosition` (18-07), `PageHandler` is a plain value holding only these maps,
 // which derive the pager's position from the page, so no case needs the main actor.
-@Suite
+@Suite(.isolatedAppStorage)
 struct PageHandlerTests {
     private struct AspectRatioCase {
         let width: Double
