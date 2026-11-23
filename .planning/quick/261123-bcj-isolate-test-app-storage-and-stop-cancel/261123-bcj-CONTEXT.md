@@ -121,3 +121,15 @@ next to the existing `Scripts/lint/test_lint_check.py`, and the lint gate fails 
   states the exclusion explicitly.
 - The trait's own test lives in AppModelsTests, which needs TestingSupport anyway for its converted suites.
 - Execution: a fresh executor per task.
+
+### Decision D-5 (owner, 2026-11-23): the two timing-out webtoon tests move to `TestClock`
+
+`WebtoonReadingTests/aCommittedPageDecidesAndTheHistoryRecordsTheVerdict()` and
+`withTheOptionOffNothingIsDetectedOrRecorded()` timed out in Task 3 full runs. They wait up to one second for work that
+`ImmediateClock.sleep` puts behind 20 background-priority hops. They use a `TestClock` the test advances, in a commit of
+their own before the Task 3 commit. Task 3's three zero-failure full runs start over after it.
+
+What the evidence says: over all full runs, under mixed conditions, the two tests failed in 4 of 14 Task 3 runs and 0 of
+11 runs of `514a13b00`. The amplified experiment, with criteria fixed beforehand, read 0 of 4 against 2 of 4, which
+those criteria call inconclusive. Task 3 may make the timeout more likely; that is neither established nor ruled out. A
+timeout in any other test in the three runs is a STOP.
