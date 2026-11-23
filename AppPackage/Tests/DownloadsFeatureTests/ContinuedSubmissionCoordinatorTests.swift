@@ -171,7 +171,7 @@ private actor TransferProbe {
 }
 
 @MainActor
-@Suite
+@Suite(.isolatedAppStorage)
 struct HeldSubmissionCoordinatorTests: DownloadFeatureTestCase {
     /// A public resume drives a real scheduled operation through a controlled page downloader while
     /// native submission is suspended. Transfer start and byte progress must reach the session's

@@ -5,8 +5,10 @@ import DownloadClient
 import Foundation
 import LibraryClient
 import Testing
+import TestingSupport
 import UIKit
 
+@Suite(.isolatedAppStorage)
 struct DownloadProcessCacheTests: DownloadFeatureTestCase {
     @Test
     func testProcessDownloadClearsRemoteAssetCacheAfterSuccessfulDownload() async throws {

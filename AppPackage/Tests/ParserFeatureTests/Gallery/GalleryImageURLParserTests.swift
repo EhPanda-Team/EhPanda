@@ -5,6 +5,7 @@ import ParserFeature
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct GalleryImageURLParserTests: TestHelper {
     @Test
     func testExample() throws {

@@ -4,7 +4,9 @@ import AppTools
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadEnqueueManifestTests: DownloadFeatureTestCase {
     @Test
     func testEnqueueWritesInitialManifestAndQueueIntent() async throws {

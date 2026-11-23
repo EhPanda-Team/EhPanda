@@ -8,11 +8,12 @@ import Foundation
 import HapticsClient
 import NetworkingFeature
 import Testing
+import TestingSupport
 
 /// The favorite slot and the user's own rating, kept on the gallery the Detail screen shows: what the header's
 /// heart and the stars colour from. A gesture's success updates them at once; the page that is fetched
 /// afterwards confirms them.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DetailFavoriteStateTests {
     @MainActor
     private func makeStore(

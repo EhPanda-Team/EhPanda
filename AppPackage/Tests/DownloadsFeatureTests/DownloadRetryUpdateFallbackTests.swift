@@ -4,7 +4,9 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadRetryUpdateFallbackTests: DownloadFeatureTestCase {
     @Test
     func testRetryPagesQueuesFullUpdateWhenGalleryHasUpdate() async throws {

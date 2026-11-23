@@ -2,12 +2,14 @@ import AppModels
 @testable import DetailFeature
 import Foundation
 import Testing
+import TestingSupport
 
 /// The comment report action's target (D-10, research §5.2): the gallery's own report page on its own site.
 ///
 /// The URL is built from the parsed gallery URL alone, never from a comment's content, and any host outside
 /// `GalleryHost` yields no target, so untrusted page data cannot point the report sheet at another site (T-18-09).
 /// The per-type URL the native Report form reads and posts to follows the same rules (18.1 DD-02, T-18.1-01).
+@Suite(.isolatedAppStorage)
 struct CommentReportTargetTests {
     @Test
     func anEHentaiGalleryReportsOnItsOwnReportPage() throws {

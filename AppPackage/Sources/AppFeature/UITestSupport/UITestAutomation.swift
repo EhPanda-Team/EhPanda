@@ -240,7 +240,9 @@ public enum UITestAutomation {
                 if configuration.shouldUseVisualTestHost {
                     // The hosted test process renders the app before XCTest enters any test case.
                     // Prepare explicit inert clients before the first Store or shared key is built.
-                    configureVisualTestHost(&$0, firstLaunch: configuration.firstLaunchPreset)
+                    configureVisualTestHost(
+                        &$0, firstLaunch: configuration.firstLaunchPreset, appStorage: .inMemory
+                    )
                 }
                 if let clipboardClient = configuration.clipboardClient {
                     $0.clipboardClient = clipboardClient
@@ -313,15 +315,14 @@ public enum UITestAutomation {
 
     /// Install isolated fixtures both for hosted rendering and explicitly on the app's Store.
     /// Global preparation alone cannot bind the host Store to fixtures when XCTest changes scopes.
-    static func configureVisualTestHost(_ dependencies: inout DependencyValues) {
-        configureVisualTestHost(&dependencies, firstLaunch: .answered)
-    }
-
-    /// `configureVisualTestHost(_:)` with the first-launch answers `firstLaunch` asks for, written
-    /// into the host's fresh storage; `nil` leaves that storage's never-answered defaults.
+    ///
+    /// `appStorage` becomes the host's app storage, and the first-launch answers `firstLaunch` asks for are written
+    /// into it; `nil` leaves its never-answered defaults. The UI-test app passes a fresh `UserDefaults.inMemory`, a
+    /// unit test the suite of its test case.
     static func configureVisualTestHost(
         _ dependencies: inout DependencyValues,
-        firstLaunch: FirstLaunchPreset?
+        firstLaunch: FirstLaunchPreset?,
+        appStorage: UserDefaults
     ) {
         dependencies.analyticsClient = .noop
         dependencies.appLaunchAutomationClient = .none
@@ -333,8 +334,6 @@ public enum UITestAutomation {
         dependencies.hapticsClient = .noop
         dependencies.libraryClient = .noop
         dependencies.userDefaultsClient = .noop
-        // One suite, held: each `UserDefaults.inMemory` access makes a new one.
-        let appStorage = UserDefaults.inMemory
         dependencies.defaultAppStorage = appStorage
         dependencies.defaultInMemoryStorage = InMemoryStorage()
         dependencies.date.now = fixedDate

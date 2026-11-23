@@ -3,7 +3,9 @@ import AppModels
 import Foundation
 @testable import SystemNotification
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct ToastInteractionTests {
     private let errorInfo = ErrorInfo(error: .networkingFailed)
 
@@ -21,6 +23,7 @@ struct ToastInteractionTests {
 // The capsule is a fixed shape: one line of title over one line of subtitle, never taller. Several
 // `AppError` messages are deliberately two sentences split across lines, so the mapping has to
 // flatten them before the view's line limits would otherwise drop the second sentence entirely.
+@Suite(.isolatedAppStorage)
 struct ToastLineCountTests {
     @Test func aMultiLineErrorMessageIsFlattenedToOneLine() throws {
         // `.unknown` carries an embedded newline: "…occurred.\nPlease try again later."

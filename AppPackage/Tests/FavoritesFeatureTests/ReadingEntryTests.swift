@@ -9,7 +9,9 @@ import Foundation
 import HapticsClient
 import ReadingFeature
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 @MainActor
 struct ReadingEntryTests {
     @Test
@@ -74,25 +76,19 @@ struct ReadingEntryTests {
     private func makeStore(
         download: DownloadedGallery? = nil, readingRequestID: UUID? = nil
     ) -> TestStoreOf<FavoritesReducer> {
-        let appStorage = UserDefaults.inMemory
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            var state = FavoritesReducer.State()
-            state.readingRequestID = readingRequestID
-            return TestStore(initialState: state, reducer: FavoritesReducer.init) {
-                $0.defaultAppStorage = appStorage
-                $0.analyticsClient = .noop
-                $0.appLaunchAutomationClient = .none
-                $0.date = .constant(.distantPast)
-                $0.cookieClient = .noop
-                $0.downloadClient = .noop
-                $0.downloadClient.loadManifest = { _ in
-                    guard let download else { throw AppError.notFound }
-                    return (download, download.manifest)
-                }
-                $0.hapticsClient = .noop
+        var state = FavoritesReducer.State()
+        state.readingRequestID = readingRequestID
+        return TestStore(initialState: state, reducer: FavoritesReducer.init) {
+            $0.analyticsClient = .noop
+            $0.appLaunchAutomationClient = .none
+            $0.date = .constant(.distantPast)
+            $0.cookieClient = .noop
+            $0.downloadClient = .noop
+            $0.downloadClient.loadManifest = { _ in
+                guard let download else { throw AppError.notFound }
+                return (download, download.manifest)
             }
+            $0.hapticsClient = .noop
         }
     }
 }

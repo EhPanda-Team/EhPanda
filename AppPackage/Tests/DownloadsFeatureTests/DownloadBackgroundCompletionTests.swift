@@ -4,7 +4,9 @@ import AppModels
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadBackgroundCompletionTests: DownloadFeatureTestCase {
     @Test
     func testOrphanedBackgroundCompletionAttachesPageAndClearsTaskRecord() async throws {

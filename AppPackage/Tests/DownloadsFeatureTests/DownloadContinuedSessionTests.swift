@@ -4,8 +4,9 @@ import CustomDump
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
     /// Every endpoint on the client type's no-argument value must report an issue when called.
     /// A call the test did not arrange for therefore fails loudly instead of silently succeeding

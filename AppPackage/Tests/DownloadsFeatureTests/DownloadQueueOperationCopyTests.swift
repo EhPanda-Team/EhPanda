@@ -1,9 +1,11 @@
 @testable import DownloadsFeature
 import Foundation
 import Testing
+import TestingSupport
 
 /// B-4: the queue operations' labels read the owner's wording in every locale, each written natively for its
 /// language rather than translated word for word.
+@Suite(.isolatedAppStorage)
 struct DownloadQueueOperationCopyTests {
     struct Label: Sendable, CustomTestStringConvertible {
         let key: String

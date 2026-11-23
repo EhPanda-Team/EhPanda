@@ -1,7 +1,9 @@
 @testable import DetailFeature
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct LinkedTextTests {
     /// Detection runs on a `String` and links an `AttributedString`, so the range has to survive
     /// characters that take different lengths in UTF-16 and UTF-8.

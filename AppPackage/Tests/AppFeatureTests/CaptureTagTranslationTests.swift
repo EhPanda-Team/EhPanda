@@ -5,7 +5,9 @@ import Foundation
 import LibraryClient
 import Sharing
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct CaptureTagTranslationTests {
     @Test(arguments: ["en", "ja", "ko", "zh-Hans", "zh-Hant"])
     func loadsVerifiedTableThroughProductionDecoder(languageCode: String) throws {

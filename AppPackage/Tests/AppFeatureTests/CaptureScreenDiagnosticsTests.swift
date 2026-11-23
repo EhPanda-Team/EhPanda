@@ -22,6 +22,7 @@ import UIKit
 // Each capture screen identifies itself from the app's navigation state and reads ready only once
 // it shows its configured content and every image it must show. These cases seed the state each
 // route leaves, step by step, and read the diagnostics UI tests receive.
+@Suite(.isolatedAppStorage)
 struct CaptureScreenDiagnosticsTests {
     @Test(arguments: [CaptureRendering.lightPhone, .darkPhone])
     func homeWaitsForTheCurrentCardsColors(_ rendering: CaptureRendering) async throws {
@@ -300,27 +301,23 @@ struct CaptureScreenDiagnosticsTests {
         let scene = try makeScene(try MarketingFixtureBuilder.standard())
         let cover = try #require(scene.replay.first(where: { $0.value.mimeType.hasPrefix("image/") })).key
 
-        try await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            var state = AppReducer.State()
-            state.tabBarState.tabBarItemType = .setting
-            state.settingState.path.append(.laboratory(.init()))
-            let off = diagnostics(scene, state)
-            state.settingState.$setting.withLock({ $0 = CaptureScenePreparation.sceneSetting(family: .phone) })
-            let enabled = diagnostics(scene, state)
-            var sheet = try await loadedState(scene)
-            sheet.presentationState.destination = .setting(.init())
-            sheet.settingState = state.settingState
-            let enabledInASheet = diagnostics(scene, sheet, cached: [cover])
+        var state = AppReducer.State()
+        state.tabBarState.tabBarItemType = .setting
+        state.settingState.path.append(.laboratory(.init()))
+        let off = diagnostics(scene, state)
+        state.settingState.$setting.withLock({ $0 = CaptureScenePreparation.sceneSetting(family: .phone) })
+        let enabled = diagnostics(scene, state)
+        var sheet = try await loadedState(scene)
+        sheet.presentationState.destination = .setting(.init())
+        sheet.settingState = state.settingState
+        let enabledInASheet = diagnostics(scene, sheet, cached: [cover])
 
-            expectNoDifference(off.screenID, .laboratory)
-            expectNoDifference(off.readiness, .failed)
-            expectNoDifference(off.blockers, ["The network bypass is off"])
-            expectNoDifference(enabled.readiness, .ready)
-            expectNoDifference(enabledInASheet.screenID, .laboratory)
-            expectNoDifference(enabledInASheet.readiness, .ready)
-        }
+        expectNoDifference(off.screenID, .laboratory)
+        expectNoDifference(off.readiness, .failed)
+        expectNoDifference(off.blockers, ["The network bypass is off"])
+        expectNoDifference(enabled.readiness, .ready)
+        expectNoDifference(enabledInASheet.screenID, .laboratory)
+        expectNoDifference(enabledInASheet.readiness, .ready)
     }
 
     @Test

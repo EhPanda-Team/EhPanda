@@ -2,9 +2,10 @@ import AppModels
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// Pins the delete-path convergence contract when an indexed download record has vanished.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadDeleteConvergenceTests: DownloadFeatureTestCase {
     /// CR-04: a last-item record that disappears between indexing and deletion must still close
     /// the continued session. Before the convergence fix, the not-found branch returned before

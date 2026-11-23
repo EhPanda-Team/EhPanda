@@ -13,11 +13,13 @@ import HapticsClient
 import SettingFeature
 import SwiftUI
 import Testing
+import TestingSupport
 
 // A tapped download asks the app root to open its detail, and the root routes it by the window's
 // size classes: a window regular in both dimensions presents it modally, any other pushes it onto
 // the Downloads stack. Either way the detail is seeded from the download, so it renders offline.
 // `@MainActor` sits on members so the `DownloadFeatureTestCase` conformance stays nonisolated.
+@Suite(.isolatedAppStorage)
 struct AppDownloadDetailRoutingTests: DownloadFeatureTestCase {
     @MainActor
     @Test

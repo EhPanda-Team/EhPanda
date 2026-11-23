@@ -9,11 +9,13 @@ import HapticsClient
 @testable import ReadingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
+@Suite(.isolatedAppStorage)
 struct ReadingReducerImageFetchTests {
     @MainActor
     @Test

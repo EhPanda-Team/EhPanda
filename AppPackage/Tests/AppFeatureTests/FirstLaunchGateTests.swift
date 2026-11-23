@@ -16,6 +16,7 @@ import SettingFeature
 import Sharing
 import SwiftUI
 import Testing
+import TestingSupport
 import UIKit
 import UserDefaultsClient
 
@@ -24,6 +25,7 @@ import UserDefaultsClient
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it (see 11-22-SUMMARY.md).
+@Suite(.isolatedAppStorage)
 struct FirstLaunchGateTests {
     // MARK: Locked launch
 
@@ -638,11 +640,9 @@ private extension FirstLaunchGateTests {
         state configure: (inout AppReducer.State) -> Void = { _ in },
         dependencies: @escaping (inout DependencyValues) -> Void = { _ in }
     ) -> TestStoreOf<AppReducer> {
-        let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
 
         return withDependencies {
-            $0.defaultAppStorage = appStorage
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             var initialState = AppReducer.State()
@@ -675,7 +675,6 @@ private extension FirstLaunchGateTests {
                     $0.continuousClock = TestClock()
                     $0.cookieClient = .noop
                     $0.date = .constant(.distantPast)
-                    $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
                     $0.dfClient = .noop
                     $0.downloadClient = .noop
@@ -691,33 +690,22 @@ private extension FirstLaunchGateTests {
 
     @MainActor
     static func makeFirstLaunchState(version: Int?, level: AnalyticsLevel?) -> FirstLaunchReducer.State {
-        withDependencies {
-            $0.defaultAppStorage = .inMemory
-        } operation: {
-            let state = FirstLaunchReducer.State()
-            state.$setting.withLock {
-                $0.ageDeclarationVersion = version
-                $0.analyticsLevel = level
-            }
-            return state
+        let state = FirstLaunchReducer.State()
+        state.$setting.withLock {
+            $0.ageDeclarationVersion = version
+            $0.analyticsLevel = level
         }
+        return state
     }
 
     @MainActor
     static func makeFirstLaunchStore(version: Int?, level: AnalyticsLevel?) -> TestStoreOf<FirstLaunchReducer> {
-        let appStorage = UserDefaults.inMemory
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            let state = FirstLaunchReducer.State()
-            state.$setting.withLock {
-                $0.ageDeclarationVersion = version
-                $0.analyticsLevel = level
-            }
-            return TestStore(initialState: state, reducer: FirstLaunchReducer.init) {
-                $0.defaultAppStorage = appStorage
-            }
+        let state = FirstLaunchReducer.State()
+        state.$setting.withLock {
+            $0.ageDeclarationVersion = version
+            $0.analyticsLevel = level
         }
+        return TestStore(initialState: state, reducer: FirstLaunchReducer.init)
     }
 }
 
@@ -773,6 +761,7 @@ private struct AnalyticsClientSpy {
 
 /// The title widow guard shared by the first-launch titles and the Blocked Users empty state (UI-SPEC C-3, lead
 /// decision).
+@Suite(.isolatedAppStorage)
 struct TitleWidowGuardTests {
     private let noBreakSpace = String(TitleWidowGuard.noBreakSpace)
 

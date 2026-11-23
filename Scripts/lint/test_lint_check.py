@@ -3,7 +3,9 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
+import app_storage_isolation
 import lint_check
 from lint_check import Finding
 
@@ -217,6 +219,44 @@ class CoverageTests(unittest.TestCase):
         self.assertFalse(lint_check.is_linted('AppPackage/Sources/Stray.swift'))
         self.assertFalse(lint_check.is_linted('NewExtension/Entry.swift'))
         self.assertFalse(lint_check.is_linted('AppFoo/Entry.swift'))
+
+
+class AppStorageIsolationTests(unittest.TestCase):
+    def test_each_break_of_the_rule_is_an_error_finding_at_its_place(self):
+        breaks = [
+            app_storage_isolation.Violation(
+                'AppPackage/Tests/SomeTests/Some.swift', 4,
+                'The suite Some can reach app storage and has no .isolatedAppStorage trait.'
+            ),
+            app_storage_isolation.Violation(
+                'AppPackage/Package.swift', 0,
+                'The test target SomeTests holds suites that need .isolatedAppStorage and does not link TestingSupport.'
+            )
+        ]
+        with mock.patch.object(app_storage_isolation, 'violations', return_value=breaks):
+            self.assertEqual(lint_check.app_storage_findings(ROOT), {
+                Finding(
+                    'AppPackage/Tests/SomeTests/Some.swift', 4, 1, 'error',
+                    'The suite Some can reach app storage and has no .isolatedAppStorage trait.'
+                ),
+                Finding(
+                    'AppPackage/Package.swift', 0, 0, 'error',
+                    'The test target SomeTests holds suites that need .isolatedAppStorage and does not link '
+                    'TestingSupport.'
+                )
+            })
+
+    def test_a_tree_the_check_cannot_read_is_a_finding(self):
+        error = app_storage_isolation.ScopeError('no app-storage keys')
+        with mock.patch.object(app_storage_isolation, 'violations', side_effect=error):
+            self.assertEqual(lint_check.app_storage_findings(ROOT), {
+                Finding(
+                    '', 0, 0, 'error', 'The app-storage isolation check could not read the tree: no app-storage keys'
+                )
+            })
+
+    def test_every_suite_of_this_repository_keeps_the_app_storage_isolation_rule(self):
+        self.assertEqual(lint_check.app_storage_findings(ROOT), set())
 
 
 if __name__ == '__main__':

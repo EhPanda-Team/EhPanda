@@ -2,6 +2,7 @@ import AnalyticsClient
 import AppModels
 import ComposableArchitecture
 import Testing
+import TestingSupport
 
 // Where D-13's absent-credential gate is proven. Under the test host there is no build-time app ID
 // (`AppInfoAnalyticsTests` pins that), so `AnalyticsClient.live` is structurally the no-op client and
@@ -11,7 +12,7 @@ import Testing
 //
 // The suite also pins the two clients every later instrumentation plan inherits — the loud
 // `unimplemented` default and the `.noop`-derived spy — so those plans build on a known-good pattern.
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsClientGateTests {
     // Every signal fixture drives the live client and `apply` at every level, under the test host where no app ID is
     // present. If the gate were wrong and the SDK were reached, its uninitialized-manager assertion

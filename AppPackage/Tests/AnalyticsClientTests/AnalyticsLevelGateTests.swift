@@ -5,6 +5,7 @@ import CookieClient
 import Foundation
 import Sharing
 import Testing
+import TestingSupport
 
 // The analytics level decides what leaves the app (D-06a, D-06b, D-06f, DD-09a), proven against a
 // recording `TelemetrySDK` and a recording install-signal trigger, with a non-nil test app ID. The
@@ -12,9 +13,9 @@ import Testing
 // (its count is pinned there), a `minimumLevel` (the switch is exhaustive) and an entry in
 // `basicCases` or `fullOnlyCases` below, or this suite fails.
 //
-// Each case has its own in-memory defaults for `@Shared(.setting)`, so the cases run in parallel; a
-// "relaunch" is a new client over the same defaults and the same recorders.
-@Suite
+// Each case's `@Shared(.setting)` lives in the case's own suite from `.isolatedAppStorage`, so the cases run
+// in parallel; a "relaunch" is a new client over the same suite and the same recorders.
+@Suite(.isolatedAppStorage)
 struct AnalyticsLevelGateTests {
     /// Screens and features, and kinds of errors (D-06f), and the 3.0 flows (20-12, signed off): the
     /// first-launch screens, the analytics choice and comment moderation, all under "which screens and
@@ -303,18 +304,15 @@ struct GateHarness {
     static let appID = "TEST-APP-ID"
     static let salt = "test-salt"
 
-    let defaults: UserDefaults
     let sdk: RecordingSDK
     let installSignals: LockIsolated<Int>
     let client: AnalyticsClient
 
     init(
         level: AnalyticsLevel?,
-        defaults: UserDefaults = .inMemory,
         sdk: RecordingSDK = RecordingSDK(),
         installSignals: LockIsolated<Int> = LockIsolated(0)
     ) {
-        self.defaults = defaults
         self.sdk = sdk
         self.installSignals = installSignals
         client = AnalyticsClient.live(
@@ -328,29 +326,20 @@ struct GateHarness {
 
     /// A new client over the same storage and recorders, as after a relaunch.
     func relaunched() -> Self {
-        withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            @Shared(.setting) var setting
-            return Self(level: setting.analyticsLevel, defaults: defaults, sdk: sdk, installSignals: installSignals)
-        }
+        @Shared(.setting) var setting
+        return Self(level: setting.analyticsLevel, sdk: sdk, installSignals: installSignals)
     }
 
     func setLevel(_ level: AnalyticsLevel?) {
-        withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            @Shared(.setting) var setting
-            $setting.withLock {
-                $0.analyticsLevel = level
-                $0.galleryHost = .ehentai
-            }
+        @Shared(.setting) var setting
+        $setting.withLock {
+            $0.analyticsLevel = level
+            $0.galleryHost = .ehentai
         }
     }
 
     func sendEveryFixture() {
         withDependencies {
-            $0.defaultAppStorage = defaults
             $0.cookieClient = .testing()
         } operation: {
             for fixture in AnalyticsSignalRenderingTests.fixtures {
@@ -364,7 +353,6 @@ struct GateHarness {
     func sendEachFixtureRecordingWhatReachedTheSDK() -> [String: [String: String]] {
         var reached: [String: [String: String]] = [:]
         withDependencies {
-            $0.defaultAppStorage = defaults
             $0.cookieClient = .testing()
         } operation: {
             for fixture in AnalyticsSignalRenderingTests.fixtures {

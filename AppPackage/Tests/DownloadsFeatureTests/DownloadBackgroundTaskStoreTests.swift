@@ -2,7 +2,9 @@
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadBackgroundTaskStoreTests {
     @Test
     func testRecordsPersistByTaskIdentifier() async {

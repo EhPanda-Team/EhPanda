@@ -4,7 +4,9 @@ import AppTools
 import DownloadClient
 import SwiftUI
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct SettingDownloadTests {
     @Test
     func testSettingRoundTripsDownloadFields() throws {

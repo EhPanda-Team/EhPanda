@@ -3,11 +3,12 @@ import ComposableArchitecture
 @testable import FavoritesFeature
 import NetworkingFeature
 import Testing
+import TestingSupport
 
 /// A Favorites page whose order could not be read (`sortOrder == nil`) must not erase the order the
 /// server last confirmed: the sort picker would lose its mark, and `selectSortOrder` would then treat
 /// every choice as a change.
-@Suite
+@Suite(.isolatedAppStorage)
 struct SortOrderKeepTests {
     @MainActor
     @Test

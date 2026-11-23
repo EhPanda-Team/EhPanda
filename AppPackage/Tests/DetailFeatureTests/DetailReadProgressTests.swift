@@ -1,9 +1,11 @@
 @testable import DetailFeature
 import SwiftUI
 import Testing
+import TestingSupport
 
 /// The Read button's progress ring is the resume page over the gallery's page count; no saved page draws no ring. While
 /// the reader is on screen the ring holds the length it was drawn at, and grows from it once the reader has closed.
+@Suite(.isolatedAppStorage)
 struct DetailReadProgressTests {
     @Test
     func theRingIsTheResumePageOverThePageCount() {

@@ -1,6 +1,7 @@
 @testable import AnalyticsClient
 import AppModels
 import Testing
+import TestingSupport
 
 // One fixture per signal case: the value a reducer emits, beside the exact wire form it must
 // produce. A named struct rather than a positional tuple — the table is long, and `.0`/`.1` reads
@@ -10,7 +11,7 @@ struct SignalRenderingFixture: Sendable {
     let rendered: AnalyticsSignal.Rendered
 }
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsSignalRenderingTests {
     // Distinctive enough that a substring search for it cannot collide with a signal name, a
     // parameter key, a bucket spelling or any other rendering a payload legitimately carries.

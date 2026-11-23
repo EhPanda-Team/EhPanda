@@ -10,6 +10,7 @@ import LogsClient
 @testable import SettingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // Covers the Setting tab's single flat navigation stack: root-row taps, child `delegate`-driven
 // pushes, and the post-login effect cascade that `SettingReducer` runs while the login screen
@@ -18,7 +19,7 @@ import Testing
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
-@Suite
+@Suite(.isolatedAppStorage)
 struct SettingReducerNavigationTests {
     // Every dependency a pushed Setting screen's presentation load can reach, stubbed inert so the
     // navigation assertions never depend on a client's behaviour.
@@ -109,7 +110,6 @@ struct SettingReducerNavigationTests {
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
             $0.analyticsClient = .noop
             $0.cookieClient = .noop
-            $0.defaultAppStorage = UserDefaults.inMemory
         }
         store.exhaustivity = .off
 
@@ -178,33 +178,27 @@ struct SettingReducerNavigationTests {
     @MainActor
     @Test
     func generalEnablesTagsExtensionDelegateRebuildsWhenEnabled() async throws {
-        let defaults = UserDefaults.inMemory
-        try await withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            @Shared(.setting) var setting
-            $setting.withLock({ $0.enableTagsExtension = true })
+        @Shared(.setting) var setting
+        $setting.withLock({ $0.enableTagsExtension = true })
 
-            // A loading table makes the rebuild's follow-on `fetchTagTranslator` guard-return (no network).
-            var initialState = SettingReducer.State()
-            initialState.tagTranslatorLoadingState = .loading
+        // A loading table makes the rebuild's follow-on `fetchTagTranslator` guard-return (no network).
+        var initialState = SettingReducer.State()
+        initialState.tagTranslatorLoadingState = .loading
 
-            let store = TestStore(initialState: initialState, reducer: SettingReducer.init) {
-                $0.analyticsClient = .noop
-                $0.defaultAppStorage = defaults
-                $0.libraryClient = .noop
-                $0.fileClient.loadCachedTagTranslator = { (_: TagTranslatorInfo) throws(AppError) in
-                    throw .fileOperationFailed("Read cached tag translations")
-                }
+        let store = TestStore(initialState: initialState, reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
+            $0.libraryClient = .noop
+            $0.fileClient.loadCachedTagTranslator = { (_: TagTranslatorInfo) throws(AppError) in
+                throw .fileOperationFailed("Read cached tag translations")
             }
-            store.exhaustivity = .off
-
-            await store.send(.settingRowTapped(.general))
-            let id = try #require(store.state.path.ids.last)
-            await store.send(.path(.element(id: id, action: .general(.delegate(.enableTagsExtensionChanged)))))
-            await store.receive(\.rebuildTagTranslator)
-            await store.finish()
         }
+        store.exhaustivity = .off
+
+        await store.send(.settingRowTapped(.general))
+        let id = try #require(store.state.path.ids.last)
+        await store.send(.path(.element(id: id, action: .general(.delegate(.enableTagsExtensionChanged)))))
+        await store.receive(\.rebuildTagTranslator)
+        await store.finish()
     }
 
     @MainActor
@@ -214,7 +208,6 @@ struct SettingReducerNavigationTests {
         // store fails if any effect is left unhandled.
         let store = TestStore(initialState: .init(), reducer: SettingReducer.init) {
             $0.analyticsClient = .noop
-            $0.defaultAppStorage = UserDefaults.inMemory
             $0.libraryClient = .noop
         }
 

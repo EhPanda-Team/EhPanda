@@ -6,13 +6,14 @@ import ComposableArchitecture
 import Foundation
 import Resources
 import Testing
+import TestingSupport
 
 // The Report form's logic (18.1, UI-SPEC C-13), without a view. Every call to the site is a stub: `ReportFormClient`'s
 // test value is unimplemented, so a test that reaches the site without saying what it answers fails.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated
 // (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct ReportFormReducerTests {
 
     // MARK: Opening

@@ -4,15 +4,15 @@ import Foundation
 @testable import SettingFeature
 import Sharing
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct TagDatabaseDigestTests {
     /// The metadata survives a purged cache, so comparing it would keep the table empty until the next
     /// change to this language, which for some languages can be weeks away.
     @Test
-    func updateCheckComparesTheLoadedTableNotTheMetadata() throws {
-        let defaults = try #require(UserDefaults(suiteName: UUID().uuidString))
+    func updateCheckComparesTheLoadedTableNotTheMetadata() {
         withDependencies {
-            $0.defaultAppStorage = defaults
             $0.defaultInMemoryStorage = InMemoryStorage()
         } operation: {
             let state = SettingReducer.State()

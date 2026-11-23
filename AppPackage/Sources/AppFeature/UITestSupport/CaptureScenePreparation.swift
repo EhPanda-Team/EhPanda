@@ -257,6 +257,8 @@ enum CaptureScenePreparation {
             calculateWebImageDiskCacheSize: live.calculateWebImageDiskCacheSize
         )
         prepareDependencies {
+            // `isolate` reads the scene's app storage from here.
+            $0.defaultAppStorage = .inMemory
             isolate(
                 &$0, scene: scene, storage: storage, libraryClient: libraryClient,
                 launch: CaptureLaunchInputs(
@@ -272,6 +274,10 @@ enum CaptureScenePreparation {
     /// between runs. Clients that only present the app, such as the device and haptics clients,
     /// stay live so the scene is the actual app. `launch.downloads` is what the scene's seeded
     /// download folders read back as.
+    ///
+    /// Precondition: `dependencies` already carry the scene's app storage, which the scene's settings are written
+    /// into, and it is never `UserDefaults.standard`. The capture launch sets a fresh `UserDefaults.inMemory`, and a
+    /// unit test inherits its test case's isolated suite through the task-local dependencies.
     static func isolate(
         _ dependencies: inout DependencyValues,
         scene: CaptureScene,
@@ -279,6 +285,11 @@ enum CaptureScenePreparation {
         libraryClient: LibraryClient,
         launch: CaptureLaunchInputs
     ) {
+        let appStorage = dependencies.defaultAppStorage
+        precondition(
+            appStorage !== UserDefaults.standard,
+            "A capture must not write into the standard defaults: set defaultAppStorage before isolating"
+        )
         let tagTranslator = launch.tagTranslator
         dependencies.analyticsClient = .noop
         // The capture's route is the launch's only automation.
@@ -289,7 +300,6 @@ enum CaptureScenePreparation {
         dependencies.cookieClient = .noop
         dependencies.dataCache = DataCache(configuration: .init(rootURL: storage.dataCache))
         dependencies.date.now = UITestAutomation.fixedDate
-        let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
         withDependencies {
             $0.defaultAppStorage = appStorage
@@ -312,7 +322,6 @@ enum CaptureScenePreparation {
                 }
             }
         }
-        dependencies.defaultAppStorage = appStorage
         dependencies.defaultInMemoryStorage = inMemoryStorage
         dependencies.fileClient = .live(
             applicationSupportURL: storage.tagTranslations, cachesURL: storage.tagTranslations

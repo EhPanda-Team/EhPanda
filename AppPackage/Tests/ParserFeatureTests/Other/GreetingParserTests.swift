@@ -5,6 +5,7 @@ import ParserFeature
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct GreetingParserTests: TestHelper {
     @Test
     func testExample() throws {

@@ -7,6 +7,7 @@ import DownloadClient
 @testable import DownloadsFeature
 import Foundation
 import Testing
+import TestingSupport
 
 /// A queue operation in the downloads LIST reports a refusal and stays silent on success (DES-3).
 ///
@@ -14,6 +15,7 @@ import Testing
 /// operation to the client unchanged, an accepted request sets no toast (the row's new place arrives through
 /// `observeDownloads`), and a refused one (`.notFound` for a record deleted underneath the row, `.unknown` for a
 /// status or place that no longer allows it) shows the shared action-failure toast.
+@Suite(.isolatedAppStorage)
 struct DownloadsQueueOperationReducerTests: DownloadFeatureTestCase {
     private struct QueueOperationCall: Equatable, Sendable {
         let gid: String

@@ -3,12 +3,13 @@ import Dependencies
 import Foundation
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 
 // A capture of the reading-live-text screen shows the groups a recording saved through the reader's
 // own Live Text handler and overlay. These cases drive the handler's capture seam directly: which
 // pages it answers itself, which it leaves to recognition, and what it reports for the diagnostics.
 @MainActor
-@Suite
+@Suite(.isolatedAppStorage)
 struct CaptureLiveTextTests {
     private static let gid = "1979820"
 

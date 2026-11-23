@@ -1,12 +1,13 @@
 import CoreGraphics
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 
 // Pins when the reader counts its area as measured, which is when it builds its first pager, placed on the resume
 // page: once, at the first measurement of an area it can lay pages out in, rather than at the first measurement. A
 // first measurement of 0 by 1 pt had used the seed up without seeding, and the reader opened on page 1 under an
 // indicator naming the resume page (see `PagerSeed`).
-@Suite
+@Suite(.isolatedAppStorage)
 struct PagerSeedTests {
     @Test
     func theAreaIsMeasuredAtTheFirstReadingAreaNotTheFirstMeasurement() {

@@ -2,7 +2,9 @@ import CoreGraphics
 import CustomDump
 import GalleryListComponents
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct GalleryScrollAnchorTests {
     @Test
     func paginationAndReorderingKeepTheSameGallery() {

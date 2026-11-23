@@ -3,6 +3,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// The gallery folder's readable leaf is chosen ONCE and never recomputed (G-15-2H).
 ///
@@ -21,7 +22,7 @@ import Testing
 /// (`DownloadStore.makeFolderRelativePath`, `DownloadCoordinator.folderRelativePath`,
 /// `DownloadStore.galleryFolderURLs`), never spelled as a literal, so a naming change fails here
 /// rather than leaving the suite green against a layout that no longer exists.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadFolderLeafFreezeTests: DownloadFeatureTestCase {
     /// A title carrying no `|`, so `trimmedTitle` keeps the whole of it.
     private static let titleWithoutPipe = "Onna no Battle Woman's Battle"

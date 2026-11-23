@@ -3,12 +3,14 @@ import BackgroundProcessingClient
 @testable import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// B-1: Download Now interrupts the active gallery and starts the selected one at once. The interrupted gallery is
 /// not paused and does not leave the queue: it waits directly after the selected one, with the pages it saved and
 /// its manifest exactly as its own run left them, and no failure recorded (the manifest-SSOT invariant, the
 /// folder-deletion invariant). Nothing is deleted, and the queue converges through the coordinator's one
 /// convergence point.
+@Suite(.isolatedAppStorage)
 struct DownloadQueueInterruptTests: DownloadFeatureTestCase {
     struct ModeCase: Sendable, CustomTestStringConvertible {
         let stagedMode: DownloadStartMode

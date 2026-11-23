@@ -4,11 +4,12 @@ import ComposableArchitecture
 @testable import FavoritesFeature
 import NetworkingFeature
 import Testing
+import TestingSupport
 
 /// Favorites with nothing saved shows its own empty state instead of the shared not-found error, in every
 /// category; a keyword search or a date-seek with no hits is "no results" and keeps the not-found error
 /// (owner decision).
-@Suite
+@Suite(.isolatedAppStorage)
 struct EmptyStateTests {
     private static let keyword = "artist:nobody"
 

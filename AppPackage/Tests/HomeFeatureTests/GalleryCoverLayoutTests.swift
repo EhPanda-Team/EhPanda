@@ -5,8 +5,10 @@ import Foundation
 @testable import HomeFeature
 import SwiftUI
 import Testing
+import TestingSupport
 import UIKit
 
+@Suite(.isolatedAppStorage)
 struct GalleryCoverLayoutTests {
     @Test
     func coverFramesShareTheRequestedBookProportion() {

@@ -10,6 +10,7 @@ import NetworkingFeature
 @testable import SettingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // Exact-sequence proof for the login flow's two emission sites, in the module that handles
 // credentials.
@@ -32,7 +33,7 @@ import Testing
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsEmissionTests {
 
     // MARK: Classified login failures

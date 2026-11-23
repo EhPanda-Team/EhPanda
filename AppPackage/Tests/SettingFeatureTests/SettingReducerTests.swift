@@ -6,11 +6,13 @@ import Foundation
 @testable import SettingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
+@Suite(.isolatedAppStorage)
 struct SettingReducerTests {
     @MainActor
     @Test
@@ -46,17 +48,11 @@ struct SettingReducerTests {
 
     @MainActor
     private func makeStore(cookieClient: CookieClient) -> TestStoreOf<SettingReducer> {
-        let defaults = UserDefaults.inMemory
-        return withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            let state = SettingReducer.State()
-            state.$setting.withLock({ $0.galleryHost = .ehentai })
-            return TestStore(initialState: state, reducer: SettingReducer.init) {
-                $0.analyticsClient = .noop
-                $0.cookieClient = cookieClient
-                $0.defaultAppStorage = defaults
-            }
+        let state = SettingReducer.State()
+        state.$setting.withLock({ $0.galleryHost = .ehentai })
+        return TestStore(initialState: state, reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
+            $0.cookieClient = cookieClient
         }
     }
 }

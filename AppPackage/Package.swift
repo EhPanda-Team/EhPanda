@@ -1155,7 +1155,8 @@ let targets: [PackageDescription.Target] = [
         module: .galleryListComponentsTests,
         dependencies: [
             .module(.appModels),
-            .module(.galleryListComponents)
+            .module(.galleryListComponents),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1182,7 +1183,8 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.systemNotification),
             .module(.appComponents),
-            .module(.appModels)
+            .module(.appModels),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1226,7 +1228,8 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .module(.downloadClient),
             .module(.galleryClient),
-            .module(.hapticsClient)
+            .module(.hapticsClient),
+            .module(.testingSupport)
         ]
     ),
     .liveCheckTestTarget(

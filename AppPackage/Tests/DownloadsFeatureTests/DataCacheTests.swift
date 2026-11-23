@@ -2,7 +2,9 @@
 import AppTools
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DataCacheTests {
     @Test
     func testStoreAndReadDataFromDiskWithHashedFilename() async throws {

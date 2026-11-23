@@ -2,9 +2,11 @@ import AppModels
 @testable import DetailFeature
 import Foundation
 import Testing
+import TestingSupport
 
 /// The own-comment rule (research §5.6 b, A-10): a comment is the user's own when the site marks it editable, or when
 /// the user is signed in under the name the comment was posted by. Own comments get no Report or Block action.
+@Suite(.isolatedAppStorage)
 struct CommentOwnershipTests {
     @Test(arguments: [true, false])
     func anEditableCommentIsOwnSignedInOrOut(didLogin: Bool) {

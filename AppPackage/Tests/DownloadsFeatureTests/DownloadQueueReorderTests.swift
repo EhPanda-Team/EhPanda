@@ -3,9 +3,11 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// B-2 and B-5: the reorder operations rewrite the persisted queue's order under the one predicate the menu reads,
 /// leave the active gallery running in its slot, and refuse (with nothing moved) what the place no longer allows.
+@Suite(.isolatedAppStorage)
 struct DownloadQueueReorderTests: DownloadFeatureTestCase {
     private static let active = SessionGallery(gid: "261123200", title: "Active", pageCount: 4)
     private static let first = SessionGallery(gid: "261123201", title: "First", pageCount: 4)

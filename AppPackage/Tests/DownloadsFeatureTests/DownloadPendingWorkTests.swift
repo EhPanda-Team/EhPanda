@@ -1,9 +1,11 @@
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// Covers the coordinator's schedulable-work predicate against real queue state, so the
 /// predicate cannot silently drift from what the scheduler treats as schedulable.
+@Suite(.isolatedAppStorage)
 struct DownloadPendingWorkTests: DownloadFeatureTestCase {
     @Test
     func testHasPendingWorkReflectsQueueState() async throws {

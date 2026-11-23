@@ -9,11 +9,13 @@ import Foundation
 import Kingfisher
 import LibraryClient
 import Testing
+import TestingSupport
 
 // A capture of the Downloads screen lists real download folders: the selection's galleries, each
 // seeded into capture-owned storage as a download leaves it, with the page files it holds and a
 // manifest that records their hashes. These cases seed the folders, read them back with the app's
 // own scan and verification, and refuse every selection a folder could not truthfully show.
+@Suite(.isolatedAppStorage)
 struct CaptureDownloadTests {
     /// The saved detail page every test gallery shows has this many pages.
     private static let pageCount = 156

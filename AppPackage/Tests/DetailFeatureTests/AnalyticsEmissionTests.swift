@@ -6,6 +6,7 @@ import DownloadClient
 import Foundation
 import HapticsClient
 import Testing
+import TestingSupport
 
 // Exact-sequence proof for DetailFeature's six emission sites: the tag tap, the three download
 // outcomes, and the detail-search screen's two panels. Each case drives its reducer through a store
@@ -25,7 +26,7 @@ import Testing
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsEmissionTests {
 
     // MARK: Tag taps

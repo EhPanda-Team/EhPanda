@@ -6,6 +6,7 @@ import DownloadClient
 import Foundation
 import LibraryClient
 import Testing
+import TestingSupport
 import UIKit
 
 /// Pins how a gallery downloaded before the reader-cache key stopped carrying the per-request
@@ -15,6 +16,7 @@ import UIKit
 /// resolved by page index through the manifest. The reader cache is only a *source* a download is
 /// seeded from (and evicted from). So galleries saved under the old keys must keep opening offline
 /// whatever happens to the cache, and the old cache entries must stay reachable until they age out.
+@Suite(.isolatedAppStorage)
 struct DownloadLegacyCacheKeyTests: DownloadFeatureTestCase {
     private static let signedPath = "h/9dc6713b44a7eafef9f42e831305087ca0898f05-152222-1024-1024-wbp"
 

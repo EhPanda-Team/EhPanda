@@ -2,6 +2,7 @@ import Foundation
 @testable import SettingFeature
 import SwiftUI
 import Testing
+import TestingSupport
 import UIKit
 
 /// The Login page's backdrop waves (19-10). They slide sideways for as long as the page is open, driven by the wall
@@ -10,6 +11,7 @@ import UIKit
 ///
 /// Rendered through the public view with the environment value set, twice, a quarter of a second apart: that is
 /// 1/16 of a cycle, about 12 pt at the 200 pt width here, so a moving wave cannot render the same pixels twice.
+@Suite(.isolatedAppStorage)
 @MainActor
 struct WaveFormReduceMotionTests {
     @Test

@@ -2,9 +2,11 @@ import AppModels
 import Foundation
 @testable import ReadingFeature
 import Testing
+import TestingSupport
 
 // Recognized lines group into the passages they belong to, so a balloon's lines are highlighted and
 // translated together.
+@Suite(.isolatedAppStorage)
 struct LiveTextGroupingTests {
     private static let pageSize = CGSize(width: 1000, height: 2000)
 

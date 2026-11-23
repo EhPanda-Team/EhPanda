@@ -5,6 +5,7 @@ import Foundation
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadImageErrorTests: DownloadFeatureTestCase {
     @Test
     func testFileBasedInvalidPageMapsToNotFound() async throws {

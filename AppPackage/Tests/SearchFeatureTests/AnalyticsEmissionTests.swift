@@ -24,7 +24,7 @@ import TestingSupport
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsEmissionTests {
 
     // MARK: Performed search (SearchReducer)
@@ -277,22 +277,17 @@ struct AnalyticsEmissionTests {
     @Test
     func selectingASavedSearchRecordsOnePayloadFreeSignal() async {
         let recorded = LockIsolated<[AnalyticsSignal]>([])
-        await withDependencies {
-            $0.defaultAppStorage = UserDefaults.inMemory
-        } operation: {
-            let store = TestStore(initialState: .init(), reducer: QuickSearchReducer.init) {
-                $0.analyticsClient = .recording(into: recorded)
-                $0.defaultAppStorage = UserDefaults.inMemory
-            }
-            store.exhaustivity = .off(showSkippedAssertions: false)
-
-            await store.send(.savedSearchTapped)
-            await store.skipInFlightEffects(strict: false)
-
-            expectNoDifference(recorded.value, [.savedSearchUsed])
-            let leaves = Mirror(reflecting: recorded.value).leafRenderings
-            #expect(leaves.contains(where: { $0.contains(Self.sentinelSearch) }) == false)
+        let store = TestStore(initialState: .init(), reducer: QuickSearchReducer.init) {
+            $0.analyticsClient = .recording(into: recorded)
         }
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.savedSearchTapped)
+        await store.skipInFlightEffects(strict: false)
+
+        expectNoDifference(recorded.value, [.savedSearchUsed])
+        let leaves = Mirror(reflecting: recorded.value).leafRenderings
+        #expect(leaves.contains(where: { $0.contains(Self.sentinelSearch) }) == false)
     }
 }
 
@@ -357,63 +352,42 @@ private extension AnalyticsEmissionTests {
     // one and coupling three passing cases to it.
     @MainActor
     func makeSearchRootDetailStore(analyticsClient: AnalyticsClient) -> TestStoreOf<SearchRootReducer> {
-        let appStorage = UserDefaults.inMemory
-
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            TestStore(
-                initialState: SearchRootReducer.State(),
-                reducer: SearchRootReducer.init,
-                withDependencies: {
-                    $0.analyticsClient = analyticsClient
-                    $0.cookieClient = .noop
-                    $0.date = .constant(.init(timeIntervalSince1970: 0))
-                    $0.defaultAppStorage = appStorage
-                    $0.downloadClient = .noop
-                    $0.hapticsClient = .noop
-                }
-            )
-        }
+        return TestStore(
+            initialState: SearchRootReducer.State(),
+            reducer: SearchRootReducer.init,
+            withDependencies: {
+                $0.analyticsClient = analyticsClient
+                $0.cookieClient = .noop
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
+                $0.downloadClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
     }
 
     @MainActor
     func makeSearchStore(keyword: String, analyticsClient: AnalyticsClient) -> TestStoreOf<SearchReducer> {
-        let appStorage = UserDefaults.inMemory
-
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            TestStore(
-                initialState: SearchReducer.State(keyword: keyword),
-                reducer: SearchReducer.init,
-                withDependencies: {
-                    $0.analyticsClient = analyticsClient
-                    $0.defaultAppStorage = appStorage
-                    $0.downloadClient = .noop
-                    $0.hapticsClient = .noop
-                }
-            )
-        }
+        return TestStore(
+            initialState: SearchReducer.State(keyword: keyword),
+            reducer: SearchReducer.init,
+            withDependencies: {
+                $0.analyticsClient = analyticsClient
+                $0.downloadClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
     }
 
     @MainActor
     func makeSearchRootStore(analyticsClient: AnalyticsClient) -> TestStoreOf<SearchRootReducer> {
-        let appStorage = UserDefaults.inMemory
-
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            TestStore(
-                initialState: SearchRootReducer.State(),
-                reducer: SearchRootReducer.init,
-                withDependencies: {
-                    $0.analyticsClient = analyticsClient
-                    $0.defaultAppStorage = appStorage
-                    $0.hapticsClient = .noop
-                }
-            )
-        }
+        return TestStore(
+            initialState: SearchRootReducer.State(),
+            reducer: SearchRootReducer.init,
+            withDependencies: {
+                $0.analyticsClient = analyticsClient
+                $0.hapticsClient = .noop
+            }
+        )
     }
 }
 

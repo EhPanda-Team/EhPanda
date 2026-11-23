@@ -7,6 +7,7 @@ import DownloadClient
 import Foundation
 import HapticsClient
 import Testing
+import TestingSupport
 
 // Exact-sequence proof for FavoritesFeature's two emission sites: the gallery-detail push and the
 // quick-search panel. Each drives the reducer through a store whose analytics client is a
@@ -15,7 +16,7 @@ import Testing
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
-@Suite
+@Suite(.isolatedAppStorage)
 struct AnalyticsEmissionTests {
 
     // MARK: Gallery detail push
@@ -150,24 +151,17 @@ private extension AnalyticsEmissionTests {
 
     @MainActor
     func makeFavoritesStore(analyticsClient: AnalyticsClient) -> TestStoreOf<FavoritesReducer> {
-        let appStorage = UserDefaults.inMemory
-
-        return withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            TestStore(
-                initialState: FavoritesReducer.State(),
-                reducer: FavoritesReducer.init,
-                withDependencies: {
-                    $0.analyticsClient = analyticsClient
-                    $0.cookieClient = .noop
-                    $0.date = .constant(.init(timeIntervalSince1970: 0))
-                    $0.defaultAppStorage = appStorage
-                    $0.downloadClient = .noop
-                    $0.hapticsClient = .noop
-                }
-            )
-        }
+        return TestStore(
+            initialState: FavoritesReducer.State(),
+            reducer: FavoritesReducer.init,
+            withDependencies: {
+                $0.analyticsClient = analyticsClient
+                $0.cookieClient = .noop
+                $0.date = .constant(.init(timeIntervalSince1970: 0))
+                $0.downloadClient = .noop
+                $0.hapticsClient = .noop
+            }
+        )
     }
 }
 

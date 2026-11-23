@@ -2,7 +2,9 @@ import AppModels
 @testable import DetailFeature
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct GalleryDetailFileSizeTests {
     struct Size: Sendable {
         let count: Float

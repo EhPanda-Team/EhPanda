@@ -4,6 +4,7 @@ import CustomDump
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// Pins the suspension window where expiration settlement and a newer user action interleave.
 ///
@@ -12,7 +13,7 @@ import Testing
 /// drain's own terminal push must not be torn down by the drain that was decided before it. These
 /// cases live outside the coordinator suite because that file sits against the project's hard
 /// file-length boundary.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadContinuedSessionInterleaveTests: DownloadFeatureTestCase {
     /// CR-03 / WR-01 replacement: start, expire, hold the resulting pause after cancellation,
     /// retry inside that hold, release, and verify the retry both survives and mobilizes the queue.

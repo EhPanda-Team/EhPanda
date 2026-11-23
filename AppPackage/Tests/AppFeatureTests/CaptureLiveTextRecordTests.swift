@@ -8,11 +8,13 @@ import HomeFeature
 import LibraryClient
 import ReadingFeature
 import Testing
+import TestingSupport
 
 // The reading-live-text screen replays what a recording of the flow's Live Text page saved, and a
 // recording launch lets the reader recognize that page. These cases build both scenes from fixtures
 // and refuse every record that belongs to another page, another image or other recognition
 // languages, or that holds lines the reader cannot draw.
+@Suite(.isolatedAppStorage)
 struct CaptureLiveTextRecordTests {
     @Test
     func theReadingLiveTextSceneReplaysTheRecordOfTheFlowPage() throws {

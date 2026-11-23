@@ -5,10 +5,12 @@ import CustomDump
 import Foundation
 @testable import HomeFeature
 import Testing
+import TestingSupport
 
 // The live popular fetch arranges the hero carousel (17-04 owner decision): the ten longest
 // titles, repeated trimmed titles removed, at most six, in an order drawn from the generator.
 // A seeded generator makes that order reproducible here; the live client uses the system one.
+@Suite(.isolatedAppStorage)
 struct HomeClientTests {
     @Test
     func carouselKeepsTheSixLongestTitlesInTheGeneratorsOrder() {
@@ -63,30 +65,24 @@ struct HomeClientTests {
     func presentationShowsEveryListInTheClientsOrder() async {
         let popular = makeGalleries(titleLengths: [2, 9, 4, 12, 1, 7])
         let frontPage = [makeGallery(gid: "f0", title: "Front A"), makeGallery(gid: "f1", title: "Front B")]
-        let appStorage = UserDefaults.inMemory
-        let store = withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            TestStore(
-                initialState: HomeReducer.State(),
-                reducer: HomeReducer.init,
-                withDependencies: {
-                    $0.analyticsClient = .noop
-                    $0.defaultAppStorage = appStorage
-                    $0.homeClient = HomeClient(
-                        fetchPopularGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
-                            popular
-                        },
-                        fetchFrontPageGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
-                            (pageNumber: PageNumber(), galleries: frontPage)
-                        },
-                        fetchToplistsGalleries: { (_: GalleryHost, catIndex: Int, _: Int?) async throws(AppError) in
-                            (pageNumber: PageNumber(), galleries: [makeGallery(gid: "t\(catIndex)", title: "Top")])
-                        }
-                    )
-                }
-            )
-        }
+        let store = TestStore(
+            initialState: HomeReducer.State(),
+            reducer: HomeReducer.init,
+            withDependencies: {
+                $0.analyticsClient = .noop
+                $0.homeClient = HomeClient(
+                    fetchPopularGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
+                        popular
+                    },
+                    fetchFrontPageGalleries: { (_: GalleryHost, _: AppModels.Filter) async throws(AppError) in
+                        (pageNumber: PageNumber(), galleries: frontPage)
+                    },
+                    fetchToplistsGalleries: { (_: GalleryHost, catIndex: Int, _: Int?) async throws(AppError) in
+                        (pageNumber: PageNumber(), galleries: [makeGallery(gid: "t\(catIndex)", title: "Top")])
+                    }
+                )
+            }
+        )
         store.exhaustivity = .off
 
         await store.send(.onPresented)

@@ -4,8 +4,10 @@ import ComposableArchitecture
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 import UIKit
 
+@Suite(.isolatedAppStorage)
 struct DownloadPauseAndReconcileTests: DownloadFeatureTestCase {
     @Test
     func testSavedSearchUsesNameWhenContentIsEmpty() {

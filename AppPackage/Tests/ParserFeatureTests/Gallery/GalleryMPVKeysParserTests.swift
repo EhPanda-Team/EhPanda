@@ -6,6 +6,7 @@ import ParserFeature
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct GalleryMPVKeysParserTests: TestHelper {
     @Test
     func testExample() throws {

@@ -3,12 +3,13 @@ import DeviceClient
 import Foundation
 import Synchronization
 import Testing
+import TestingSupport
 
 // The enricher exists to overwrite one vendor-owned key, so these tests pin the three things that
 // would make it silently stop doing that: the exact key it writes, the exact spellings it writes,
 // and its refusal to write anything when it has no answer. The refresh hop is exercised from the
 // main actor, which is where a signal's refresh lands.
-@Suite
+@Suite(.isolatedAppStorage)
 struct OrientationEnricherTests {
     // The key has to match the vendor's own, character for character. A typo here would not fail
     // anywhere else: the payload would simply carry an extra column alongside the "Unknown" one

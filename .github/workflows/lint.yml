@@ -9,6 +9,10 @@ name: Lint
 # A warning inside a third-party package is listed and allowed: only where the warning is counts. One that this
 # repository's code triggers fails, whichever library defined it.
 #
+# It fails, too, on a break of the app-storage isolation rule, which it checks before the build
+# (Scripts/lint/app_storage_isolation.py): a Swift Testing suite that can reach app storage and lacks TestingSupport's
+# `.isolatedAppStorage` trait, or the trait where the rule does not ask for it.
+#
 # Before the build it runs what needs no simulator: the tests of every script directory and the audit that no
 # cookie is logged in the clear.
 on:

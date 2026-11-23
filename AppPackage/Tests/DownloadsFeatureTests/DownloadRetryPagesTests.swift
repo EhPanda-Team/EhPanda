@@ -5,7 +5,9 @@ import DownloadClient
 import Foundation
 import Resources
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadRetryPagesTests: DownloadFeatureTestCase {
     @Test
     func testRetryPagesQueuesWorkWhenAnotherDownloadIsActive() async throws {

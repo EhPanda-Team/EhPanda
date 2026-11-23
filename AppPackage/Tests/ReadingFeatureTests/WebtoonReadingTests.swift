@@ -8,11 +8,13 @@ import HapticsClient
 import ReadingSettingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // Quick 261122-317 (D-01 to D-07): with "always read webtoons vertically" on, the reader decides once, from the page
 // sizes it already knows around the committed page, whether the open gallery is a webtoon, records the verdict in the
 // browsing history, and reads a webtoon vertically without writing the user's own direction.
 // `@MainActor` sits on the members that build a `TestStore`, whose `init` and `state` are main-actor-isolated.
+@Suite(.isolatedAppStorage)
 struct WebtoonReadingTests {
     private let now = Date(timeIntervalSince1970: 1_000)
     /// A gid the history can key, for the cases that read the persisted verdict back.
@@ -28,20 +30,16 @@ struct WebtoonReadingTests {
         try #require(PagePixelSize(width: 400, height: 999))
     }
 
-    /// A reader of a ten-page gallery on `page`, with `setting` and the history in `defaults`, which knows the sizes of
-    /// `tallPages` as extremely tall. The default gid is one the history cannot key, so nothing is persisted.
+    /// A reader of a ten-page gallery on `page`, with `setting` and the history in the case's suite, which knows the
+    /// sizes of `tallPages` as extremely tall. The default gid is one the history cannot key, so nothing is persisted.
     private func makeState(
-        gid: String = "not-a-gid", setting: Setting, page: Int, tallPages: [Int], defaults: UserDefaults
+        gid: String = "not-a-gid", setting: Setting, page: Int, tallPages: [Int]
     ) throws -> ReadingReducer.State {
         let gallery = Gallery(
             gid: gid, token: "token", title: "Webtoon", rating: 0, tags: [], category: .doujinshi,
             pageCount: 10, postedDate: now, coverURL: nil, galleryURL: nil
         )
-        var state = withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            ReadingReducer.State(gallery: gallery)
-        }
+        var state = ReadingReducer.State(gallery: gallery)
         state.$setting.withLock({ $0 = setting })
         state.readingProgress = page
         let tall = try Self.tallSize()
@@ -55,36 +53,27 @@ struct WebtoonReadingTests {
     /// it: `ImmediateClock` yields at background priority, which a busy machine can starve past the receive's timeout.
     @MainActor
     private func makeStore(
-        _ state: ReadingReducer.State, defaults: UserDefaults, clock: any Clock<Duration> = ImmediateClock()
+        _ state: ReadingReducer.State, clock: any Clock<Duration> = ImmediateClock()
     ) -> TestStoreOf<ReadingReducer> {
         TestStore(initialState: state, reducer: ReadingReducer.init) {
             $0.analyticsClient = .noop
             $0.continuousClock = clock
             $0.date = .constant(now)
-            $0.defaultAppStorage = defaults
             $0.hapticsClient = .noop
         }
     }
 
-    /// The entry the history in `defaults` holds for `gid`.
-    private func persistedEntry(_ defaults: UserDefaults, gid: String) -> GalleryHistoryEntry? {
-        withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            @Shared(.galleryHistory) var history
-            return history.first(where: { $0.gid == gid })
-        }
+    /// The entry the case's history holds for `gid`.
+    private func persistedEntry(gid: String) -> GalleryHistoryEntry? {
+        @Shared(.galleryHistory) var history
+        return history.first(where: { $0.gid == gid })
     }
 
-    /// Records `isWebtoon` for `gid` in the history in `defaults`, as an earlier session would have.
-    private func seedVerdict(_ isWebtoon: Bool, gid: String, in defaults: UserDefaults) {
-        withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            @Shared(.galleryHistory) var history
-            $history.withLock {
-                $0.recordWebtoonVerdict(gid: gid, token: "token", isWebtoon: isWebtoon, date: now)
-            }
+    /// Records `isWebtoon` for `gid` in the case's history, as an earlier session would have.
+    private func seedVerdict(_ isWebtoon: Bool, gid: String) {
+        @Shared(.galleryHistory) var history
+        $history.withLock {
+            $0.recordWebtoonVerdict(gid: gid, token: "token", isWebtoon: isWebtoon, date: now)
         }
     }
 
@@ -108,13 +97,13 @@ struct WebtoonReadingTests {
         (page: 1, tallPages: [1, 2, 3]), (page: 5, tallPages: [4, 5, 6]), (page: 10, tallPages: [8, 9, 10])
     ])
     func threePagesOfExactlyTheRatioMakeAWebtoon(page: Int, tallPages: [Int]) throws {
-        let state = try makeState(setting: Setting(), page: page, tallPages: tallPages, defaults: .inMemory)
+        let state = try makeState(setting: Setting(), page: page, tallPages: tallPages)
         #expect(state.webtoonVerdictFromKnownSizes == true)
     }
 
     @Test
     func onePageUnderTheRatioMakesNoWebtoon() throws {
-        var state = try makeState(setting: Setting(), page: 5, tallPages: [4, 5], defaults: .inMemory)
+        var state = try makeState(setting: Setting(), page: 5, tallPages: [4, 5])
         let short = try Self.shortSize()
         state.recordSize(short, ofPage: 6, from: .servedURL)
         #expect(state.webtoonVerdictFromKnownSizes == false)
@@ -122,7 +111,7 @@ struct WebtoonReadingTests {
 
     @Test
     func aSampledPageWithoutAKnownSizeLeavesNoVerdict() throws {
-        let state = try makeState(setting: Setting(), page: 5, tallPages: [4, 5, 7], defaults: .inMemory)
+        let state = try makeState(setting: Setting(), page: 5, tallPages: [4, 5, 7])
         #expect(state.webtoonVerdictFromKnownSizes == nil)
     }
 
@@ -134,15 +123,12 @@ struct WebtoonReadingTests {
     @MainActor
     @Test
     func aVerdictMidSessionReadsTheGalleryVerticallyWithoutWritingTheDirection() async throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
         let setting = Setting(
             readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true, enableDualPageMode: true
         )
-        var state = try makeState(setting: setting, page: 5, tallPages: [4, 5], defaults: defaults)
+        var state = try makeState(setting: setting, page: 5, tallPages: [4, 5])
         state.layoutIsLandscape = true
-        let store = makeStore(state, defaults: defaults)
+        let store = makeStore(state)
         let tall = try Self.tallSize()
 
         await store.send(.onWebImageSucceeded(6, pixelSize: tall)) {
@@ -167,15 +153,11 @@ struct WebtoonReadingTests {
     @MainActor
     @Test
     func aCommittedPageDecidesAndTheHistoryRecordsTheVerdict() async throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
         let state = try makeState(
-            gid: validGID, setting: Setting(alwaysReadsWebtoonsVertically: true), page: 1, tallPages: [4, 5, 6],
-            defaults: defaults
+            gid: validGID, setting: Setting(alwaysReadsWebtoonsVertically: true), page: 1, tallPages: [4, 5, 6]
         )
         let clock = TestClock()
-        let store = makeStore(state, defaults: defaults, clock: clock)
+        let store = makeStore(state, clock: clock)
 
         await store.send(.pagerSettled(shown: 5, generation: 0)) {
             _ = $0.position.pagerSettled(shown: 5, generation: 0)
@@ -188,7 +170,7 @@ struct WebtoonReadingTests {
         await store.receive(\.flushReadingProgress)
         await store.finish()
 
-        let entry = try #require(persistedEntry(defaults, gid: validGID))
+        let entry = try #require(persistedEntry(gid: validGID))
         #expect(entry.isWebtoon == true)
         #expect(entry.readingProgress == 5)
         #expect(entry.token == "token")
@@ -197,15 +179,11 @@ struct WebtoonReadingTests {
     @MainActor
     @Test
     func withTheOptionOffNothingIsDetectedOrRecorded() async throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
         let state = try makeState(
-            gid: validGID, setting: Setting(readingDirection: .rightToLeft), page: 1, tallPages: [4, 5, 6],
-            defaults: defaults
+            gid: validGID, setting: Setting(readingDirection: .rightToLeft), page: 1, tallPages: [4, 5, 6]
         )
         let clock = TestClock()
-        let store = makeStore(state, defaults: defaults, clock: clock)
+        let store = makeStore(state, clock: clock)
 
         await store.send(.pagerSettled(shown: 5, generation: 0)) {
             _ = $0.position.pagerSettled(shown: 5, generation: 0)
@@ -218,7 +196,7 @@ struct WebtoonReadingTests {
         await store.finish()
 
         #expect(store.state.readingSetting.readingDirection == .rightToLeft)
-        let entry = try #require(persistedEntry(defaults, gid: validGID))
+        let entry = try #require(persistedEntry(gid: validGID))
         #expect(entry.isWebtoon == nil)
         #expect(entry.readingProgress == 5)
     }
@@ -228,13 +206,10 @@ struct WebtoonReadingTests {
     @MainActor
     @Test
     func turningTheOptionOnDecidesAtOnce() async throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
         let state = try makeState(
-            setting: Setting(alwaysReadsWebtoonsVertically: true), page: 5, tallPages: [4, 5, 6], defaults: defaults
+            setting: Setting(alwaysReadsWebtoonsVertically: true), page: 5, tallPages: [4, 5, 6]
         )
-        let store = makeStore(state, defaults: defaults)
+        let store = makeStore(state)
 
         await store.send(.webtoonReadingPreferenceChanged) {
             $0.isWebtoon = true
@@ -245,12 +220,9 @@ struct WebtoonReadingTests {
     @MainActor
     @Test
     func notEveryPageExtremelyTallRecordsNoWebtoon() async throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
         let setting = Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true)
-        let state = try makeState(setting: setting, page: 5, tallPages: [4, 5], defaults: defaults)
-        let store = makeStore(state, defaults: defaults)
+        let state = try makeState(setting: setting, page: 5, tallPages: [4, 5])
+        let store = makeStore(state)
         let short = try Self.shortSize()
 
         await store.send(.onWebImageSucceeded(6, pixelSize: short)) {
@@ -270,12 +242,9 @@ struct WebtoonReadingTests {
     // off it reads in the user's direction again, and the verdict is kept for when the option comes back.
     @Test
     func aRecordedWebtoonOpensVerticallyAtOnce() throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-        seedVerdict(true, gid: validGID, in: defaults)
+        seedVerdict(true, gid: validGID)
         let setting = Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true)
-        let state = try makeState(gid: validGID, setting: setting, page: 5, tallPages: [], defaults: defaults)
+        let state = try makeState(gid: validGID, setting: setting, page: 5, tallPages: [])
 
         #expect(state.isWebtoon == true)
         #expect(state.readingSetting.readingDirection == .vertical)
@@ -290,15 +259,12 @@ struct WebtoonReadingTests {
     @MainActor
     @Test
     func aRecordedVerdictIsNotCheckedAgain() async throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-        seedVerdict(false, gid: validGID, in: defaults)
+        seedVerdict(false, gid: validGID)
         let state = try makeState(
             gid: validGID, setting: Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true),
-            page: 5, tallPages: [4, 5, 6], defaults: defaults
+            page: 5, tallPages: [4, 5, 6]
         )
-        let store = makeStore(state, defaults: defaults)
+        let store = makeStore(state)
 
         await store.send(.webtoonReadingPreferenceChanged)
         #expect(store.state.isWebtoon == false)
@@ -312,13 +278,10 @@ struct WebtoonReadingTests {
     @MainActor
     @Test
     func aVerdictThatChangesNothingShowsNoToast() async throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
         let state = try makeState(
-            setting: Setting(alwaysReadsWebtoonsVertically: true), page: 5, tallPages: [4, 5], defaults: defaults
+            setting: Setting(alwaysReadsWebtoonsVertically: true), page: 5, tallPages: [4, 5]
         )
-        let store = makeStore(state, defaults: defaults)
+        let store = makeStore(state)
         let tall = try Self.tallSize()
 
         await store.send(.onWebImageSucceeded(6, pixelSize: tall)) {
@@ -336,15 +299,12 @@ struct WebtoonReadingTests {
     @MainActor
     @Test
     func theSettingsOfARecordedWebtoonLockTheirDirectionPicker() async throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-        seedVerdict(true, gid: validGID, in: defaults)
+        seedVerdict(true, gid: validGID)
         let state = try makeState(
             gid: validGID, setting: Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true),
-            page: 5, tallPages: [], defaults: defaults
+            page: 5, tallPages: []
         )
-        let store = makeStore(state, defaults: defaults)
+        let store = makeStore(state)
         store.exhaustivity = .off
 
         await store.send(.presentReadingSetting)
@@ -360,12 +320,9 @@ struct WebtoonReadingTests {
     @MainActor
     @Test
     func aVerdictWhileTheSettingsAreOpenLocksTheirPicker() async throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
         let setting = Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true)
-        let state = try makeState(setting: setting, page: 5, tallPages: [4, 5], defaults: defaults)
-        let store = makeStore(state, defaults: defaults)
+        let state = try makeState(setting: setting, page: 5, tallPages: [4, 5])
+        let store = makeStore(state)
         store.exhaustivity = .off
         let tall = try Self.tallSize()
 
@@ -383,20 +340,13 @@ struct WebtoonReadingTests {
     // The Setting tab opens the editor with no gallery, so its picker is never locked; the reader's editor locks it
     // only while the option is on.
     @Test
-    func onlyTheReadersSettingsOfAWebtoonLockTheDirection() throws {
-        let suiteName = "reading-webtoon-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-        withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            let settingTab = ReadingSettingReducer.State()
-            let reader = ReadingSettingReducer.State(galleryIsWebtoon: true)
-            settingTab.$setting.withLock({ $0.alwaysReadsWebtoonsVertically = true })
-            #expect(!settingTab.locksDirection)
-            #expect(reader.locksDirection)
-            reader.$setting.withLock({ $0.alwaysReadsWebtoonsVertically = false })
-            #expect(!reader.locksDirection)
-        }
+    func onlyTheReadersSettingsOfAWebtoonLockTheDirection() {
+        let settingTab = ReadingSettingReducer.State()
+        let reader = ReadingSettingReducer.State(galleryIsWebtoon: true)
+        settingTab.$setting.withLock({ $0.alwaysReadsWebtoonsVertically = true })
+        #expect(!settingTab.locksDirection)
+        #expect(reader.locksDirection)
+        reader.$setting.withLock({ $0.alwaysReadsWebtoonsVertically = false })
+        #expect(!reader.locksDirection)
     }
 }

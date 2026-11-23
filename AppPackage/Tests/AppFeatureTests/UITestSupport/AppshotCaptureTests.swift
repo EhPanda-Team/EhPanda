@@ -3,7 +3,9 @@
 import AppshotProtocol
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct AppshotCaptureTests {
     private func scene(
         screen: String = "home",

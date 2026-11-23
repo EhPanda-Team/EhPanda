@@ -13,11 +13,13 @@ import MyTagsClient
 @testable import SettingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // The signed-in launch, the end of a login and a host change on Account read My Tags and cache it on the user (port
 // of PR 462 item 10). The cache keeps the tag sets only and survives a failed read. The sets are invented.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated.
+@Suite(.isolatedAppStorage)
 struct MyTagsLaunchFetchTests {
     private static let cached = MyTags(tagSets: [
         MyTagSet(id: 1, name: "Tagset #1", isEnabled: true, color: nil, tags: [
@@ -110,32 +112,26 @@ struct MyTagsLaunchFetchTests {
         opensAccount: Bool = false,
         fetch: @escaping @Sendable (_ host: GalleryHost) async throws(AppError) -> MyTagsResponse
     ) -> TestStoreOf<SettingReducer> {
-        let defaults = UserDefaults.inMemory
         let cookieClient: CookieClient = signedIn
             ? .testing(memberID: "1234567", passHash: "0123456789abcdef0123456789abcdef")
             : .testing()
-        return withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            var state = SettingReducer.State()
-            state.$setting.withLock({ $0.galleryHost = .ehentai })
-            state.$user.withLock({ $0.myTags = seeded })
-            // Account's state is made here, so its shared setting is the store's (these in-memory defaults).
-            if opensAccount {
-                state.path.append(.account(.init()))
-            }
-            return TestStore(initialState: state, reducer: SettingReducer.init) {
-                $0.analyticsClient = .noop
-                $0.applicationClient = .noop
-                $0.cookieClient = cookieClient
-                $0.defaultAppStorage = defaults
-                $0.dfClient = .noop
-                $0.fileClient = .noop
-                $0.hapticsClient = .noop
-                $0.libraryClient = .noop
-                $0.logsClient = .noop
-                $0.myTagsClient.fetchMyTags = fetch
-            }
+        var state = SettingReducer.State()
+        state.$setting.withLock({ $0.galleryHost = .ehentai })
+        state.$user.withLock({ $0.myTags = seeded })
+        // Account's state is made here, so its shared setting is the store's (the case's suite).
+        if opensAccount {
+            state.path.append(.account(.init()))
+        }
+        return TestStore(initialState: state, reducer: SettingReducer.init) {
+            $0.analyticsClient = .noop
+            $0.applicationClient = .noop
+            $0.cookieClient = cookieClient
+            $0.dfClient = .noop
+            $0.fileClient = .noop
+            $0.hapticsClient = .noop
+            $0.libraryClient = .noop
+            $0.logsClient = .noop
+            $0.myTagsClient.fetchMyTags = fetch
         }
     }
 }

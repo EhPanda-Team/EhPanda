@@ -9,6 +9,7 @@ import HapticsClient
 @testable import SettingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // The Cloudflare challenge state machine, driven entirely offline through the `LoginClient` seam.
 // Every round the live wall would answer is scripted here as an `HTTPURLResponse`, so the reducer's
@@ -22,6 +23,7 @@ import Testing
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
+@Suite(.isolatedAppStorage)
 struct LoginChallengeFlowTests {
 
     // MARK: - C2: the no-wall path adds nothing

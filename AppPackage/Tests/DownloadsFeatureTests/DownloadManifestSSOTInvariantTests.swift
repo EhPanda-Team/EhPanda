@@ -3,6 +3,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// The executable form of the manifest-SSOT invariant AGENTS.md records: the persisted download
 /// manifest is the **single source of truth** for a gallery's completeness, and *live file-presence
@@ -53,6 +54,7 @@ import Testing
 /// entry, which is scaffolding rather than the regime under test: it parks a runner on
 /// `BlockingRunnerControl.park()`'s named suspension point so `activeTask != nil` refuses every
 /// promotion, which is what makes a driven `.queued` stable rather than momentarily true.
+@Suite(.isolatedAppStorage)
 struct DownloadManifestSSOTInvariantTests: DownloadFeatureTestCase {
     /// Family 1 — count-basis agreement.
     ///

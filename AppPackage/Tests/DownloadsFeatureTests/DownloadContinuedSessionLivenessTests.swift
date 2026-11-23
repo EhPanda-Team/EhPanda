@@ -2,6 +2,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// The seam that lets the activity-log pump outlive a background transition: the coordinator
 /// publishes whether it currently holds a continued-processing session, and `AppReducer` decides
@@ -10,7 +11,7 @@ import Testing
 /// The stream's contract has two halves and both are asserted here, in order: the CURRENT value on
 /// subscribe — so a consumer starting mid-session is not told "not live" by silence — and every
 /// transition after it.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadContinuedSessionLivenessTests: DownloadFeatureTestCase {
     @Test
     func theStreamReportsTheCurrentValueOnSubscribeThenEveryTransition() async throws {

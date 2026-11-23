@@ -3,6 +3,7 @@ import Clocks
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// The coordinator-owned heartbeat that re-pushes a live session's current pair (G-15-2D).
 ///
@@ -14,7 +15,7 @@ import Testing
 /// Every case drives an injected `TestClock`, so nothing here sleeps. The two NEGATIVE cases prove
 /// the heartbeat is live FIRST — by making it fire once — and only then remove its reason to beat:
 /// a negative assertion over a clock whose sleeper was never registered would pass vacuously.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadContinuedSessionHeartbeatTests: DownloadFeatureTestCase {
     @Test
     func heartbeatRePushesTheCurrentPairWhileTheSessionIsLive() async throws {

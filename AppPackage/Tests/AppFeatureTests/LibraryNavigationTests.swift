@@ -10,8 +10,9 @@ import DownloadsFeature
 import FavoritesFeature
 import Foundation
 import Testing
+import TestingSupport
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct LibraryNavigationTests {
     @Test(arguments: [WindowDevice.other, .duo(.closed), .duo(.partiallyOpen), .duo(.fullyOpen), .pad])
     func sidebarFollowsDeviceAndAvailableShape(device: WindowDevice) {
@@ -29,19 +30,11 @@ struct LibraryNavigationTests {
     @MainActor
     @Test
     func phoneEntryUsesRememberedFavoritesWithoutResettingItsNavigation() async {
-        let appStorage = UserDefaults.inMemory
-        let (initialState, store) = withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            var initialState = AppReducer.State()
-            initialState.favoritesState.favoritesIndex = 3
-            initialState.favoritesState.path.append(.detail(.init(gallery: .preview)))
-            initialState.favoritesState.keyword = "remembered query"
-            let store = TestStore(initialState: initialState, reducer: AppReducer.init) {
-                $0.defaultAppStorage = appStorage
-            }
-            return (initialState, store)
-        }
+        var initialState = AppReducer.State()
+        initialState.favoritesState.favoritesIndex = 3
+        initialState.favoritesState.path.append(.detail(.init(gallery: .preview)))
+        initialState.favoritesState.keyword = "remembered query"
+        let store = TestStore(initialState: initialState, reducer: AppReducer.init)
 
         await store.send(.library(.deviceChanged(.other))) {
             $0.libraryState.device = .other

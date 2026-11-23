@@ -4,7 +4,9 @@ import AppTools
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadCoordinatorRepairSeedTests: DownloadFeatureTestCase {
     /// D-G5-01 on the route G-15-5 names: a `.repair` whose working folder lost one page file must
     /// come out of `prepareWorkingSeedAnnouncingProgress` with a record that reads incomplete.

@@ -10,6 +10,7 @@ import TestingSupport
 // Every fixture here is built inline in a fresh temporary directory; no real gallery content is
 // involved. The aggregate digests are pinned to values computed by the fixture tools themselves
 // (Scripts/visual), so the app and the tools cannot drift apart unnoticed.
+@Suite(.isolatedAppStorage)
 struct CaptureFixtureTests {
     @Test
     func aggregateDigestsMatchTheFixtureTools() throws {

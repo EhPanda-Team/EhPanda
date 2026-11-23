@@ -3,7 +3,9 @@ import AppModels
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadFolderOperationTests: DownloadFeatureTestCase {
     @Test
     func testCreateFolderListsFolderAndRejectsDuplicatesAndInvalidNames() async throws {

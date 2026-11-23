@@ -2,8 +2,10 @@ import AppModels
 import Foundation
 @testable import GalleryListComponents
 import Testing
+import TestingSupport
 
 // VoiceOver reads a waiting download's place among the waiting downloads; nothing draws it (B-6).
+@Suite(.isolatedAppStorage)
 struct DownloadBadgeAccessibilityTests {
     struct QueuedPosition: Sendable, CustomTestStringConvertible {
         let locale: String

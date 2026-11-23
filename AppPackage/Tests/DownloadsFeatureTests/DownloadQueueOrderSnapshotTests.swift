@@ -3,10 +3,12 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// A-1: within the waiting group the coordinator's snapshot lists galleries in the persisted queue's run order, the
 /// next to start first, while the active gallery stays on top and every other group keeps status priority, then
 /// newest folder first. Every consumer of the snapshot (the list, the grid, a single fetch) reads the same order.
+@Suite(.isolatedAppStorage)
 struct DownloadQueueOrderSnapshotTests: DownloadFeatureTestCase {
     private static let active = SessionGallery(gid: "261123100", title: "Active", pageCount: 4)
     private static let first = SessionGallery(gid: "261123101", title: "First", pageCount: 4)

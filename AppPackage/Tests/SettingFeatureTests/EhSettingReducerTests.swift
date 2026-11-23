@@ -4,12 +4,13 @@ import ComposableArchitecture
 import EhSettingClient
 @testable import SettingFeature
 import Testing
+import TestingSupport
 
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are
 // main-actor-isolated, so every store-driving case needs it. Annotating the type instead would
 // make the suite's protocol conformances main-actor-isolated too (see 11-22-SUMMARY.md).
 // Any case left unannotated is deliberately free to run off the main actor.
-@Suite
+@Suite(.isolatedAppStorage)
 struct EhSettingReducerTests {
     typealias Option = EhSettingReducer.Option
 

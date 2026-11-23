@@ -7,6 +7,7 @@ import DownloadClient
 @testable import DownloadsFeature
 import Foundation
 import Testing
+import TestingSupport
 
 /// A refused Pause/Resume tap in the downloads LIST is not a no-op, and the screen has to say so
 /// (DEF-15-05).
@@ -30,6 +31,7 @@ import Testing
 /// to the suite so the type's `DownloadFeatureTestCase` conformance stays nonisolated — a
 /// main-actor conformance cannot be used from the `@Sendable` dependency closures these stores
 /// install.
+@Suite(.isolatedAppStorage)
 struct DownloadsPauseFailureTests: DownloadFeatureTestCase {
     /// The gallery was deleted underneath the row, and the user is owed that word.
     @MainActor

@@ -54,7 +54,7 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
             #if DEBUG
             if let configuration, configuration.shouldUseVisualTestHost {
                 UITestAutomation.configureVisualTestHost(
-                    &dependencies, firstLaunch: configuration.firstLaunchPreset
+                    &dependencies, firstLaunch: configuration.firstLaunchPreset, appStorage: .inMemory
                 )
             }
             #endif

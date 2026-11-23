@@ -28,7 +28,7 @@ CI workflows:
 | Workflow | Runs | When |
 |---|---|---|
 | `test.yml` | `FeatureTests` without command-line exclusions | push, dispatch |
-| `lint.yml` | the tests of every script directory (found, not listed) and the cookie-logging audit; then a clean build of every test plan's targets and SwiftLint over every module: a compiler warning or error, or a lint violation of any severity, fails it, except a warning located inside a third-party package (`Scripts/lint/lint_check.py`) | push, dispatch (as `test.yml`) |
+| `lint.yml` | the tests of every script directory (found, not listed) and the cookie-logging audit; then a clean build of every test plan's targets and SwiftLint over every module: a compiler warning or error, or a lint violation of any severity, fails it, except a warning located inside a third-party package (`Scripts/lint/lint_check.py`); a break of the app-storage isolation rule fails it too (`Scripts/lint/app_storage_isolation.py`) | push, dispatch (as `test.yml`) |
 | `ui-tests.yml` | the UI tests: `UITests` on the iPhone and `UITests-iPad` on the iPad. It reports and blocks nothing; its summary lists retried tests and fails on a skip nobody accounted for (`Scripts/ui-tests/report.py`) | nightly, dispatch, push to `ci/ui-tests` |
 | `snapshot-gate.yml` | the screenshot check, below | pull requests, manual dispatches and dependency updates (`dependencies.yml`); the release workflows do not call it for 3.0 (owner decision) |
 | `live-check.yml` | the daily live check | daily, dispatch, push to `ci/live-check` |

@@ -5,6 +5,7 @@ import ParserFeature
 import Testing
 import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct BanIntervalParserTests: TestHelper {
     @Test
     func testExample() throws {

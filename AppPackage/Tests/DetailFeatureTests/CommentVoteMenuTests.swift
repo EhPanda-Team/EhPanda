@@ -3,9 +3,11 @@ import AppModels
 import Foundation
 import SFSafeSymbols
 import Testing
+import TestingSupport
 
 /// The vote row of a comment's menu (UI-SPEC C-6): two slots, always both there, each enabled or not by the comment's
 /// vote and whether the user can vote at all.
+@Suite(.isolatedAppStorage)
 struct CommentVoteMenuTests {
     @Test
     func noVoteOffersBothDirections() {

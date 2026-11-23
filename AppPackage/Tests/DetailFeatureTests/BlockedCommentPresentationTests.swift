@@ -5,6 +5,7 @@ import CookieClient
 import Foundation
 import SwiftUI
 import Testing
+import TestingSupport
 import WebKit
 
 /// The comment moderation surfaces (UI-SPEC C-4 to C-8): the menu's items from one table, the collapsed row that cannot
@@ -12,6 +13,7 @@ import WebKit
 ///
 /// The menu as accessibility actions needs a hosted cell, so it is read in the app-hosted
 /// `CommentAccessibilityActionsTests`.
+@Suite(.isolatedAppStorage)
 @MainActor
 struct BlockedCommentPresentationTests {
     // MARK: Menu items

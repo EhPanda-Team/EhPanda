@@ -10,7 +10,9 @@ import GalleryClient
 @testable import HomeFeature
 import SwiftUI
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct HomeDuoPresentationTests {
     @Test
     func paneDividerAccountsForEachSidesOwnSafeArea() {
@@ -235,21 +237,15 @@ struct HomeDuoPresentationTests {
     @MainActor
     @Test(arguments: [HomePane.left, .right])
     func listOwnsDetailAndRetainsItsContentsAfterDismissal(_ side: HomePane) async {
-        let defaults = UserDefaults.inMemory
-        let store = withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            var list = HistoryReducer.State()
-            list.galleries = [.preview]
-            return TestStore(
-                initialState: HomeSheetFeature.State(root: .history(list), side: side),
-                reducer: HomeSheetFeature.init
-            ) {
-                $0.analyticsClient = .noop
-                $0.defaultAppStorage = defaults
-                $0.date = .constant(.init(timeIntervalSince1970: 0))
-                $0.downloadClient = .noop
-            }
+        var list = HistoryReducer.State()
+        list.galleries = [.preview]
+        let store = TestStore(
+            initialState: HomeSheetFeature.State(root: .history(list), side: side),
+            reducer: HomeSheetFeature.init
+        ) {
+            $0.analyticsClient = .noop
+            $0.date = .constant(.init(timeIntervalSince1970: 0))
+            $0.downloadClient = .noop
         }
         store.exhaustivity = .off
 
@@ -295,22 +291,16 @@ struct HomeDuoPresentationTests {
         device: WindowDevice,
         configure: (inout HomeReducer.State) -> Void = { _ in }
     ) -> TestStoreOf<HomeReducer> {
-        let defaults = UserDefaults.inMemory
-        return withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            var state = HomeReducer.State()
-            state.popularGalleries = [.preview]
-            state.device = device
-            state.viewportSize = CGSize(width: 951, height: 669)
-            configure(&state)
-            return TestStore(initialState: state, reducer: HomeReducer.init) {
-                $0.analyticsClient = .noop
-                $0.cookieClient = .noop
-                $0.defaultAppStorage = defaults
-                $0.date = .constant(.init(timeIntervalSince1970: 0))
-                $0.downloadClient = .noop
-            }
+        var state = HomeReducer.State()
+        state.popularGalleries = [.preview]
+        state.device = device
+        state.viewportSize = CGSize(width: 951, height: 669)
+        configure(&state)
+        return TestStore(initialState: state, reducer: HomeReducer.init) {
+            $0.analyticsClient = .noop
+            $0.cookieClient = .noop
+            $0.date = .constant(.init(timeIntervalSince1970: 0))
+            $0.downloadClient = .noop
         }
     }
 }

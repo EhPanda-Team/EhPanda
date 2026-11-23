@@ -5,8 +5,10 @@ import ComposableArchitecture
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 import UIKit
 
+@Suite(.isolatedAppStorage)
 struct DownloadCoordinatorCaptureTests: DownloadFeatureTestCase {
     @Test
     func testDownloadCoordinatorCaptureCachedPageRestoresFinalPage() async throws {

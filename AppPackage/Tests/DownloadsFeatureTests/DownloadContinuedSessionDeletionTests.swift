@@ -3,6 +3,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// B-1 and B-2 (261117-tyj, owner decisions): a gallery the user deletes, singly or by deleting the
 /// folder that holds it, leaves the continued session entirely. Its pages leave both X and Y, it
@@ -18,7 +19,7 @@ import Testing
 /// meant to excuse), and later work on the survivor must then raise it. Absorption by a floor that
 /// still counted the deleted pages is the failure the last step catches: it would read the deleted
 /// gallery's six pages as `small`'s own progress until the survivor climbed back over them.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
     private static let large = SessionGallery(
         gid: "210500",

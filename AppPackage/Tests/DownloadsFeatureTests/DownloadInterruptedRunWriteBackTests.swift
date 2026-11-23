@@ -3,6 +3,7 @@ import BackgroundProcessingClient
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
 /// G-20-09-1: a whole-gallery repair stopped part-way must leave its record reading the work it
 /// actually did, not the ceiling it claimed before the run began.
@@ -22,7 +23,7 @@ import Testing
 /// run's real `defer`. The measurement is announced by `prepareWorkingSeedAnnouncingProgress`, pages
 /// land through the production flush, and the stop is the product's own pause or the D-11
 /// expiration's bulk pause.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadInterruptedRunWriteBackTests: DownloadFeatureTestCase {
     /// The reported defect, through the in-app Pause.
     @Test

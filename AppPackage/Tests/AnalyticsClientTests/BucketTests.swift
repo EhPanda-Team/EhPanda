@@ -1,6 +1,7 @@
 import AnalyticsClient
 import Foundation
 import Testing
+import TestingSupport
 
 // One fixture per assertion triple. A named struct rather than a positional tuple: the boundary
 // tables below are long, and `.0`/`.1`/`.2` reads would carry no meaning at the assertion site.
@@ -16,7 +17,7 @@ struct DurationFixture: Sendable {
     let rendering: String
 }
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct BucketTests {
     // Both values on every edge, one interior value per bucket, and the negative-input clamp.
     @Test(arguments: [

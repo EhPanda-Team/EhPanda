@@ -7,11 +7,13 @@ import MyTagsClient
 import Resources
 import Sharing
 import Testing
+import TestingSupport
 
 // Add Tag and Edit Tag (port of PR 462 item 10, design approved 2026-11-22): what can be confirmed, the requests, the
 // cache, the alert on the control that failed, and the outcome the host is told. The tags and sets are invented.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated.
+@Suite(.isolatedAppStorage)
 struct MyTagEditorTests {
     private static let refusal = "No matching tag found"
     private static let slate = SiteColor(red: 0xA0, green: 0xB0, blue: 0xC0)
@@ -28,21 +30,17 @@ struct MyTagEditorTests {
     @MainActor
     @Test
     func aNewTagStartsWatchedAtTheDefaultWeightAndNeedsAName() {
-        withDependencies {
-            $0.defaultAppStorage = .inMemory
-        } operation: {
-            var state = MyTagEditorFeature.State(tagSet: Self.set2)
-            #expect(state.kind == .watched)
-            #expect(state.weight == MyTag.defaultWeight)
-            #expect(state.color == nil)
-            #expect(!state.canConfirm)
-            state.name = "  "
-            #expect(!state.canConfirm)
-            state.name = "artist:sample artist"
-            #expect(state.canConfirm)
-            state.wellColor = Self.green.color
-            #expect(state.color == Self.green)
-        }
+        var state = MyTagEditorFeature.State(tagSet: Self.set2)
+        #expect(state.kind == .watched)
+        #expect(state.weight == MyTag.defaultWeight)
+        #expect(state.color == nil)
+        #expect(!state.canConfirm)
+        state.name = "  "
+        #expect(!state.canConfirm)
+        state.name = "artist:sample artist"
+        #expect(state.canConfirm)
+        state.wellColor = Self.green.color
+        #expect(state.color == Self.green)
     }
 
     @MainActor
@@ -110,22 +108,18 @@ struct MyTagEditorTests {
     @MainActor
     @Test
     func anEditCanBeConfirmedOnceSomethingChanged() {
-        withDependencies {
-            $0.defaultAppStorage = .inMemory
-        } operation: {
-            var state = MyTagEditorFeature.State(
-                editing: Self.glasses, tagSet: Self.set1, apiuid: 1234567, apikey: "0123456789abcdef"
-            )
-            #expect(!state.isAdding)
-            #expect(!state.isNameEditable)
-            #expect(!state.canConfirm)
-            state.weight = 11
-            #expect(state.canConfirm)
-            state.weight = 10
-            #expect(!state.canConfirm)
-            state.kind = .hidden
-            #expect(state.canConfirm)
-        }
+        var state = MyTagEditorFeature.State(
+            editing: Self.glasses, tagSet: Self.set1, apiuid: 1234567, apikey: "0123456789abcdef"
+        )
+        #expect(!state.isAdding)
+        #expect(!state.isNameEditable)
+        #expect(!state.canConfirm)
+        state.weight = 11
+        #expect(state.canConfirm)
+        state.weight = 10
+        #expect(!state.canConfirm)
+        state.kind = .hidden
+        #expect(state.canConfirm)
     }
 
     @MainActor
@@ -272,19 +266,13 @@ struct MyTagEditorTests {
         dismissed: LockIsolated<Int>,
         client: (inout MyTagsClient) -> Void
     ) -> TestStoreOf<MyTagEditorFeature> {
-        let defaults = UserDefaults.inMemory
         var myTagsClient = MyTagsClient.unimplemented
         client(&myTagsClient)
-        return withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            let initial = state()
-            initial.$user.withLock({ $0.myTags = MyTags(tagSets: [Self.set1, Self.set2]) })
-            return TestStore(initialState: initial, reducer: MyTagEditorFeature.init) {
-                $0.defaultAppStorage = defaults
-                $0.dismiss = DismissEffect { dismissed.withValue({ $0 += 1 }) }
-                $0.myTagsClient = myTagsClient
-            }
+        let initial = state()
+        initial.$user.withLock({ $0.myTags = MyTags(tagSets: [Self.set1, Self.set2]) })
+        return TestStore(initialState: initial, reducer: MyTagEditorFeature.init) {
+            $0.dismiss = DismissEffect { dismissed.withValue({ $0 += 1 }) }
+            $0.myTagsClient = myTagsClient
         }
     }
 

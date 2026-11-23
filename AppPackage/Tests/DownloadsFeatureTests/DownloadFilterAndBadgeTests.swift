@@ -8,7 +8,9 @@ import Foundation
 import SFSafeSymbols
 import SwiftUI
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadFilterAndBadgeTests: DownloadFeatureTestCase {
     @Test
     func testDownloadsFilterMatchesKeywordAndStatus() {

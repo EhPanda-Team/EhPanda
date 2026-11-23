@@ -2,7 +2,9 @@ import AnimatedImageFeature
 @testable import AppFeature
 import Foundation
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct AnimatedImageDataTests {
     @Test
     func testGIFAnimationRequiresMultipleImageDescriptors() {

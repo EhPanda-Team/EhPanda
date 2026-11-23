@@ -2,7 +2,9 @@ import Foundation
 @testable import HomeFeature
 import SwiftUI
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct CardGradientCeilingTests {
     @MainActor
     @Test(arguments: [ColorSchemeContrast.standard, .increased])

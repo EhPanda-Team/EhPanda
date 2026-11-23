@@ -1,8 +1,9 @@
 @testable import AnalyticsClient
 import AppModels
 import Testing
+import TestingSupport
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct TagNamespaceCountsTests {
     // Distinctive enough that a substring search for it cannot collide with a bucket spelling, a
     // namespace name or any other rendering the reduced value legitimately contains.

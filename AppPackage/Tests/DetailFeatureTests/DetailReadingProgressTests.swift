@@ -9,10 +9,11 @@ import HapticsClient
 @testable import ReadingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 /// The Read button shows where the reader will resume. The number is the browsing history's saved page, read
 /// when the screen is presented and again when the reader closes, so it is never older than the last read.
-@Suite
+@Suite(.isolatedAppStorage)
 struct DetailReadingProgressTests {
     @MainActor
     private func makeStore() -> TestStoreOf<DetailReducer> {

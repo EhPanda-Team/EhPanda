@@ -6,11 +6,12 @@ import LiveTextTranslation
 @testable import ReadingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // A Live Text translation failure the reader is told about shows as the reader's error toast, with the
 // failure's own caption.
 // @MainActor sits on members: TCA's `TestStore` is main-actor-isolated.
-@Suite
+@Suite(.isolatedAppStorage)
 struct ReadingLiveTextTranslationToastTests {
     @MainActor
     @Test(arguments: [

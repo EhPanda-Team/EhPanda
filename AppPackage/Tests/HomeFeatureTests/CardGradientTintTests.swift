@@ -2,7 +2,9 @@ import Foundation
 @testable import HomeFeature
 import SwiftUI
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct CardGradientTintTests {
     private static let tint = CardGradientTint.standard
 

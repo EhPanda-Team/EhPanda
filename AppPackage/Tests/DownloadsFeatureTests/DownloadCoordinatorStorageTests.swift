@@ -5,8 +5,10 @@ import DownloadClient
 import Foundation
 import Resources
 import Testing
+import TestingSupport
 import UIKit
 
+@Suite(.isolatedAppStorage)
 struct DownloadCoordinatorStorageTests: DownloadFeatureTestCase {
     @Test
     func testDownloadCoordinatorReloadDownloadIndexScansManifestFolders() async throws {

@@ -8,7 +8,9 @@ import ReadingFeature
 import SFSafeSymbols
 import SwiftUI
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct DownloadBadgeSortTests: DownloadFeatureTestCase {
     @Test
     func testBadgeSeparatesDisplayStatusFromProgress() {

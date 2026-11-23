@@ -14,6 +14,7 @@ import SearchFeature
 import SettingFeature
 import Sharing
 import Testing
+import TestingSupport
 import UserDefaultsClient
 
 // Each tab host asks the app root to open a tapped gallery's detail, and the root routes it by the
@@ -22,6 +23,7 @@ import UserDefaultsClient
 // its download-seeded detail; these cover Favorites and Search.
 //
 // `Gallery.preview` has no `galleryURL`, so the opened detail starts no request.
+@Suite(.isolatedAppStorage)
 struct GalleryDetailRoutingTests {
     @MainActor
     @Test(arguments: [WindowSizeClasses.compactWidth, .compactHeight])
@@ -87,11 +89,9 @@ struct GalleryDetailRoutingTests {
 private extension GalleryDetailRoutingTests {
     @MainActor
     func makeStore(window: WindowSizeClasses) -> TestStoreOf<AppReducer> {
-        let appStorage = UserDefaults.inMemory
         let inMemoryStorage = InMemoryStorage()
 
         let store = withDependencies {
-            $0.defaultAppStorage = appStorage
             $0.defaultInMemoryStorage = inMemoryStorage
         } operation: {
             var initialState = AppReducer.State()
@@ -105,7 +105,6 @@ private extension GalleryDetailRoutingTests {
                     $0.appLaunchAutomationClient = .none
                     $0.cookieClient = .noop
                     $0.date = .constant(Date(timeIntervalSince1970: 0))
-                    $0.defaultAppStorage = appStorage
                     $0.defaultInMemoryStorage = inMemoryStorage
                     $0.downloadClient = .noop
                     $0.hapticsClient = .noop

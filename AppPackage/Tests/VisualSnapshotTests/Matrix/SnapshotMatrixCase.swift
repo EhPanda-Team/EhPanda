@@ -163,7 +163,7 @@ class SnapshotMatrixCase: XCTestCase {
         let style: UIUserInterfaceStyle = coordinate.theme == "dark" ? .dark : .light
         let reference = run.references?.appending(path: coordinate.baselinePath)
         let shift = run.shift == coordinate.scenario
-        let appStorage = UserDefaults.inMemory
+        let appStorage = try makeIsolatedAppStorage()
         MainThreadWatch.context = coordinate.key
         defer { MainThreadWatch.context = "" }
         let outcome = await withDependencies {

@@ -3,8 +3,9 @@ import AppModels
 import DownloadClient
 import Foundation
 import Testing
+import TestingSupport
 
-@Suite
+@Suite(.isolatedAppStorage)
 struct DownloadSchedulingTests: DownloadFeatureTestCase {
     @Test
     func testConcurrentSchedulingCreatesOnlyOneActiveTask() async throws {

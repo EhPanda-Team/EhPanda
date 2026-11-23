@@ -1,6 +1,7 @@
 @testable import DetailFeature
 import SwiftUI
 import Testing
+import TestingSupport
 import UIKit
 
 /// The collapsed Detail card's Show and Unblock pills (UI-SPEC C-8, rev 1.1): in dark a `systemGray3` capsule with a
@@ -9,6 +10,7 @@ import UIKit
 ///
 /// The card is rendered in each appearance and its pixels counted by colour: the two capsules' fill covers far more
 /// of the image than any text edge can, and the edge is a ring around both.
+@Suite(.isolatedAppStorage)
 @MainActor
 struct BlockedCommentCardPillColorTests {
     @Test

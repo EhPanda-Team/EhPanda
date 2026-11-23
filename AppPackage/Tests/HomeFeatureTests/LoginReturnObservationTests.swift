@@ -5,26 +5,22 @@ import DownloadClient
 import Foundation
 @testable import HomeFeature
 import Testing
+import TestingSupport
 
+@Suite(.isolatedAppStorage)
 struct LoginReturnObservationTests {
     @MainActor
     @Test
     func cookieLoginTriggersReloadWithoutAViewCallback() async {
-        let appStorage = UserDefaults.inMemory
         let (changes, continuation) = AsyncStream<Void>.makeStream()
         var cookies = CookieClient.testing()
         cookies.cookiesDidChange = { changes }
-        let store = withDependencies {
-            $0.defaultAppStorage = appStorage
-        } operation: {
-            var state = WatchedReducer.State()
-            // This test verifies event routing. The existing in-flight guard avoids a network request.
-            state.loadingState = .loading
-            return TestStore(initialState: state, reducer: WatchedReducer.init) {
-                $0.defaultAppStorage = appStorage
-                $0.cookieClient = cookies
-                $0.downloadClient = .noop
-            }
+        var state = WatchedReducer.State()
+        // This test verifies event routing. The existing in-flight guard avoids a network request.
+        state.loadingState = .loading
+        let store = TestStore(initialState: state, reducer: WatchedReducer.init) {
+            $0.cookieClient = cookies
+            $0.downloadClient = .noop
         }
 
         let observation = await store.send(.onPresented)

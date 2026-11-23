@@ -9,12 +9,13 @@ import HapticsClient
 @testable import ReadingFeature
 import Sharing
 import Testing
+import TestingSupport
 
 // A capture route that ends on the reading screen shows the reader with its control panel, with the
 // action a tap on the page sends, once the reader is presented. The reading-live-text screen, a route
 // to another gallery and a launch without a route leave the panel hidden.
 // @MainActor sits on members: TCA's `TestStore` is main-actor-isolated.
-@Suite
+@Suite(.isolatedAppStorage)
 struct ReadingCaptureRouteTests {
     @MainActor
     @Test
