@@ -910,7 +910,9 @@ let targets: [PackageDescription.Target] = [
         module: .testingSupport,
         dependencies: [
             .module(.analyticsClient),
-            .targetDependency(.kanna)
+            .targetDependency(.composableArchitecture),
+            .targetDependency(.kanna),
+            .targetDependency(.sharing)
         ],
         resources: [.process(.resources)]
     ),
@@ -1062,7 +1064,8 @@ let targets: [PackageDescription.Target] = [
             .module(.ehSettingClient),
             .module(.libraryClient),
             .module(.networkingFeature),
-            .module(.readingSettingFeature)
+            .module(.readingSettingFeature),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1080,7 +1083,8 @@ let targets: [PackageDescription.Target] = [
             .module(.downloadClient),
             .module(.fileClient),
             .module(.readingFeature),
-            .targetDependency(.sharing)
+            .targetDependency(.sharing),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1097,7 +1101,8 @@ let targets: [PackageDescription.Target] = [
         module: .appModelsTests,
         dependencies: [
             .module(.appModels),
-            .targetDependency(.composableArchitecture)
+            .targetDependency(.composableArchitecture),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(
@@ -1188,7 +1193,8 @@ let targets: [PackageDescription.Target] = [
             .module(.cookieClient),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing),
-            .module(.deviceClient)
+            .module(.deviceClient),
+            .module(.testingSupport)
         ]
     ),
     .testTarget(

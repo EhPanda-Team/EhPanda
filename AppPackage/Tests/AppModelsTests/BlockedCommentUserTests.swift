@@ -2,10 +2,12 @@
 import ComposableArchitecture
 import Foundation
 import Testing
+import TestingSupport
 
 /// The comment block store (DD-10, research §5.4; owner decision): an ordered list of users keyed by E-Hentai member
 /// ID, each ID held once with the name it was last seen under, kept on the device under
 /// `@Shared(.blockedCommentUsers)`.
+@Suite(.isolatedAppStorage)
 struct BlockedCommentUserTests {
     @Test
     func blockingAppendsInOrderAndOnce() {
@@ -92,27 +94,20 @@ struct BlockedCommentUserTests {
         #expect(users.map(\.memberID) == ["1", "2", "3"])
     }
 
-    /// Reads the stored keys straight from the suite, so the suite is plain-named: Sharing's `UserDefaults.inMemory` is
-    /// file-backed, and in the simulator test process such a suite can stop reflecting new writes under parallel load.
+    /// Reads the stored keys straight from the case's suite from `.isolatedAppStorage`.
     @Test
-    func theListPersistsUnderItsKeyAndStartsEmpty() throws {
-        let suiteName = "blocked-comment-users-\(UUID().uuidString)"
-        let defaults = try #require(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-        withDependencies {
-            $0.defaultAppStorage = defaults
-        } operation: {
-            @Shared(.blockedCommentUsers) var users
-            #expect(users.isEmpty)
+    func theListPersistsUnderItsKeyAndStartsEmpty() {
+        @Dependency(\.defaultAppStorage) var defaults
+        @Shared(.blockedCommentUsers) var users
+        #expect(users.isEmpty)
 
-            $users.withLock({ $0.block(memberID: "1", name: "A") })
-            $users.withLock({ $0.block(memberID: "2", name: "B") })
+        $users.withLock({ $0.block(memberID: "1", name: "A") })
+        $users.withLock({ $0.block(memberID: "2", name: "B") })
 
-            @Shared(.blockedCommentUsers) var reopened
-            #expect(reopened == [.init(memberID: "1", name: "A"), .init(memberID: "2", name: "B")])
-            #expect(defaults.object(forKey: "blockedCommentUsers") != nil)
-            #expect(defaults.object(forKey: "blockedCommentAuthors") == nil)
-        }
+        @Shared(.blockedCommentUsers) var reopened
+        #expect(reopened == [.init(memberID: "1", name: "A"), .init(memberID: "2", name: "B")])
+        #expect(defaults.object(forKey: "blockedCommentUsers") != nil)
+        #expect(defaults.object(forKey: "blockedCommentAuthors") == nil)
     }
 
     @Test
