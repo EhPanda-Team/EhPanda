@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import AutomationIdentifiers
 import ComposableArchitecture
 import DownloadsFeature
@@ -97,6 +98,14 @@ private struct LibraryCategoriesList: View {
     @Bindable var store: StoreOf<LibraryFeature>
     let favoritesStore: StoreOf<FavoritesReducer>
     let downloadsStore: StoreOf<DownloadsReducer>
+    @State private var listWidth: CGFloat = 0
+
+    /// The split view's sidebar column is narrower than the Library viewport, and a collapsed split view's list fills
+    /// it, so the width alone tells the two apart (never a size class). The column draws sidebar rows; the collapsed
+    /// list draws card rows.
+    private var rowFill: CellHoverFill {
+        listWidth < store.viewport.width ? .sidebarSelection : .cardRow
+    }
 
     var body: some View {
         List(selection: $store.selection.sending(\.select)) {
@@ -106,6 +115,7 @@ private struct LibraryCategoriesList: View {
                         Label(folder, systemSymbol: .folder)
                     }
                     .accessibilityIdentifier(AccessibilityIdentifiers.libraryDownloads(folder: folder))
+                    .cellRowHover(rowFill)
                 }
             } header: {
                 Text(.RLocalizable.downloads)
@@ -135,6 +145,7 @@ private struct LibraryCategoriesList: View {
                         Label(favoritesStore.user.getFavoriteCategory(index: index), systemSymbol: .heart)
                     }
                     .accessibilityIdentifier(AccessibilityIdentifiers.libraryFavorites(index: index))
+                    .cellRowHover(rowFill)
                 }
             } header: {
                 Text(.RLocalizable.favorites)
@@ -142,6 +153,7 @@ private struct LibraryCategoriesList: View {
         }
         .accessibilityIdentifier(AccessibilityIdentifiers.libraryCategories)
         .listStyle(.sidebar)
+        .onGeometryChange(for: CGFloat.self, of: \.size.width) { listWidth = $0 }
         .navigationTitle(.RLocalizable.library)
         .toolbarTitleDisplayMode(.inlineLarge)
         .scrollEdgeEffectStyle(.soft, for: .top)

@@ -162,3 +162,153 @@ public struct HoverCapsule: Shape {
         Capsule(style: .continuous).path(in: rect.insetBy(dx: -horizontalOutset, dy: -verticalOutset))
     }
 }
+
+/// Which row shape a ``View/cellRowHover(_:)`` highlight takes.
+public enum CellHoverFill: Sendable {
+    /// A row of an inset card list (`Form`, `List`, `.insetGrouped`): the highlight stands 8 pt inside the cell's left
+    /// and right edges and 3 pt inside its top and bottom edges, with rounded corners.
+    case cardRow
+    /// A card row while its list shows the delete control before and the reorder control after the content: the
+    /// highlight stands 8 pt inside the content view's leading and trailing edges and 3 pt inside its top and bottom
+    /// edges.
+    case cardRowEditing
+    /// A row of a sidebar list: the highlight covers the whole cell, in the corner radius of the system's own
+    /// selection.
+    case sidebarSelection
+
+    /// How far the row's view grows past its content on each side, so that its highlight reaches the place inside the
+    /// cell the case describes.
+    ///
+    /// Each value is a measured content margin minus the gap the highlight keeps from the cell edge: 20 - 8 and
+    /// 15 - 3 for a card row, 16 - 8 and 8 - 8 for the editing leading and trailing sides, 16 and 11 for a sidebar
+    /// row. The margins were measured on iOS 27 in the iPhone Air and iPad Pro 11-inch (M5) simulators at the
+    /// extra-small, large and accessibility-5 content sizes, from the edge of the cell's content view to the edge of
+    /// a row's content, in points:
+    ///
+    /// | Quantity | Value | Where measured |
+    /// | --- | --- | --- |
+    /// | Card rows, leading and trailing | 20 | iPhone portrait, iPad landscape window |
+    /// | Card rows, top and bottom, a row taller than the minimum | 15 | iPhone portrait, iPad landscape window |
+    /// | Editing rows, leading, after the delete control | 16 | iPhone portrait, iPad landscape window |
+    /// | Editing rows, trailing, before the reorder control | 8 | iPhone portrait, iPad landscape window |
+    /// | iPad sidebar rows, leading and trailing | 16 | iPad landscape window |
+    /// | iPad sidebar rows, top and bottom, a row taller than the minimum | 11 | iPad landscape window |
+    /// | Selected iPad sidebar row, corner radius; background insets | 26; 0 on every side | iPad landscape window |
+    ///
+    /// The row height follows the content size (49, 52 and 59 pt at the three sizes) and is published as
+    /// `defaultMinListRowHeight`, which ``View/cellRowHover(_:)`` reads.
+    ///
+    /// Why a row grows and shrinks instead of clearing the list's row insets and padding its content by these
+    /// margins: the card margin is not the same in every window. With the insets cleared and the content padded by 20
+    /// and 15, the content sat 4 pt further inward on both sides than a row without the helper (label at x=104
+    /// against 100) on the iPhone Air in landscape, in the `settings-pages-reading` and `reader-settings-sheet`
+    /// snapshots at the large size, and in the iPad settings sheet (x=163 against 159). The side margin in those
+    /// windows is read off the pictures as 16 pt; what the system derives it from is not established. Growing the
+    /// row's own view and taking the growth back leaves the layout size at the content's own size in every window,
+    /// and the list's row insets are not touched. With the 16 pt side margin the highlight still lies inside the
+    /// cell.
+    var growth: EdgeInsets {
+        switch self {
+        case .cardRow:
+            EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
+        case .cardRowEditing:
+            EdgeInsets(top: 12, leading: 8, bottom: 12, trailing: 0)
+        case .sidebarSelection:
+            EdgeInsets(top: 11, leading: 16, bottom: 11, trailing: 16)
+        }
+    }
+
+    /// The growth taken back, so that the row's layout size is its content's own.
+    var shrink: EdgeInsets {
+        EdgeInsets(top: -growth.top, leading: -growth.leading, bottom: -growth.bottom, trailing: -growth.trailing)
+    }
+
+    /// How far the highlight stands inside the cell's top and bottom edges, in points.
+    var verticalGap: CGFloat {
+        switch self {
+        case .cardRow, .cardRowEditing: 3
+        case .sidebarSelection: 0
+        }
+    }
+
+    /// The corner radius of the highlight, in points.
+    var cornerRadius: CGFloat {
+        switch self {
+        case .cardRow, .cardRowEditing: 10
+        case .sidebarSelection: 26
+        }
+    }
+}
+
+/// The hover shape of a list row: the view's whole rect, which ``View/cellRowHover(_:)`` has grown past the row's
+/// content.
+public struct CellHoverShape: Shape {
+    public let fill: CellHoverFill
+
+    public init(fill: CellHoverFill) {
+        self.fill = fill
+    }
+
+    public func path(in rect: CGRect) -> Path {
+        RoundedRectangle(cornerRadius: fill.cornerRadius, style: .continuous).path(in: rect)
+    }
+}
+
+extension View {
+    /// Fills a list row with the system pointer highlight, in the row's own shape, while leaving the content exactly
+    /// where the list had put it.
+    ///
+    /// The system draws no pointer highlight on a plain row on iPadOS. The row's view grows by a fixed amount, carries
+    /// the hover, and takes the same amount back with negative padding, so its layout size is its content's own. Apply
+    /// it to the row's root view, before any `.disabled(_:)` written on the same control, so a disabled row stays flat.
+    public func cellRowHover(_ fill: CellHoverFill = .cardRow) -> some View {
+        modifier(CellRowHoverModifier(fill: fill))
+    }
+}
+
+private struct CellRowHoverModifier: ViewModifier {
+    /// The system's row height at the current content size. The highlight stands `verticalGap` inside the cell at the
+    /// top and the bottom, so the grown view needs that much less to span a row that is shorter than one line.
+    @Environment(\.defaultMinListRowHeight) private var minimumRowHeight
+
+    let fill: CellHoverFill
+
+    func body(content: Content) -> some View {
+        content
+            .padding(fill.growth)
+            .frame(
+                maxWidth: .infinity, minHeight: max(0, minimumRowHeight - 2 * fill.verticalGap), alignment: .leading
+            )
+            .contentShape(.rect)
+            .interactiveHover(.highlight, in: CellHoverShape(fill: fill))
+            .padding(fill.shrink)
+    }
+}
+
+/// The hover shape of a switch: its track, grown by 6 pt on every side.
+///
+/// The track is a fixed 61 x 28 pt at the trailing edge, centred vertically (measured on iOS 27: the intrinsic size
+/// of a `UISwitch`). Tapping a switch's label does not flip it, so the highlight covers the track only and the label
+/// stays flat.
+public struct SwitchTrackHoverShape: Shape {
+    /// The track's width, in points.
+    public static let trackWidth: CGFloat = 61
+    /// The track's height, in points.
+    public static let trackHeight: CGFloat = 28
+    /// How far the highlight stands clear of the track on every side, in points.
+    public static let outset: CGFloat = 6
+
+    public init() {}
+
+    public var layoutDirectionBehavior: LayoutDirectionBehavior {
+        .mirrors
+    }
+
+    public func path(in rect: CGRect) -> Path {
+        let track = CGRect(
+            x: rect.maxX - Self.trackWidth, y: rect.midY - Self.trackHeight / 2,
+            width: Self.trackWidth, height: Self.trackHeight
+        )
+        return Capsule(style: .continuous).path(in: track.insetBy(dx: -Self.outset, dy: -Self.outset))
+    }
+}
