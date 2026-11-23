@@ -211,7 +211,7 @@ where a stage is empty.
 | `toplists-grid` | ToplistsViewSnapshot | none | none |
 | `toplists-error` | ToplistsViewSnapshot | none | none |
 | `toplists-period-menu` | ToplistsViewSnapshot | none | `BrowsingScenarios.activate` |
-| `app-wide-app-alert` | ToplistsViewSnapshot | `SettingsScenarios.holdAlertCaret` | none |
+| `app-wide-app-alert` | ToplistsViewSnapshot | none | `RevealStep.reveal(…); SettingsScenarios.holdAlertCaret` |
 | `history-list` | HistoryViewSnapshot | none | none |
 | `history-grid` | HistoryViewSnapshot | none | none |
 | `history-empty` | HistoryViewSnapshot | none | none |
@@ -226,7 +226,7 @@ where a stage is empty.
 | `search-results-error` | SearchViewSnapshot | none | `restingAtTop()` |
 | `quick-search-list` | QuickSearchViewSnapshot | none | none |
 | `quick-search-empty` | QuickSearchViewSnapshot | none | none |
-| `quick-search-delete-confirmation` | QuickSearchViewSnapshot | none | none |
+| `quick-search-delete-confirmation` | QuickSearchViewSnapshot | none | `RevealStep.reveal(…)` |
 | `quick-search-word-editor` | QuickSearchViewSnapshot | `LibraryScenarios.holdCaret` | none |
 | `quick-search-filters` | FiltersViewSnapshot | none | none |
 | `quick-search-filters-reset-confirmation` | FiltersViewSnapshot | none | `RevealStep.reveal(…)` |
@@ -249,8 +249,8 @@ where a stage is empty.
 | `gallery-detail-error` | DetailViewSnapshot | none | none |
 | `gallery-detail-rating` | DetailViewSnapshot | none | `RevealStep.reveal(…)` |
 | `gallery-detail-downloading` | DetailViewSnapshot | none | `RevealStep.reveal(…)` |
-| `gallery-detail-delete-download-confirmation` | DetailViewSnapshot | none | none |
-| `gallery-detail-retry-confirmation` | DetailViewSnapshot | none | none |
+| `gallery-detail-delete-download-confirmation` | DetailViewSnapshot | none | `RevealStep.reveal(…)` |
+| `gallery-detail-retry-confirmation` | DetailViewSnapshot | none | `RevealStep.reveal(…)` |
 | `gallery-detail-sheet` | GallerySheetViewSnapshot | none | none |
 | `settings-root` | SettingViewSnapshot | none | none |
 | `comments-list` | CommentsViewSnapshot | none | none |
@@ -260,7 +260,7 @@ where a stage is empty.
 | `comments-blocked-row-shown` | CommentsViewSnapshot | none | none |
 | `comments-post-empty` | PostCommentViewSnapshot | `GalleryScenarios.holdStillOverKeyboard` | none |
 | `comments-post-filled` | PostCommentViewSnapshot | `GalleryScenarios.holdStillOverKeyboard` | none |
-| `comments-posting-warning` | PostCommentViewSnapshot | `GalleryScenarios.holdStillOverKeyboard` | none |
+| `comments-posting-warning` | PostCommentViewSnapshot | `GalleryScenarios.holdStillOverKeyboard` | `RevealStep.reveal(…); awaitDialogPlatter; waitForRest; stopCaretBlink; holdStill` |
 | `report-form-loading` | ReportFormViewSnapshot | `GalleryScenarios.holdStill` | none |
 | `report-form-ready` | ReportFormViewSnapshot | none | none |
 | `report-form-filled` | ReportFormViewSnapshot | none | none |
@@ -280,7 +280,7 @@ where a stage is empty.
 | `detail-pages-tag-detail` | TagDetailViewSnapshot | none | none |
 | `detail-pages-new-dawn` | NewDawnViewSnapshot | none | none |
 | `detail-pages-folder-manager` | FolderManagerViewSnapshot | none | none |
-| `detail-pages-folder-delete-confirmation` | FolderManagerViewSnapshot | none | none |
+| `detail-pages-folder-delete-confirmation` | FolderManagerViewSnapshot | none | `RevealStep.reveal(…)` |
 | `reader-vertical` | ReadingViewSnapshot | none | none |
 | `reader-horizontal` | ReadingViewSnapshot | none | none |
 | `reader-two-page-spread` | ReadingViewSnapshot | none | none |
@@ -294,7 +294,7 @@ where a stage is empty.
 | `settings-account-signed-in` | AccountSettingViewSnapshot | none | none |
 | `settings-account-invalid-cookies` | AccountSettingViewSnapshot | none | `RevealStep.reveal(…)` |
 | `settings-account-signed-out` | AccountSettingViewSnapshot | none | none |
-| `settings-account-logout-confirmation` | AccountSettingViewSnapshot | none | `RevealStep.awaitDialogPlatter()` |
+| `settings-account-logout-confirmation` | AccountSettingViewSnapshot | none | `RevealStep.reveal(…); RevealStep.awaitDialogPlatter()` |
 | `blocked-users-filled` | BlockedUsersViewSnapshot | none | none |
 | `blocked-users-empty` | BlockedUsersViewSnapshot | none | none |
 | `settings-login-empty` | LoginViewSnapshot | none | none |
@@ -324,8 +324,12 @@ The rule is the one at the top of this file: a step is a stillness step (`still:
 built finish and hold it still; every other step is an operating step (`interact:`), together with everything the same
 step does after its action. A step moves between stages by its argument label only.
 
-Counts: 17 states with a `still` step, 44 with an `interact` step, 77 with no step; no state has both (checked by
-`both` 0 in Task 3's verify).
+Counts: 16 states with a `still` step, 50 with an `interact` step, 72 with no step; one state has both,
+`comments-posting-warning` (Task 3 counted 17, 44 and 77; Task 5 converted seven dialog states, so `app-wide-app-alert`
+left `still:` and six states gained an `interact:`; `comments-posting-warning` keeps its `still:` and gains an
+`interact:`, see below). The plan's count gate expected `still` 16 and no state with both; the orchestrator's ruling of
+2026-11-23 on the posting warning (see below) makes the literal numbers `still:` 16, `interact:` 36 and one state with
+both, the gate changing by exactly this one state.
 
 Mixed closures: none. No state combines a stillness helper with an operating one. Seven operating helpers end with a
 hold of what their own action brought up, and stay whole in the operating stage, in their order:
@@ -335,9 +339,23 @@ after opening), `LibraryScenarios.tapHeldRow` and the two inline clear steps of 
 `search-clear-confirmation` (the platter wait after the tap), `GalleryScenarios.presentHeldReportFailure` (the rest wait
 after the alert), and `restingAtTop()` (the clear button wait after the pull).
 
-Not steps (presented by `make` at hosting, before any growth; this plan does not move them): the dialogs or alerts of
-`settings-account-logout-confirmation`, `quick-search-delete-confirmation`, `gallery-detail-delete-download-confirmation`,
-`gallery-detail-retry-confirmation`, `detail-pages-folder-delete-confirmation` and `app-wide-app-alert`.
+Dialogs (Task 5, owner decision 2026-11-23, 「改成拉高後由步驟點開」): no state is built with a dialog, confirmation,
+popover, menu or alert open. The dialogs of `settings-account-logout-confirmation`, `quick-search-delete-confirmation`,
+`gallery-detail-delete-download-confirmation`, `gallery-detail-retry-confirmation`,
+`detail-pages-folder-delete-confirmation`, `app-wide-app-alert` and `comments-posting-warning` are opened by the state's
+operating step after the window grows, through the held tap (`RevealStep.tap`, performed by `RevealStep.reveal`), as the
+four held-tap confirmations already were. The stated exception to keeping every stillness step in `still:`: the hold of what the opening brought up,
+`SettingsScenarios.holdAlertCaret` (app alert), runs in that operating step right after the tap, because there is nothing
+to hold before the dialog opens. The posting warning's step is ordered as the user acts (orchestrator decision
+2026-11-23): its stillness step is the one it always had, `GalleryScenarios.holdStillOverKeyboard`, which waits for the
+editor to be focused and the keyboard up and at rest, stops the caret and freezes, before the window grows (an earlier
+form waited in the operating step; the measuring mode and a capture at a committed height above native then timed
+out in the growth's settle on the blinking caret, see the posting-warning record below); then the operating step's
+`RevealStep.reveal` taps Post, and the warning is waited for and held still (`awaitDialogPlatter`, `waitForRest`,
+`stopCaretBlink`, `holdStill`). The warning takes the focus and the keyboard goes down behind it, so the state is no
+keyboard state: its page-height lines carry no
+`cannot-cover:keyboard` suffix, and the owner's B1 decision of 2026-11-22 (19-13-PRECHECK, keep as is, the system
+keyboard is a separate window) was given on the keyboard picture for this one state.
 
 ## Screen-sized path
 
@@ -454,6 +472,22 @@ Phone differing keys (the two 19-18 recorded as flipping on unchanged code are
 - accepted: `reader-controls__en__large__portrait__iphone__dark`: 52 differing pixels, largest channel difference 1 (62 bytes of a budget of 153); runner compare mode on the new sources against the before-sample picture: no difference (D-10 passed), and that capture was byte-identical to the before-sample; run-to-run variation (orchestrator decision)
 - accepted: `detail-pages-archives__ja__accessibility5__landscape__iphone__dark`: 64 differing pixels, largest channel difference 1 (64 bytes of a budget of 153); runner compare mode on the new sources against 19-19's `regress-phone` picture: no difference (D-10 passed); run-to-run variation (orchestrator decision)
 - accepted: `app-wide-error-info__en__large__portrait__iphone__dark`: 1 differing pixel, largest channel difference 1; the new picture is byte-identical to 19-18's `after-phone` capture of the old sources (19-19 deviation 7 rule for the two known flips)
+- accepted: `gallery-detail-delete-download-confirmation__ja__accessibility5__landscape__iphone__light`: the control that opens the alert was below the fold; the step scrolls to it as a user must before tapping (orchestrator, 2026-11-23, second run identical)
+- accepted: `gallery-detail-delete-download-confirmation__ja__accessibility5__landscape__iphone__dark`: the control that opens the alert was below the fold; the step scrolls to it as a user must before tapping (orchestrator, 2026-11-23, second run identical)
+- accepted: `gallery-detail-retry-confirmation__ja__accessibility5__landscape__iphone__light`: the control that opens the alert was below the fold; the step scrolls to it as a user must before tapping (orchestrator, 2026-11-23, second run identical)
+- accepted: `gallery-detail-retry-confirmation__ja__accessibility5__landscape__iphone__dark`: the control that opens the alert was below the fold; the step scrolls to it as a user must before tapping (orchestrator, 2026-11-23, second run identical)
+- accepted: `comments-posting-warning__en__large__portrait__iphone__light`: the editor is focused and the keyboard up before Post is tapped, as a user acts; the warning takes the focus and the keyboard goes down (orchestrator, 2026-11-23, two runs identical)
+- accepted: `comments-posting-warning__en__large__portrait__iphone__dark`: the editor is focused and the keyboard up before Post is tapped, as a user acts; the warning takes the focus and the keyboard goes down (orchestrator, 2026-11-23, two runs identical)
+- accepted: `comments-posting-warning__en__large__landscape__iphone__light`: the editor is focused and the keyboard up before Post is tapped, as a user acts; the warning takes the focus and the keyboard goes down (orchestrator, 2026-11-23, two runs identical)
+- accepted: `comments-posting-warning__en__large__landscape__iphone__dark`: the editor is focused and the keyboard up before Post is tapped, as a user acts; the warning takes the focus and the keyboard goes down (orchestrator, 2026-11-23, two runs identical)
+- accepted: `comments-posting-warning__ja__accessibility5__portrait__iphone__light`: the editor is focused and the keyboard up before Post is tapped, as a user acts; the warning takes the focus and the keyboard goes down (orchestrator, 2026-11-23, two runs identical)
+- accepted: `comments-posting-warning__ja__accessibility5__portrait__iphone__dark`: the editor is focused and the keyboard up before Post is tapped, as a user acts; the warning takes the focus and the keyboard goes down (orchestrator, 2026-11-23, two runs identical)
+- accepted: `comments-posting-warning__ja__accessibility5__landscape__iphone__light`: the editor is focused and the keyboard up before Post is tapped, as a user acts; the warning takes the focus and the keyboard goes down (orchestrator, 2026-11-23, two runs identical)
+- accepted: `comments-posting-warning__ja__accessibility5__landscape__iphone__dark`: the editor is focused and the keyboard up before Post is tapped, as a user acts; the warning takes the focus and the keyboard goes down (orchestrator, 2026-11-23, two runs identical)
+- accepted: `quick-search-delete-confirmation__ja__accessibility5__portrait__iphone__light`: the step's reveal scrolls the Search root's list behind the sheet by 415 pt between its settle and the tap (log `$W/diag-qs2`: the root's scroll host, owner titled 検索, `PlatformGroupContainer` at y -415.3), which brings the root's content into the strip above the sheet; the old picture was built open with no step; landscape and `en` `large` are not affected (orchestrator ruling 2026-11-23: accept with the cause once a log names the step; recorded 2026-11-24)
+- accepted: `quick-search-delete-confirmation__ja__accessibility5__portrait__iphone__dark`: the step's reveal scrolls the Search root's list behind the sheet by 415 pt between its settle and the tap (log `$W/diag-qs2`: the root's scroll host, owner titled 検索, `PlatformGroupContainer` at y -415.3), which brings the root's content into the strip above the sheet; the old picture was built open with no step; landscape and `en` `large` are not affected (orchestrator ruling 2026-11-23: accept with the cause once a log names the step; recorded 2026-11-24)
+- accepted: `gallery-detail-rating__en__large__landscape__iphone__light`: the old baselines drew the page signed out after a step (Rate Gallery and Post Comment disabled) and the fix draws it signed in, as the portrait pictures were before and after: a HEAD defect the logout fix corrects, the same mechanism proven by the logout subsection (orchestrator, 2026-11-24; `$W/pre-didlogin-phone` against `$W/fix-didlogin-phone`: 14,775 and 9,565 differing pixels; of the 192 compared keys (196 lines, 4 `notApplicable`) 186 are pixel-identical, 4 of them the logout keys, and 6 differ: these two and the four `en` `large` posting-warning keys accepted above)
+- accepted: `gallery-detail-rating__en__large__landscape__iphone__dark`: the old baselines drew the page signed out after a step (Rate Gallery and Post Comment disabled) and the fix draws it signed in, as the portrait pictures were before and after: a HEAD defect the logout fix corrects, the same mechanism proven by the logout subsection (orchestrator, 2026-11-24; `$W/pre-didlogin-phone` against `$W/fix-didlogin-phone`: 14,775 and 9,565 differing pixels; of the 192 compared keys (196 lines, 4 `notApplicable`) 186 are pixel-identical, 4 of them the logout keys, and 6 differ: these two and the four `en` `large` posting-warning keys accepted above)
 
 Evidence behind the three variation lines: the runner's compare mode (`--mode compare --refs`, a reference directory of
 exactly the base pictures: the before-sample's for the two stage keys, 19-19's for the archives key), new sources, D-10
@@ -585,7 +619,8 @@ Under the two stages the three keyboard states leave `error` and `did-not-conver
 `home-loading` measures (941 pt portrait, 903 pt landscape, 1 step) because its `still:` step runs at screen size.
 `settings-pages-general-full` and `settings-pages-general-cache-confirmation` measure the same as before. The other
 keyboard states: `comments-post-empty` and `comments-posting-warning` are `cannot-cover:keyboard` (1603 pt portrait,
-1038 pt landscape, 0 steps); `quick-search-word-editor` is not a keyboard state (finding above); `settings-login-filled`
+1038 pt landscape, 0 steps; Task 5 reordered the posting warning's step, which is no keyboard state any more, see
+`## Dialogs opened after growth`); `quick-search-word-editor` is not a keyboard state (finding above); `settings-login-filled`
 is `measured` (912 pt portrait, 420 pt landscape, 0 steps), so the rule's condition 2 did not hold for it and it is
 recorded as it came.
 
@@ -726,3 +761,274 @@ in landscape) while the window is taller, so UIKit places an arrowed popover onl
 constraint the harness cannot remove. Same state, same popover, same presenter: only the source row's position relative
 to the screen differs. Orchestrator decisions: recorded as found (`no` in both themes), the provider is not changed, and
 Task 5 re-runs this proof.
+
+## Dialog inventory
+
+Every state that shows a dialog, confirmation dialog, popover, menu, alert or toast, read from the provider files and
+the builders and helpers they call (Task 5, step 1). `presented by`: `make` (an action sent or a state set while
+building), `held tap` (held by `RevealStep.tap` and performed by `RevealStep.reveal` after the growth) or `step`.
+
+| state | class | presented by | mechanism | control that opens it | directly tappable | conversion |
+| --- | --- | --- | --- | --- | --- | --- |
+| `settings-account-logout-confirmation` | `SettingsSnapshotTests/testAccountLogoutConfirmation` | make | `account(confirmingLogout: true)` appends `.account(.logoutButtonTapped)` to the actions `settings(_:actions:tap:)` sends while building; the confirmation is a popover from the row | the Log Out row (`logoutDialogAction`) | yes | converted |
+| `quick-search-delete-confirmation` | `QuickSearchSnapshotTests/testDeleteConfirmation` | make | `quickSearch(.deleteConfirmation)` sends `.deleteSavedSearchButtonTapped(first)` while building | the saved search row's trailing swipe action Delete | no (a swipe action) | converted (held tap after revealing the row, orchestrator answer 2026-11-23) |
+| `gallery-detail-delete-download-confirmation` | `GalleryDetailSnapshotTests/testDeleteDownloadConfirmation` | make | `detail(.deleteDownloadConfirmation)` sends `.deleteDownloadButtonTapped` while building; the confirmation is the reducer's alert | the download button (`handleDownloadAction`, status completed) | yes | converted |
+| `gallery-detail-retry-confirmation` | `GalleryDetailSnapshotTests/testRetryConfirmation` | make | `detail(.retryConfirmation)` sends `.retryDownloadButtonTapped(.redownload)` while building; the confirmation is the reducer's alert | the download button (`handleDownloadAction`, status error) | yes | converted |
+| `detail-pages-folder-delete-confirmation` | `DetailPagesMoreSnapshotTests/testFolderDeleteConfirmation` | make | `folderManager(confirmingDelete: true)` passes `.folderManager(.deleteButtonTapped(folder))` to `detailPage(presenting:then:)`, which sends it while building | the folder row's trailing swipe action Delete | no (a swipe action) | converted (held tap after revealing the row, orchestrator answer 2026-11-23) |
+| `app-wide-app-alert` | `AppWideSnapshotTests/testAppAlert` | make | `jumpPageAlert()` sends `.presentJumpPageAlert` while building | the toolbar's `JumpPageButton` (Jump Page) | yes | converted |
+| `comments-posting-warning` | `CommentsSnapshotTests/testPostingWarning` | make | `comments(.postingWarning)` sends `.postTapped` over the filtered draft while building; the reducer presents the posting warning, an `appAlert` over the Post Comment sheet | the sheet's Post (confirm) toolbar button | yes | converted (a ninth `make` row, found by this inventory; orchestrator decision 2026-11-23) |
+| `app-wide-toast-success` | `AppWideSnapshotTests/testToastSuccess` | make | `app(.successToast)` sets `presentationState.toast` | none (no control on the page opens it) | no | not converted: toast (no control) |
+| `app-wide-toast-failure` | `AppWideSnapshotTests/testToastFailure` | make | `app(.failureToast)` sets `presentationState.toast` | none (no control on the page opens it) | no | not converted: toast (no control) |
+| `settings-pages-general-cache-confirmation` | `SettingsPagesSnapshotTests/testGeneralCacheConfirmation` | held tap | `general(level:action:)` passes the action as `tap:`; `RevealStep.reveal(…, holdingPlacement: true)` performs it after the growth | the Clear Image Cache row | yes | none (held tap) |
+| `settings-pages-general-translations-confirmation` | `SettingsPagesSnapshotTests/testGeneralTranslationsConfirmation` | held tap | `general(level:action:)` passes the action as `tap:`; `RevealStep.reveal` performs it | the Remove Custom Translations row | yes | none (held tap) |
+| `settings-pages-site-settings-confirmation` | `SettingsPagesMoreSnapshotTests/testSiteSettingsConfirmation` | held tap | `siteSettings(.deleteConfirmation)` passes `.ehSetting(.deleteProfileButtonTapped)` as `tap:`; `RevealStep.reveal` performs it | the profile's Delete control | yes | none (held tap) |
+| `quick-search-filters-reset-confirmation` | `QuickSearchSnapshotTests/testFiltersResetConfirmation` | held tap | `filters(confirmingReset: true)` holds `.resetFiltersButtonTapped` with `RevealStep.tap`; `RevealStep.reveal` performs it | the Reset Filters row | yes | none (held tap) |
+| `settings-pages-activity-logs-run-picker` | `SettingsPagesSnapshotTests/testActivityLogsRunPicker` | step | `SettingsScenarios.openRunsMenu` opens the Runs menu | the Runs menu in the bar | yes | none (step) |
+| `comments-menu` | `CommentsSnapshotTests/testMenu` | step | `GalleryScenarios.openFirstRowMenu` opens the first comment's moderation menu | the first comment's `…` menu button | yes | none (step) |
+| `toplists-period-menu` | `ToplistsSnapshotTests/testPeriodMenu` | step | `BrowsingScenarios.activate` of the time range control | the time range menu | yes | none (step) |
+| `shell-library-title-menu` | `ShellSnapshotTests/testLibraryTitleMenu` | step | `restingAtTop(BrowsingScenarios.activate)` of the Library title | the Library title menu | yes | none (step) |
+| `favorites-category-menu` | `FavoritesSnapshotTests/testCategoryMenu` | step | `restingAtTop(LibraryScenarios.openCategoryMenu)` | the overflow menu | yes | none (step) |
+| `comments-block-confirmation` | `CommentsSnapshotTests/testBlockConfirmation` | step | `TracerScenarios.chooseBlock` runs the row's Block accessibility action | the first comment row's Block action | yes | none (step) |
+| `history-clear-confirmation` | `HistorySnapshotTests/testClearConfirmation` | step | inline step: `BrowsingScenarios.activate` of Clear, then `RevealStep.awaitDialogPlatter()` | the Clear button | yes | none (step) |
+| `search-clear-confirmation` | `SearchSnapshotTests/testClearConfirmation` | step | inline step: `BrowsingScenarios.activate` of Remove All, then `RevealStep.awaitDialogPlatter()` | the Remove All button | yes | none (step) |
+| `report-form-error-alert` | `ReportFormSnapshotTests/testErrorAlert` | step | `GalleryScenarios.presentHeldReportFailure` sends the held Send tap, then waits for the alert | the report sheet's Send button | yes | none (step) |
+| `downloads-delete-confirmation` | `DownloadsSnapshotTests/testDeleteConfirmation` | step | `restingAtTop(LibraryScenarios.tapHeldRow)` taps the held row Delete | the row's Delete button | yes | none (step) |
+| `downloads-move-confirmation` | `DownloadsSnapshotTests/testMoveConfirmation` | step | `restingAtTop(LibraryScenarios.tapHeldRow)` taps the held row Move | the row's Move button | yes | none (step) |
+
+The plan named eight `make` rows; the inventory found a ninth, `comments-posting-warning`, an alert over the Post Comment
+sheet that `make` opens through `.postTapped`. Orchestrator decision 2026-11-23: it is converted like the others (the
+owner's 「還是照做，規則一致」), so seven rows are `converted`.
+
+Sheets `make` presents, outside the owner's decision and not converted: Error Info (`app-wide-error-info`), Post Comment
+(`comments-post-empty`, `comments-post-filled`), Report Form (the `report-form-*` states), Quick Search
+(`quick-search-list`, `quick-search-empty`, `quick-search-word-editor`), Filters (`quick-search-filters`), Date Seek
+(`quick-search-date-seek`), Reading Settings (`reader-settings-sheet`) and the gallery page's own sheets
+(`gallery-detail-sheet`, `detail-pages-*`); the Downloads inspectors (`downloads-inspector`,
+`downloads-inspector-error`) are sheets opened by the held row tap of their step.
+
+## Dialogs opened after growth
+
+RED, before the classification (Task 5 step 3): `CaptureStageTests` with the injected `popoverSource` and the stub
+`presentedPopoverSource(in:) -> nil`, `popoverSource` only declared on `CaptureHeight` and `measure`, never read. 10 of 12
+cases passed (the 8 earlier ones, and the new `testAPopoverWhoseSourceLiesInsideTheSceneIsNoReason` and
+`testAnAlertStylePresentationIsNotReadAsAPopover`, which are no-ops before the rule). Two failed:
+- `testAPopoverWhoseSourceLiesBelowTheSceneCannotBeCovered`: the capture at 1512 pt was `recorded`, not `error`, with no
+  reason (expected `page-height: needs 1512 pt, committed 1512 pt, cannot-cover:popover`); the measuring mode returned
+  `measured`, not `cannotCover`, and reason nil, not `cannot-cover:popover`; and its last assertion, a test fault, expected
+  the page's need at the window's own height as 1312 pt (912 + 400) where the check reads 1414 pt (the page's insets);
+  the test now compares that capture with and without the popover source instead of assuming the number.
+- `testAPopoverThatIsNotAdaptedIsReadWithItsSourceInWindowCoordinates`: `XCTUnwrap failed: expected non-nil value of type
+  "CGRect"` (the stub).
+
+### Identity at `.screen`, the dialog table and the findings (Task 5 steps 6 and 8)
+
+Step 6, judged by SHA-256 and by decoded pixels against `$W/dialog-before-phone` and `-pad` (runs `fix-dialog-phone-1`, `fix-dialog-phone-2`, `fix-dialog-pad`, after the logout fix; every error is a `page-height` error with a picture, the stated expectation, except the iPad app alert):
+- iPhone `fix-dialog-phone-2` against the before-sample: 42 keys pixel-identical, 14 differing: the 8 `comments-posting-warning` keys (the ordered form, accepted below; the stillness step is unchanged and the pictures are identical to the ordered form's first pictures), the 4 `ja` `accessibility5` landscape keys of delete-download and retry (accepted above), and the 2 `quick-search-delete-confirmation` `ja` `accessibility5` portrait keys (accepted below, with the cause). `fix-dialog-phone-1` differs from the before-sample in the same 14 keys and also in `app-wide-app-alert` `en` `large` landscape (see the app alert open item: a squeezed layout, taken first, on the loaded host); `fix-dialog-phone-1` against `-2`: 54 identical, 2 differing (those two).
+- iPad `fix-dialog-pad` against the before-sample: 10 keys pixel-identical, 2 differing: `comments-posting-warning__en__large__portrait__ipad__light` and `__dark` (511,098 and 656,164 differing pixels): before, an `error` `page-height: needs 1419 pt, committed 1210 pt, cannot-cover:keyboard` with the keyboard up and the warning open at make; now `recorded` at 1210 pt, no keyboard (the warning takes the focus). These two keys are NOT accepted here: the orchestrator's posting-warning decision named the eight iPhone keys; they wait for a decision.
+- the iPad app alert pair keeps `error` and `interaction:no-keyboard`, with the reason changed (see the app alert open item).
+- two further iPhone keys are byte-different in all three iPhone runs and in the final-tree run `final-dialog-phone`, with identical decoded 8-bit pixels (0 differing pixels): `quick-search-delete-confirmation__en__large__landscape__iphone__dark` and `quick-search-delete-confirmation__ja__accessibility5__landscape__iphone__dark`. Evidence, not an acceptance: the runner's compare mode against exactly the before-sample's eight pictures of the state (`$W/refs-qs2`, new sources, D-10 unchanged, `$W/cmp-qs2`) wrote a `difference` picture only for the two `ja` `accessibility5` portrait keys (the accepted ones) and none for these two; so the captures differ below the 8-bit read and within D-10. They wait for the orchestrator's decision like the iPad posting-warning pair.
+- final tree (`$W/final-dialog-phone`, `$W/final-dialog-pad`, taken after the last source change and after the clean run `clean9`): iPhone 42 keys identical and 14 differing, the same 14 keys as above (plus the two byte-different ones counted inside the 42), identical to `fix-dialog-phone-2` in all 56 pictures; iPad 10 identical and 2 differing (the posting-warning pair); the iPad app alert pair `error` with `interaction:no-keyboard:never-announced`.
+
+The table: one row per state and coordinate whose measured need is above the device height (every other coordinate fits the screen: the dialog is at its `.screen` place), captured once at a one-off committed height equal to the measured need (`$W/oneoff-dialogs-5.json`, `$W/cand-dialogs-5`, `$W/cand-dialogs-pad-5`; the 17 provider files were restored byte for byte (restore rc 0, `check-sources` rc 0, `GeneralSettingViewSnapshot.swift` equal to HEAD). Every one-off capture of a page whose need follows the window ends `page-height: needs N+32 pt, committed N pt` or similar: the check measures again at the taller height (the table's `need` cell is the measuring mode's line). A `timeout` is not in the table (posting warning, see below). `against .screen` is only given for the states Task 5 converted (step 6 captures those); the others are not captured at `.screen` in this task.
+
+| state | coordinate | need | one-off committed | where the dialog sits | where its arrow points | against .screen |
+| --- | --- | --- | --- | --- | --- | --- |
+| `app-wide-app-alert` | iphone landscape `en-large` | cannot-cover cannot-cover:keyboard, need 749 pt, 0 step(s) | 749 pt: error: page-height: needs 750 pt, committed 749 pt | an alert card (Jump to Page, a text field with its caret, Cancel and Go) in the upper part of the page, above the window centre, over the dimmed Toplists page | none (an alert card) | card sits above the window centre; with the keyboard it is the `cannot-cover:keyboard` state, so the committed height is only an evidence one-off |
+| `app-wide-app-alert` | iphone portrait `en-large` | cannot-cover cannot-cover:keyboard, need 995 pt, 0 step(s) | 995 pt: error: page-height: needs 996 pt, committed 995 pt | an alert card (Jump to Page, a text field with its caret, Cancel and Go) in the upper part of the page, above the window centre, over the dimmed Toplists page | none (an alert card) | card sits above the window centre; with the keyboard it is the `cannot-cover:keyboard` state, so the committed height is only an evidence one-off |
+| `comments-block-confirmation` | iphone landscape `en-large` | measured, need 1203 pt, 3 step(s) | 1203 pt: recorded | a centred card (Block Visual Member 1?) over the dimmed Comments page, near the middle of the grown window | none (a card) | not captured at `.screen` here (step 6 covers the converted states) |
+| `comments-block-confirmation` | iphone portrait `en-large` | measured, need 1664 pt, 3 step(s) | 1664 pt: recorded | a centred card (Block Visual Member 1?) over the dimmed Comments page, near the middle of the grown window | none (a card) | not captured at `.screen` here (step 6 covers the converted states) |
+| `comments-menu` | iphone landscape `en-large` | measured, need 1203 pt, 3 step(s) | 1203 pt: recorded | the moderation menu (Vote Up, Vote Down, Report, Block) at the top right under the first comment's menu button | a menu, no arrow; it opens at the first comment's menu button | not captured at `.screen` here (step 6 covers the converted states) |
+| `comments-menu` | iphone portrait `en-large` | measured, need 1664 pt, 3 step(s) | 1664 pt: recorded | the moderation menu (Vote Up, Vote Down, Report, Block) at the top right under the first comment's menu button | a menu, no arrow; it opens at the first comment's menu button | not captured at `.screen` here (step 6 covers the converted states) |
+| `detail-pages-folder-delete-confirmation` | iphone landscape `en-large` | cannot-cover cannot-cover:popover, need 656 pt, 1 step(s) | 656 pt: error: page-height: needs 656 pt, committed 656 pt, cannot-cover:popover | an arrowed popover at the top centre over the folder list, its arrow on the second row's top edge | points down at the list between Visual Folder A and B (the picture is arrowed although the line says `cannot-cover:popover`; the source rect was not logged) | the same placement as `.screen` (arrow at the same place); the window is 656 pt tall, the scene 420 pt |
+| `downloads-delete-confirmation` | iphone landscape `en-large` | measured, need 1132 pt, 3 step(s) | 1132 pt: recorded | an arrowed popover (Delete Download? with Delete) just under the first download row | points up at the first row (the held row's control) | not captured at `.screen` here (step 6 covers the converted states) |
+| `downloads-delete-confirmation` | iphone portrait `en-large` | measured, need 1190 pt, 2 step(s) | 1190 pt: recorded | an arrowed popover (Delete Download? with Delete) just under the first download row | points up at the first row (the held row's control) | not captured at `.screen` here (step 6 covers the converted states) |
+| `downloads-move-confirmation` | iphone landscape `en-large` | measured, need 1132 pt, 3 step(s) | 1132 pt: recorded | an arrowed popover (a folder list, Visual Folder B and C) just under the first download row | points up at the first row (the held row's control) | not captured at `.screen` here (step 6 covers the converted states) |
+| `downloads-move-confirmation` | iphone portrait `en-large` | measured, need 1190 pt, 2 step(s) | 1190 pt: recorded | an arrowed popover (a folder list, Visual Folder B and C) just under the first download row | points up at the first row (the held row's control) | not captured at `.screen` here (step 6 covers the converted states) |
+| `favorites-category-menu` | iphone landscape `en-large` | did-not-converge, need 1802 pt, 12 step(s) | 1802 pt: error: page-height: needs 1869 pt, committed 1802 pt | the categories menu (All, Favorites 0 to 9, Seek to Date) at the top right under the overflow button | a menu, no arrow; it opens at the overflow button | not captured at `.screen` here (step 6 covers the converted states) |
+| `favorites-category-menu` | iphone portrait `en-large` | did-not-converge, need 1927 pt, 12 step(s) | 1927 pt: error: page-height: needs 1994 pt, committed 1927 pt | the categories menu (All, Favorites 0 to 9, Seek to Date) at the top right under the overflow button | a menu, no arrow; it opens at the overflow button | not captured at `.screen` here (step 6 covers the converted states) |
+| `gallery-detail-delete-download-confirmation` | iphone landscape `en-large` | measured, need 656 pt, 1 step(s) | 656 pt: recorded | a card (Delete Download?, Cancel, Delete) centred in the 656 pt window, about y 232 to 405 | none (a card) | at `.screen` (420 pt) the card sits at about y 115 to 285: it moved down with the window centre (finding for 19-26) |
+| `gallery-detail-retry-confirmation` | iphone landscape `en-large` | measured, need 656 pt, 1 step(s) | 656 pt: recorded | a card (Redownload Gallery?, Cancel, Redownload) centred in the 656 pt window, about y 232 to 405 | none (a card) | at `.screen` the card sits at about y 115 to 285: it moved down with the window centre (finding for 19-26) |
+| `history-clear-confirmation` | iphone landscape `en-large` | measured, need 1130 pt, 4 step(s) | 1130 pt: recorded | a bubble (Clear your history? with Clear) at the top right under the trash button | no arrow; it hangs under the trash button | not captured at `.screen` here (step 6 covers the converted states) |
+| `history-clear-confirmation` | iphone portrait `en-large` | measured, need 1240 pt, 2 step(s) | 1240 pt: recorded | a bubble (Clear your history? with Clear) at the top right under the trash button | no arrow; it hangs under the trash button | not captured at `.screen` here (step 6 covers the converted states) |
+| `quick-search-delete-confirmation` | ipad portrait `en-large` | did-not-converge, need 1626 pt, 12 step(s) | 1626 pt: error: page-height: needs 1658 pt, committed 1626 pt | a popover with an arrow above the Quick Search sheet | points down at the top edge of the sheet, not at a saved-search row | not captured at `.screen` here (step 6 covers the converted states) |
+| `quick-search-delete-confirmation` | iphone landscape `en-large` | cannot-cover cannot-cover:popover, need 741 pt, 1 step(s) | 741 pt: error: page-height: needs 773 pt, committed 741 pt, cannot-cover:popover | an arrowed popover at the top centre (Delete this saved search?) | points down at the first saved-search row; the picture is arrowed although the line says `cannot-cover:popover` (source rect not logged) | the same placement as `.screen` |
+| `quick-search-delete-confirmation` | iphone portrait `en-large` | cannot-cover cannot-cover:popover, need 1008 pt, 2 step(s) | 1008 pt: error: page-height: needs 1040 pt, committed 1008 pt, cannot-cover:popover | a popover without an arrow, under the list over the last row (public sample) | none: not anchored on its row (`cannot-cover:popover`) | at `.screen` (912 pt) the popover is also without an arrow, a little lower; the 19-24 C7 note covers it |
+| `quick-search-filters-reset-confirmation` | ipad portrait `en-large` | cannot-cover cannot-cover:UpdateCoalescingCollectionView, need 1946 pt, 1 step(s) | 1946 pt: error: page-height: needs 2314 pt, committed 1946 pt | a popover (Reset these filters to their defaults?) at the left over the category chips of the Filters sheet | points at the Reset Filters row (arrow at its upper left) | not captured at `.screen` here (step 6 covers the converted states) |
+| `quick-search-filters-reset-confirmation` | iphone landscape `en-large` | did-not-converge, need 1420 pt, 12 step(s) | 1420 pt: error: page-height: needs 1452 pt, committed 1420 pt | a popover (Reset these filters to their defaults?) right of the Reset Filters row, over the chips and Advanced Settings | points left at the Reset Filters row | not captured at `.screen` here (step 6 covers the converted states) |
+| `quick-search-filters-reset-confirmation` | iphone portrait `en-large` | did-not-converge, need 1601 pt, 12 step(s) | 1601 pt: error: page-height: needs 1633 pt, committed 1601 pt | a popover (Reset these filters to their defaults?) right of the Reset Filters row, over the chips and Advanced Settings | points left at the Reset Filters row | not captured at `.screen` here (step 6 covers the converted states) |
+| `report-form-error-alert` | ipad portrait `en-large` | cannot-cover cannot-cover:UpdateCoalescingCollectionView, need 1432 pt, 1 step(s) | 1432 pt: error: page-height: needs 1543 pt, committed 1432 pt | an alert card (Couldn't Send Report: Retry, Open Report Page, Cancel) centred over the report sheet | none (an alert card) | not captured at `.screen` here (step 6 covers the converted states) |
+| `report-form-error-alert` | iphone landscape `en-large` | measured, need 1203 pt, 3 step(s) | 1203 pt: recorded | an alert card (Couldn't Send Report: Retry, Open Report Page, Cancel) centred over the report sheet | none (an alert card) | not captured at `.screen` here (step 6 covers the converted states) |
+| `report-form-error-alert` | iphone portrait `en-large` | measured, need 1664 pt, 3 step(s) | 1664 pt: recorded | an alert card (Couldn't Send Report: Retry, Open Report Page, Cancel) centred over the report sheet | none (an alert card) | not captured at `.screen` here (step 6 covers the converted states) |
+| `search-clear-confirmation` | ipad portrait `en-large` | did-not-converge, need 1626 pt, 12 step(s) | 1626 pt: error: page-height: needs 1658 pt, committed 1626 pt | a popover (Remove all recent searches?) at the upper right of the Search page | points right at Remove All | not captured at `.screen` here (step 6 covers the converted states) |
+| `search-clear-confirmation` | iphone landscape `en-large` | did-not-converge, need 1087 pt, 12 step(s) | 1087 pt: error: page-height: needs 1119 pt, committed 1087 pt | a popover (Remove all recent searches?) over Recent Searches, right of the search field | points right at Remove All | not captured at `.screen` here (step 6 covers the converted states) |
+| `search-clear-confirmation` | iphone portrait `en-large` | did-not-converge, need 1328 pt, 12 step(s) | 1328 pt: error: page-height: needs 1360 pt, committed 1328 pt | a popover (Remove all recent searches?) over Recent Searches, right of the search field | points right at Remove All | not captured at `.screen` here (step 6 covers the converted states) |
+| `settings-account-logout-confirmation` | iphone landscape `en-large` | measured, need 969 pt, 2 step(s) | 969 pt: recorded | an arrowed popover (Are you sure you want to log out?) right of the Log Out row | points left at the Log Out row | the same place relative to the row as `.screen`; the page below it is longer |
+| `settings-account-logout-confirmation` | iphone portrait `en-large` | measured, need 1044 pt, 1 step(s) | 1044 pt: recorded | an arrowed popover (Are you sure you want to log out?) right of the Log Out row | points left at the Log Out row | the same place relative to the row as `.screen`; the page below it is longer |
+| `settings-pages-activity-logs-run-picker` | iphone landscape `en-large` | measured, need 526 pt, 2 step(s) | 526 pt: recorded | the Runs menu (Run 3 to Run 1, More Logs) at the top right | a menu, no arrow | not captured at `.screen` here (step 6 covers the converted states) |
+| `settings-pages-general-cache-confirmation` | iphone landscape `en-large` | cannot-cover cannot-cover:popover, need 884 pt, 1 step(s) | 884 pt: error: page-height: needs 884 pt, committed 884 pt, cannot-cover:popover | a popover (Clear the image cache?) at the upper left over the Navigation section | none: not anchored (`cannot-cover:popover`); the row is about 110 pt below it | not captured at `.screen` here (step 6 covers the converted states) |
+| `settings-pages-general-cache-confirmation` | iphone portrait `en-large` | measured, need 939 pt, 1 step(s) | 939 pt: recorded | an arrowed popover just above the Clear Image Cache row | points down at the Clear Image Cache row (popover proof) | not captured at `.screen` here (step 6 covers the converted states) |
+| `settings-pages-general-translations-confirmation` | iphone landscape `en-large` | cannot-cover cannot-cover:popover, need 1092 pt, 1 step(s) | 1092 pt: error: page-height: needs 1092 pt, committed 1092 pt, cannot-cover:popover | a popover (Remove your custom translations?) at the upper left over the Tags section | none: not anchored (`cannot-cover:popover`) | not captured at `.screen` here (step 6 covers the converted states) |
+| `settings-pages-general-translations-confirmation` | iphone portrait `en-large` | measured, need 1199 pt, 2 step(s) | 1199 pt: recorded | an arrowed popover above the Remove Custom Translations row | points down at the Remove Custom Translations row | not captured at `.screen` here (step 6 covers the converted states) |
+| `settings-pages-site-settings-confirmation` | ipad portrait `en-large` | cannot-cover cannot-cover:TextEditorTextView, need 6103 pt, 4 step(s) | 6103 pt: error: page-height: needs 6125 pt, committed 6103 pt | a small popover (Delete this profile?) at the top of the long E-Hentai Settings page, over the Profile section (read at thumbnail scale: the page is 6103 to 7233 pt tall) | at the Delete control of the profile (thumbnail scale) | not captured at `.screen` here (step 6 covers the converted states) |
+| `settings-pages-site-settings-confirmation` | iphone landscape `en-large` | cannot-cover cannot-cover:TextEditorTextView, need 6115 pt, 5 step(s) | 6115 pt: error: page-height: needs 6138 pt, committed 6115 pt | a small popover (Delete this profile?) at the top of the long E-Hentai Settings page, over the Profile section (read at thumbnail scale: the page is 6103 to 7233 pt tall) | at the Delete control of the profile (thumbnail scale) | not captured at `.screen` here (step 6 covers the converted states) |
+| `settings-pages-site-settings-confirmation` | iphone portrait `en-large` | cannot-cover cannot-cover:TextEditorTextView, need 7233 pt, 5 step(s) | 7233 pt: error: page-height: needs 7256 pt, committed 7233 pt | a small popover (Delete this profile?) at the top of the long E-Hentai Settings page, over the Profile section (read at thumbnail scale: the page is 6103 to 7233 pt tall) | at the Delete control of the profile (thumbnail scale) | not captured at `.screen` here (step 6 covers the converted states) |
+| `shell-library-title-menu` | iphone landscape `en-large` | measured, need 1132 pt, 3 step(s) | 1132 pt: recorded | the Library title menu (Favorites, Downloads) at the upper left under the title | a menu, no arrow | not captured at `.screen` here (step 6 covers the converted states) |
+| `shell-library-title-menu` | iphone portrait `en-large` | measured, need 1190 pt, 2 step(s) | 1190 pt: recorded | the Library title menu (Favorites, Downloads) at the upper left under the title | a menu, no arrow | not captured at `.screen` here (step 6 covers the converted states) |
+| `toplists-period-menu` | iphone landscape `en-large` | measured, need 598 pt, 1 step(s) | 598 pt: recorded | the time range menu (Yesterday, Past Month, Past Year, All-Time) at the top right | a menu, no arrow | not captured at `.screen` here (step 6 covers the converted states) |
+| `comments-posting-warning` | iphone portrait `en-large` | measured 1977 pt, 3 step(s) (the earlier form ended `error` `settle-timeout:pixels:33,187,4x25` at the first growth; see the posting-warning record) | 1290 pt (the native need, not the measured 1977 pt): error: page-height: needs 1790 pt, committed 1290 pt | a card (Post this comment?, Edit, Post Anyway) centred in the grown window over the dimmed Post Comment sheet, which follows the window (its page grows with it: 1290, 1790, 1977 pt) | none (an alert card) | at `.screen` (912 pt) the card sits at about y 388 to 558; at 1290 pt about y 575 to 750: it moved down with the window centre (finding for 19-26) |
+| `comments-posting-warning` | iphone landscape `en-large` | measured 1407 pt, 3 step(s) | 834 pt (the native need): error: page-height: needs 1284 pt, committed 834 pt | a card (Post this comment?, Edit, Post Anyway) centred in the grown window, about y 322 to 492 of 834 | none (an alert card) | at `.screen` (420 pt) the card sits at about y 115 to 285: it moved down with the window centre (finding for 19-26) |
+
+`cannot-cover:popover` states, a finding for 19-26, which decides those pages one by one (owner decision 「標出來，19-26 逐頁決定」):
+- `settings-pages-general-cache-confirmation`: iPhone `en-large` landscape (884 pt, `cannot-cover:popover`, the expected one)
+- `settings-pages-general-translations-confirmation`: iPhone `en-large` landscape (1092 pt)
+- `detail-pages-folder-delete-confirmation`: iPhone `en-large` landscape (656 pt)
+- `quick-search-delete-confirmation`: iPhone `en-large` portrait (1008 pt) and landscape (741 pt); under the old order it ended `did-not-converge` (1328 pt and 1093 pt) in the Task 4 measure
+In the two iPhone landscape pictures of `detail-pages-folder-delete-confirmation` and `quick-search-delete-confirmation` the popover is drawn with an arrow, at the same place as in the `.screen` picture, although the measuring mode and the check name `cannot-cover:popover`; the source rect the classification read was not logged (an observation for 19-26 and 19-24, no cause work here). The iPad `quick-search-delete-confirmation` popover (portrait, `did-not-converge`, not `cannot-cover:popover`) is arrowed but points at the top edge of the Quick Search sheet, not at a saved-search row: the plan's "a popover not anchored on its control at a coordinate that is not `cannot-cover:popover`" clause applies to it; it is the iPad side of the 19-24 C7 note (the popover is found anchored below the first screen), reported to the orchestrator, no cause work here.
+
+Centred cards (`gallery-detail-delete-download-confirmation`, `gallery-detail-retry-confirmation`, `comments-posting-warning`, `comments-block-confirmation`, `report-form-error-alert`, `app-wide-app-alert`) centre in the window they are presented in, so on a taller window they sit lower on the page than at `.screen` (delete-download and retry: about y 115 to 285 at 420 pt, y 232 to 405 at 656 pt): a finding for 19-26's owner decision on alerts and cards; this task does not decide it.
+
+The plan's expectation for step 8: met. `app-wide-app-alert`'s four iPhone `en-large` measuring lines are `cannot-cover:keyboard` (995 pt portrait, 749 pt landscape, both themes); the cache confirmation in iPhone landscape is among the `cannot-cover:popover` states; every converted state has a row. Not met, reported instead of resolved: the iPad app alert pair stays `error` (no need) and the iPad `quick-search-delete-confirmation` popover above.
+
+`error`, `did-not-converge` and `cannot-cover` lines of the step 8 measure that are not `cannot-cover:popover` or `cannot-cover:keyboard`, as findings for 19-26 (the sequences are the needs of successive hostings, logged by a one-off print in `$W/diag-seq-phone` and `$W/diag-seq-pad`, now removed; a constant increment is a page whose content follows the window height):
+- finding: `app-wide-app-alert__en__large__landscape__iphone__dark`: `cannot-cover`, reason `cannot-cover:keyboard`, need 749 pt after 0 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `app-wide-app-alert__en__large__landscape__iphone__light`: `cannot-cover`, reason `cannot-cover:keyboard`, need 749 pt after 0 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `app-wide-app-alert__en__large__portrait__ipad__dark`: `error`, reason `interaction:no-keyboard:never-announced announced=0`, no need (0 steps); the alert's keyboard step fails on the iPad (open item (ii)); both readings are recorded in the app alert open item below
+- finding: `app-wide-app-alert__en__large__portrait__ipad__light`: `error`, reason `interaction:no-keyboard:announced-hidden announced=1`, no need (0 steps); the alert's keyboard step fails on the iPad (open item (ii)); both readings are recorded in the app alert open item below
+- finding: `app-wide-app-alert__en__large__portrait__iphone__dark`: `cannot-cover`, reason `cannot-cover:keyboard`, need 995 pt after 0 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `app-wide-app-alert__en__large__portrait__iphone__light`: `cannot-cover`, reason `cannot-cover:keyboard`, need 995 pt after 0 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `favorites-category-menu__en__large__landscape__iphone__dark`: `did-not-converge`, 12 steps, last need 1802 pt; the content follows the window height, not slow settling: 420 -> 808, 808 -> 1024, 1024 -> 1132, then a constant +67 pt per step (`UICollectionView`), 13 hostings, last 1735 -> 1802 (19-26 decides; no cause work in 19-30)
+- finding: `favorites-category-menu__en__large__landscape__iphone__light`: `did-not-converge`, 12 steps, last need 1802 pt; the content follows the window height, not slow settling: 420 -> 808, 808 -> 1024, 1024 -> 1132, then a constant +67 pt per step (`UICollectionView`), 13 hostings, last 1735 -> 1802 (19-26 decides; no cause work in 19-30)
+- finding: `favorites-category-menu__en__large__portrait__iphone__dark`: `did-not-converge`, 12 steps, last need 1927 pt; the content follows the window height, not slow settling: 912 -> 1082, 1082 -> 1190, then a constant +67 pt per step (`UICollectionView`), 13 hostings, last 1860 -> 1927 (19-26 decides; no cause work in 19-30)
+- finding: `favorites-category-menu__en__large__portrait__iphone__light`: `did-not-converge`, 12 steps, last need 1927 pt; the content follows the window height, not slow settling: 912 -> 1082, 1082 -> 1190, then a constant +67 pt per step (`UICollectionView`), 13 hostings, last 1860 -> 1927 (19-26 decides; no cause work in 19-30)
+- finding: `quick-search-delete-confirmation__en__large__portrait__ipad__dark`: `did-not-converge`, 12 steps, last need 1626 pt; the content follows the window height, not slow settling: 1210 -> 1242, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1594 -> 1626 (the same sequence as `search-clear-confirmation`) (19-26 decides; no cause work in 19-30)
+- finding: `quick-search-delete-confirmation__en__large__portrait__ipad__light`: `did-not-converge`, 12 steps, last need 1626 pt; the content follows the window height, not slow settling: 1210 -> 1242, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1594 -> 1626 (the same sequence as `search-clear-confirmation`) (19-26 decides; no cause work in 19-30)
+- finding: `quick-search-filters-reset-confirmation__en__large__landscape__iphone__dark`: `did-not-converge`, 12 steps, last need 1420 pt; the content follows the window height, not slow settling: 420 -> 1023, 1023 -> 1068, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1388 -> 1420 (19-26 decides; no cause work in 19-30)
+- finding: `quick-search-filters-reset-confirmation__en__large__landscape__iphone__light`: `did-not-converge`, 12 steps, last need 1420 pt; the content follows the window height, not slow settling: 420 -> 1023, 1023 -> 1068, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1388 -> 1420 (19-26 decides; no cause work in 19-30)
+- finding: `quick-search-filters-reset-confirmation__en__large__portrait__ipad__dark`: `cannot-cover`, reason `cannot-cover:UpdateCoalescingCollectionView`, need 1946 pt after 1 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `quick-search-filters-reset-confirmation__en__large__portrait__ipad__light`: `cannot-cover`, reason `cannot-cover:UpdateCoalescingCollectionView`, need 1946 pt after 1 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `quick-search-filters-reset-confirmation__en__large__portrait__iphone__dark`: `did-not-converge`, 12 steps, last need 1601 pt; the content follows the window height, not slow settling: 912 -> 1217 (`UpdateCoalescingCollectionView`), then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1569 -> 1601 (19-26 decides; no cause work in 19-30)
+- finding: `quick-search-filters-reset-confirmation__en__large__portrait__iphone__light`: `did-not-converge`, 12 steps, last need 1601 pt; the content follows the window height, not slow settling: 912 -> 1217 (`UpdateCoalescingCollectionView`), then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1569 -> 1601 (19-26 decides; no cause work in 19-30)
+- finding: `report-form-error-alert__en__large__portrait__ipad__dark`: `cannot-cover`, reason `cannot-cover:UpdateCoalescingCollectionView`, need 1432 pt after 1 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `report-form-error-alert__en__large__portrait__ipad__light`: `cannot-cover`, reason `cannot-cover:UpdateCoalescingCollectionView`, need 1432 pt after 1 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `search-clear-confirmation__en__large__landscape__iphone__dark`: `did-not-converge`, 12 steps, last need 1087 pt; the content follows the window height, not slow settling: 420 -> 703, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1055 -> 1087 (19-26 decides; no cause work in 19-30)
+- finding: `search-clear-confirmation__en__large__landscape__iphone__light`: `did-not-converge`, 12 steps, last need 1087 pt; the content follows the window height, not slow settling: 420 -> 703, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1055 -> 1087 (19-26 decides; no cause work in 19-30)
+- finding: `search-clear-confirmation__en__large__portrait__ipad__dark`: `did-not-converge`, 12 steps, last need 1626 pt; the content follows the window height, not slow settling: 1210 -> 1242, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1594 -> 1626 (19-26 decides; no cause work in 19-30)
+- finding: `search-clear-confirmation__en__large__portrait__ipad__light`: `did-not-converge`, 12 steps, last need 1626 pt; the content follows the window height, not slow settling: 1210 -> 1242, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1594 -> 1626 (19-26 decides; no cause work in 19-30)
+- finding: `search-clear-confirmation__en__large__portrait__iphone__dark`: `did-not-converge`, 12 steps, last need 1328 pt; the content follows the window height, not slow settling: 912 -> 944, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1296 -> 1328 (19-26 decides; no cause work in 19-30)
+- finding: `search-clear-confirmation__en__large__portrait__iphone__light`: `did-not-converge`, 12 steps, last need 1328 pt; the content follows the window height, not slow settling: 912 -> 944, then a constant +32 pt per step (`HostingScrollView`), 13 hostings, last 1296 -> 1328 (19-26 decides; no cause work in 19-30)
+- finding: `settings-pages-site-settings-confirmation__en__large__landscape__iphone__dark`: `cannot-cover`, reason `cannot-cover:TextEditorTextView`, need 6115 pt after 5 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `settings-pages-site-settings-confirmation__en__large__landscape__iphone__light`: `cannot-cover`, reason `cannot-cover:TextEditorTextView`, need 6115 pt after 5 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `settings-pages-site-settings-confirmation__en__large__portrait__ipad__dark`: `cannot-cover`, reason `cannot-cover:TextEditorTextView`, need 6103 pt after 4 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `settings-pages-site-settings-confirmation__en__large__portrait__ipad__light`: `cannot-cover`, reason `cannot-cover:TextEditorTextView`, need 6103 pt after 4 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `settings-pages-site-settings-confirmation__en__large__portrait__iphone__dark`: `cannot-cover`, reason `cannot-cover:TextEditorTextView`, need 7233 pt after 5 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+- finding: `settings-pages-site-settings-confirmation__en__large__portrait__iphone__light`: `cannot-cover`, reason `cannot-cover:TextEditorTextView`, need 7233 pt after 5 step(s); a state not measured before this task (19-26 decides; no cause work in 19-30)
+
+### Posting warning: the measuring mode and a capture above native
+
+The first ordered form (orchestrator decision 2026-11-23) waited for the keyboard in the operating step. The measuring mode ended `error` `settle-timeout:pixels:33,187,4x25` (portrait light; `32,186,6x27`/`33,186,5x27` dark; `466,101,4x25` landscape) after 1 step, and a capture at a committed height above native ended `timeout` with the same pixels (`$W/cand-dialogs-5`: 4 `timeout` lines, no picture). A one-off log (`$W/diag-pw-measure`, removed): the hosting at 912 pt read a need of 1290 pt (`UpdateCoalescingCollectionView`), then `hosting height=1290.0 stage=grow-settle outcome=unsettled(... timeout(samples: 40, seconds: 6.99))`, and for landscape `height=834.0` the same: the timeout is the settle of the window's growth (`prepareGrownWindow`, `freezeAtNativeSize`), before the operating step, on the page's blinking caret, because the editor was focused by then and no stillness step had stopped the caret. A capture at the native height never grows the window, so it passed. The capture path grows the same way, so it fails the same way (the four `timeout` lines above).
+
+Allowed fix, inside the step the state owns (orchestrator ruling 2026-11-24): the state keeps the stillness step it had at HEAD, `GalleryScenarios.holdStillOverKeyboard` (wait for the focus and the keyboard, stop the caret, freeze), and its operating step starts at the tap: `RevealStep.reveal`, `awaitDialogPlatter`, `waitForRest`, `stopCaretBlink`, `holdStill`. `GalleryScenarios.awaitKeyboardUp` is not extracted any more (`holdStillOverKeyboard` is HEAD's again). The gate counts change by exactly this one state: `still:` 16 and `interact:` 36 literally, and one state has both.
+- measuring (`$W/pw-measure`): `measured` at 1977 pt portrait and 1407 pt landscape after 3 steps, no suffix, both themes (the 1290 and 834 pt of the native hosting are the first read; the sheet follows the window, so the page needs more as the window grows: 1290, 1790, 1977 pt).
+- capture at `.screen`, two identical runs (`$W/pw-cap-1`, `$W/pw-cap-2`: 8 keys pixel-identical), `en` `large` and `ja` `accessibility5`, both orientations and themes: `error` `page-height: needs 1290 pt, committed 912 pt` / `needs 834 pt, committed 420 pt` for `en`, `needs 4549 pt, committed 912 pt` / `needs 2449 pt, committed 420 pt` for `ja`; no `cannot-cover:keyboard` suffix on any of the eight lines; the pictures are pixel-identical to `$W/fix-dialog-phone-2` (the first ordered form's pictures, accepted); iPad (`$W/pw-cap-pad`): `recorded`, pixel-identical to `$W/fix-dialog-pad`.
+- capture above native (`$W/pw-tall`, a one-off committed 1290 pt and 834 pt, restored byte for byte, `check-sources` rc 0): no `timeout` any more; `page-height: needs 1790 pt, committed 1290 pt` and `needs 1284 pt, committed 834 pt` with pictures (the card centred in the grown window, the sheet following the window). What changed against the earlier 1290 and 834 pt candidates (`$W/cand-dialogs-5`): they were `timeout` with no picture; now they are pictures, and the need is read as 1790 and 1284 pt.
+
+### Quick Search delete confirmation, `ja` `accessibility5` portrait: the strip above the sheet
+
+The two keys differ from the before-sample in a strip above the sheet (22,330 and 19,635 pixels): the new picture shows text ("ギャラリー") at the top of the strip, the old one does not. Two one-off logs (not committed, removed after each run, the md5 of `RevealStep.swift` and the tree verified after each). The first (`$W/diag-qs`) listed the views whose class names contain `LargeTitle` at four points: after the native settle, after `reveal`'s settle, right before the tap and after the tap at rest. It found only the sheet's own large title (`NavigationBarLargeTitleView`, hidden false, alpha 1.0, frame 0, 142, 420 by 73, in the test window; none at the first point, present from the second on, none in landscape), not the Search root's. The second (`$W/diag-qs2`) listed every view intersecting the strip, with its owner view controller and superview chain. Between `reveal`'s settle and the tap (`bringIntoView` and `restWhereTitleSnaps`) the Search root's scroll host (owner `NavigationStackHostingController` titled 検索, the page behind the sheet) was scrolled: its `PlatformGroupContainer` moved to y -415.3 (height 1293.3) and its `ScrollEdgeEffectView` went from alpha 0.0 to 1.0, the `_UITouchPassthroughView` and `BackdropView` of that host re-laid out. The title view of the sheet did not change. After the tap only the popover's dimming views were added. So the text in the strip is the Search root's content, scrolled under the strip by the step's reveal; the root has its own Quick Search row with the saved searches' names, which the label of the step (the first saved search's name) can match behind the sheet (the match itself was not logged). The old picture was built open, with no step. HEAD has no step for this state, so it has no such points. Landscape is not affected (the root's content is not below the fold there, `found=0`/no scroll), and `en` `large` neither (the picture is identical).
+
+### Logout: a page created again outside the scenario's scope
+
+`settings-account-logout-confirmation` failed at all 8 iPhone keys (`en` `large` and `ja` `accessibility5`, both
+orientations and themes) with `interaction:not-found:popover-platter:not-presented chain=UIHostingController` after the
+held tap. Evidence (instrumented runs `$W/dbg5` and `$W/dialog-after-phone-2`, prints removed):
+- the held tap existed and fired (`reveal tap=true`), and the reducer logged `logoutButtonTapped dialog=false`: the
+  action reached `AccountSettingReducer`;
+- the element the label matched is the `AccessibilityNode` "Log Out" (frame 20, 235, 380, 52 in `en` portrait; 84, 174,
+  744, 52 in landscape; ログアウト at 20, 256, 380, 93.3 in `ja`);
+- `AccountSection` printed `didLogin=true resolvedClientDidLogin=true` 16 times before the tap and `didLogin=false
+  resolvedClientDidLogin=false` 16 times, 5 to 9 ms after `logoutButtonTapped`; the presentation chain stayed
+  `UIHostingController` right after the tap and 1 s later. The `if !didLogin { Login } else { Log Out }` flipped, so the
+  Log Out button, which carries `.confirmationDialog`, left the hierarchy and nothing was presented.
+
+Cause (a harness defect, not a fixture, step or provider one): `@SharedReader(.didLogin)` resolves `cookieClient` when its
+key is created (`DidLoginKey.init`). `SnapshotMatrixCase.inScenarioDependencies` installed the scenario's client only in a
+task-local scope, which covers the first render and the step. A page a step changes renders again from the main run
+loop, outside the scope, and a view created again there read the process context's `.noop`. Built open, the page was
+rendered once, inside the scope, so no such render existed. `DidLoginKey` documents one cookie client per process.
+
+Fix (orchestrator ruling 2026-11-23; not option (a), `prepareDependencies` of that key, because `configureVisualTestHost`
+has already prepared `cookieClient = .noop` for the live context and a second preparation of a key is reported and dropped):
+- `CookieClient.forwarding(to:)` (`#if DEBUG`, beside `testing(...)`, in the file that owns the private closures)
+  forwards each closure to `current()` at call time;
+- `UITestAutomation.prepareIfNeeded(cookieClient:)` and `configureVisualTestHost(_:firstLaunch:cookieClient:)` take the
+  client the visual host prepares, default `.noop`, so every other caller is unchanged;
+- `ScenarioCookieClient` (test-side, `Mutex`) holds the running scenario's jar, `.noop` between scenarios; `setUp` passes
+  the forwarding client to `prepareIfNeeded`; `inScenarioDependencies` (now `static`) chooses the client once, sets it in
+  the holder and in `withDependencies`, and the holder is `.noop` again on every way out. Capture and measure both use it.
+
+RED (`$W/red6`, sources with `forwarding` returning `.noop`): `testAViewCreatedAgainOutsideTheScopeStaysSignedInIn…`
+failed with `[Read(tick: 0, didLogin: true), Read(tick: 1, didLogin: false)]` against the same with `true` at tick 1 (the
+logout defect, reproduced); `testTheHolderIsTheScenarioJarWhileItRunsAndInertAfter` failed twice;
+`forwardingClientReadsTheCurrentClientAtEveryCall` failed 5 expectations; the signed-out test passed. The first version of
+the signed-in test passed in RED because it waited with `settle`, which renders in place inside the task, hence inside the
+scope; it now waits on a condition across a real suspension, so the render comes from the run loop.
+
+Limit, found by a leak test (a signed-in then a signed-out scenario in one test method: the second read `didLogin: true` at
+tick 1 although the holder and the resolved dependency were both signed out). Sharing's reference table is itself a
+dependency (`@Dependency(PersistentReferences.self)`, `SharedReaderKey.swift:163`), cached per context
+(`DependencyValues.swift:475`, `:519`): a page renders in the scope's `.preview` table at first and, once a step changed it,
+in the process context's table, where a weak entry of the first scenario was still alive. XCTest's `testCaseWillStart`
+calls `resetCache()` (`DependencyValues.swift:37`, `:154`), so the next test method has new tables. A reference therefore
+outlives its scenario only inside one test method; every matrix method makes one `capture(scenario:)` call, whose jar is
+constant over its coordinates and attempts. A property of Sharing, not created by the forwarding client. Enforced, not only
+documented: `SnapshotMatrixCase` fails (`XCTFail`, no capture) when a second, different scenario id arrives in one method
+(`OneScenarioPerMethod`, unit tested). The leak test was replaced (orchestrator ruling): the signed-in and signed-out
+methods each start from a reset cache, so either order is the guard that the next method reads its own jar.
+
+One-off confirmation of the contexts (`ContextProbe5`, included in the clean run `clean8`, `** TEST SUCCEEDED **` in
+510 s; deleted after its output was read, so it is in no commit). Its output, as attached to the test:
+
+```
+scenario1-signedIn
+tick=0 didLogin=true context=preview
+tick=1 didLogin=true context=test
+scenario2-signedOut
+tick=0 didLogin=false context=preview
+tick=1 didLogin=true context=test
+```
+
+Tick 0 (the first render, inside the scope) resolved the scope's `.preview` context; tick 1 (a render from the run loop
+after a state change) resolved the `.test` context, so a view created again outside the scope does not read the scope.
+In the second scenario of the same method tick 1 read the first scenario's `true`: the mechanism of the Limit above.
+
+## Popover proof after the conversion
+
+Task 4 step 3's one-off (`$W/oneoff-general.json`: the cache confirmation at 939 pt in portrait and 884 pt in landscape),
+applied to the two general states, captured in `$W/cand-general-5` after the conversion, restored (file equal to HEAD,
+`check-sources` exit 0). The pictures were opened with the Read tool.
+
+- portrait light: yes (`recorded`, 939 pt, `portrait-light.png`): the confirmation is an arrowed popover, "Clear the image cache?" over a red Clear button, whose arrow points down at the Clear Image Cache row (the row's trailing "0 KB" line, directly under the arrow tip), and it sits over the Navigation and Cache section headers
+- portrait dark: yes (`recorded`, 939 pt, `portrait-dark.png`): the same picture in the dark theme, arrow on the Clear Image Cache row
+- landscape light: `error`, reason `page-height: needs 884 pt, committed 884 pt, cannot-cover:popover` (picture in `actual/`: the popover is drawn at the upper left over the Navigation section with no arrow and no row near it; the Clear Image Cache row lies about 110 pt below it, in the Cache section, so the popover is not anchored on its control)
+- landscape dark: `error`, reason `page-height: needs 884 pt, committed 884 pt, cannot-cover:popover` (the same, dark)
+
+The runner appends `; picture <n> of <m>` to the reason of an `error` line that carries a picture (the aggregation format of
+`Scripts/visual/`), so the plan's verify compares the part before it.
+
+## Open items from Task 5
+
+- 19-27 (variation work): the general form of the logout defect is NOT fixed. A view created again outside the scenario's
+  scope also reads the process context's storage (`defaultAppStorage`, `defaultInMemoryStorage`), `date.now` and `uuid`,
+  not the scenario's: the scope sets them (`inScenarioDependencies`) but the process context keeps the host's. Only the
+  cookie client is forwarded. Any page that a step changes and that builds a reader of such a dependency in the new render
+  could draw from the host's values; none is known.
+- 19-24 (C7): the quick-search delete (portrait) and folder-delete (portrait) confirmations are popovers found
+  anchored below the first screen; C7 anchors these confirmations on their rows, so 19-24 must re-measure both after its fix.
+- 19-26: the states with a `cannot-cover:popover` line are listed with the table above (step 8); a centred card
+  (delete-download, retry) centres in the window it is presented in; `comments-posting-warning` no longer has a keyboard
+  reason (heights stay `.screen`, whether it grows is 19-26's).
+
+
+- Quick Search delete step (19-24/19-27): its reveal scrolls the Search root behind the sheet at `ja` `accessibility5` portrait (above); a target that names the row inside the sheet would not.
+- App alert keyboard, before 19-26: four iPhone `en-large` runs of the alert on the current tree, all `cannot-cover:keyboard`-class lines (needs 995 pt portrait, 749 pt landscape in three of them): `fix-dialog-phone-1` (the first run after the logout fix, on the loaded host) drew a squeezed landscape layout (needs 793 pt, 63,356 and 79,056 differing pixels against the before-sample); `fix-dialog-phone-2`, `sample-alert-1` and `sample-alert-2` (two further single-class runs, gated on no other `xcodebuild`, load averages 64.97 / 37.31 / 144.53 at 04:49) are pixel-identical to the before-sample and to each other. The iPhone app alert layout is not shown to be nondeterministic by three of four runs; the one outlier is recorded, not explained.
+- iPad app alert pair: the reasons were `interaction:no-keyboard:announced-hidden announced=1 refocused=0 began=1 ended=0` (the before-sample, both themes, and the step 8 measuring run, light) and `interaction:no-keyboard:never-announced announced=0 refocused=0 began=1 ended=0` (the step 8 measuring run, dark; the identity runs `fix-dialog-pad` and `final-dialog-pad`, the one-off run `cand-dialogs-pad-5` and the single-class run `pad-alert-sample`, both themes each); both are the allowed iPad error at the alert's keyboard step. Whether the Task 5 tree or the host load changed the reason is not separated.

@@ -103,7 +103,9 @@ enum LibraryScenarios {
         }
     }
 
-    /// Quick Search as the sheet it is, presented over the Search root by the root's own destination state.
+    /// Quick Search as the sheet it is, presented over the Search root by the root's own destination state. The
+    /// delete confirmation's tap, the first saved search's trailing Delete, is held for the state's step
+    /// (``RevealStep/tap(_:)``), so the sheet is built without it open.
     static func quickSearch(_ kind: QuickSearchState) -> AnyView {
         let quickSearch = QuickSearchReducer.State()
         if kind != .empty {
@@ -117,7 +119,7 @@ enum LibraryScenarios {
         case .list, .empty:
             break
         case .deleteConfirmation:
-            store.send(.destination(.presented(.quickSearch(.deleteSavedSearchButtonTapped(first)))))
+            RevealStep.tap { store.send(.destination(.presented(.quickSearch(.deleteSavedSearchButtonTapped(first))))) }
         case .wordEditor:
             store.send(.destination(.presented(.quickSearch(.editSavedSearchButtonTapped(first)))))
             store.send(.destination(.presented(.quickSearch(.binding(.set(\.focusedField, .content))))))
@@ -529,15 +531,17 @@ enum LibraryScenarios {
         return state
     }
 
-    /// The gallery page pushed onto a stack, as an iPhone shows it; a confirmation is the reducer's own alert.
+    /// The gallery page pushed onto a stack, as an iPhone shows it; a confirmation is the reducer's own alert, whose
+    /// tap on the download button is held for the state's step (``RevealStep/tap(_:)``), so the page is built
+    /// without it open.
     static func detail(_ kind: DetailState) throws -> AnyView {
         let state = try detailState(kind)
         let store = Store(initialState: state, reducer: DetailReducer.init)
         switch kind {
         case .deleteDownloadConfirmation:
-            store.send(.deleteDownloadButtonTapped)
+            RevealStep.tap { store.send(.deleteDownloadButtonTapped) }
         case .retryConfirmation:
-            store.send(.retryDownloadButtonTapped(.redownload))
+            RevealStep.tap { store.send(.retryDownloadButtonTapped(.redownload)) }
         default:
             break
         }

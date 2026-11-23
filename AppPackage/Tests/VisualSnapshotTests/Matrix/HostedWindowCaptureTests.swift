@@ -725,12 +725,14 @@ final class HostedWindowCaptureTests: XCTestCase {
     ) async -> PageMeasurement {
         await HostedWindowCapture.measure(
             make: { AnyView(view) }, window: window, style: .light, interact: interact, freezeViewport: { _ in },
-            keyboardTop: { _ in nil }
+            keyboardTop: { _ in nil }, popoverSource: { _ in nil }
         )
     }
 
     private static func height(_ points: CGFloat) -> CaptureHeight {
-        CaptureHeight(points: points, freezeViewport: { _ in }, keyboardTop: { _ in nil })
+        CaptureHeight(
+            points: points, freezeViewport: { _ in }, keyboardTop: { _ in nil }, popoverSource: { _ in nil }
+        )
     }
 
     @MainActor

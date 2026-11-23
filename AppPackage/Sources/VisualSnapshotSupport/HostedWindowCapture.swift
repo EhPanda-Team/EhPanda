@@ -633,7 +633,7 @@ public enum HostedWindowCapture {
         let nativeFrame = window.frame
         guard height.points > nativeFrame.height else {
             let attempt = await attemptHosted(window: window, request: request)
-            return checked(attempt, window: window, height: height)
+            return checked(attempt, window: window, height: height, tall: false)
         }
         return await attemptTall(window: window, request: request, height: height, nativeFrame: nativeFrame)
     }
@@ -675,7 +675,7 @@ public enum HostedWindowCapture {
         let attempt = await attemptHosted(
             window: window, request: request, viewportSize: sliced ? nativeFrame.size : nil
         )
-        return checked(attempt, window: window, height: height)
+        return checked(attempt, window: window, height: height, tall: true)
     }
 
     /// The check, never an adjustment: a page whose scroll content needs more than the committed height fails with
@@ -685,17 +685,26 @@ public enum HostedWindowCapture {
     /// When the scroll view that sets the need avoids a keyboard that is up (the keyboard rule of 19-30,
     /// ``PageNeed/avoidsKeyboard(topAt:in:)``), the reason ends `, cannot-cover:keyboard`: no height covers such a
     /// page. A classification, not an adjustment: the check still fails and keeps its picture.
-    private static func checked(_ attempt: Attempt, window: UIWindow, height: CaptureHeight) -> Attempt {
+    ///
+    /// On the tall path (`tall`: a committed height above the window's own) a popover whose source lies outside the
+    /// scene's bounds (``popoverSourceLiesOutsideScene(_:in:)``) fails the check whatever the need, and the reason
+    /// ends `, cannot-cover:popover`, after `, cannot-cover:keyboard` where both hold. At or under the window's own
+    /// height nothing about popovers changes.
+    private static func checked(
+        _ attempt: Attempt, window: UIWindow, height: CaptureHeight, tall: Bool
+    ) -> Attempt {
         switch attempt.status {
         case .recorded, .passed, .changed, .missingBaseline:
             let need = HostedHierarchy.pageNeed(in: window)
-            guard need.points > height.points else { return attempt }
+            let popover = tall && height.popoverSource(window)
+                .map({ popoverSourceLiesOutsideScene($0, in: window) }) == true
+            guard need.points > height.points || popover else { return attempt }
             let avoided = height.keyboardTop(window).map({ need.avoidsKeyboard(topAt: $0, in: window) }) ?? false
             return Attempt(
                 status: .error, settleSamples: attempt.settleSamples, png: attempt.png,
                 difference: attempt.difference,
                 reason: "page-height: needs \(Int(need.points)) pt, committed \(Int(height.points.rounded())) pt"
-                    + (avoided ? ", \(keyboardReason)" : "")
+                    + (avoided ? ", \(keyboardReason)" : "") + (popover ? ", \(popoverReason)" : "")
             )
         case .timeout, .error, .notApplicable:
             return attempt

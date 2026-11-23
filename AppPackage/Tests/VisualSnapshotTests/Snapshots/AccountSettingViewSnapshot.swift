@@ -1,4 +1,6 @@
 import AppTools
+import Foundation
+@testable import SettingFeature
 
 /// The snapshot states of `AccountSettingView` (19-18).
 enum AccountSettingViewSnapshot: SnapshotProvider {
@@ -35,7 +37,10 @@ enum AccountSettingViewSnapshot: SnapshotProvider {
                 factory: .init(
                     cookies: SettingsScenarios.memberCookies,
                     make: { SettingsScenarios.account(confirmingLogout: true) },
-                    interact: RevealStep.awaitDialogPlatter()
+                    interact: { window in
+                        try await RevealStep.reveal(.label(String(localized: .logout)))(window)
+                        try await RevealStep.awaitDialogPlatter()(window)
+                    }
                 )
             )
         ]

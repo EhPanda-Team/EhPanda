@@ -56,14 +56,16 @@ enum DetailViewSnapshot: SnapshotProvider {
                 id: "gallery-detail-delete-download-confirmation",
                 heights: .screen,
                 factory: .init(
-                    make: { try LibraryScenarios.detail(.deleteDownloadConfirmation) }, prepare: artwork
+                    make: { try LibraryScenarios.detail(.deleteDownloadConfirmation) }, prepare: artwork,
+                    interact: RevealStep.reveal(.label(String(localized: .accessibilityDownloaded)))
                 )
             ),
             SnapshotState(
                 id: "gallery-detail-retry-confirmation",
                 heights: .screen,
                 factory: .init(
-                    make: { try LibraryScenarios.detail(.retryConfirmation) }, prepare: artwork
+                    make: { try LibraryScenarios.detail(.retryConfirmation) }, prepare: artwork,
+                    interact: RevealStep.reveal(.label(String(localized: .accessibilityRetry)))
                 )
             )
         ]

@@ -1,6 +1,7 @@
 import AppModels
 import Foundation
 @testable import HomeFeature
+import Resources
 
 /// The snapshot states of `ToplistsView` (19-18).
 enum ToplistsViewSnapshot: SnapshotProvider {
@@ -36,7 +37,10 @@ enum ToplistsViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { SettingsScenarios.jumpPageAlert() }, prepare: TracerScenarios.cacheHomeArtwork,
-                    still: SettingsScenarios.holdAlertCaret
+                    interact: { window in
+                        try await RevealStep.reveal(.label(String(localized: .RLocalizable.jumpPage)))(window)
+                        try await SettingsScenarios.holdAlertCaret(window)
+                    }
                 )
             )
         ]

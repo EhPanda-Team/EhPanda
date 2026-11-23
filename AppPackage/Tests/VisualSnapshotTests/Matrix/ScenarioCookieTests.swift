@@ -51,7 +51,8 @@ final class ScenarioCookieTests: XCTestCase {
             await HostedWindowCapture.captureAndCompare(
                 make: { try factory.make() }, window: window, style: .light, reference: nil, mode: .candidate,
                 height: CaptureHeight(
-                    points: window.bounds.height, freezeViewport: { _ in }, keyboardTop: { _ in nil }
+                    points: window.bounds.height, freezeViewport: { _ in }, keyboardTop: { _ in nil },
+                    popoverSource: { _ in nil }
                 )
             )
         }
@@ -149,7 +150,8 @@ final class ScenarioCookieTests: XCTestCase {
                     _ = await HostedWindowCapture.settle(window)
                 },
                 height: CaptureHeight(
-                    points: window.bounds.height, freezeViewport: { _ in }, keyboardTop: { _ in nil }
+                    points: window.bounds.height, freezeViewport: { _ in }, keyboardTop: { _ in nil },
+                    popoverSource: { _ in nil }
                 )
             )
         }

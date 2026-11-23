@@ -123,7 +123,7 @@ final class CaptureStageTests: XCTestCase {
             window: window, style: .light,
             still: { window in stillHeights.append(window.bounds.height) },
             interact: { window in interactHeights.append(window.bounds.height) },
-            freezeViewport: { _ in }, keyboardTop: { _ in nil }
+            freezeViewport: { _ in }, keyboardTop: { _ in nil }, popoverSource: { _ in nil }
         )
         XCTAssertEqual(measured.status, .measured, measured.reason ?? "")
         XCTAssertEqual(measured.steps, 1)
@@ -149,7 +149,8 @@ final class CaptureStageTests: XCTestCase {
                 made += 1
                 return AnyView(Self.keyboardScrollView(bottomInset: Self.keyboardHeight, over: window))
             },
-            window: window, style: .light, freezeViewport: { _ in }, keyboardTop: { _ in keyboardTop }
+            window: window, style: .light, freezeViewport: { _ in }, keyboardTop: { _ in keyboardTop },
+            popoverSource: { _ in nil }
         )
         XCTAssertEqual(measured.status, .cannotCover, measured.reason ?? "")
         XCTAssertEqual(measured.reason, "cannot-cover:keyboard")
@@ -157,7 +158,8 @@ final class CaptureStageTests: XCTestCase {
         XCTAssertEqual(made, 1)
         let without = await HostedWindowCapture.measure(
             make: { AnyView(Self.keyboardScrollView(bottomInset: Self.keyboardHeight, over: window)) },
-            window: window, style: .light, freezeViewport: { _ in }, keyboardTop: { _ in nil }
+            window: window, style: .light, freezeViewport: { _ in }, keyboardTop: { _ in nil },
+            popoverSource: { _ in nil }
         )
         XCTAssertEqual(without.status, .measured, without.reason ?? "")
         XCTAssertEqual(without.steps, 1)
@@ -170,7 +172,8 @@ final class CaptureStageTests: XCTestCase {
         let keyboardTop = window.screen.bounds.maxY - Self.keyboardHeight
         let measured = await HostedWindowCapture.measure(
             make: { AnyView(Self.keyboardScrollView(bottomInset: 0, over: window)) },
-            window: window, style: .light, freezeViewport: { _ in }, keyboardTop: { _ in keyboardTop }
+            window: window, style: .light, freezeViewport: { _ in }, keyboardTop: { _ in keyboardTop },
+            popoverSource: { _ in nil }
         )
         XCTAssertEqual(measured.status, .measured, measured.reason ?? "")
         XCTAssertEqual(measured.steps, 1)
@@ -194,7 +197,9 @@ final class CaptureStageTests: XCTestCase {
                         - (scrollView?.bounds.height ?? 0)
                     need = Int((window.bounds.height + overflow).rounded(.up))
                 },
-                height: CaptureHeight(points: native, freezeViewport: { _ in }, keyboardTop: { _ in top })
+                height: CaptureHeight(
+                    points: native, freezeViewport: { _ in }, keyboardTop: { _ in top }, popoverSource: { _ in nil }
+                )
             )
             let reason = "page-height: needs \(need) pt, committed \(Int(native)) pt"
             XCTAssertEqual(outcome.status, .error)
@@ -202,10 +207,115 @@ final class CaptureStageTests: XCTestCase {
         }
     }
 
+    // MARK: The popover classification
+
+    /// A popover whose source lies inside the scene's bounds is no reason: the page is taken and measured as any other.
+    @MainActor
+    func testAPopoverWhoseSourceLiesInsideTheSceneIsNoReason() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let native = window.bounds.height
+        let source = CGRect(x: 20, y: 100, width: 100, height: 20)
+        let captured = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.keyboardScrollView(bottomInset: 0, over: window)) }, window: window, style: .light,
+            reference: nil, mode: .candidate, height: Self.height(native + 600, popover: source)
+        )
+        XCTAssertEqual(captured.status, .recorded, captured.reason ?? "")
+        let measured = await Self.measure(
+            Self.keyboardScrollView(bottomInset: 0, over: window), in: window, popover: source
+        )
+        XCTAssertEqual(measured.status, .measured, measured.reason ?? "")
+        XCTAssertEqual(measured.steps, 1)
+    }
+
+    /// A popover whose source lies below the scene's bottom edge, though inside the grown window, cannot be covered:
+    /// UIKit draws an arrowed popover only within the scene's bounds, which stay at the screen's size (19-30). The
+    /// check names it above the window's own height only, and the measuring mode finds it at the first hosting there.
+    @MainActor
+    func testAPopoverWhoseSourceLiesBelowTheSceneCannotBeCovered() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let native = window.bounds.height
+        let below = CGRect(x: 20, y: window.screen.bounds.height + 200, width: 100, height: 20)
+        let committed = Int(native) + 600
+        let captured = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.keyboardScrollView(bottomInset: 0, over: window)) }, window: window, style: .light,
+            reference: nil, mode: .candidate, height: Self.height(CGFloat(committed), popover: below)
+        )
+        XCTAssertEqual(captured.status, .error)
+        XCTAssertEqual(
+            captured.reason, "page-height: needs \(committed) pt, committed \(committed) pt, cannot-cover:popover"
+        )
+        let measured = await Self.measure(
+            Self.keyboardScrollView(bottomInset: 0, over: window), in: window, popover: below
+        )
+        XCTAssertEqual(measured.status, .cannotCover, measured.reason ?? "")
+        XCTAssertEqual(measured.reason, "cannot-cover:popover")
+        XCTAssertEqual(measured.steps, 1)
+        var reasons: [String?] = []
+        for popover in [below, nil] {
+            let atWindowHeight = await HostedWindowCapture.captureAndCompare(
+                make: { AnyView(Self.keyboardScrollView(bottomInset: 0, over: window)) }, window: window,
+                style: .light, reference: nil, mode: .candidate, height: Self.height(native, popover: popover)
+            )
+            XCTAssertEqual(atWindowHeight.status, .error)
+            reasons.append(atWindowHeight.reason)
+        }
+        XCTAssertEqual(reasons[0], reasons[1], "at the window's own height the source is no reason")
+        XCTAssertEqual(reasons[0]?.hasPrefix("page-height: needs"), true)
+        XCTAssertEqual(reasons[0]?.contains("cannot-cover"), false)
+    }
+
+    // MARK: The real popover reading
+
+    /// An alert-style presentation is not a popover: nothing is read from it.
+    @MainActor
+    func testAnAlertStylePresentationIsNotReadAsAPopover() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let hosted = HostedWindowCapture.host(Self.scrolling(300), in: window, style: .light)
+        await Self.present(UIAlertController(title: "Title", message: "Message", preferredStyle: .alert), from: hosted)
+        XCTAssertNil(HostedWindowCapture.presentedPopoverSource(in: window))
+        await hosted.disposeAfterDismissal()
+    }
+
+    /// A popover that stays a popover (its delegate declines the adaptation) is read with its source rect in window
+    /// coordinates.
+    @MainActor
+    func testAPopoverThatIsNotAdaptedIsReadWithItsSourceInWindowCoordinates() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let hosted = HostedWindowCapture.host(Self.scrolling(300), in: window, style: .light)
+        let content = UIViewController()
+        content.preferredContentSize = CGSize(width: 200, height: 100)
+        content.modalPresentationStyle = .popover
+        let source = CGRect(x: 100, y: 150, width: 50, height: 20)
+        let declines = DecliningAdaptation()
+        let popover = try XCTUnwrap(content.popoverPresentationController)
+        popover.sourceView = hosted.controller.view
+        popover.sourceRect = source
+        popover.delegate = declines
+        await Self.present(content, from: hosted)
+        let read = try XCTUnwrap(HostedWindowCapture.presentedPopoverSource(in: window))
+        let expected = hosted.controller.view.convert(source, to: window)
+        XCTAssertEqual(read.origin.x, expected.origin.x, accuracy: 0.5)
+        XCTAssertEqual(read.origin.y, expected.origin.y, accuracy: 0.5)
+        XCTAssertEqual(read.size.height, source.height, accuracy: 0.5)
+        withExtendedLifetime(declines) {}
+        await hosted.disposeAfterDismissal()
+    }
+
+    @MainActor
+    private static func present(_ controller: UIViewController, from hosted: HostedRoot) async {
+        await withCheckedContinuation { continuation in
+            hosted.controller.present(controller, animated: false) {
+                continuation.resume()
+            }
+        }
+    }
+
     // MARK: Helpers
 
-    private static func height(_ points: CGFloat) -> CaptureHeight {
-        CaptureHeight(points: points, freezeViewport: { _ in }, keyboardTop: { _ in nil })
+    private static func height(_ points: CGFloat, popover: CGRect? = nil) -> CaptureHeight {
+        CaptureHeight(
+            points: points, freezeViewport: { _ in }, keyboardTop: { _ in nil }, popoverSource: { _ in popover }
+        )
     }
 
     /// The height of the keyboard the cases below pretend is up.
@@ -215,11 +325,11 @@ final class CaptureStageTests: XCTestCase {
     private static func measure(
         _ view: some View, in window: UIWindow,
         still: (@MainActor (UIWindow) async throws -> Void)? = nil,
-        interact: (@MainActor (UIWindow) async throws -> Void)? = nil
+        interact: (@MainActor (UIWindow) async throws -> Void)? = nil, popover: CGRect? = nil
     ) async -> PageMeasurement {
         await HostedWindowCapture.measure(
             make: { AnyView(view) }, window: window, style: .light, still: still, interact: interact,
-            freezeViewport: { _ in }, keyboardTop: { _ in nil }
+            freezeViewport: { _ in }, keyboardTop: { _ in nil }, popoverSource: { _ in popover }
         )
     }
 
@@ -278,6 +388,15 @@ final class CaptureStageTests: XCTestCase {
 
     private static func pixelHeight(_ png: Data?) throws -> Int {
         try XCTUnwrap(png.flatMap(UIImage.init(data:))?.cgImage).height
+    }
+}
+
+/// Keeps a popover a popover on every size class.
+private final class DecliningAdaptation: NSObject, UIPopoverPresentationControllerDelegate {
+    func adaptivePresentationStyle(
+        for controller: UIPresentationController, traitCollection: UITraitCollection
+    ) -> UIModalPresentationStyle {
+        .none
     }
 }
 

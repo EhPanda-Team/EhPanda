@@ -1,3 +1,5 @@
+import AppModels
+
 /// The snapshot states of `QuickSearchView` (19-18).
 enum QuickSearchViewSnapshot: SnapshotProvider {
     @MainActor
@@ -16,7 +18,10 @@ enum QuickSearchViewSnapshot: SnapshotProvider {
             SnapshotState(
                 id: "quick-search-delete-confirmation",
                 heights: .screen,
-                factory: .init(make: { LibraryScenarios.quickSearch(.deleteConfirmation) })
+                factory: .init(
+                    make: { LibraryScenarios.quickSearch(.deleteConfirmation) },
+                    interact: RevealStep.reveal(.label((LibraryScenarios.savedSearches.first ?? .empty).name))
+                )
             ),
             SnapshotState(
                 id: "quick-search-word-editor",

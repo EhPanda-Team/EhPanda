@@ -1,3 +1,6 @@
+@testable import DetailFeature
+import Foundation
+
 /// The snapshot states of `PostCommentView` (19-18).
 enum PostCommentViewSnapshot: SnapshotProvider {
     @MainActor
@@ -24,7 +27,14 @@ enum PostCommentViewSnapshot: SnapshotProvider {
                 heights: .screen,
                 factory: .init(
                     make: { try GalleryScenarios.comments(.postingWarning) },
-                    still: GalleryScenarios.holdStillOverKeyboard
+                    still: GalleryScenarios.holdStillOverKeyboard,
+                    interact: { window in
+                        try await RevealStep.reveal(.label(String(localized: .accessibilityComment)))(window)
+                        try await RevealStep.awaitDialogPlatter()(window)
+                        try await BrowsingScenarios.waitForRest(window)
+                        BrowsingScenarios.stopCaretBlink(in: window)
+                        try await GalleryScenarios.holdStill(window)
+                    }
                 )
             )
         ]

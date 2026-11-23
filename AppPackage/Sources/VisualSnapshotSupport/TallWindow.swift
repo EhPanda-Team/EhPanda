@@ -14,14 +14,21 @@ public struct CaptureHeight: Sendable {
     /// it, as it supplies ``freezeViewport``). A classification, never an adjustment: the check and the measuring mode
     /// use it only to name a page whose scroll view avoids that keyboard (`cannot-cover:keyboard`, 19-30).
     public let keyboardTop: @MainActor @Sendable (UIWindow) -> CGFloat?
+    /// The source rect, in window coordinates, of a popover that is presented as a popover and not adapted, else
+    /// `nil` (the matrix supplies it: ``HostedWindowCapture/presentedPopoverSource(in:)``). A classification, never an
+    /// adjustment: the check and the measuring mode use it only to name a page whose popover's source lies outside
+    /// the scene (`cannot-cover:popover`, 19-30).
+    public let popoverSource: @MainActor @Sendable (UIWindow) -> CGRect?
 
     public init(
         points: CGFloat, freezeViewport: @escaping @MainActor @Sendable (Bool) -> Void,
-        keyboardTop: @escaping @MainActor @Sendable (UIWindow) -> CGFloat?
+        keyboardTop: @escaping @MainActor @Sendable (UIWindow) -> CGFloat?,
+        popoverSource: @escaping @MainActor @Sendable (UIWindow) -> CGRect?
     ) {
         self.points = points
         self.freezeViewport = freezeViewport
         self.keyboardTop = keyboardTop
+        self.popoverSource = popoverSource
     }
 }
 
@@ -323,6 +330,9 @@ extension HostedWindowCapture {
     /// After each settle the need is read (``HostedHierarchy/pageNeed(in:)``), together with the class and height of
     /// the scroll view that sets it and whether that scroll view avoids a keyboard that is up (`keyboardTop`,
     /// ``PageNeed/avoidsKeyboard(topAt:in:)``). Then:
+    /// - a hosting above the window's own height whose popover source lies outside the scene
+    ///   (``popoverSourceLiesOutsideScene(_:in:)``, read through `popoverSource`) is `cannotCover`, reason
+    ///   `cannot-cover:popover`, at once, whatever its need;
     /// - a need at most the hosting's height is `measured` at that height, `steps` the number of hostings above the
     ///   window's own height;
     /// - a need above it with an avoided keyboard is `cannotCover`, reason `cannot-cover:keyboard`, at once: no height
@@ -340,7 +350,8 @@ extension HostedWindowCapture {
         still: (@MainActor (UIWindow) async throws -> Void)? = nil,
         interact: (@MainActor (UIWindow) async throws -> Void)? = nil, minimumReads: Int = minimumReads,
         freezeViewport: @escaping @MainActor @Sendable (Bool) -> Void,
-        keyboardTop: @MainActor (UIWindow) -> CGFloat?
+        keyboardTop: @escaping @MainActor (UIWindow) -> CGFloat?,
+        popoverSource: @escaping @MainActor (UIWindow) -> CGRect? = { _ in nil }
     ) async -> PageMeasurement {
         let screen = window.bounds.height
         let pixel = 1 / window.screen.scale
@@ -364,13 +375,17 @@ extension HostedWindowCapture {
             let hosting = await measureHosted(
                 window: window, height: height,
                 stages: .init(still: still, interact: interact, minimumReads: minimumReads),
-                freezeViewport: freezeViewport, keyboardTop: keyboardTop
+                freezeViewport: freezeViewport,
+                classifiers: .init(keyboardTop: keyboardTop, popoverSource: popoverSource)
             )
             await hosted.disposeAfterDismissal()
             let read: HostingRead
             switch hosting {
             case .failed(let reason): return ended(.error, last: previous, steps: step, reason: reason)
             case .read(let value): read = value
+            }
+            if read.popoverOutsideScene {
+                return ended(.cannotCover, last: read, steps: step, reason: popoverReason)
             }
             if read.points <= height { return ended(.measured, last: read, steps: step) }
             if read.avoidsKeyboard {
@@ -389,11 +404,52 @@ extension HostedWindowCapture {
     /// The reason of a page whose need-setting scroll view avoids a keyboard that is up (the keyboard rule, 19-30).
     static let keyboardReason = "cannot-cover:keyboard"
 
+    /// The reason of a page whose popover's source lies outside the scene (19-30, owner decision 2026-11-23, 「標出來，
+    /// 19-26 逐頁決定」): in a window taller than the screen the scene's bounds stay at the screen's size, and UIKit draws
+    /// an arrowed popover only within them.
+    static let popoverReason = "cannot-cover:popover"
+
+    /// The source rect, in window coordinates, of the front-most popover presented from the window's root or from a
+    /// controller it holds, else `nil`. A popover here is a presentation whose `popoverPresentationController` is set
+    /// and whose presentation controller's `presentationStyle`, the style in use, is `.popover`; an alert, a sheet or a
+    /// popover UIKit adapted to another style is not (their `adaptivePresentationStyle`, the style an adaptation would
+    /// take, reads otherwise even for a popover that stays one). An empty source rect is the source view's bounds.
+    public static func presentedPopoverSource(in window: UIWindow) -> CGRect? {
+        let popovers = controllers(from: window.rootViewController)
+            .compactMap(\.presentedViewController)
+            .compactMap(\.popoverPresentationController)
+            .filter({ $0.presentationStyle == .popover && $0.sourceView != nil })
+        guard let popover = popovers.last, let source = popover.sourceView else { return nil }
+        let rect = popover.sourceRect.isNull || popover.sourceRect == .zero ? source.bounds : popover.sourceRect
+        return source.convert(rect, to: window)
+    }
+
+    /// `controller`, the controllers it holds and what it presents, each followed by its own.
+    private static func controllers(from controller: UIViewController?) -> [UIViewController] {
+        guard let controller else { return [] }
+        return [controller] + (controller.children + [controller.presentedViewController].compactMap({ $0 }))
+            .flatMap(controllers(from:))
+    }
+
+    /// Whether `source`, a rect in `window`'s coordinates, is not inside the bounds of the window's scene's coordinate
+    /// space. The scene's bounds stay at the screen's size while the window is taller (19-30), and UIKit draws an
+    /// arrowed popover only within them: a source below them gets no arrow and a popover that is not on its control.
+    static func popoverSourceLiesOutsideScene(_ source: CGRect, in window: UIWindow) -> Bool {
+        guard let space = window.windowScene?.coordinateSpace else { return false }
+        return !space.bounds.contains(window.coordinateSpace.convert(source, to: space))
+    }
+
     /// The two kinds of step of one hosting, and the fewest identical reads its settles need.
     private struct Stages {
         let still: (@MainActor (UIWindow) async throws -> Void)?
         let interact: (@MainActor (UIWindow) async throws -> Void)?
         let minimumReads: Int
+    }
+
+    /// The readings that classify a page nothing can cover, taken from the matrix.
+    private struct Classifiers {
+        let keyboardTop: @MainActor (UIWindow) -> CGFloat?
+        let popoverSource: @MainActor (UIWindow) -> CGRect?
     }
 
     /// What one hosting of the measuring mode read, while its page was still hosted.
@@ -405,6 +461,8 @@ extension HostedWindowCapture {
         let scrollViewHeight: CGFloat
         /// Whether that scroll view avoids a keyboard that is up.
         let avoidsKeyboard: Bool
+        /// Whether, in a hosting above the window's own height, a popover's source lies outside the scene.
+        let popoverOutsideScene: Bool
     }
 
     private enum Hosting {
@@ -417,7 +475,7 @@ extension HostedWindowCapture {
     /// operating step, the settle, and the read.
     private static func measureHosted(
         window: UIWindow, height: CGFloat, stages: Stages, freezeViewport: @MainActor (Bool) -> Void,
-        keyboardTop: @MainActor (UIWindow) -> CGFloat?
+        classifiers: Classifiers
     ) async -> Hosting {
         let nativeSize = window.bounds.size
         let minimumReads = stages.minimumReads
@@ -460,10 +518,12 @@ extension HostedWindowCapture {
             return .failed("render-server:\(error)")
         }
         let need = HostedHierarchy.pageNeed(in: window)
-        let avoids = keyboardTop(window).map({ need.avoidsKeyboard(topAt: $0, in: window) }) ?? false
+        let avoids = classifiers.keyboardTop(window).map({ need.avoidsKeyboard(topAt: $0, in: window) }) ?? false
+        let outside = height > nativeSize.height
+            && classifiers.popoverSource(window).map({ popoverSourceLiesOutsideScene($0, in: window) }) == true
         return .read(HostingRead(
             points: need.points, scrollViewClass: need.scrollView.map({ String(describing: type(of: $0)) }),
-            scrollViewHeight: need.scrollView?.bounds.height ?? 0, avoidsKeyboard: avoids
+            scrollViewHeight: need.scrollView?.bounds.height ?? 0, avoidsKeyboard: avoids, popoverOutsideScene: outside
         ))
     }
 

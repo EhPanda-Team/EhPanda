@@ -247,7 +247,8 @@ class SnapshotMatrixCase: XCTestCase {
                 },
                 window: context.window, style: style, still: factory.still, interact: factory.interact,
                 minimumReads: factory.minimumReads, freezeViewport: { sampling.isFrozen = $0 },
-                keyboardTop: Self.keyboardTop(over:)
+                keyboardTop: Self.keyboardTop(over:),
+                popoverSource: HostedWindowCapture.presentedPopoverSource(in:)
             )
         }
         try context.writer.appendHeight(
@@ -306,7 +307,8 @@ class SnapshotMatrixCase: XCTestCase {
                 window: window, style: style, reference: reference, mode: mode, still: factory.still,
                 interact: factory.interact, minimumReads: factory.minimumReads,
                 height: CaptureHeight(
-                    points: committed, freezeViewport: { sampling.isFrozen = $0 }, keyboardTop: Self.keyboardTop(over:)
+                    points: committed, freezeViewport: { sampling.isFrozen = $0 }, keyboardTop: Self.keyboardTop(over:),
+                    popoverSource: HostedWindowCapture.presentedPopoverSource(in:)
                 )
             )
         }

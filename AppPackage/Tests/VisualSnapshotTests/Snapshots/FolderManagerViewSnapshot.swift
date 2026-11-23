@@ -1,3 +1,5 @@
+import VisualSnapshotSupport
+
 /// The snapshot states of `FolderManagerView` (19-18).
 enum FolderManagerViewSnapshot: SnapshotProvider {
     @MainActor
@@ -15,7 +17,8 @@ enum FolderManagerViewSnapshot: SnapshotProvider {
                 id: "detail-pages-folder-delete-confirmation",
                 heights: .screen,
                 factory: .init(
-                    make: { try GalleryScenarios.folderManager(confirmingDelete: true) }, prepare: artwork
+                    make: { try GalleryScenarios.folderManager(confirmingDelete: true) }, prepare: artwork,
+                    interact: RevealStep.reveal(.label(LibraryFixtures.downloadFolders.dropFirst().first ?? ""))
                 )
             )
         ]

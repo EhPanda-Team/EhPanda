@@ -22,7 +22,8 @@
 # --measure-heights runs the chosen classes in the measuring mode (19-20, design section 3) instead of --mode: no
 # picture is taken, and each coordinate gets one line in `<out>/heights.jsonl` with the page height its window needs
 # (`measured`), or `cannot-cover` (a scroll view that keeps its height while the window grows, `cannot-cover:<class>`, or
-# one that avoids a keyboard that is up, `cannot-cover:keyboard`), `did-not-converge`, `error` or `notApplicable`. The
+# one that avoids a keyboard that is up, `cannot-cover:keyboard`, or a popover whose source lies outside the scene's
+# bounds, `cannot-cover:popover`), `did-not-converge`, `error` or `notApplicable`. The
 # page is hosted again at each taller height, in the capture's order (19-30). The summary counts the lines per status
 # and the run fails when the file is missing or empty or holds an `error` or `did-not-converge` line.
 # `Scripts/visual/snapshot_heights.py` turns such runs into the committed heights.

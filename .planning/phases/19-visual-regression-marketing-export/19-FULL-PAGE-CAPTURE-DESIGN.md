@@ -68,6 +68,20 @@ struct PageHeights { ... }
   keyboard that is up (the keyboard's top lies a device pixel or more above the scroll view's bottom, and the scroll
   view's bottom inset covers the overlap) is `cannot-cover:keyboard`, in the measuring mode and in the check's reason:
   a classification, never an adjustment.
+- **Dialogs are opened by steps (owner decisions 2026-11-23: 「改成拉高後由步驟點開」 and 「還是照做，規則一致」):** every
+  dialog, confirmation, popover, menu or alert is opened by the state's operating step after the window grows, through
+  the held tap (`RevealStep.tap`, performed by `RevealStep.reveal`) or the step itself; no state is built with one
+  already open, also where the old placement happened to hold. The hold of what the opening brought up (the app alert's
+  caret) runs in that step right after the tap. The posting warning follows the order a user acts in: its stillness step waits for
+  the editor to be focused and the keyboard up and at rest and stops the caret (`GalleryScenarios.holdStillOverKeyboard`,
+  before the window grows), then its operating step taps Post, then waits for the warning and holds it still; the warning takes the focus and the keyboard goes down, so the state is not
+  a keyboard state (no `cannot-cover:keyboard`). A toast has no control and is
+  still built by `make`. A centred alert card centres in the window it is presented in, so on a taller window it sits
+  lower on the page (a finding for 19-26). Popover constraint: in a window taller than the screen the scene's bounds
+  stay at the screen's size, and UIKit draws an arrowed popover only within them, so a popover whose control lies
+  below the first screen is `cannot-cover:popover` in the check's reason and in the measuring mode: a classification,
+  never an adjustment (the reason's suffixes in a fixed order, `, cannot-cover:keyboard` before
+  `, cannot-cover:popover` when both hold); 19-26 decides those pages one by one (「標出來，19-26 逐頁決定」).
 - **Check, never adjust:** after the settle, if the page's scroll content (with its insets) is taller than the
   committed height, the coordinate fails with `page-height: needs <n> pt, committed <m> pt`. Nothing grows the window
   at run time.

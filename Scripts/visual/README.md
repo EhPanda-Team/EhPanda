@@ -74,8 +74,11 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
   native read; a picture above 8191 device pixels is composed from native-size reads. A page whose scroll content
   needs more fails as `page-height: needs <n> pt, committed <m> pt` and keeps its picture, and that failure is not
   retried; when the scroll view that sets the need avoids a keyboard that is up, the reason ends `, cannot-cover:keyboard`
-  (a classification: no height covers such a page, and the picture is kept). A page shorter than the screen keeps the
-  screen height. The order of a tall picture is: host, `still` (at screen size), native settle, freeze and verify, grow,
+  (a classification: no height covers such a page, and the picture is kept); when a popover's source lies outside the
+  scene's bounds (which stay at the screen's size while the window is taller, so UIKit draws no arrow for it), the
+  reason ends `, cannot-cover:popover` (`page-height: needs <n> pt, committed <m> pt, cannot-cover:popover`, also when
+  the need is not above the committed height), after `, cannot-cover:keyboard` where both hold. A page shorter than the
+  screen keeps the screen height. The order of a tall picture is: host, `still` (at screen size), native settle, freeze and verify, grow,
   `interact` (in the grown window, so a popover anchors on its control), settle, capture, check. On the screen-sized
   path `still` and `interact` run back to back, still first.
 - **Comparison.** Strict and never recording: pictures are 1x, precision 0.9999, perceptual precision 1, applied
@@ -234,8 +237,9 @@ each coordinate gets one line in `<out>/heights.jsonl` with the window height it
 `cannot-cover`, `did-not-converge`, `error` or `notApplicable`. The page is hosted again at each taller height, in the
 capture's order (a fresh hosting, `still` at screen size, the window grown, `interact`, settle, the need read), the
 window's own height first and at most 12 taller hostings. `cannot-cover` covers a scroll view that keeps its height
-while the window grows (`cannot-cover:<class>`) and one that avoids a keyboard that is up (`cannot-cover:keyboard`,
-found at the first hosting). The run fails on a missing or empty file or on an
+while the window grows (`cannot-cover:<class>`), one that avoids a keyboard that is up (`cannot-cover:keyboard`,
+found at the first hosting) and a popover whose source lies outside the scene's bounds (`cannot-cover:popover`, found
+at the first taller hosting). The run fails on a missing or empty file or on an
 `error` or `did-not-converge` line. Measuring runs over every language, both themes and both devices are turned into
 heights in four steps:
 

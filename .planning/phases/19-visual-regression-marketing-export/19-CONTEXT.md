@@ -111,6 +111,24 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
     hosting in that order (the window's own height in a screen-sized hosting first). A page that needs more than its
     window while its scroll view avoids a keyboard that is up is `cannot-cover:keyboard` in the measuring mode and in
     the check's reason, a classification only; whether keyboard states keep the screen height is decided in 19-26.
+  - *Amended 2026-11-23 (owner decisions 「改成拉高後由步驟點開」, 「還是照做，規則一致」 and 「標出來，19-26 逐頁決定」):*
+    no state is built with a dialog, confirmation, popover, menu or alert already open: the state's operating step
+    opens it after the window grows (the held tap `RevealStep.tap`, performed by `RevealStep.reveal`), so a popover's
+    arrow points at its control; the dialog's content does not change, and a toast, which has no control, is still
+    built by `make`. A centred alert card centres in the grown window (a finding for 19-26). In a window taller than
+    the screen the scene's bounds stay at the screen's size and UIKit draws an arrowed popover only within them (the
+    diagnosis: a source rect at y 620.7 to 641 in an 884 pt landscape window gets no arrow, while at y 629.7 to 650 in
+    a 939 pt portrait window, inside the 912 pt screen, the arrow points at it), so a popover whose control lies below
+    the first screen is `cannot-cover:popover` in the check's reason and in the measuring mode, a classification
+    only; 19-26 decides those pages one by one.
+    The posting warning's step is ordered as a user acts (orchestrator decision 2026-11-23: the editor is focused and the
+    keyboard up before Post is tapped; the warning takes the focus and the keyboard goes down), so
+    `comments-posting-warning` is no keyboard state and carries no `cannot-cover:keyboard`; the owner's B1 decision of
+    2026-11-22 (keep as is, the system keyboard is a separate window) was given on the keyboard picture for this one
+    state.
+    The popover proof after the conversion (19-30-STAGES `## Popover proof after the conversion`): the cache confirmation's
+    arrow points at the Clear Image Cache row in portrait (939 pt, light and dark), and in landscape (884 pt) the check
+    ends `page-height: needs 884 pt, committed 884 pt, cannot-cover:popover`, the popover drawn without an arrow.
 - **D-09: spike findings** (25 cases × 3 scales, one record and three compare runs, iPhone Air simulator):
   - Path B renders Liquid Glass (`.glass`, `.glassProminent`), materials, menus, alerts, sheets, confirmation
     dialogs and the soft scroll edge, which package-only tests could not. The glass backdrop blur is weaker than on

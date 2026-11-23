@@ -58,13 +58,14 @@ enum SettingsScenarios {
     }
 
     /// Account, loaded as the Settings stack loads it when the row is tapped; signed in or out follows the
-    /// scenario's cookie client. With `confirmingLogout`, Log Out has been tapped.
+    /// scenario's cookie client. With `confirmingLogout`, the tap on Log Out is held for the state's step
+    /// (``RevealStep/tap(_:)``), which performs it once the window has grown, so the page is built without its dialog
+    /// open.
     static func account(confirmingLogout: Bool) -> AnyView {
-        var actions: [(Int, SettingPath.Action)] = [(0, .account(.onPresented))]
-        if confirmingLogout {
-            actions.append((0, .account(.logoutButtonTapped)))
-        }
-        return settings([.account(.init())], actions: actions)
+        settings(
+            [.account(.init())], actions: [(0, .account(.onPresented))],
+            tap: confirmingLogout ? (page: 0, action: .account(.logoutButtonTapped)) : nil
+        )
     }
 
     /// Blocked Users over Account, with the synthetic members blocked or with none.
@@ -271,8 +272,8 @@ enum SettingsScenarios {
 
     // MARK: App-wide
 
-    /// Toplists with its jump-page alert open, its page field focused. The keyboard is a separate window and is not
-    /// drawn.
+    /// Toplists, whose Jump Page tap is held for the state's step (``RevealStep/tap(_:)``): the alert opens after the
+    /// window has grown, its page field focused. The keyboard is a separate window and is not drawn.
     static func jumpPageAlert() -> AnyView {
         let content = BrowsingScenarios.ListContent.loaded(.row)
         content.storeDisplayMode(.toplists)
@@ -281,7 +282,7 @@ enum SettingsScenarios {
         state.rawLoadingState[state.type] = content.loadingState
         state.rawPageNumber[state.type] = PageNumber(current: 0, maximum: SettingsFixtures.toplistsLastPage)
         let store = Store(initialState: state, reducer: ToplistsReducer.init)
-        store.send(.presentJumpPageAlert)
+        RevealStep.tap { store.send(.presentJumpPageAlert) }
         return AnyView(NavigationStack {
             ToplistsView(store: store)
         })

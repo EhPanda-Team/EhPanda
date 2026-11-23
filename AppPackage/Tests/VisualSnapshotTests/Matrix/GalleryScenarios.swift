@@ -50,7 +50,7 @@ enum GalleryScenarios {
         case .postingWarning:
             store.send(.presentPostComment(commentID: ""))
             store.send(.binding(.set(\.commentContent, GalleryFixtures.filteredDraft)))
-            store.send(.postTapped)
+            RevealStep.tap { store.send(.postTapped) }
         case .list, .blocked, .blockedShown:
             break
         }
@@ -387,7 +387,8 @@ extension GalleryScenarios {
     }
 
     /// The gallery page with one of its sheets presented, as the reducer presents it; `then` is a user step the
-    /// sheet's own reducer answers, such as a folder's Delete.
+    /// sheet's own reducer answers, such as a folder's Delete, held for the state's step (``RevealStep/tap(_:)``), so
+    /// the page is built without what it opens.
     static func detailPage(
         presenting destination: DetailReducer.Destination.State, then action: DetailReducer.Action? = nil
     ) throws -> AnyView {
@@ -400,7 +401,7 @@ extension GalleryScenarios {
         state.destination = destination
         let store = Store(initialState: state, reducer: DetailReducer.init)
         if let action {
-            store.send(action)
+            RevealStep.tap { store.send(action) }
         }
         return AnyView(NavigationStack {
             DetailView(store: store, gid: state.gid)

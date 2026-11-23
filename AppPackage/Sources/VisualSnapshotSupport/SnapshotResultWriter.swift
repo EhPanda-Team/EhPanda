@@ -33,7 +33,9 @@ public enum SnapshotHeightStatus: String, Codable, Sendable {
     /// The page's needed height was found: the page fitted the window of its last hosting.
     case measured
     /// No window height covers the page: its most-overflowing scroll view keeps its height while the window grows
-    /// (`cannot-cover:<class>`), or it avoids a keyboard that is up (`cannot-cover:keyboard`).
+    /// (`cannot-cover:<class>`), it avoids a keyboard that is up (`cannot-cover:keyboard`), or a popover's source lies
+    /// outside the scene's bounds, which stay at the screen's size while the window is taller
+    /// (`cannot-cover:popover`).
     case cannotCover = "cannot-cover"
     /// The need kept moving with the window for the whole step budget.
     case didNotConverge = "did-not-converge"
