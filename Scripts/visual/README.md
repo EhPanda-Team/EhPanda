@@ -60,8 +60,11 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
   `AppPackage/Tests/VisualSnapshotTests/Snapshots/<View>ViewSnapshot.swift`, an `enum` that conforms to the test-only
   `SnapshotProvider` protocol (shaped like `PreviewProvider`; previews stay `#Preview`). A `SnapshotState` holds the
   scenario ID (unchanged, so keys and baseline paths do not change), its `heights` (`PageHeights`) and the
-  `ScenarioFactory` that builds the real view, signs in, loads artwork and performs the user step. Swift has no type
-  discovery, so `ScenarioCatalog.providers` lists the providers, and `ScenarioInventoryTests` fails until that list and
+  `ScenarioFactory` that builds the real view, signs in, loads artwork and performs its steps. The steps are of two
+  kinds, each marked by its argument label: `still:` for a step that only lets the page finish and hold still (it
+  stops a spinner or a caret's blink, or waits for a keyboard, an alert or a glass shadow the state brought up) and
+  `interact:` for a step that operates the page (a tap, a menu or confirmation dialog opened, scrolling, typing).
+  Swift has no type discovery, so `ScenarioCatalog.providers` lists the providers, and `ScenarioInventoryTests` fails until that list and
   `scenarios.json` agree. Nothing here reaches Release.
 - **Tall window and check.** After the turn, each picture is taken in the key window resized to the scene's width and
   the committed height of its coordinate (`PageHeights`: one value per device, orientation and text size, the tallest
@@ -70,7 +73,11 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
   bar (a companion window), safe area and size classes, and the viewport sampling is frozen and verified against the
   native read; a picture above 8191 device pixels is composed from native-size reads. A page whose scroll content
   needs more fails as `page-height: needs <n> pt, committed <m> pt` and keeps its picture, and that failure is not
-  retried. A page shorter than the screen keeps the screen height.
+  retried; when the scroll view that sets the need avoids a keyboard that is up, the reason ends `, cannot-cover:keyboard`
+  (a classification: no height covers such a page, and the picture is kept). A page shorter than the screen keeps the
+  screen height. The order of a tall picture is: host, `still` (at screen size), native settle, freeze and verify, grow,
+  `interact` (in the grown window, so a popover anchors on its control), settle, capture, check. On the screen-sized
+  path `still` and `interact` run back to back, still first.
 - **Comparison.** Strict and never recording: pictures are 1x, precision 0.9999, perceptual precision 1, applied
   everywhere (`HostedWindowCapture`). A picture that differs or times out is captured and compared once more
   before it counts as failed; every such retry goes into the flake log. Recording happens only in an explicit
@@ -223,9 +230,12 @@ else.
 
 **Committed heights.** The heights of the tall window come from measurement, never by hand and never from the gate.
 `--measure-heights` (instead of `--mode`) runs the chosen classes in the measuring mode: no picture is taken, and
-each coordinate gets one line in `<out>/heights.jsonl` with the window height its page needs (the window is grown
-until the need holds still, at most 12 steps) as `measured`, or `cannot-cover` (a scroll view that does not grow
-with the window), `did-not-converge`, `error` or `notApplicable`. The run fails on a missing or empty file or on an
+each coordinate gets one line in `<out>/heights.jsonl` with the window height its page needs as `measured`, or
+`cannot-cover`, `did-not-converge`, `error` or `notApplicable`. The page is hosted again at each taller height, in the
+capture's order (a fresh hosting, `still` at screen size, the window grown, `interact`, settle, the need read), the
+window's own height first and at most 12 taller hostings. `cannot-cover` covers a scroll view that keeps its height
+while the window grows (`cannot-cover:<class>`) and one that avoids a keyboard that is up (`cannot-cover:keyboard`,
+found at the first hosting). The run fails on a missing or empty file or on an
 `error` or `did-not-converge` line. Measuring runs over every language, both themes and both devices are turned into
 heights in four steps:
 

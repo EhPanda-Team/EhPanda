@@ -1,7 +1,8 @@
 # Phase 19: Full-page capture and per-view snapshot files (design proposal)
 
 **Status:** approved by the owner on 2026-11-22 and implemented by plans 19-18 to 19-20 (per-view providers, the tall
-window and its check, the measuring mode and `snapshot_heights.py`); the committed heights are filled in by 19-26.
+window and its check, the measuring mode and `snapshot_heights.py`) and 19-30 (the two step stages, 2026-11-23); the
+committed heights are filled in by 19-26.
 
 ## Owner decisions this answers (2026-11-22)
 
@@ -25,7 +26,7 @@ protocol SnapshotProvider {
 
 struct SnapshotState {
     let id: String               // the scenario ID, unchanged: `front-page-list`
-    let factory: ScenarioFactory // today's make / prepare / interact / sign-in, unchanged
+    let factory: ScenarioFactory // make / prepare / still / interact / sign-in
     let heights: PageHeights     // the committed full-page heights
 }
 
@@ -53,6 +54,20 @@ struct PageHeights { ... }
   - views that size themselves from their own measured viewport reflow (the observation-scoped viewport freeze);
   - pictures above 8192 device pixels in one dimension need the sliced composite. The slices are always the native
     viewport size: cross-origin reads are not byte-identical at glass rims and SF Symbols.
+- **Two kinds of step (owner decision 2026-11-23: 「把步驟拆成兩種」, split the steps into two kinds):** a scenario's
+  steps are marked by their argument label. A stillness step (`still:`) only lets what `make` built finish and hold it
+  still (it stops a spinner or a caret's blink, or waits for a keyboard, an alert or a glass shadow the state itself
+  brought up); it runs at screen size right after hosting, so the page can settle before the window grows. Every other
+  step is an operating step (`interact:`: a tap, a held tap, opening a menu or a dialog, scrolling, typing, or a check
+  or correction the page does not need in order to settle, with everything the same step does after its action); it
+  runs after the window has grown, so a popover anchors on its control. Order: on the screen-sized path host, `still`,
+  `interact`, settle, capture, check (the one step of before); on the tall path host, `still`, native settle, freeze and
+  verify, grow, `interact`, settle, capture, check. The measuring mode takes each height in the same order: the window's
+  own height in a screen-sized hosting, each taller height in a fresh tall hosting, through the same
+  `prepareGrownWindow`. A page that needs more than its window while the scroll view that sets its need avoids a
+  keyboard that is up (the keyboard's top lies a device pixel or more above the scroll view's bottom, and the scroll
+  view's bottom inset covers the overlap) is `cannot-cover:keyboard`, in the measuring mode and in the check's reason:
+  a classification, never an adjustment.
 - **Check, never adjust:** after the settle, if the page's scroll content (with its insets) is taller than the
   committed height, the coordinate fails with `page-height: needs <n> pt, committed <m> pt`. Nothing grows the window
   at run time.

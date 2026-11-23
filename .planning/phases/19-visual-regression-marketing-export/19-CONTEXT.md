@@ -101,6 +101,16 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
     the state in its `*ViewSnapshot.swift` file. They come from the measuring mode
     (`Scripts/visual/run-snapshot-local.sh --measure-heights`, then `Scripts/visual/snapshot_heights.py`), which the
     gate never runs (`test_snapshot_gate.py` fails if the workflow or `run-shard.sh` can set it).
+  - *Amended 2026-11-23 (owner decision 「把步驟拆成兩種」, split the steps into two kinds):* each scenario's steps are
+    of two kinds, marked by their argument label in its `*ViewSnapshot.swift` file. Stillness steps (`still:`: stop
+    spinners, hold the caret, wait for the glass shadow) run at screen size right after hosting, before the native
+    settle; operating steps (`interact:`: taps, menus and confirmation dialogs, scrolling) run after the window grows,
+    so popovers anchor on their controls. On the screen-sized path the two run back to back, still first (host,
+    `still`, `interact`, settle, capture, check); on the tall path the order is host, `still`, native settle, freeze
+    and verify, grow, `interact`, settle, capture, check. The measuring mode takes each taller height in a fresh
+    hosting in that order (the window's own height in a screen-sized hosting first). A page that needs more than its
+    window while its scroll view avoids a keyboard that is up is `cannot-cover:keyboard` in the measuring mode and in
+    the check's reason, a classification only; whether keyboard states keep the screen height is decided in 19-26.
 - **D-09: spike findings** (25 cases × 3 scales, one record and three compare runs, iPhone Air simulator):
   - Path B renders Liquid Glass (`.glass`, `.glassProminent`), materials, menus, alerts, sheets, confirmation
     dialogs and the soft scroll edge, which package-only tests could not. The glass backdrop blur is weaker than on
