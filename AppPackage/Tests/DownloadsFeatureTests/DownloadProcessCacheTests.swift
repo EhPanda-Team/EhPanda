@@ -273,7 +273,7 @@ private extension DownloadProcessCacheTests {
     ) async throws {
         var deadline = ProgressDeadline(.seconds(1))
         while cachedKeys.contains(where: isCached),
-              deadline.hasTimeLeft() {
+              deadline.hasTimeLeft(), !Task.isCancelled {
             await sleepIgnoringCancellation(for: .milliseconds(10))
         }
     }

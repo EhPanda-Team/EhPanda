@@ -737,7 +737,7 @@ func waitUntilSettled(
     _ condition: @Sendable () async -> Bool
 ) async -> Bool {
     var deadline = ProgressDeadline(timeout)
-    while await !condition(), deadline.hasTimeLeft() {
+    while await !condition(), deadline.hasTimeLeft(), !Task.isCancelled {
         await sleepIgnoringCancellation(for: .milliseconds(10))
     }
     return await condition()
@@ -749,6 +749,10 @@ func waitUntilSettled(
 /// it, so cancellation is the expected exit — and a `Task<Void, Never>` body has no way to rethrow
 /// it anyway. A poll loop re-checks its own predicate every tick, so a cancelled sleep must return
 /// to that predicate rather than unwind past it.
+///
+/// A cancelled sleep returns at once, so every loop that calls this must also stop on
+/// `Task.isCancelled`: once its task is cancelled, a loop that checks only its own predicate or
+/// deadline spins at full speed until the predicate holds or the deadline passes.
 func sleepIgnoringCancellation(for duration: Duration) async {
     do {
         try await Task.sleep(for: duration)
