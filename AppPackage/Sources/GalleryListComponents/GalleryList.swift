@@ -323,6 +323,8 @@ private struct DetailList: View {
                 if shouldShowFooter(gallery: gallery) {
                     FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
                         .cellRowHover()
+                        // The footer hides its retry button by opacity, and a hidden control does not light.
+                        .hoverEffectDisabled(!footerLoadingState.is(\.failed))
                 }
             }
         }
