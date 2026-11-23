@@ -95,12 +95,14 @@ private struct AccountSection: View {
     var body: some View {
         if !didLogin {
             Button(.RLocalizable.login, action: loginAction)
+                .cellRowHover()
         } else {
             Button(
                 .logout,
                 role: .destructive, action: logoutDialogAction
             )
             .confirmationDialog(logoutConfirmationDialog)
+            .cellRowHover()
             Group {
                 if !bypassSNIFiltering {
                     Button(
@@ -108,12 +110,14 @@ private struct AccountSection: View {
                         action: manageTagsAction
                     )
                     .withArrow()
+                    .cellRowHover()
                 }
                 Button(
                     .hostSettings(galleryHost.rawValue),
                     action: openHostSettingsAction
                 )
                 .withArrow()
+                .cellRowHover()
                 AppToggle(.showNewDawnGreeting, isOn: $showNewDawnGreeting)
             }
             .foregroundStyle(.primary)
@@ -149,6 +153,7 @@ private struct BlockedUsersRow: View {
         .accessibilityValue(blockedUsers.count.formatted(.number))
         .accessibilityIdentifier(AccessibilityIdentifiers.settingBlockedUsers)
         .withArrow()
+        .cellRowHover()
     }
 }
 
@@ -175,7 +180,9 @@ private struct CookieSection: View {
             Button(.copyCookies) {
                 copyAction(.ehentai)
             }
-            .foregroundStyle(.tint).font(.subheadline)
+            .foregroundStyle(.tint)
+            .font(.subheadline)
+            .cellRowHover()
         }
         Section(GalleryHost.exhentai.rawValue) {
             CookieRow(cookieState: $exCookiesState.igneous)
@@ -184,7 +191,9 @@ private struct CookieSection: View {
             Button(.copyCookies) {
                 copyAction(.exhentai)
             }
-            .foregroundStyle(.tint).font(.subheadline)
+            .foregroundStyle(.tint)
+            .font(.subheadline)
+            .cellRowHover()
         }
     }
 }

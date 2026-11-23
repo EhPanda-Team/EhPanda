@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import AutomationIdentifiers
 import ComposableArchitecture
 import Resources
@@ -50,6 +51,7 @@ struct GeneralSettingView: View {
                             store.send(.navigateToSystemSetting)
                         }
                         .foregroundStyle(.tint)
+                        .interactiveHover(.highlight, in: HoverTextButtonShape())
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                 } else {
@@ -61,12 +63,15 @@ struct GeneralSettingView: View {
                             store.send(.navigateToSystemSetting)
                         }
                         .foregroundStyle(.tint)
+                        .interactiveHover(.highlight, in: HoverTextButtonShape())
                     }
                 }
                 Button(.appActivityLogs) {
                     store.send(.delegate(.pushAppActivityLogs))
                 }
-                .foregroundStyle(.primary).withArrow()
+                .foregroundStyle(.primary)
+                .withArrow()
+                .cellRowHover()
             }
             Section(.tags) {
                 HStack {
@@ -115,6 +120,7 @@ struct GeneralSettingView: View {
                         store.send(.onTranslationsFilePicked(url))
                     }
                 }
+                .cellRowHover()
                 if tagTranslatorHasCustomTranslations {
                     Button(
                         .removeCustomTranslations,
@@ -123,6 +129,7 @@ struct GeneralSettingView: View {
                     .confirmationDialog(
                         $store.scope(\.$removeTranslationsDialog, action: \.removeTranslationsDialog)
                     )
+                    .cellRowHover()
                 }
             }
             Section(.navigation) {
@@ -154,6 +161,7 @@ struct GeneralSettingView: View {
                 .confirmationDialog(
                     $store.scope(\.$clearCacheDialog, action: \.clearCacheDialog)
                 )
+                .cellRowHover()
             }
             analyticsSection
         }
@@ -198,7 +206,7 @@ struct GeneralSettingView: View {
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
         } else {
-            levelPicker
+            levelPicker.cellRowHover()
         }
     }
 
@@ -228,6 +236,7 @@ struct GeneralSettingView: View {
             }
             .foregroundStyle(.primary)
             .accessibilityIdentifier(AccessibilityIdentifiers.settingPrivacyPolicy)
+            .cellRowHover()
         }
     }
 }

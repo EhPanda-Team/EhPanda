@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -27,12 +28,14 @@ struct AppearanceSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .cellRowHover()
 
                 Button(.appIcon) {
                     store.send(.delegate(.pushAppIcon))
                 }
                 .foregroundStyle(.primary)
                 .withArrow()
+                .cellRowHover()
 
                 VStack(alignment: .leading) {
                     Text(.privacyMask)
@@ -66,6 +69,7 @@ struct AppearanceSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .cellRowHover()
                 .disabled(!setting.showTagsInList)
             }
             Section(.gallery) {
@@ -152,6 +156,7 @@ private struct AppIconRow: View {
         }
         .buttonStyle(.unhighlighted)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .cellRowHover()
     }
 }
 

@@ -199,6 +199,7 @@ private struct LinkRow: View {
                 Link(destination: destination) {
                     title.withArrow()
                 }
+                .cellRowHover()
             } else {
                 title
             }
