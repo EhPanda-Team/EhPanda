@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 20
 current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks"
 status: executing
-stopped_at: Completed 20-14-PLAN.md (Release isolation scan, both flavors 0 findings; phase gate green)
-last_updated: "2026-11-21T08:50:44.190Z"
+stopped_at: Completed 19-30-PLAN.md
+last_updated: "2026-11-23T21:03:46.021Z"
 last_activity: 2026-11-21
 last_activity_desc: "Quick task 261121-m6q completed: every gallery list and detail fetch a reducer starts now goes through the injected GalleryClient (14 closures, 22 call sites in 11 files; HomeClient and the download client keep theirs), so tests state each fetch outcome; the three errorSurfaced filters from 261121-ifi are gone and the signal partition is shared from TestingSupport. Earlier, quick task 261121-neo completed: the History grid notice has 16 pt above and below it; the detail header's download ring takes the Read ring's geometry (whole 48-pt button, 4 pt in, 2.5-pt stroke, centre glyph at .callout), its outline glyphs are drawn at 1.1x (download icons) and 1.15x (heart); a queued download shows the ring with a 12-dash track, the saved pages and pause.fill, cross-fading into the solid track in 0.3 s (at once under Reduce Motion, a documented D-29 exception), and VoiceOver reads Queued, n of m. Pause download (owner's Screens v1.1.0 design, 2026-11-21). Earlier, Quick task 261121-ifi completed: user-visible errors now reach TelemetryDeck; errorSurfaced is sent when state changes (the toast and each LoadingState via Reducer.signalsErrors), carries a closed Error.screen value (17 screens, owner decision), counts notFound as its own kind and reader page failures once per kind per session (owner decisions); the dead setToast action is gone. Earlier, quick task 261121-jps completed: Deploy now uploads the PAL build after the release (upload only; the collaborator creates the version and submits it), and Publish AltStore PAL takes only the ADP ID and pushes with the deploy key (owner decisions); deploy-pal.yml is gone. Earlier, 20-08 recorded (20-08-SUBMISSION.md): Apple accepted 3.0.0 (163) for Notarization, the ADP is fetched and its variants are encrypted, and the hand-made AltStorePAL.json is live on main (owner decision); develop re-signed for main's signature rule. Earlier, quick task 261117-tyj completed: the compact Library picker remembers its last choice across launches (the sidebar does not), and a user-deleted gallery, singly or by folder, leaves the continued-download card's pages and galleries count. Earlier, 20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
-state_head: 06b4747a3fa63ab9447e58544759c1468d371e77
+state_head: b5be461df6542017f4a2d7e364dc933498c0793b
 progress:
   total_phases: 21
   completed_phases: 19
-  total_plans: 321
-  completed_plans: 327
+  total_plans: 348
+  completed_plans: 334
   percent: 90
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -1600,6 +1600,7 @@ Phase 18 verification passed 10/10 on 2026-11-05 at `c2619c7a3` (tested source `
 | Phase 20 P01 | 17 min | 3 tasks | 9 files |
 | Phase 20 P02 | 6 min | 3 tasks | 5 files |
 | Phase 20 P03 | 8 min | 2 tasks | 12 files |
+| Phase 19 P30 | multi-session | 5 tasks | 31 files |
 
 ## Accumulated Context
 
@@ -2185,6 +2186,7 @@ Recent decisions affecting current work:
 - [Phase 20]: 20-05: the publish job (`inputs.mode == 'publish'`, environment pal-notarization, contents: write) reads the ADP ID, has AltStore process it, fetches it and runs pal_publish.py publish; dry_run defaults to true. ADP files map by name (manifest.json → manifest, signature, <uuid>.ipa → <uuid>); any other file, a duplicate name, a symlink or an escaping zip entry fails. Assets are never replaced (same bytes are reused, other bytes fail); a build older than the source's newest entry is refused. — Research §4, §5; D-07, D-19.
 - [Phase 20]: 20-12: the 3.0 analytics vocabulary is signed off (OQ-E): FirstLaunch.completed, Analytics.levelChanged, Moderation.reportOutcome (outcome only, no reason), Moderation.posterBlocked, Moderation.posterUnblocked, Moderation.blockedCommentShown, Moderation.postingWarningAnswered, all at Basic; App.distributionChannel is a default parameter at Basic and Full; App.installed is the install count (OI-4 A); SC8 reads "nothing is sent before a level is chosen". — product lead decision; owner decision; Research §10.
 - [Phase 19]: 19-01: iPadOS 27 refuses in-process orientation changes (UISceneErrorDomain 101), so an iPad matrix process captures the one orientation its device was turned to before launch (EHPANDA_SNAPSHOT_ORIENTATIONS); iPhone turns in process. iPad units double to 36, shard units become 54. The block confirmation is reached through the row's own accessibility action, which needs the app accessibility runtime on; iPad pins need Full Screen Apps. — Research section 3 leaves the rotation mechanism to the developer; XCUIDevice is not authorized in an app-hosted test.
+- [Phase 19]: 19-30: dialogs are opened by steps after growth; cannot-cover:popover is a classification; the posting warning keeps its keyboard still: stage
 
 ### Phase 16 transition decisions (2026-09-23)
 
@@ -2313,8 +2315,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-11T12:00:00.000Z
-Stopped at: Completed 20-11-PLAN.md; main merged
+Last session: 2026-11-23T21:03:43.829Z
+Stopped at: Completed 19-30-PLAN.md
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
