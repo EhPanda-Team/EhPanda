@@ -14,8 +14,8 @@ struct HoverAuditAllowance: Sendable {
     let reason: String
 }
 
-/// D-08: every plain button, tap gesture and custom button style in the app's iOS code carries a hover helper
-/// after it, or is one of a few allowlisted sites whose reason is written down.
+/// D-08: every plain or unhighlighted button, tap gesture and custom button style in the app's iOS code carries a
+/// hover helper after it, or is one of a few allowlisted sites whose reason is written down.
 ///
 /// A plain style or a tap gesture strips the system's pointer response from a control, and nothing in the build
 /// notices that a control lost it: the control still works with touch and still draws, and the first person to see
@@ -47,8 +47,9 @@ struct PointerHoverAuditTests {
         "AppPackage/Sources/ReadingFeature/ReadingView+Gestures.swift"
     ]
 
-    /// The fewest sites the live tree can hold and still be a real scan; the census at the time of writing is 16.
-    private static let siteFloor = 16
+    /// The fewest sites the live tree can hold and still be a real scan. The census at the time of writing is 21, so
+    /// the floor is about half of it: removing a control does not fail the vacuity test, while a broken walk does.
+    private static let siteFloor = 10
 
     private static let helperFile = "AppPackage/Sources/AppTools/InteractiveHover.swift"
 
@@ -95,6 +96,13 @@ struct PointerHoverAuditTests {
             count: 1,
             reason: "The pointer hover is on the Menu's label, after the label's frame, not after the plain style: "
                 + "on the Menu it redrew the ellipsis of the second row at the extra-small size in iPhone landscape."
+        ),
+        HoverAuditAllowance(
+            file: "AppPackage/Sources/SettingFeature/Components/LaboratorySettingView.swift",
+            kind: .unhighlightedButtonStyle,
+            count: 1,
+            reason: "The cell's interactive glass draws its own pointer response (D-11 G3); hoverShape gives it the "
+                + "glass's 15 pt corners."
         )
     ]
 
