@@ -264,6 +264,7 @@ struct HeaderSection: View {
         }
         .buttonStyle(.glassProminent)
         .buttonBorderShape(.circle)
+        .interactiveHover(.highlight, in: .circle)
         .overlay {
             readProgressRing
         }

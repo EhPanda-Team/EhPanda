@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import Resources
 import SFSafeSymbols
 import SwiftUI
@@ -179,5 +180,6 @@ struct CommentButton: View {
             .clipShape(shape)
         }
         .glassEffect(.clear.interactive(), in: shape)
+        .hoverShape(shape)
     }
 }

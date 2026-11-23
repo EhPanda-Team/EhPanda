@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -89,6 +90,7 @@ private extension TorrentsView {
                     Text(torrent.fileName)
                         .font(.headline)
                 }
+                .interactiveHover(.highlight, in: HoverTextButtonShape())
 
                 uploaderAndDate
             }

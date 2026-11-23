@@ -1,4 +1,5 @@
 public import AppModels
+import AppTools
 import CasePathsCore
 public import Resources
 import SFSafeSymbols
@@ -64,6 +65,7 @@ public struct NotLoginView: View {
         } actions: {
             Button(.RLocalizable.login, action: action)
                 .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
+                .interactiveHover(.highlight, in: .capsule)
                 .padding()
         }
     }
@@ -128,6 +130,7 @@ public struct ErrorView: View {
             } else if let action {
                 Button(buttonTitle, action: action)
                     .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
+                    .interactiveHover(.highlight, in: .capsule)
                     .padding()
             }
         }

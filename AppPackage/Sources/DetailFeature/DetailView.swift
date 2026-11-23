@@ -364,6 +364,7 @@ private extension DetailView {
                 }
                 .buttonStyle(.glass)
                 .buttonBorderShape(.capsule)
+                .interactiveHover(.highlight, in: .capsule)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

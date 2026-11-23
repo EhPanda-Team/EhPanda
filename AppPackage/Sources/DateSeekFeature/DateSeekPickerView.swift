@@ -126,6 +126,7 @@ private struct SeekButton: View {
         }
         .buttonBorderShape(.buttonBorder)
         .buttonStyle(.glass(.clear))
+        .interactiveHover(.highlight, in: ButtonBorderShape.buttonBorder)
     }
 }
 

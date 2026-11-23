@@ -70,6 +70,21 @@ import Testing
         expectEqual(bounds, CGRect(x: -11, y: -8, width: 122, height: 36))
     }
 
+    @Test func textButtonShapeGrowsItsRectBySixOnEverySide() {
+        let bounds = HoverTextButtonShape().path(in: CGRect(x: 0, y: 0, width: 40, height: 20)).boundingRect
+        expectEqual(bounds, CGRect(x: -6, y: -6, width: 52, height: 32))
+    }
+
+    @Test func textButtonShapeMatchesAContinuousRoundedRectOfRadiusEight() {
+        let grown = CGRect(x: -6, y: -6, width: 52, height: 32)
+        let expected = RoundedRectangle(cornerRadius: 8, style: .continuous).path(in: grown)
+        let actual = HoverTextButtonShape().path(in: CGRect(x: 0, y: 0, width: 40, height: 20))
+        expectEqual(actual.boundingRect, expected.boundingRect)
+        for point in [CGPoint(x: -5.5, y: -5.5), CGPoint(x: 20, y: 10)] {
+            #expect(actual.contains(point) == expected.contains(point))
+        }
+    }
+
     private func expectEqual(_ actual: CGRect, _ expected: CGRect, sourceLocation: SourceLocation = #_sourceLocation) {
         #expect(abs(actual.minX - expected.minX) < Self.tolerance, sourceLocation: sourceLocation)
         #expect(abs(actual.minY - expected.minY) < Self.tolerance, sourceLocation: sourceLocation)

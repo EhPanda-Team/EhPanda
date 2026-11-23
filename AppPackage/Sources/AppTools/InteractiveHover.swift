@@ -125,6 +125,24 @@ public struct HoverTargetCircle: Shape {
     }
 }
 
+/// The hover shape of a text button: an 8 pt continuous rounded rect around the text, grown by 6 pt on every side.
+///
+/// A text button has no background of its own, so the highlight needs a shape that stands clear of the glyphs. The
+/// size lives in this one type so the app's text buttons cannot drift apart.
+public struct HoverTextButtonShape: Shape {
+    /// The corner radius of the highlight, in points.
+    public static let cornerRadius: CGFloat = 8
+    /// How far the highlight stands clear of the text on every side, in points.
+    public static let outset: CGFloat = 6
+
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
+            .path(in: rect.insetBy(dx: -Self.outset, dy: -Self.outset))
+    }
+}
+
 /// The hover capsule of a control that shows an icon and a label: the content's rect grown by `horizontalOutset` and
 /// `verticalOutset` on every side, with fully rounded ends.
 ///
