@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 public import ComposableArchitecture
 import Resources
 public import SwiftUI
@@ -95,6 +96,7 @@ private struct BasicSection: View {
                 Text(.resetFilters).foregroundStyle(.red)
             }
             .confirmationDialog(confirmationDialog)
+            .cellRowHover()
             AppToggle(.advancedSettings, isOn: $filter.advanced)
         }
     }
@@ -161,6 +163,7 @@ private struct MinimumRatingSetter: View {
             }
         }
         .pickerStyle(.menu)
+        .cellRowHover()
     }
 }
 

@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import AutomationIdentifiers
 import ComposableArchitecture
 import Resources
@@ -207,6 +208,7 @@ struct ReportFormView: View {
         }
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityIdentifier(AccessibilityIdentifiers.reportReason(type: reason.type.rawValue))
+        .cellRowHover()
     }
 
     private func title(for reason: ReportFormFeature.Reason) -> LocalizedStringResource {
@@ -305,6 +307,7 @@ private struct ReportPrimaryButton: View {
                 .transaction { $0.animation = nil }
         }
         .buttonStyle(.glassProminent)
+        .interactiveHover(.highlight, in: .capsule)
         .controlSize(.large)
         .tint(.accentColor)
         .keyboardShortcut(.return, modifiers: .command)

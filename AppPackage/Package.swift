@@ -631,6 +631,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.appComponents),
             .module(.appModels),
+            .module(.appTools),
             .module(.resources),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sharing)
@@ -666,6 +667,7 @@ let targets: [PackageDescription.Target] = [
             .module(.analyticsClient),
             .module(.appComponents),
             .module(.appModels),
+            .module(.appTools),
             .module(.resources),
             .targetDependency(.composableArchitecture),
             .targetDependency(.sfSafeSymbols),

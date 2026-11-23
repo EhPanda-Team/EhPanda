@@ -319,8 +319,10 @@ private struct DetailList: View {
                         fetchMoreAction?()
                     }
                 }
+                .cellRowHover()
                 if shouldShowFooter(gallery: gallery) {
                     FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+                        .cellRowHover()
                 }
             }
         }

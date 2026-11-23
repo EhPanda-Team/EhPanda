@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import ComposableArchitecture
 import GalleryListComponents
 import Resources
@@ -71,6 +72,7 @@ struct DownloadInspectorView: View {
                                 )
                                 .disabledActionForegroundStyle(isPauseResumeDisabled)
                             }
+                            .cellRowHover()
                             .disabled(isPauseResumeDisabled)
 
                             Button {
@@ -87,6 +89,7 @@ struct DownloadInspectorView: View {
                                 )
                                 .disabledActionForegroundStyle(isRetryPagesDisabled)
                             }
+                            .cellRowHover()
                             .disabled(isRetryPagesDisabled)
 
                             Button {
@@ -98,6 +101,7 @@ struct DownloadInspectorView: View {
                                     reduceMotion: reduceMotion
                                 )
                             }
+                            .cellRowHover()
                             .disabled(isVerifyImagesDisabled)
                         }
                     }
@@ -418,5 +422,6 @@ struct DownloadListRow: View {
         .buttonStyle(.borderless)
         .modifier(GalleryReadInteraction(detailAction: openAction, readAction: readAction))
         .accessibilityFocused(rowFocus, equals: download.id)
+        .cellRowHover()
     }
 }
