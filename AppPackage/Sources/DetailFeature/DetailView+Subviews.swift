@@ -671,6 +671,8 @@ struct PreviewsSection: View {
             .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
             .contentMargins(.horizontal, 16, for: .scrollContent)
             .scrollIndicators(.hidden)
+            // A hovered tile lifts past the row's edges, which the scroll view would otherwise cut off.
+            .scrollClipDisabled()
         }
     }
 }

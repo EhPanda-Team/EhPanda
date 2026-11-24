@@ -368,6 +368,8 @@ struct CoverWallSection: View {
             .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
             .contentMargins(.horizontal, 20, for: .scrollContent)
             .scrollIndicators(.hidden)
+            // A hovered tile lifts past the row's edges, which the scroll view would otherwise cut off.
+            .scrollClipDisabled()
             .frame(height: showsRichInformation ? nil : coverSize.height * 2 + 30)
         }
     }
@@ -668,6 +670,8 @@ struct MiscGridSection: View {
             // spacing beside them.
             .contentMargins(.horizontal, showsRichInformation ? 0 : 16, for: .scrollContent)
             .scrollIndicators(.hidden)
+            // A hovered tile lifts past the row's edges, which the scroll view would otherwise cut off.
+            .scrollClipDisabled()
         }
     }
 }

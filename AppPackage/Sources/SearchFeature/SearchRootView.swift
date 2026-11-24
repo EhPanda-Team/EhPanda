@@ -338,6 +338,8 @@ private struct HistoryGalleriesSection: View {
                 .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
                 .contentMargins(.horizontal, Self.inset, for: .scrollContent)
                 .scrollIndicators(.hidden)
+                // A hovered tile lifts past the row's edges, which the scroll view would otherwise cut off.
+                .scrollClipDisabled()
             }
         } header: {
             Text(.recentlyViewed)
