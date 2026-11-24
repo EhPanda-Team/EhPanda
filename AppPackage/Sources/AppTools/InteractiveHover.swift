@@ -160,11 +160,11 @@ public struct HoverCapsule: Shape {
 /// Which row shape a ``View/cellRowHover(_:)`` highlight takes.
 public enum CellHoverFill: Sendable {
     /// A row of an inset card list (`Form`, `List`, `.insetGrouped`): the highlight stands 8 pt inside the cell's left
-    /// and right edges and 3 pt inside its top and bottom edges, with rounded corners.
+    /// and right edges and 6 pt inside its top and bottom edges, with 20 pt corners.
     case cardRow
     /// A card row while its list shows the delete control before and the reorder control after the content: the
-    /// highlight stands 8 pt inside the content view's leading and trailing edges and 3 pt inside its top and bottom
-    /// edges.
+    /// highlight stands 8 pt inside the content view's leading and trailing edges and 6 pt inside its top and bottom
+    /// edges, with 20 pt corners.
     case cardRowEditing
     /// A row of a sidebar list: the highlight covers the whole cell, in the corner radius of the system's own
     /// selection.
@@ -174,7 +174,7 @@ public enum CellHoverFill: Sendable {
     /// cell the case describes.
     ///
     /// Each value is a measured content margin minus the gap the highlight keeps from the cell edge: 20 - 8 and
-    /// 15 - 3 for a card row, 16 - 8 and 8 - 8 for the editing leading and trailing sides, 16 and 11 for a sidebar
+    /// 15 - 6 for a card row, 16 - 8 and 8 - 8 for the editing leading and trailing sides, 16 and 11 for a sidebar
     /// row. The margins were measured on iOS 27 in the iPhone Air and iPad Pro 11-inch (M5) simulators at the
     /// extra-small, large and accessibility-5 content sizes, from the edge of the cell's content view to the edge of
     /// a row's content, in points:
@@ -204,9 +204,9 @@ public enum CellHoverFill: Sendable {
     var growth: EdgeInsets {
         switch self {
         case .cardRow:
-            EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
+            EdgeInsets(top: 9, leading: 12, bottom: 9, trailing: 12)
         case .cardRowEditing:
-            EdgeInsets(top: 12, leading: 8, bottom: 12, trailing: 0)
+            EdgeInsets(top: 9, leading: 8, bottom: 9, trailing: 0)
         case .sidebarSelection:
             EdgeInsets(top: 11, leading: 16, bottom: 11, trailing: 16)
         }
@@ -218,33 +218,39 @@ public enum CellHoverFill: Sendable {
     }
 
     /// How far the highlight stands inside the cell's top and bottom edges, in points.
+    ///
+    /// For a card row it is 6 pt, against 8 pt at the sides, because the system's highlight scales the row up by a
+    /// share of its size, which on a wide, short row takes about 3 pt from the sides and under 1 pt from the top and
+    /// bottom: hovered, the gap reads about 5 pt on every side (a Downloads row on the iPad, 2026-11-24). The even gap
+    /// is what lets ``shape``'s corners sit concentric with the card's.
     var verticalGap: CGFloat {
         switch self {
-        case .cardRow, .cardRowEditing: 3
+        case .cardRow, .cardRowEditing: 6
         case .sidebarSelection: 0
         }
     }
 
+    /// The hover shape: the whole grown view, with continuous corners of ``cornerRadius``.
+    var shape: RoundedRectangle {
+        .rect(cornerRadius: cornerRadius, style: .continuous)
+    }
+
     /// The corner radius of the highlight, in points.
+    ///
+    /// A card row takes 20 pt on all four corners: the card's own corners are 26 pt (traced from the pixels of an
+    /// iPad Downloads card, 2026-11-24), so a highlight about 5 pt inside one is concentric with it at 20 to 21 pt. A
+    /// smaller radius showed two different curves side by side (owner, 2026-11-24: "double corner radius"). The owner
+    /// chose the same 20 pt on the corners that meet a separator rather than the card, so a one-line row reads as a
+    /// capsule, like a sidebar selection (2026-11-24). `ConcentricRectangle`, which takes its radii from the cell's
+    /// card, is not used: on iOS 27.2 the highlight it draws on a section's second row sits about 6 pt up and to the
+    /// left, over the separator and the card's leading edge (General settings, App Activity Logs, 2026-11-24).
+    ///
+    /// A sidebar row takes 26 pt, the system's own selection shape.
     var cornerRadius: CGFloat {
         switch self {
-        case .cardRow, .cardRowEditing: 10
+        case .cardRow, .cardRowEditing: 20
         case .sidebarSelection: 26
         }
-    }
-}
-
-/// The hover shape of a list row: the view's whole rect, which ``View/cellRowHover(_:)`` has grown past the row's
-/// content.
-public struct CellHoverShape: Shape {
-    public let fill: CellHoverFill
-
-    public init(fill: CellHoverFill) {
-        self.fill = fill
-    }
-
-    public func path(in rect: CGRect) -> Path {
-        RoundedRectangle(cornerRadius: fill.cornerRadius, style: .continuous).path(in: rect)
     }
 }
 
@@ -274,7 +280,7 @@ private struct CellRowHoverModifier: ViewModifier {
                 maxWidth: .infinity, minHeight: max(0, minimumRowHeight - 2 * fill.verticalGap), alignment: .leading
             )
             .contentShape(.rect)
-            .interactiveHover(.highlight, in: CellHoverShape(fill: fill))
+            .interactiveHover(.highlight, in: fill.shape)
             .padding(fill.shrink)
     }
 }

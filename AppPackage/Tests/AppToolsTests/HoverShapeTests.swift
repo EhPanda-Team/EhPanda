@@ -3,7 +3,7 @@ import SwiftUI
 import Testing
 
 /// Pins the geometry of the hover shapes the interactive-hover helpers draw: the 44 pt minimum of the icon circle,
-/// the longer side winning, and the capsule's outsets.
+/// the longer side winning, the capsules' outsets, and the list rows' grown rects and corners.
 @Suite struct HoverShapeTests {
     private static let tolerance: CGFloat = 0.001
     private static let square = CGRect(x: 0, y: 0, width: 20, height: 20)
@@ -53,27 +53,27 @@ import Testing
     @Test func rowHighlightIsTheViewsWholeRectForEveryFill() {
         let row = CGRect(x: 0, y: 0, width: 300, height: 52)
         for fill in [CellHoverFill.cardRow, .cardRowEditing, .sidebarSelection] {
-            expectEqual(CellHoverShape(fill: fill).path(in: row).boundingRect, row)
+            expectEqual(fill.shape.path(in: row).boundingRect, row)
         }
     }
 
-    @Test func cardAndEditingRowsHaveContinuousCornersOfRadiusTen() {
-        let row = CGRect(x: 0, y: 0, width: 300, height: 52)
-        let reference = RoundedRectangle(cornerRadius: 10, style: .continuous).path(in: row)
+    @Test func cardAndEditingRowsHaveContinuousCornersOfRadiusTwenty() {
+        let row = CGRect(x: 0, y: 0, width: 300, height: 80)
+        let reference = RoundedRectangle(cornerRadius: 20, style: .continuous).path(in: row)
         for fill in [CellHoverFill.cardRow, .cardRowEditing] {
-            let path = CellHoverShape(fill: fill).path(in: row)
-            for point in [CGPoint(x: 0.5, y: 0.5), CGPoint(x: 5, y: 26), CGPoint(x: 150, y: 0.5)] {
+            let path = fill.shape.path(in: row)
+            for point in [CGPoint(x: 1, y: 1), CGPoint(x: 4, y: 4), CGPoint(x: 6, y: 6), CGPoint(x: 0.5, y: 40)] {
                 #expect(path.contains(point) == reference.contains(point))
             }
+            #expect(!path.contains(CGPoint(x: 4, y: 4)))
+            #expect(path.contains(CGPoint(x: 0.5, y: 40)))
         }
-        #expect(!CellHoverShape(fill: .cardRow).path(in: row).contains(CGPoint(x: 0.5, y: 0.5)))
-        #expect(CellHoverShape(fill: .cardRow).path(in: row).contains(CGPoint(x: 5, y: 26)))
     }
 
     @Test func sidebarSelectionHasContinuousCornersOfRadiusTwentySix() {
         let row = CGRect(x: 0, y: 0, width: 300, height: 52)
         let reference = RoundedRectangle(cornerRadius: 26, style: .continuous).path(in: row)
-        let path = CellHoverShape(fill: .sidebarSelection).path(in: row)
+        let path = CellHoverFill.sidebarSelection.shape.path(in: row)
         for point in [CGPoint(x: 1, y: 1), CGPoint(x: 0.5, y: 26), CGPoint(x: 8, y: 8), CGPoint(x: 150, y: 26)] {
             #expect(path.contains(point) == reference.contains(point))
         }
@@ -81,14 +81,16 @@ import Testing
     }
 
     @Test func growthPlusTheHighlightGapIsTheMeasuredMargin() {
-        // Card rows: margin 20 side, 15 top and bottom; the highlight keeps 8 and 3 from the cell edge.
+        // Card rows: margin 20 side, 15 top and bottom; the highlight keeps 8 and 6 from the cell edge.
         let card = CellHoverFill.cardRow
-        #expect(card.growth == EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12))
+        #expect(card.growth == EdgeInsets(top: 9, leading: 12, bottom: 9, trailing: 12))
+        #expect(card.verticalGap == 6)
         #expect(20 - card.growth.leading == 8)
         #expect(15 - card.growth.top == card.verticalGap)
         // Editing rows: margin 16 leading and 8 trailing; the highlight keeps 8 from each content view edge.
         let editing = CellHoverFill.cardRowEditing
-        #expect(editing.growth == EdgeInsets(top: 12, leading: 8, bottom: 12, trailing: 0))
+        #expect(editing.growth == EdgeInsets(top: 9, leading: 8, bottom: 9, trailing: 0))
+        #expect(15 - editing.growth.top == editing.verticalGap)
         #expect(16 - editing.growth.leading == 8)
         #expect(8 - editing.growth.trailing == 8)
         // Sidebar rows: margin 16 side and 11 top and bottom; the highlight is the whole cell.
