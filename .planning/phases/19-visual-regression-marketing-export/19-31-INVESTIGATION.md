@@ -216,3 +216,36 @@ Options for those cases (none chosen):
 
 The language going to its own line first (the plan's example) is already what the `VStack` option does and does not
 change the number's break, because the break is the page count's own width against the cell.
+
+## Decision
+
+Asked of the owner by the orchestrator on 2026-11-25, in Taiwanese Mandarin, with the hosted render
+`$W/phone/wall-compact-AX5-ja.png` shown (「ペー／ジ」 and 「ドイツ／語」 broken mid-word, the second lines centred). The
+question gave both causes and offered option A (recommended) or change 1 alone (option C, recorded as a known
+limitation). Answer, verbatim: 「欄寬隨文字加寬（建議）」.
+
+- Option: **`fix-other`**, which is option A above extended to the language, with change 1. Decided by: the owner (the
+  visible change, the wider column); the orchestrator spelled out the exact fix below within that answer.
+- Exact fix, in `AppPackage/Sources/HomeFeature/HomeGalleryInformation.swift`:
+  1. `HomePageLanguage` sets `.multilineTextAlignment(.leading)` on itself (change 1), so no `Button` centres its lines.
+  2. A `HomeFrontPageCell` with rich information is as wide as the widest of its cover and the one-line widths of its
+     page count and, when it has one, its language, in the `HomePageLanguage` arrangement that is shown (the `HStack`
+     when both fit on one line at that width, otherwise one line each). It is never narrower than the cover; at sizes
+     where the texts fit the cover's width, which is every size up to `.accessibility3`, nothing changes. The cover
+     keeps its size and stays on the cell's leading edge; the title takes the cell's width. The wall's columns follow
+     from the cells as they already do (`HomeCoverWallLayout`: a column is as wide as its widest cell), so the covers
+     move apart by the extra width and the column spacing stays 20 pt.
+  3. No text is truncated, scaled or given a fixed size, and no catalog string changes. The cell without rich
+     information (`.standard` cover) is unchanged. A doc comment states the reason: the cover's scale stops at
+     `GalleryCoverStyle.maximumScale` while the text keeps growing, and the owner chose a wider column over a broken
+     page count or language (19-31, 2026-11-25).
+- Test: `AppPackage/Tests/HostedViewTests/FrontPageCellPageCountTests.swift` as "## Proposed fix" describes it, with
+  these changes:
+  - the language case runs for every locale and size of the first test, with the gallery's language shown in that
+    locale, and asserts the same one-line and leading-edge rules for the language line as for the page-count line;
+  - every cell's cover keeps its unchanged size (its frame equals the cover style's size at that Dynamic Type size,
+    to a pixel), and no cell's ink crosses into the next column (the next cell's leading edge is at least the column
+    spacing past this cell's trailing ink).
+  It fails before the change in the cases listed under "## Cases where the page count cannot fit the cell" and in the
+  centred iPad `de` `.accessibility5` cells; after change 1 alone it still fails wherever a page count or language is
+  wider than the cover.
