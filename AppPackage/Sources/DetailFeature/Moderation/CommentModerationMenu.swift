@@ -241,10 +241,12 @@ struct CommentModerationMenuButton: View {
                 .font(.body)
                 .foregroundStyle(.secondary)
                 .frame(minWidth: 44, minHeight: 44)
-                .interactiveIconHover()
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
+        // On the Menu, before the negative padding, so the circle follows the 44 pt frame. On the label inside the
+        // Menu the system drew no pointer effect at all (iPadOS 27.2, Device Hub's pointer, 2026-11-24).
+        .interactiveIconHover()
         .padding(.vertical, -12)
         .padding(.trailing, -12)
         .accessibilityHidden(true)

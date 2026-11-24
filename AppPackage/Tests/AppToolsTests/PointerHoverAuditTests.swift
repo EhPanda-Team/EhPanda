@@ -84,13 +84,6 @@ struct PointerHoverAuditTests {
             count: 1,
             reason: "Draws the label alone by owner decision (2026-09-15); the hover belongs to each call site in "
                 + "its own shape (D-06)."
-        ),
-        HoverAuditAllowance(
-            file: "AppPackage/Sources/DetailFeature/Moderation/CommentModerationMenu.swift",
-            kind: .plainButtonStyle,
-            count: 1,
-            reason: "The pointer hover is on the Menu's label, after the label's frame, not after the plain style: "
-                + "on the Menu it redrew the ellipsis of the second row at the extra-small size in iPhone landscape."
         )
     ]
 
