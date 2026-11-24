@@ -122,5 +122,37 @@ Verification:
   `search-typing-suggestions` at accessibility5 in landscape and light, changed again in a rerun of the Search
   class: a 2 px band at the search field's shadow, which samples the results list underneath, at most 20 of 255.
   The published baselines of these list scenarios move with this change.
-- Not run: the iPad snapshot compares, and the pointer pass over the fixed sites (the owner declined full-screen
-  control for now).
+- Not run: the iPad snapshot compares.
+
+## Pointer pass over the fixes (2026-11-24, same simulator)
+
+Each site was held under the pointer while the simulator recorded video, and the frames were compared with a frame
+taken with the pointer off the device.
+
+- **Switches:** the highlight is centred on the track, 6 pt clear of it on every side (General: Enhanced Tags, Open
+  Links on Selected Site, Detect Links in Clipboard). The label scales with the Toggle while hovered, as accepted.
+- **Gallery list rows:** one crisp copy of the text; the highlight stands 5 pt inside the row's sides.
+- **Home:** both headings and both Show All links light 6 pt clear of their text; the ranking rows light with
+  padding; the covers lift.
+- **Detail:** the title, uploader, Download menu (glass circle), Read, Find Similar and tag chips light; the favourite
+  menu and Rate stay flat while signed out (disabled); the Previews and Comments headings stay flat (no reload action,
+  not hit-testable); the preview pages lift.
+- **Search:** Remove All and Show All light 6 pt clear; the disabled Remove All stays flat; the recently viewed cards
+  lift.
+- **Library:** Manage Folders and Create Default Folder light as the same pill as the rows below them.
+- **Laboratory** cell and the **reader**'s bottom Close (glass) draw a clean highlight in their shape.
+
+Found and fixed: the lifted tiles were cut flat where they grew past their horizontal rows (Home's front-page covers,
+Search's recently viewed cards, Detail's preview pages), losing their top corners and shadow. Those rows, and Home's
+misc row, now carry `.scrollClipDisabled()` as the slideshow carousel already did (`2d4d3c64e`); each lift was
+rechecked whole. A snapshot compare of the Home, Search, Gallery Detail and Detail Pages classes against the
+candidate changed only the 25 list pictures already explained above.
+
+Accepted as it is (owner, 2026-11-24): the reader toolbar's Live Text button. It keeps `.plain` so its symbol can
+pulse, the toolbar then draws no pointer effect for it, and the icon helper's circle renders inside the toolbar's
+glass as a lens that distorts the glyph. Without the helper the button had no hover at all; handing it to the
+toolbar's own style gives the clean pill of Auto-Play beside it but stops the pulse. The pulse was kept, with the
+lens.
+
+Still unwalked: the Search keyword rows (no history on this simulator), the Library sidebar's collapsible headers
+(left flat), signed-in-only controls, and the rest of the list in "Not yet walked" above.
