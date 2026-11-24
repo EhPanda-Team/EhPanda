@@ -53,15 +53,24 @@ struct PointerHoverAuditTests {
 
     private static let helperFile = "AppPackage/Sources/AppTools/InteractiveHover.swift"
 
+    /// The double-tap read and the single-tap detail (a spatial tap, so a tap on the cover reads) are one arbitration.
+    private static let galleryReadInteractionReason = "Not a control of its own (D-07): the double-tap read and the "
+        + "single-tap detail arbitrate inside the Button that is the control, in one shared modifier used by list "
+        + "rows (rule R) and grid tiles (their own shape), so the hover belongs to each call site (D-04, D-11 G1)."
+
     /// Every site without a helper in the tree, and the one reason each is right to stay without.
     private static let allowances = [
         HoverAuditAllowance(
             file: "AppPackage/Sources/AppComponents/GalleryReadInteraction.swift",
             kind: .tapGesture,
-            count: 2,
-            reason: "Not a control of its own (D-07): the double-tap read and the single-tap detail arbitrate "
-                + "inside the Button that is the control, in one shared modifier used by list rows (rule R) and "
-                + "grid tiles (their own hover shape), so the hover belongs to each call site (D-04, D-11 G1)."
+            count: 1,
+            reason: Self.galleryReadInteractionReason
+        ),
+        HoverAuditAllowance(
+            file: "AppPackage/Sources/AppComponents/GalleryReadInteraction.swift",
+            kind: .spatialTapGesture,
+            count: 1,
+            reason: Self.galleryReadInteractionReason
         ),
         HoverAuditAllowance(
             file: "AppPackage/Sources/ReadingFeature/ReadingView+Gestures.swift",
