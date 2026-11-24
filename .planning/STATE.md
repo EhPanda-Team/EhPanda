@@ -443,9 +443,9 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   (`d2e05f8d0`..`742f75592`): C3 a toast keeps the standard spacing above the bottom safe area and only the app root
   adds the measured tab bar height (0 under the iPad's top tab bar), C5 New Dawn draws only the sun or moon body and
   its reward line clears the bottom safe area, C16 torrent, archive and gallery sizes go through one `SiteFileSize`
-  in the reader's number format and speak their unit alike (the spoken form added on orchestrator review). Owed to
-  the owner: whether the login-error toast's one-line subtitle truncation stays; for 19-13, the greeting sits 17 pt
-  higher at the default size. Next: 19-23.
+  in the reader's number format and speak their unit alike (the spoken form added on orchestrator review). The
+  login-error toast's one-line subtitle truncation stays as designed (owner decision 2026-11-24, 「維持一行」); for
+  19-13, the greeting sits 17 pt higher at the default size. Next: 19-23.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
