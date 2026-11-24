@@ -14,6 +14,7 @@ import TagTranslationFeature
 // MARK: DescriptionSection
 struct DescriptionSection: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.locale) private var locale
 
     let gallery: Gallery
     let galleryDetail: GalleryDetail
@@ -62,10 +63,8 @@ struct DescriptionSection: View {
         DescScrollInfo(
             title: .fileSize,
             description: galleryDetail.sizeType,
-            value: galleryDetail.formattedSizeCount(),
-            accessibilityDescription: galleryDetail.accessibilitySizeUnit(
-                quantity: Double(galleryDetail.sizeCount)
-            )
+            value: galleryDetail.fileSize.formattedCount(locale: locale),
+            accessibilityDescription: galleryDetail.fileSize.spokenUnit()
         )
     ]}
     /// The strip stays a strip at every size — columns side by side, scrolled horizontally, never

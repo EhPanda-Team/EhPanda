@@ -7,6 +7,7 @@ import SystemNotification
 
 struct GalleryInfoView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.locale) private var locale
     @Bindable private var store: StoreOf<GalleryInfoReducer>
     @SharedReader(.setting) private var setting: Setting
     private let gallery: Gallery
@@ -65,10 +66,9 @@ struct GalleryInfoView: View {
             Info(title: .metadataPageCount, value: String(galleryDetail.pageCount)),
             Info(
                 title: .metadataFileSize,
-                value: galleryDetail.formattedSizeCount() + " " + galleryDetail.sizeType,
-                accessibilityValue: galleryDetail
-                    .accessibilitySizeUnit(quantity: Double(galleryDetail.sizeCount))
-                    .map { galleryDetail.formattedSizeCount() + " " + $0 }
+                value: galleryDetail.fileSize.formatted(locale: locale),
+                accessibilityValue: galleryDetail.fileSize.spokenUnit()
+                    .map({ galleryDetail.fileSize.formattedCount(locale: locale) + " " + $0 })
             ),
             Info(
                 title: .metadataFavoritedTimes,

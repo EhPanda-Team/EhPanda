@@ -67,6 +67,7 @@ struct TorrentsView: View {
 private extension TorrentsView {
     struct TorrentRow: View {
         @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+        @Environment(\.locale) private var locale
 
         private let torrent: GalleryTorrent
         private let action: (String) -> Void
@@ -155,8 +156,24 @@ private extension TorrentsView {
             case .downloads:
                 Text(torrent.downloadCount, format: .number)
                     .accessibilityLabel(.accessibilityTorrentDownloads(count: torrent.downloadCount))
-            case .fileSize: Text(torrent.fileSize)
+            case .fileSize: Text(fileSizeText).accessibilityLabel(fileSizeSpoken)
             }
+        }
+
+        /// The size the site gave as text, such as "26.2 MiB", is shown with its number in the reader's number format,
+        /// like the gallery's own size. Text that is not a site size is shown as given.
+        private var siteFileSize: SiteFileSize? {
+            SiteFileSize(siteText: torrent.fileSize)
+        }
+
+        private var fileSizeText: String {
+            siteFileSize?.formatted(locale: locale) ?? torrent.fileSize
+        }
+
+        /// VoiceOver reads the formatted count and the spoken unit, not the letters of the abbreviation.
+        private var fileSizeSpoken: String {
+            guard let size = siteFileSize, let unit = size.spokenUnit() else { return fileSizeText }
+            return size.formattedCount(locale: locale) + " " + unit
         }
 
         // A list row inflates a `titleAndIcon` label's icon well past the bare `Image` these

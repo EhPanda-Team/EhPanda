@@ -19,6 +19,6 @@ struct GalleryDetailFileSizeTests {
     func testSizeKeepsItsDecimalsInTheReadersFormat(size: Size) {
         var detail = GalleryDetail.preview
         detail.sizeCount = size.count
-        #expect(detail.formattedSizeCount(locale: Locale(identifier: size.locale)) == size.text)
+        #expect(detail.fileSize.formattedCount(locale: Locale(identifier: size.locale)) == size.text)
     }
 }

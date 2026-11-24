@@ -258,6 +258,7 @@ private struct ArchiveFundsView: View {
 // MARK: HathArchiveGrid
 private struct HathArchiveGrid: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.locale) private var locale
 
     private let isSelected: Bool
     private let archive: GalleryArchive.HathArchive
@@ -277,6 +278,12 @@ private struct HathArchiveGrid: View {
     }
     private var height: CGFloat {
         width / 1.5
+    }
+
+    /// The size the site gave as text, such as "26.2 MiB", is shown with its number in the reader's number format,
+    /// like the gallery's own size. Text that is not a site size, such as "N/A", is shown as given.
+    private var fileSizeText: String {
+        SiteFileSize(siteText: archive.fileSize)?.formatted(locale: locale) ?? archive.fileSize
     }
 
     init(isSelected: Bool, archive: GalleryArchive.HathArchive, width: CGFloat) {
@@ -319,7 +326,7 @@ private struct HathArchiveGrid: View {
                 .font(.title3.bold())
 
             VStack {
-                Text(archive.fileSize)
+                Text(fileSizeText)
                     .fontWeight(.medium)
                     .font(.caption)
 

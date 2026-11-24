@@ -2,9 +2,9 @@ import AppModels
 import Foundation
 
 extension GalleryDetail {
-    /// The size's number to at most the two decimals the site gives, in the reader's number format.
-    /// The unit stays with each caller, because the Detail strip sets it on a line of its own.
-    func formattedSizeCount(locale: Locale = .autoupdatingCurrent) -> String {
-        sizeCount.formatted(.number.locale(locale).precision(.fractionLength(0...2)).grouping(.never))
+    /// The gallery's size as the site gives it, a count and a binary unit. Its views show it through ``SiteFileSize``,
+    /// the type the sizes of its torrents and archives use too, so every size follows the reader's number format.
+    var fileSize: SiteFileSize {
+        SiteFileSize(count: sizeCount, unit: sizeType)
     }
 }
