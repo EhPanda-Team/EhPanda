@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import ComposableArchitecture
 import ImageClient
 import Kingfisher
@@ -345,6 +346,7 @@ struct ImageContainer: View {
                         Label(.reload, systemSymbol: .exclamationmarkArrowTrianglehead2ClockwiseRotate90)
                             .labelStyle(.iconOnly)
                     }
+                    .interactiveIconHover()
                     .font(.system(size: reloadSymbolSize, weight: .medium))
                     .foregroundStyle(.gray)
                     .animation(.default) {

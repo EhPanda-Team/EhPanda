@@ -126,6 +126,7 @@ private struct LibraryCategoriesList: View {
                 } label: {
                     Label(.RLocalizable.manageFolders, systemSymbol: .folderBadgeGearshape)
                 }
+                .cellRowHover(rowFill)
                 .accessibilityIdentifier("library-manage-folders")
 
                 if downloadsStore.folders.isEmpty {
@@ -134,6 +135,7 @@ private struct LibraryCategoriesList: View {
                     } label: {
                         Label(.RLocalizable.createDefaultFolder, systemSymbol: .folderBadgePlus)
                     }
+                    .cellRowHover(rowFill)
                     .disabled(downloadsStore.isCreatingDefaultFolder)
                     .accessibilityIdentifier("library-create-default-folder")
                 }

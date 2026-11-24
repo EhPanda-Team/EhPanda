@@ -122,6 +122,7 @@ struct DescriptionSection: View {
                 .labelStyle(.iconOnly)
                 .font(.title3.weight(.bold))
         }
+        .interactiveIconHover()
     }
 
     @ContentBuilder private func item(for info: DescScrollInfo) -> some View {
@@ -336,6 +337,7 @@ struct ActionSection: View {
                 }
                 .frame(maxWidth: .infinity)
             }
+            .interactiveHover(.highlight, in: HoverTextButtonShape())
             .disabled(!isRatingEnabled)
 
             Button(action: findSimilarAction) {
@@ -346,6 +348,7 @@ struct ActionSection: View {
                 }
                 .frame(maxWidth: .infinity)
             }
+            .interactiveHover(.highlight, in: HoverTextButtonShape())
         }
         .font(.callout)
         .tint(.primary)
@@ -516,7 +519,7 @@ extension TagsSection {
                     myTag: content.myTagHighlight(in: myTags)
                 )
             }
-            .hoverShape(.rect(cornerRadius: 5))
+            .interactiveHover(.highlight, in: .rect(cornerRadius: 5))
             .contextMenu {
                 tagContextMenu(content: content, translation: translation)
             }
@@ -654,7 +657,7 @@ struct PreviewsSection: View {
                             PreviewThumbnail(url: previewURL)
                                 .frame(width: width, height: height)
                         }
-                        .hoverShape(GalleryCover.clipShape)
+                        .interactiveHover(.lift, in: GalleryCover.clipShape)
                         // The thumbnail is the button's only content; the page it opens is its name.
                         .accessibilityLabel(.accessibilityPreviewPage(page: index))
                     }

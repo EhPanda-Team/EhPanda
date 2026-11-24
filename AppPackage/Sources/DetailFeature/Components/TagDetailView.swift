@@ -120,6 +120,7 @@ private struct LinksSection: View {
                                 .font(.callout.bold())
                                 .tint(.secondary)
                         }
+                        .interactiveHover(.highlight, in: HoverTextButtonShape())
                     }
                 }
                 .padding(.vertical)

@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import AutomationIdentifiers
 import ComposableArchitecture
 import Foundation
@@ -82,6 +83,7 @@ struct AnalyticsChoiceView: View {
                 .contentShape(.rect)
                 .padding(.vertical, -Self.linkHitPadding)
             }
+            .interactiveHover(.highlight, in: HoverTextButtonShape())
             // A link takes the tint, the accent; the spec keeps the accent for selection (UI-SPEC Color).
             .tint(.primary)
             .accessibilityIdentifier(AccessibilityIdentifiers.firstLaunchPrivacyLink)

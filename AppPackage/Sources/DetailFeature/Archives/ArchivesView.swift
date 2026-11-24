@@ -195,7 +195,7 @@ private struct HathArchivesView: View {
                     )
                     .tint(.primary).multilineTextAlignment(.center)
                 }
-                .hoverShape(.rect(cornerRadius: 10))
+                .interactiveHover(.lift, in: .rect(cornerRadius: 10))
             }
         }
         .padding(.top, 40)
@@ -400,7 +400,7 @@ private struct DownloadBannerStyle: ButtonStyle {
             }
             .clipShape(.rect(cornerRadius: 30))
             .glassEffect(.regular.interactive())
-            .hoverShape(.capsule)
+            .interactiveHover(.highlight, in: .capsule)
     }
 }
 

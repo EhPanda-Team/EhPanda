@@ -121,8 +121,8 @@ struct KeywordCell: View {
                         .imageScale(.small)
                         .foregroundStyle(.secondary)
                         .frame(minWidth: 44, minHeight: 44)
-                        .contentShape(.rect)
                 }
+                .interactiveIconHover()
             }
         }
     }
@@ -164,6 +164,7 @@ struct KeywordCell: View {
             .frame(minHeight: 44)
             .contentShape(.rect)
         }
+        .interactiveHover(.highlight, in: HoverTextButtonShape())
         .tint(.primary)
     }
 }

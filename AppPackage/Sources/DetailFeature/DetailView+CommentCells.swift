@@ -180,6 +180,6 @@ struct CommentButton: View {
             .clipShape(shape)
         }
         .glassEffect(.clear.interactive(), in: shape)
-        .hoverShape(shape)
+        .interactiveHover(.highlight, in: shape)
     }
 }

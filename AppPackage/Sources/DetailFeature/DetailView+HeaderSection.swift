@@ -146,6 +146,7 @@ struct HeaderSection: View {
                 }
                 .buttonStyle(.glass(.regular.interactive()))
                 .buttonBorderShape(.circle)
+                .interactiveHover(.highlight, in: .circle)
                 .overlay {
                     downloadProgressRing(fraction: ring.fraction, isWaiting: ring.isWaiting)
                 }
@@ -189,6 +190,7 @@ struct HeaderSection: View {
                 }
                 .buttonStyle(.glass(.regular.interactive()))
                 .buttonBorderShape(.circle)
+                .interactiveHover(.highlight, in: .circle)
                 .animation(downloadPreparationAnimation, value: showsMetadataPreparation)
             } else {
                 Button(action: downloadAction) {
@@ -196,6 +198,7 @@ struct HeaderSection: View {
                 }
                 .buttonStyle(.glass(.regular.interactive()))
                 .buttonBorderShape(.circle)
+                .interactiveHover(.highlight, in: .circle)
             }
         }
         .disabled(isDownloadActionDisabled)
@@ -231,6 +234,9 @@ struct HeaderSection: View {
                 .font(heartIconFont)
                 .frame(width: actionIconButtonSize, height: actionIconButtonSize)
         }
+        .interactiveHover(.highlight, in: .circle)
+        // Only the visible one of the pair lights: the other is drawn at zero opacity in the same place.
+        .hoverEffectDisabled(galleryDetail.isFavorited)
         .animation(.default) {
             $0.visible(!galleryDetail.isFavorited)
         }
@@ -245,6 +251,8 @@ struct HeaderSection: View {
             .tint(favoriteColor)
             .accessibilityLabel(.accessibilityRemoveFromFavorites)
             .accessibilityAddTraits(.isSelected)
+            .interactiveHover(.highlight, in: .circle)
+            .hoverEffectDisabled(!galleryDetail.isFavorited)
             .animation(.default) {
                 $0.visible(galleryDetail.isFavorited)
             }
@@ -428,8 +436,10 @@ struct HeaderSection: View {
                     .lineLimit(titleLineLimit)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            .interactiveHover(.highlight, in: HoverTextButtonShape())
 
             Button(gallery.uploader ?? "", action: navigateUploaderAction)
+                .interactiveHover(.highlight, in: HoverTextButtonShape())
                 .accessibilityHidden(gallery.uploader?.isEmpty != false)
                 .lineLimit(uploaderLineLimit)
                 .font(.callout)

@@ -170,7 +170,7 @@ struct LoginView: View {
             .disabled(store.loginButtonDisabled)
             .glassEffect(.regular.tint(.init(.systemGray6)).interactive(), in: .circle)
             .clipShape(.circle)
-            .hoverShape(.circle)
+            .interactiveHover(.highlight, in: .circle)
             .padding(.top, 30)
         }
         .frame(maxWidth: .infinity)

@@ -394,6 +394,11 @@ private struct GridList: View {
             }
             if let pageNumber, pageNumber.hasNextPage() {
                 FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+                    .interactiveHover(.highlight, in: .rect(cornerRadius: 15))
+                    // The footer hides its retry button by opacity, and a hidden control does not light.
+                    .hoverEffectDisabled(!footerLoadingState.is(\.failed))
+                    // In line with the tiles, whose corners the highlight shares.
+                    .padding(.horizontal)
             }
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
@@ -423,7 +428,7 @@ private struct GridList: View {
                     detailAction: { navigateAction?(gallery) },
                     readAction: readAction.map { action in { action(gallery) } }
                 ))
-                .hoverShape(.rect(cornerRadius: 15))
+                .interactiveHover(.lift, in: .rect(cornerRadius: 15))
                 .accessibilityIdentifier(AccessibilityIdentifiers.galleryListItem(id: gallery.id))
                 .accessibilityFocused(galleryFocus, equals: gallery.id)
                 .onScrollVisibilityChange(threshold: 0.1) { isVisible in

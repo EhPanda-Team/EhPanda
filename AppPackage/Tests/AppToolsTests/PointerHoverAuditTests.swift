@@ -56,7 +56,7 @@ struct PointerHoverAuditTests {
     /// The double-tap read and the single-tap detail (a spatial tap, so a tap on the cover reads) are one arbitration.
     private static let galleryReadInteractionReason = "Not a control of its own (D-07): the double-tap read and the "
         + "single-tap detail arbitrate inside the Button that is the control, in one shared modifier used by list "
-        + "rows (rule R) and grid tiles (their own shape), so the hover belongs to each call site (D-04, D-11 G1)."
+        + "rows (rule R) and grid tiles (their own lift), so the hover belongs to each call site (D-04, D-11 G1)."
 
     /// Every site without a helper in the tree, and the one reason each is right to stay without.
     private static let allowances = [
@@ -86,32 +86,11 @@ struct PointerHoverAuditTests {
                 + "its own shape (D-06)."
         ),
         HoverAuditAllowance(
-            file: "AppPackage/Sources/ReadingFeature/Support/ControlPanel.swift",
-            kind: .plainButtonStyle,
-            count: 1,
-            reason: "The move-controls button's interactive glass draws its own pointer response (D-11 G3); "
-                + "hoverShape gives it the glass's 16 pt corners."
-        ),
-        HoverAuditAllowance(
-            file: "AppPackage/Sources/DetailFeature/Archives/ArchivesView.swift",
-            kind: .buttonStyleConformance,
-            count: 1,
-            reason: "DownloadBannerStyle's interactive glass draws its own pointer response (D-11 G3); "
-                + "hoverShape gives it the glass capsule."
-        ),
-        HoverAuditAllowance(
             file: "AppPackage/Sources/DetailFeature/Moderation/CommentModerationMenu.swift",
             kind: .plainButtonStyle,
             count: 1,
             reason: "The pointer hover is on the Menu's label, after the label's frame, not after the plain style: "
                 + "on the Menu it redrew the ellipsis of the second row at the extra-small size in iPhone landscape."
-        ),
-        HoverAuditAllowance(
-            file: "AppPackage/Sources/SettingFeature/Components/LaboratorySettingView.swift",
-            kind: .unhighlightedButtonStyle,
-            count: 1,
-            reason: "The cell's interactive glass draws its own pointer response (D-11 G3); hoverShape gives it the "
-                + "glass's 15 pt corners."
         )
     ]
 

@@ -86,7 +86,7 @@ struct LaboratoryCell: View {
         .clipShape(.rect(cornerRadius: 15))
         .animation(.default, value: isOn)
         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 15))
-        .hoverShape(.rect(cornerRadius: 15))
+        .interactiveHover(.highlight, in: .rect(cornerRadius: 15))
         .accessibilityRepresentation {
             Toggle(isOn: $isOn) {
                 Text(title)

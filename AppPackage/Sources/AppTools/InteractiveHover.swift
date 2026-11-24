@@ -37,21 +37,13 @@ extension View {
     /// environment. Apply it before any `.disabled(_:)` written on the same control, so the read sees that state.
     /// A dimmed or locked control that still opens something is not disabled and keeps its hover.
     ///
-    /// Apply it to a `.plain`, `.unhighlighted` or custom-styled control, directly after its button style. For a
-    /// system-styled control, whose own hover is already drawn, use ``hoverShape(_:)`` instead: a second effect on the
-    /// same view would stack on the system's.
+    /// Apply it directly after the control's button style, whatever that style is. On iPadOS 27.2 the system draws a
+    /// pointer effect only for toolbar items and tab bar tabs: a default, `.borderless`, `.plain` or glass Button, a
+    /// `Menu`, a `Link`, a row's Button and interactive glass draw none of their own (measured under Device Hub's
+    /// pointer, 2026-11-24), so every other control gets its single effect here. Never add one to a toolbar item or a
+    /// tab, which would stack a second effect on the system's.
     public func interactiveHover(_ effect: InteractiveHoverEffect, in shape: some Shape) -> some View {
         modifier(InteractiveHoverModifier(effect: effect, shape: shape))
-    }
-
-    /// Sets only the shape of the system's own hover on a system-styled control, such as an interactive glass button,
-    /// whose own effect has the wrong shape.
-    ///
-    /// It never adds an effect: the control keeps the system's single response and only its outline changes. It
-    /// exists so that every hover shape in the app goes through this one vocabulary instead of a hand-written
-    /// `contentShape(.hoverEffect, …)` at each site.
-    public func hoverShape(_ shape: some Shape) -> some View {
-        contentShape(.hoverEffect, shape)
     }
 
     /// Gives an icon-only button the system highlight in a ``HoverTargetCircle``.
@@ -103,10 +95,12 @@ public struct HoverTargetCircle: Shape {
     }
 }
 
-/// The hover shape of a text button: an 8 pt continuous rounded rect around the text, grown by 6 pt on every side.
+/// The hover shape of a control with no background of its own: an 8 pt continuous rounded rect around its content,
+/// grown by 6 pt on every side.
 ///
-/// A text button has no background of its own, so the highlight needs a shape that stands clear of the glyphs. The
-/// size lives in this one type so the app's text buttons cannot drift apart.
+/// A text button, a text link or a content row outside a list (a ranking row, a search keyword) draws nothing behind
+/// its content, so the highlight needs a shape that stands clear of the glyphs and images. The size lives in this one
+/// type so these controls cannot drift apart.
 public struct HoverTextButtonShape: Shape {
     /// The corner radius of the highlight, in points.
     public static let cornerRadius: CGFloat = 8

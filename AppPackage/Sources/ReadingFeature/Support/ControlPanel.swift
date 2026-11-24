@@ -86,7 +86,7 @@ struct ControlPanel<G: Gesture>: View {
                         }
                         .buttonStyle(.plain)
                         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
-                        .hoverShape(.rect(cornerRadius: 16))
+                        .interactiveHover(.highlight, in: .rect(cornerRadius: 16))
                         .accessibilityIdentifier(AccessibilityIdentifiers.readingMoveControls)
                         .environment(\.layoutDirection, layoutDirection)
                         .offset(x: moveButtonOffset)
@@ -184,7 +184,7 @@ private struct LowerPanel<G: Gesture>: View {
                 }
                 .foregroundStyle(.primary)
                 .glassEffect(.regular.interactive())
-                .hoverShape(.capsule)
+                .interactiveHover(.highlight, in: .capsule)
                 .gesture(dismissGesture)
                 .accessibilityFocused(controlFocus, equals: .close)
                 .visible(!showsSliderPreview)

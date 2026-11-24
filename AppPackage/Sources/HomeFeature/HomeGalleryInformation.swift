@@ -156,7 +156,7 @@ struct HomeFrontPageWall: View {
                 maximumCoverHeight: maximumCoverHeight
             )
         }
-        .hoverShape(GalleryCover.clipShape)
+        .interactiveHover(.lift, in: GalleryCover.clipShape)
         .tint(.primary)
         .multilineTextAlignment(.leading)
     }
