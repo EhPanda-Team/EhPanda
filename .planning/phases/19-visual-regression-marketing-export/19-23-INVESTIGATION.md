@@ -163,7 +163,7 @@ Asked of the owner by the orchestrator on 2026-11-24, in Taiwanese Mandarin, wit
 3. **iPad stat layout.** The question named the second hyphenating view, `HomeSlideshowInformation`, and offered content-sized columns (the recommendation) or the iPhone's fallback.
    Answer: 「跟 iPhone 同樣的備援排法」. `HomeSlideshowInformation` gets the same fallback, one stat per line as "label value", used when its two columns do not fit. The content-sized-columns option was offered and was not chosen.
 
-Tests (from the findings above; 19-24 Task 2 writes them first and sees them fail):
+Tests (from the findings above; 19-24 Task 1 writes them first and sees them fail; 19-24 was renumbered when its C6 task was removed):
 
 - Fixture: in VisualSnapshotTests, `TracerScenarios.home()`'s state has `frontPageGalleries.count == 8`. It fails before the change at 2.
 - Layout: a hosted test at `.accessibility5` for each of the six locales asserting that every stat label is one line tall (51.3 pt). It fails before the change for all six locales on the iPhone (`HomeCompactSlideshowInformation` in the 176 pt column) and for `en` and `de` on the iPad (`HomeSlideshowInformation`), and it must hold for both views.
@@ -174,6 +174,6 @@ Decided by the owner, asked by the orchestrator on 2026-11-24 in Taiwanese Manda
 
 - Answer, verbatim: 「保留系統 Picker」.
 - Option: **`fix-other`**. The fix is no app change: the stock menu `Picker` rows stay as they are.
-- Exact fix: none. **Test: none.** 19-24 Task 1 has nothing to implement for C6.
+- Exact fix: none. **Test: none.** 19-24 has nothing to implement for C6; its C6 task was removed on 2026-11-24.
 - Decided by: the owner.
 - Recorded as a known limitation: the stock menu `Picker` row's height under-reports a value that wraps to two lines (Apple's own self-sizing behaviour, see "## C6" above). It is visible only on the iPhone in portrait at `ko` `accessibility5`, on rows 1 (Direction) and 5 (Landscape Direction). `de` is not cut, contrary to the original C6 note. The `settings-pages-reading` and `reader-settings-sheet` pictures at `ko` `accessibility5` portrait keep the cut, as accepted. The owner may report it to Apple.

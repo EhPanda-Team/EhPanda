@@ -445,7 +445,12 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   its reward line clears the bottom safe area, C16 torrent, archive and gallery sizes go through one `SiteFileSize`
   in the reader's number format and speak their unit alike (the spoken form added on orchestrator review). The
   login-error toast's one-line subtitle truncation stays as designed (owner decision 2026-11-24, 「維持一行」); for
-  19-13, the greeting sits 17 pt higher at the default size. Next: 19-23.
+  19-13, the greeting sits 17 pt higher at the default size. 19-23 done 2026-11-24 (`1c2fae630`..`81ff6b61a`, record
+  `19-23-INVESTIGATION.md`): C6 is Apple's stock menu `Picker` row under-reporting a value that wraps to two lines
+  (iPhone portrait `ko` accessibility5 only, rows 1 and 5; `de` is not cut); owner decision 「保留系統 Picker」, a known
+  limitation, no app change. C9: the one-column Front Page comes from the scenario's 2 galleries; owner decisions
+  「8 部，4 欄（建議）」, 「移到封面下、一項一行（建議）」 and, for the iPad's `HomeSlideshowInformation`, which breaks
+  words too, 「跟 iPhone 同樣的備援排法」. 19-24 amended to match (C6 task removed, iPad view added). Next: 19-24.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
@@ -1298,11 +1303,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 325/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 326/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 21 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22 and 19-30 on 2026-11-23; 19-18 to 19-22 and 19-30 done); Phase 20
+5 of 5 plans complete. Phase 19 has 22 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22 and 19-30 on 2026-11-23; 19-18 to 19-23 and 19-30 done); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
