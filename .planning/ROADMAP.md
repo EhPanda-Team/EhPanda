@@ -716,7 +716,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 17. Screenshot Automation, Visual Regression & OS 27 Modernization | 13/13 | Complete    | 2026-11-05 |
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
-| 19. Visual Regression & Daily Live-Parsing Check | 23/30 | Complete with deferred items; follow-up plans 19-18 to 19-30 planned | 2026-11-11 |
+| 19. Visual Regression & Daily Live-Parsing Check | 23/31 | Complete with deferred items; follow-up plans 19-18 to 19-31 planned | 2026-11-11 |
 | 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 8/14 | In Progress |  |
 
 ### Phase 12: Cloudflare Login Restoration
@@ -1491,7 +1491,7 @@ Plans:
   7. `Scripts/visual/README.md` matches the reduced Phase 17 harness and this phase's regression runner.
   8. Release builds still contain no capture code, fixtures, test assets or SnapshotTesting linkage.
 
-**Plans**: 23/30 plans executed; phase complete 2026-11-11 with deferred items (follow-up plans 19-18 to 19-30 added 2026-11-22 and 2026-11-23 for the owner's full-page capture design and pre-check fixes; 19-12 Task 2 and 19-13 run again after 19-29): 19-12 and 19-13 are not executed, and the hosted parts of 19-10 (green gate run) and 19-17 (controlled regression) are owed (owner decision); security: four threats accepted-deferred (owner decision); success criteria 2, 3 and 4 are not proven until those run, see `19-VERIFICATION.md` (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
+**Plans**: 23/31 plans executed; phase complete 2026-11-11 with deferred items (follow-up plans 19-18 to 19-31 added 2026-11-22, 2026-11-23 and 2026-11-25 for the owner's full-page capture design and pre-check fixes; 19-12 Task 2 and 19-13 run again after 19-29): 19-12 and 19-13 are not executed, and the hosted parts of 19-10 (green gate run) and 19-17 (controlled regression) are owed (owner decision); security: four threats accepted-deferred (owner decision); success criteria 2, 3 and 4 are not proven until those run, see `19-VERIFICATION.md` (planned 2026-11-07; research: [19-RESEARCH.md](phases/19-visual-regression-marketing-export/19-RESEARCH.md), validation: [19-VALIDATION.md](phases/19-visual-regression-marketing-export/19-VALIDATION.md))
 
 Plans:
 
@@ -1543,6 +1543,7 @@ Plans:
 - [x] 19-22-PLAN.md — app fixes C3, C5 and C16 — done 2026-11-24; the toast clears a tab bar only on the app root, New Dawn has no rays and an uncut reward line, site file sizes follow the reader's number format ([summary](phases/19-visual-regression-marketing-export/19-22-SUMMARY.md))
 - [x] 19-23-PLAN.md — the causes of C6 and C9 *(checkpoint: the owner decides C9's fixture and layout)* — done 2026-11-24; C6 kept as Apple's known limitation (owner), C9 fixture and stat layout chosen by the owner ([record](phases/19-visual-regression-marketing-export/19-23-INVESTIGATION.md), [summary](phases/19-visual-regression-marketing-export/19-23-SUMMARY.md))
 - [x] 19-24-PLAN.md — the decided C9 fix and C7's row-anchored delete confirmations (C6 task removed 2026-11-24: the owner kept the system Picker) — done 2026-11-25; 8-gallery Front Page, stats below the cover when they do not fit beside it, delete confirmations on their rows ([summary](phases/19-visual-regression-marketing-export/19-24-SUMMARY.md))
+- [ ] 19-31-PLAN.md — the Front Page page count that breaks after its number, investigated then fixed before 19-25 *(checkpoint: the fix decision)* (owner decision 2026-11-25)
 - [ ] 19-25-PLAN.md — C15, insufficient funds on Archives *(checkpoint: the owner approves the option and the six-locale copy)*
 - [ ] 19-26-PLAN.md — the whole matrix measured and its heights committed *(checkpoint: the owner decides every conflict with the design)*
 - [ ] 19-27-PLAN.md — run-to-run comparison tooling, native policy, shard cost *(checkpoint: push and hosted run A)*
