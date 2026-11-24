@@ -22,7 +22,10 @@ struct AppActivityLogsView: View {
             AppActivityLogRow(log: log)
         }
         .listStyle(.plain)
-        .revealed(!store.displayedLogs.isEmpty)
+        // The cover hides content only while a run's logs load (`revealed(_:)`'s contract: hidden as a whole while
+        // it loads). It used to follow emptiness, and over a page with nothing logged it never lifted and hid the
+        // large title with it. An empty, loaded page now shows its title and its empty message.
+        .revealed(store.loadingState != .loading || !store.displayedLogs.isEmpty)
         .overlay {
             LoadingView()
                 .animation(.default) {
