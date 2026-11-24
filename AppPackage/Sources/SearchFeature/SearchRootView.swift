@@ -226,7 +226,7 @@ private struct SavedSearchesSection: View {
                     .frame(minWidth: 24, minHeight: 24)
                     .contentShape(.rect)
             }
-            .interactiveHover(.highlight, in: HoverTextButtonShape())
+            .interactiveHover(.highlight, in: HoverTextCapsule())
         }
     }
 }
@@ -397,7 +397,7 @@ private struct RemoveSearchHistoryButton: View {
                 .frame(minWidth: 24, minHeight: 24)
                 .contentShape(.rect)
         }
-        .interactiveHover(.highlight, in: HoverTextButtonShape())
+        .interactiveHover(.highlight, in: HoverTextCapsule())
         .disabled(isEmpty)
         .accessibilityIdentifier(identifier)
         .confirmationDialog(message, isPresented: $isConfirming, titleVisibility: .visible) {

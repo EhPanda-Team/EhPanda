@@ -90,7 +90,7 @@ private extension TorrentsView {
                     Text(torrent.fileName)
                         .font(.headline)
                 }
-                .interactiveHover(.highlight, in: HoverTextButtonShape())
+                .interactiveHover(.highlight, in: HoverTextCapsule())
 
                 uploaderAndDate
             }

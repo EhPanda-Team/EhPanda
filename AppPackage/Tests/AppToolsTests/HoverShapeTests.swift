@@ -39,6 +39,17 @@ import Testing
         }
     }
 
+    @Test func textCapsuleGrowsItsRectByTenAtTheSidesAndSixAboveAndBelow() {
+        let label = CGRect(x: 0, y: 0, width: 80, height: 20)
+
+        let path = HoverTextCapsule().path(in: label)
+
+        expectEqual(path.boundingRect, CGRect(x: -10, y: -6, width: 100, height: 32))
+        // Fully rounded ends: the grown rect's corner lies outside the capsule, the middle of each end inside it.
+        #expect(!path.contains(CGPoint(x: -9, y: -5)))
+        #expect(path.contains(CGPoint(x: -9, y: 10)))
+    }
+
     @Test func rowHighlightIsTheViewsWholeRectForEveryFill() {
         let row = CGRect(x: 0, y: 0, width: 300, height: 52)
         for fill in [CellHoverFill.cardRow, .cardRowEditing, .sidebarSelection] {

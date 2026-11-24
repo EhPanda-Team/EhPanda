@@ -51,7 +51,7 @@ struct GeneralSettingView: View {
                             store.send(.navigateToSystemSetting)
                         }
                         .foregroundStyle(.tint)
-                        .interactiveHover(.highlight, in: HoverTextButtonShape())
+                        .interactiveHover(.highlight, in: HoverTextCapsule())
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                 } else {
@@ -63,7 +63,7 @@ struct GeneralSettingView: View {
                             store.send(.navigateToSystemSetting)
                         }
                         .foregroundStyle(.tint)
-                        .interactiveHover(.highlight, in: HoverTextButtonShape())
+                        .interactiveHover(.highlight, in: HoverTextCapsule())
                     }
                 }
                 Button(.appActivityLogs) {

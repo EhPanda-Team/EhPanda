@@ -439,7 +439,7 @@ struct HeaderSection: View {
             .interactiveHover(.highlight, in: HoverTextButtonShape())
 
             Button(gallery.uploader ?? "", action: navigateUploaderAction)
-                .interactiveHover(.highlight, in: HoverTextButtonShape())
+                .interactiveHover(.highlight, in: HoverTextCapsule())
                 .accessibilityHidden(gallery.uploader?.isEmpty != false)
                 .lineLimit(uploaderLineLimit)
                 .font(.callout)

@@ -337,7 +337,7 @@ struct ActionSection: View {
                 }
                 .frame(maxWidth: .infinity)
             }
-            .interactiveHover(.highlight, in: HoverTextButtonShape())
+            .interactiveHover(.highlight, in: HoverTextCapsule())
             .disabled(!isRatingEnabled)
 
             Button(action: findSimilarAction) {
@@ -348,7 +348,7 @@ struct ActionSection: View {
                 }
                 .frame(maxWidth: .infinity)
             }
-            .interactiveHover(.highlight, in: HoverTextButtonShape())
+            .interactiveHover(.highlight, in: HoverTextCapsule())
         }
         .font(.callout)
         .tint(.primary)

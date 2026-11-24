@@ -116,6 +116,26 @@ public struct HoverTextButtonShape: Shape {
     }
 }
 
+/// The hover shape of a short text button, one label on one line (Show All, Remove All, Find Similar, a link): a
+/// capsule around the text, grown by 10 pt at the sides and 6 pt above and below (owner, 2026-11-24).
+///
+/// The ends need more room than the top and bottom: a capsule 6 pt clear of the text on every side would pass about
+/// 2 pt from the first and last glyphs' corners, while 10 pt at the sides keeps those corners about 4 pt inside the
+/// round ends. A label that wraps keeps the capsule, whose ends then grow with it. Rows and multi-line content keep
+/// ``HoverTextButtonShape``.
+public struct HoverTextCapsule: Shape {
+    /// How far the capsule reaches past the text at each side, in points.
+    public static let horizontalOutset: CGFloat = 10
+    /// How far the capsule reaches above and below the text, in points.
+    public static let verticalOutset: CGFloat = 6
+
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        HoverCapsule(horizontalOutset: Self.horizontalOutset, verticalOutset: Self.verticalOutset).path(in: rect)
+    }
+}
+
 /// The hover capsule of a control that shows an icon and a label: the content's rect grown by `horizontalOutset` and
 /// `verticalOutset` on every side, with fully rounded ends.
 ///
