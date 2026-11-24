@@ -112,6 +112,17 @@ import Testing
         }
     }
 
+    @Test func sliderHighlightIsACapsuleSixPointsClearOfTheFrame() {
+        let slider = CGRect(x: 20, y: 10, width: 300, height: 31)
+
+        let path = SliderHoverShape().path(in: slider)
+
+        expectEqual(path.boundingRect, slider.insetBy(dx: -6, dy: -6))
+        #expect(path.contains(CGPoint(x: slider.minX - 6 + 1, y: slider.midY)))
+        // Fully rounded ends: the corner of the grown rect lies outside the capsule.
+        #expect(!path.contains(CGPoint(x: slider.minX - 5, y: slider.minY - 5)))
+    }
+
     private func expectEqual(_ actual: CGRect, _ expected: CGRect, sourceLocation: SourceLocation = #_sourceLocation) {
         #expect(abs(actual.minX - expected.minX) < Self.tolerance, sourceLocation: sourceLocation)
         #expect(abs(actual.minY - expected.minY) < Self.tolerance, sourceLocation: sourceLocation)

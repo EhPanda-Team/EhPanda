@@ -158,6 +158,7 @@ private struct ScaleFactorRow: View {
                         .accessibilityHidden(true)
 
                     Slider(value: $scaleFactor, in: minFactor...maxFactor, step: 0.5)
+                        .interactiveHover(.highlight, in: SliderHoverShape())
                         .frame(maxWidth: .infinity)
                         .accessibilityLabel(labelContent)
                         .accessibilityValue(.accessibilityScaleFactor(scaleFactor.roundedString()))
@@ -185,6 +186,7 @@ private struct ScaleFactorRow: View {
                             .accessibilityHidden(true)
                     }
                 )
+                .interactiveHover(.highlight, in: SliderHoverShape())
                 .accessibilityLabel(labelContent)
                 .accessibilityValue(.accessibilityScaleFactor(scaleFactor.roundedString()))
             }

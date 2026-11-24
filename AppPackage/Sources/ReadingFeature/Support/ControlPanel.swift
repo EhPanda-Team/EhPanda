@@ -216,6 +216,7 @@ private struct LowerPanel<G: Gesture>: View {
                         .padding()
 
                     Slider(value: $sliderValue, in: range)
+                    .interactiveHover(.highlight, in: SliderHoverShape())
                     .frame(maxWidth: containerSize.width * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
                     // The slider's own value would be a percentage; the page it stands for is the

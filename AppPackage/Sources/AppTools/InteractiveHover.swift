@@ -39,8 +39,9 @@ extension View {
     ///
     /// Apply it directly after the control's button style, whatever that style is. On iPadOS 27.2 the system draws a
     /// pointer effect only for toolbar items and tab bar tabs: a default, `.borderless`, `.plain` or glass Button, a
-    /// `Menu`, a `Link`, a row's Button and interactive glass draw none of their own (measured under Device Hub's
-    /// pointer, 2026-11-24), so every other control gets its single effect here. Never add one to a toolbar item or a
+    /// `Menu`, a `Link`, a `Slider`, a row's Button and interactive glass draw none of their own (measured under Device
+    /// Hub's pointer, 2026-11-24), so every other control gets its single effect here. On a `Menu` it goes on the Menu
+    /// itself: written on the Menu's label, it draws nothing either. Never add one to a toolbar item or a
     /// tab, which would stack a second effect on the system's.
     public func interactiveHover(_ effect: InteractiveHoverEffect, in shape: some Shape) -> some View {
         modifier(InteractiveHoverModifier(effect: effect, shape: shape))
@@ -289,5 +290,25 @@ public struct SwitchTrackHoverShape: Shape {
             width: Self.trackWidth, height: Self.trackHeight
         )
         return Capsule(style: .continuous).path(in: track.insetBy(dx: -Self.outset, dy: -Self.outset))
+    }
+}
+
+/// The hover shape of a `Slider`: the slider's own frame, grown by 6 pt on every side, with fully rounded ends.
+///
+/// A slider draws no pointer effect of its own on iPadOS 27.2 (Appearance's Privacy Mask and the reader's page
+/// slider, Device Hub's pointer, 2026-11-24), so it takes the highlight like any flat system control. Measured on the
+/// Privacy Mask slider: the drawn track spans the whole frame, 6 pt tall and centred, and the thumb, about 38 x 26
+/// pt, reaches the frame's ends at the extreme values. Grown by the switch's 6 pt, the capsule stands clear of the
+/// thumb at either end. A slider's end marks belong to the control, so the capsule takes them in: the value labels a
+/// Slider carries inside it (the Reading and EhSetting rows), or the marks written beside it, where the helper goes
+/// on their stack (Appearance's eyes, which the capsule ran into when it was on the Slider alone).
+public struct SliderHoverShape: Shape {
+    /// How far the highlight stands clear of the slider's frame on every side, in points.
+    public static let outset: CGFloat = 6
+
+    public init() {}
+
+    public func path(in rect: CGRect) -> Path {
+        Capsule(style: .continuous).path(in: rect.insetBy(dx: -Self.outset, dy: -Self.outset))
     }
 }

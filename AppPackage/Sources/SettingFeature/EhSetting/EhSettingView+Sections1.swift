@@ -329,6 +329,7 @@ struct ValuePicker: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Slider(value: $draft, in: range, onEditingChanged: editingChanged)
+                    .interactiveHover(.highlight, in: SliderHoverShape())
                     .frame(maxWidth: .infinity)
                     .accessibilityLabel(title)
 
@@ -348,6 +349,7 @@ struct ValuePicker: View {
                 },
                 onEditingChanged: editingChanged
             )
+            .interactiveHover(.highlight, in: SliderHoverShape())
             .accessibilityLabel(title)
         }
     }

@@ -47,6 +47,8 @@ struct AppearanceSettingView: View {
                         Image(systemSymbol: .eyeSlash)
                             .accessibilityHidden(true)
                     }
+                    // The eyes are the slider's end marks: on the Slider alone, the highlight ran into them.
+                    .interactiveHover(.highlight, in: SliderHoverShape())
                 }
             } footer: {
                 Text(.privacyMaskFooter)
