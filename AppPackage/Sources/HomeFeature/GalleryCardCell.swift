@@ -19,7 +19,6 @@ public struct GalleryCardCell: View {
 
     @ScaledMetric(relativeTo: .title3) private var titleLineHeight: CGFloat = 24
     @ScaledMetric(relativeTo: .caption2) private var ratingLineHeight: CGFloat = 18
-    @GalleryCoverMetrics(.homeCompact) private var compactCoverSize
 
     private let showsRichInformation: Bool
     private let usesCompactInformation: Bool
@@ -63,17 +62,22 @@ public struct GalleryCardCell: View {
     public var body: some View {
         Group {
             if showsRichInformation {
-                HStack(spacing: usesCompactInformation ? 16 : 30) {
-                    GalleryCover(
-                        url: gallery.coverURL,
-                        style: usesCompactInformation ? .homeCompact : .homeSlideshow, contentMode: .fill,
-                        onSuccess: webImageSuccessAction
-                    )
-                    .accessibilityIdentifier(coverIdentifier)
-                    VStack(alignment: .leading, spacing: 12) {
-                        if usesCompactInformation {
-                            HomeCompactSlideshowContent(gallery: gallery)
-                        } else {
+                if usesCompactInformation {
+                    HomeCompactSlideshowContent(gallery: gallery) {
+                        GalleryCover(
+                            url: gallery.coverURL, style: .homeCompact, contentMode: .fill,
+                            onSuccess: webImageSuccessAction
+                        )
+                        .accessibilityIdentifier(coverIdentifier)
+                    }
+                } else {
+                    HStack(spacing: 30) {
+                        GalleryCover(
+                            url: gallery.coverURL, style: .homeSlideshow, contentMode: .fill,
+                            onSuccess: webImageSuccessAction
+                        )
+                        .accessibilityIdentifier(coverIdentifier)
+                        VStack(alignment: .leading, spacing: 12) {
                             Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
                                 .accessibilityIdentifier("home_slideshow_title_\(gallery.id)")
                                 .font(.title2.bold())
@@ -82,12 +86,8 @@ public struct GalleryCardCell: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
-                    .frame(height: usesCompactInformation ? compactCoverSize.height : nil, alignment: .top)
+                    .frame(minHeight: HomeSlideshowSizing.regularMinimumContentHeight)
                 }
-                .frame(
-                    minHeight: usesCompactInformation
-                        ? compactCoverSize.height : HomeSlideshowSizing.regularMinimumContentHeight
-                )
             } else {
                 GalleryCardHeightLayout(maximumHeight: maximumHeight.map({ max(0, $0 - 40) })) {
                     cardContent

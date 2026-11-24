@@ -22,6 +22,21 @@ final class TracerSnapshotTests: SnapshotMatrixCase {
     }
 }
 
+/// The Front Page shelf of `home-populated` shows the owner's chosen count (19-23, "## C9 decision"): the 8 public
+/// fixtures, which the shelf pairs into 4 columns. The app gives the shelf up to 25 galleries; the scenario used to
+/// give it 2, which drew one narrow column.
+final class HomeFrontPageFixtureTests: XCTestCase {
+    @MainActor
+    func testTheFrontPageShelfReceivesTheEightPublicFixtures() {
+        let state = TracerScenarios.homeState()
+        XCTAssertEqual(state.frontPageGalleries.count, 8)
+        XCTAssertEqual(
+            state.frontPageGalleries.map(\.gid),
+            (PublicVisualFixtures.homeGalleries + PublicVisualFixtures.homeCarouselNeighbors).map(\.gid)
+        )
+    }
+}
+
 final class TracerAgewallSnapshotTests: SnapshotMatrixCase {
     @MainActor
     func testAgewallUnticked() async throws {
@@ -83,21 +98,27 @@ enum TracerScenarios {
     }
 
     static func home() -> AnyView {
+        AnyView(NavigationStack {
+            HomeView(store: Store(initialState: homeState(), reducer: HomeReducer.init))
+        })
+    }
+
+    /// The state of `home-populated`. The Front Page shelf pairs its galleries into columns of two rows, so its
+    /// gallery count decides how many columns the picture shows.
+    static func homeState() -> HomeReducer.State {
         let galleries = homeGalleries()
         var state = HomeReducer.State()
         state.popularGalleries = Array(galleries.prefix(1)) + carouselNeighbors()
         state.cardPageIndex = 0
         state.currentCardID = galleries.first?.gid ?? ""
-        state.frontPageGalleries = Array(galleries.dropFirst().prefix(2))
+        state.frontPageGalleries = galleries + carouselNeighbors()
         state.toplistsGalleries = Dictionary(
             uniqueKeysWithValues: ToplistsType.allCases.map({ ($0.categoryIndex, []) })
         )
         if let toplist = ToplistsType.allCases.first {
             state.toplistsGalleries[toplist.categoryIndex] = Array(galleries.dropFirst(3))
         }
-        return AnyView(NavigationStack {
-            HomeView(store: Store(initialState: state, reducer: HomeReducer.init))
-        })
+        return state
     }
 
     // MARK: First launch

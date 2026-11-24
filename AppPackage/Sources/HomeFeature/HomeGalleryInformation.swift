@@ -53,19 +53,8 @@ struct HomeSlideshowInformation: View {
                 VStack(alignment: .leading, spacing: 6) { ratingAndLanguage }
             }
             .font(.subheadline)
-            HStack(alignment: .top, spacing: 28) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(.homeMetadataPages).font(.caption).foregroundStyle(.secondary)
-                    Text(gallery.pageCount, format: .number).font(.subheadline)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(.homeMetadataCategory).font(.caption).foregroundStyle(.secondary)
-                    Text(gallery.category.value).font(.subheadline)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .frame(maxWidth: 360, alignment: .leading)
+            statistics
+                .frame(maxWidth: 360, alignment: .leading)
             if !gallery.homeSlideshowTags.isEmpty {
                 HomeSlideshowTags(gallery: gallery)
             }
@@ -73,11 +62,72 @@ struct HomeSlideshowInformation: View {
         .accessibilityIdentifier("home_slideshow_information")
     }
 
+    /// Pages and category in two equal columns, or, when the columns do not fit the 360 pt this block is capped at,
+    /// one stat per line as "label value" (the owner's C9 decision, 19-23), the same fallback as the compact card's.
+    /// The columns stay equal rather than sized by their content, as the owner chose, so the first option's
+    /// ideal width is twice the wider column plus the spacing, and no label is ever broken mid-word.
+    private var statistics: some View {
+        ViewThatFits(in: .horizontal) {
+            HomeEqualColumnsLayout(spacing: 28) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(.homeMetadataPages).font(.caption).foregroundStyle(.secondary)
+                    Text(gallery.pageCount, format: .number).font(.subheadline)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(.homeMetadataCategory).font(.caption).foregroundStyle(.secondary)
+                    Text(gallery.category.value).font(.subheadline)
+                }
+            }
+            HomeSlideshowStatLines(pageCount: gallery.pageCount, category: gallery.category, valueFont: .subheadline)
+        }
+    }
+
     @ViewBuilder private var ratingAndLanguage: some View {
         HomeGalleryRating(rating: gallery.rating)
         if let language = gallery.language {
             Text(language.value).foregroundStyle(.secondary)
         }
+    }
+}
+
+/// Columns of one width: the widest column's ideal width, or, when the layout is proposed a width, an equal share of
+/// it. `ViewThatFits` needs that ideal width to tell whether equal columns fit, which an `HStack` of
+/// `maxWidth: .infinity` frames does not report (it reports the sum of the columns' own widths).
+private struct HomeEqualColumnsLayout: Layout {
+    let spacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let columnWidth = equalColumnWidth(proposal: proposal, subviews: subviews)
+        let height = subviews
+            .map({ $0.sizeThatFits(ProposedViewSize(width: columnWidth, height: nil)).height })
+            .max() ?? 0
+        return CGSize(width: totalWidth(columnWidth: columnWidth, count: subviews.count), height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let columnWidth = equalColumnWidth(
+            proposal: ProposedViewSize(width: bounds.width, height: nil), subviews: subviews
+        )
+        var columnOrigin = bounds.minX
+        for subview in subviews {
+            subview.place(
+                at: CGPoint(x: columnOrigin, y: bounds.minY), anchor: .topLeading,
+                proposal: ProposedViewSize(width: columnWidth, height: bounds.height)
+            )
+            columnOrigin += columnWidth + spacing
+        }
+    }
+
+    private func equalColumnWidth(proposal: ProposedViewSize, subviews: Subviews) -> CGFloat {
+        guard let width = proposal.width else {
+            return subviews.map({ $0.sizeThatFits(.unspecified).width }).max() ?? 0
+        }
+        let gaps = spacing * CGFloat(max(0, subviews.count - 1))
+        return max(0, (width - gaps) / CGFloat(max(1, subviews.count)))
+    }
+
+    private func totalWidth(columnWidth: CGFloat, count: Int) -> CGFloat {
+        columnWidth * CGFloat(count) + spacing * CGFloat(max(0, count - 1))
     }
 }
 
