@@ -32,6 +32,8 @@ struct PointerHoverAuditTests {
         let path: String
         let sites: [PointerHoverScanner.Site]
         let setsIconTapShape: Bool
+        /// The lines of each `.disabled(_:)` written above a hover helper on the same chain.
+        let disabledBeforeHoverLines: [Int]
     }
 
     private static let walkedRoots = ["App", "AppPackage/Sources"]
@@ -127,6 +129,16 @@ struct PointerHoverAuditTests {
         let writers = files.filter(\.setsIconTapShape).map(\.path)
         expectNoDifference(writers, [Self.helperFile])
     }
+
+    /// A helper written below `.disabled(_:)` reads the enabled environment from outside it, so the disabled control
+    /// still lights under the pointer (the Log In button did, 2026-11-24).
+    @Test
+    func noHoverHelperIsWrittenBelowItsControlsDisabled() throws {
+        let files = try Self.auditedFiles()
+
+        let late = files.flatMap({ file in file.disabledBeforeHoverLines.map({ "\(file.path):\($0)" }) })
+        expectNoDifference(late, [])
+    }
 }
 
 // MARK: - Scanning
@@ -146,11 +158,16 @@ private extension PointerHoverAuditTests {
                 let path = RepositoryWalk.relativePath(of: url, under: root)
                 guard isAudited(path) else { continue }
                 let processed = PointerHoverScanner.preprocessed(try String(contentsOf: url, encoding: .utf8))
+                let bytes = Array(processed.utf8)
+                let lateLines = PointerHoverScanner.disabledBeforeHoverOffsets(in: processed).map({ offset in
+                    bytes[..<offset].count(where: { $0 == UInt8(ascii: "\n") }) + 1
+                })
                 files.append(
                     AuditedFile(
                         path: path,
                         sites: PointerHoverScanner.sites(in: processed),
-                        setsIconTapShape: PointerHoverScanner.setsIconTapShape(processed)
+                        setsIconTapShape: PointerHoverScanner.setsIconTapShape(processed),
+                        disabledBeforeHoverLines: lateLines
                     )
                 )
             }

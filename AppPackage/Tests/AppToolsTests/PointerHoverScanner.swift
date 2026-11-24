@@ -99,6 +99,17 @@ extension PointerHoverScanner {
         return false
     }
 
+    /// The offsets of each `.disabled(` that a hover helper follows on the same chain.
+    ///
+    /// The helper turns its effect off by reading `isEnabled` from the environment, and `.disabled(_:)` sets that
+    /// value only for the views it wraps. Written after the helper, it wraps the helper and the effect goes off with
+    /// the control; written before it, the helper reads the enabled environment from outside and a disabled control
+    /// still lights under the pointer.
+    static func disabledBeforeHoverOffsets(in processed: String) -> [Int] {
+        let bytes = Array(processed.utf8)
+        return indices(of: ".disabled(", in: bytes).filter({ chainPasses(afterMemberAt: $0, in: bytes) })
+    }
+
     /// The sites written `.buttonStyle(<member>)`, such as `.buttonStyle(.plain)` or `.buttonStyle(.unhighlighted)`.
     private static func buttonStyleSites(named member: String, kind: SiteKind, in bytes: [UInt8]) -> [Site] {
         let call = ".buttonStyle("

@@ -307,6 +307,28 @@ struct PointerHoverScannerTests {
         #expect(other.contains(where: { PointerHoverScanner.setsIconTapShape(Self.processed($0)) }) == false)
     }
 
+    @Test
+    func aHoverHelperAfterDisabledOnItsChainIsDetected() {
+        let late = [
+            "x.disabled(a).interactiveHover(.highlight, in: .circle)",
+            "x\n    .disabled(a)\n    .glassEffect(.regular, in: .circle)\n    .cellRowHover()",
+            "x.disabled(\n    a\n).interactiveIconHover()"
+        ]
+        let other = [
+            "x.interactiveHover(.highlight, in: .circle).disabled(a)",
+            "x.disabled(a)\nButton(b) {}.cellRowHover()",
+            "x.hoverEffectDisabled(a).interactiveIconHover()",
+            "// x.disabled(a).cellRowHover()"
+        ]
+
+        for source in late {
+            #expect(PointerHoverScanner.disabledBeforeHoverOffsets(in: Self.processed(source)).count == 1, "\(source)")
+        }
+        for source in other {
+            #expect(PointerHoverScanner.disabledBeforeHoverOffsets(in: Self.processed(source)).isEmpty, "\(source)")
+        }
+    }
+
     private static let allowance = HoverAuditAllowance(file: "A.swift", kind: .tapGesture, count: 2, reason: "Why.")
     private static let unmet = [
         "A.swift": [
