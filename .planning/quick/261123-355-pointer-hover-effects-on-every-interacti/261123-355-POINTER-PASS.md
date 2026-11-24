@@ -226,3 +226,49 @@ en-large and en-accessibility5: 522 passed, 0 changed, 6 not applicable. The six
 plan 01 put this hover on the Menu did not move this time.
 
 Commits: `216de8713` (comment menu), `7debceb51` (Log In and the audit), `dd99e281f` (sliders).
+
+## Owner shape review (2026-11-24, same simulator)
+
+The owner looked at four hovers and rejected their shapes:
+
+1. **Remove All** ("i want capsule shape here"). Scope chosen: every single-line text button. `HoverTextCapsule`, a
+   capsule 10 pt past the text at the sides and 6 pt above and below, now carries General's two, the analytics
+   choice, the section titles and Show All, Search's Show All and Remove All, Rate and Find Similar, the torrent name,
+   the tag detail link, the gallery info link and the uploader. `HoverTextButtonShape` stays on multi-line content:
+   the search keyword rows and the Detail title.
+2. **The Recently Viewed card** ("can't approve this shape"). It lifted in the cover's 5 pt shape. Spacing chosen: the
+   cards keep their 8 pt spacing and the background reaches 3 pt past the card.
+3. **The Downloads row** ("double corner radius"). The highlight's 10 pt corners sat about 5 pt inside the card's
+   26 pt corners.
+4. **The Home cover wall** ("they need background on hover"). The tiles lifted with no background.
+
+Changes:
+
+- **Gallery tiles.** `GalleryTileHoverShape(outset:)`: the system highlight, which draws a background, in the tile's
+  rect grown by the outset, with corners of the cover's radius plus the outset, so the background's corner and the
+  cover's stay concentric. 6 pt on the cover wall and the ranking rows, 3 pt on the Recently Viewed cards. The cover's
+  5 pt radius is `GalleryCover.cornerRadius`, which the cover's clip shape and the tile shape share. Covers and
+  previews that are only an image keep the lift, as do tiles with a background of their own.
+- **Card rows.** 20 pt corners on all four sides, and the gap at the top and bottom raised from 3 to 6 pt, so after
+  the system's scale-up the highlight stands about 5 pt inside the card on every side and its corners are concentric
+  with the card's. On a one-line row it reads as a capsule, like a sidebar selection; the owner chose that over
+  smaller corners next to the separators. `ConcentricRectangle`, which takes its radii from the cell's card, was tried
+  first and dropped: on a section's second row (App Activity Logs, Import Custom Translations) the highlight it drew
+  sat about 6 pt up and to the left, over the separator and the card's leading edge, whatever the pointer's position.
+  A plain rounded rect on the same row sits in place.
+
+Checked under the pointer: the cover wall tile (background, concentric corner), Search's Remove All and Show All, the
+Recently Viewed card (3 pt background), App Activity Logs and Clear Image Cache in General (in place, about 5 pt
+inside the card), the Downloads row, a Home ranking row, Find Similar, the uploader and the previews' Show All. Not
+checked: the torrent name (needs a signed-in gallery with torrents).
+
+Verification: lint clean and the build has no warnings. AppToolsTests and HomeFeatureTests pass, with new tests for
+the text capsule, the tile shape and the 20 pt rows. A snapshot compare of the Home, Search, Gallery Detail, Detail
+Pages, Detail Pages More, the three Settings, Downloads and First Launch classes against the same candidate, phone,
+en-xSmall, en-large and en-accessibility5: 767 passed, 97 changed, 12 not applicable. Every one of the 97 (gallery
+list rows in Downloads, search results and the detail search list, and one search suggestions picture) was already
+changed in the 12:00 compare: the candidate predates `660d7652a`, which drew the list rows without a layer and so
+moved the edges of their stars, page icon and category label. Rerun with the card rows' old 12 pt growth, the
+Downloads pictures change the same way.
+
+Commits: `ce2b4fac1` (text capsules), `6695a976b` (gallery tiles), `b1ba7d2dc` (card rows).
