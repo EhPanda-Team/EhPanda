@@ -463,7 +463,13 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   8-gallery fixture: on the iPad at `de` accessibility5 the Front Page cell's "26 Seiten" wraps after the number.
   Owner decisions 2026-11-25: the value under its label stays on the iPad too, inside the 360 pt cap
   (「維持換行，與 iPhone 一致（建議）」); the page count break is investigated and fixed before 19-25
-  (「先查原因再修（建議）」), planned as 19-31 (19-25 now depends on it). Next: 19-31.
+  (「先查原因再修（建議）」), planned as 19-31 (19-25 now depends on it). 19-31 done 2026-11-25
+  (`f2d32f440`..`0511b1a87`, record `19-31-INVESTIGATION.md`): the cover's scale stops at 1.25x from AX1 while the
+  text keeps growing, so page counts and languages outgrew the cover-wide cell (iPhone AX4/AX5 in en, de, ja, ko;
+  iPad AX5 in de, ja by 0.5 to 2 pt), and the `Button` centred their wrapped lines. Owner decision
+  「欄寬隨文字加寬（建議）」: a rich Front Page cell is as wide as the widest of its cover and its fields' one-line
+  widths (`HomeFrontPageCellLayout`), the cover keeps its size, and the fields align leading; unchanged up to AX3.
+  `FrontPageCellPageCountTests` covers 6 locales x 2 size classes x 12 sizes. Next: 19-25.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
@@ -1316,11 +1322,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 327/335 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 328/335 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 23 of 31 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22, 19-30 on 2026-11-23 and 19-31 on 2026-11-25; 19-18 to 19-24 and 19-30 done); Phase 20
+5 of 5 plans complete. Phase 19 has 24 of 31 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22, 19-30 on 2026-11-23 and 19-31 on 2026-11-25; 19-18 to 19-24, 19-30 and 19-31 done); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
