@@ -439,7 +439,13 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   corrected (scroll geometry's container size already excludes the insets), and a differential centring check (the
   Sent block's accessibility frame is 6 pt short of its layout box). For 19-26: the word editor still does not converge
   (1328/1093 pt), so the Search Terms field was not its cause; the iPhone delete confirmation is now
-  `cannot-cover:popover`, the iPad one still does not converge (1626 pt). Next: 19-22.
+  `cannot-cover:popover`, the iPad one still does not converge (1626 pt). 19-22 done 2026-11-24
+  (`d2e05f8d0`..`742f75592`): C3 a toast keeps the standard spacing above the bottom safe area and only the app root
+  adds the measured tab bar height (0 under the iPad's top tab bar), C5 New Dawn draws only the sun or moon body and
+  its reward line clears the bottom safe area, C16 torrent, archive and gallery sizes go through one `SiteFileSize`
+  in the reader's number format and speak their unit alike (the spoken form added on orchestrator review). Owed to
+  the owner: whether the login-error toast's one-line subtitle truncation stays; for 19-13, the greeting sits 17 pt
+  higher at the default size. Next: 19-23.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
@@ -1292,11 +1298,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 324/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 325/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 20 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22 and 19-30 on 2026-11-23; 19-18 to 19-21 and 19-30 done); Phase 20
+5 of 5 plans complete. Phase 19 has 21 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22 and 19-30 on 2026-11-23; 19-18 to 19-22 and 19-30 done); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
