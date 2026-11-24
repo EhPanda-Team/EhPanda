@@ -50,6 +50,8 @@ All local runs ran on the iOS 27.2 simulator runtime (owner decision 2026-11-24)
   - a doc comment states the reason (the cover's scale stops at `GalleryCoverStyle.maximumScale` while the text keeps growing; the owner chose a wider column over a broken field, 19-31, 2026-11-25).
   - Where the fields fit the cover, which is every size up to `.accessibility3`, the column is the cover's width as before.
 
+- **Review cleanup** (`d78bbf204`, `refactor(19-31): drop the lone cover stack`): the cell without rich information is `cover.frame(width: coverSize.width, alignment: .leading)`, no one-child `VStack` around the cover; nothing else changed. The iPhone half of the verify block ran again: `** TEST SUCCEEDED **`, `Passed 387 246 0 141`; strict lint of `Sources/HomeFeature` prints nothing.
+
 ## RED and GREEN evidence (iOS 27.2)
 
 `FrontPageCellPageCountTests` is one parameterised test with 144 cases (six locales, `.regular` and `.compact`, the twelve Dynamic Type sizes). Each case hosts the real wall (two galleries a column for the counts 24 to 29, the lower one with the language "Deutsch" in that locale) and checks every cell: its width is the widest of the cover and its fields' one-line widths (probed) and no wider than a pixel's rounding, its height is the cover, the two reserved title lines and the expected field lines, the field lines are exactly one text line each in the cell's bottom band and start within a glyph's side bearing of the cell's leading edge and do not end past its trailing edge, no ink comes within the 20 pt column spacing of the next column, and the cover's drawn size equals the cover style's size at that Dynamic Type size to a pixel and starts on the cell's leading edge.
