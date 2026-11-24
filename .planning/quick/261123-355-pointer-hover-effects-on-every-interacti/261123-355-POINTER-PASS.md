@@ -156,3 +156,73 @@ lens.
 
 Still unwalked: the Search keyword rows (no history on this simulator), the Library sidebar's collapsible headers
 (left flat), signed-in-only controls, and the rest of the list in "Not yet walked" above.
+
+## Full walk (owner: "Resume full walk", 2026-11-24, same simulator)
+
+Every control reachable while signed out, swept under Device Hub's pointer with the video method above. To reach
+lists that were empty, the walk made a saved search, a default downloads folder and one 22-page Non-H download, and
+set Filters to Non-H while it picked that gallery.
+
+Pass, one effect in the control's shape and nothing at rest moved:
+
+- **Search:** a recent keyword row (6 pt clear of the row, the system's scale-up on top), its delete button (circle),
+  both Remove All and Show All, the search field's clear button (the system's own).
+- **Quick Search:** a saved search row (the card-row pill, 5 pt inside the card), the sheet's Cancel, New and Edit
+  (toolbar items).
+- **Filters:** the scope picker (the system's segment hover), the category tiles (rect), Reset Filters and the Minimum
+  Rating picker (the card-row pill), every switch (centred on its track, 6 pt clear). The page range fields stay flat,
+  as text fields do.
+- **Library:** a downloads folder row and the favourites rows (the sidebar pill), the signed-out Log In button
+  (bordered); Hide Sidebar, Layout and Filters (toolbar items). The collapsible section headers stay flat, as recorded.
+- **Downloads:** a list row (the card-row pill: 5 pt inside the card's sides, 2 pt inside its top, inside its rounded
+  corners) and a grid tile (lift, whole, in its 15 pt shape).
+- **Detail:** the downloaded state's trash button (glass circle), Show All, the tag chips, the gallery info ellipsis
+  (circle, at the end of the stats strip), the preview pages (lift; the one cut by the sheet's edge is cut by the
+  sheet). The disabled favourite and Rate stay flat.
+- **Torrents:** the file name (6 pt clear of the text). The row's other text is display only and stays flat.
+- **Settings:** Account's rows and Copy Cookies, Appearance's Theme picker and App Icon, the switches on Appearance,
+  Downloads and Reading, Reading's four pickers, About's link rows: the card-row pill or the switch track.
+- **Reader:** the bottom Close (glass capsule) and, in landscape, the move-controls button (its 16 pt glass rect); the
+  page zones stay flat.
+- **Dark appearance** (Detail): the title, Download menu, Read, Find Similar and a tag chip light as in light;
+  the disabled favourite stays flat.
+
+Found:
+
+1. **Comment moderation menu (`...`) draws nothing.** Its icon hover was on the Menu's label, which is where the
+   audit allowance put it after an extra-small iPhone landscape snapshot moved; under the pointer the system draws no
+   effect for a hover inside a Menu's label.
+2. **The Log In button lights while disabled.** `.disabled(_:)` was written above the helper, which then reads the
+   enabled environment from outside it (`fe327c0b2` added the helper in that order).
+3. **Sliders draw nothing.** Hovered: Appearance's Privacy Mask and the reader's page slider. The others are the same
+   system control (Downloads' simultaneous downloads, Reading's two zoom sliders, EhSetting's two). SL-11 lists
+   sliders: flat, so E1 in the control's shape.
+
+Not walked: Archives and every signed-in control (favourites, rating, posting and voting on comments, My Tags,
+EhSetting, so SL-09's circles), the reader's page reload (only on a failed page), the accessibility-size analytics
+menu (SL-10), a narrow iPad window (Device Hub cannot resize the simulator's window). Seen in passing, outside this
+task: the saved search name field autocorrected "Touhou" to "Tohoku", and a second search submitted from a results
+page's field left the earlier results on screen.
+
+### Fixes after the full walk
+
+- **Comment moderation menu.** The icon helper is on the Menu, after its plain style and before the negative padding,
+  so the 44 pt circle follows the label's frame; the audit's allowance for that site is gone. Under the pointer the
+  circle lights on every comment. It reaches 12 pt above and below the metadata line, as the button's hit area always
+  has, so its bottom edge meets the top of the comment's first line.
+- **Log In.** `.disabled(_:)` is written below the helper, so the disabled button stays flat. The enabled state needs
+  a password typed in, which the walk does not do. The audit now fails any helper written below `.disabled(_:)` on
+  the same chain (`noHoverHelperIsWrittenBelowItsControlsDisabled`, with scanner fixtures); the Log In button was the
+  only one in the tree.
+- **Sliders.** `SliderHoverShape`: the slider's frame grown by 6 pt, a capsule. On the Slider for the plain ones
+  (Downloads, Reading, EhSetting, the reader's page slider); on the stack of the slider and its end marks on Appearance,
+  where on the Slider alone the capsule ran into the two eyes. Checked under the pointer: Privacy Mask (the eyes and
+  the slider inside, 8 pt clear of each eye), Downloads (10 pt under the label, 7 pt above the separator) and the
+  reader's page slider (inside the glass bar, 2 to 3 pt from its top and bottom edges).
+
+Verification: lint clean and the build has no warnings. A snapshot compare of the Comments, Tracer Comments,
+Settings, Settings Pages, Settings Pages More and Reader classes against the same candidate, phone, en-xSmall,
+en-large and en-accessibility5: 522 passed, 0 changed, 6 not applicable. The six comments pictures that moved when
+plan 01 put this hover on the Menu did not move this time.
+
+Commits: `216de8713` (comment menu), `7debceb51` (Log In and the audit), `dd99e281f` (sliders).
