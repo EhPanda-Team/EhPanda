@@ -4,16 +4,16 @@ milestone: v3.0.0
 current_phase: 20
 current_phase_name: "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks"
 status: executing
-stopped_at: Completed 19-30-PLAN.md
-last_updated: "2026-11-23T21:03:46.021Z"
+stopped_at: Completed 20-14-PLAN.md (Release isolation scan, both flavors 0 findings; phase gate green)
+last_updated: "2026-11-21T08:50:44.190Z"
 last_activity: 2026-11-21
 last_activity_desc: "Quick task 261121-m6q completed: every gallery list and detail fetch a reducer starts now goes through the injected GalleryClient (14 closures, 22 call sites in 11 files; HomeClient and the download client keep theirs), so tests state each fetch outcome; the three errorSurfaced filters from 261121-ifi are gone and the signal partition is shared from TestingSupport. Earlier, quick task 261121-neo completed: the History grid notice has 16 pt above and below it; the detail header's download ring takes the Read ring's geometry (whole 48-pt button, 4 pt in, 2.5-pt stroke, centre glyph at .callout), its outline glyphs are drawn at 1.1x (download icons) and 1.15x (heart); a queued download shows the ring with a 12-dash track, the saved pages and pause.fill, cross-fading into the solid track in 0.3 s (at once under Reduce Motion, a documented D-29 exception), and VoiceOver reads Queued, n of m. Pause download (owner's Screens v1.1.0 design, 2026-11-21). Earlier, Quick task 261121-ifi completed: user-visible errors now reach TelemetryDeck; errorSurfaced is sent when state changes (the toast and each LoadingState via Reducer.signalsErrors), carries a closed Error.screen value (17 screens, owner decision), counts notFound as its own kind and reader page failures once per kind per session (owner decisions); the dead setToast action is gone. Earlier, quick task 261121-jps completed: Deploy now uploads the PAL build after the release (upload only; the collaborator creates the version and submits it), and Publish AltStore PAL takes only the ADP ID and pushes with the deploy key (owner decisions); deploy-pal.yml is gone. Earlier, 20-08 recorded (20-08-SUBMISSION.md): Apple accepted 3.0.0 (163) for Notarization, the ADP is fetched and its variants are encrypted, and the hand-made AltStorePAL.json is live on main (owner decision); develop re-signed for main's signature rule. Earlier, quick task 261117-tyj completed: the compact Library picker remembers its last choice across launches (the sidebar does not), and a user-deleted gallery, singly or by folder, leaves the continued-download card's pages and galleries count. Earlier, 20-14 closed: the Release isolation scan of the default and marketplace flavors (0 findings each) and the phase gate (all green; 20-VALIDATION.md rows updated, nyquist_compliant stays false). Earlier, 20-13 closed: the seven signed-off analytics signals, call sites and the README in six languages. Earlier, 20-11 closed: main (Phase 19 closed with deferred items, owner decision) merged into feature/gsd-phase-20 (OQ-F, owner decision); the release gate reads the merged PR head and compare runs only"
-state_head: b5be461df6542017f4a2d7e364dc933498c0793b
+state_head: 06b4747a3fa63ab9447e58544759c1468d371e77
 progress:
   total_phases: 21
   completed_phases: 19
-  total_plans: 348
-  completed_plans: 334
+  total_plans: 321
+  completed_plans: 327
   percent: 90
 milestone_name: Dependency Reduction & Modernization
 source_head: b5eca09d1
@@ -418,7 +418,15 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   2026-11-23: 「把步驟拆成兩種」 (stillness steps run at screen size before growth, steps that operate the page after
   it), implemented by 19-30 (planned and checked 2026-11-23; 19-21 now depends on it, waves of 19-21 to 19-29 shifted by
   one). Keyboard states cannot be covered (the keyboard inset grows with the
-  window); whether they keep the screen height is the owner's decision in 19-26. Next: the new plan.
+  window); whether they keep the screen height is the owner's decision in 19-26. 19-30 done 2026-11-24
+  (`1ec4a02f1`..`f134c2172`): every state runs its stillness steps (`still:`) at screen size before the window grows
+  and its operating steps (`interact:`) after it; seven dialog states now open their dialog by that step (owner decision
+  2026-11-23, 「改成拉高後由步驟點開」); a popover whose source falls outside the scene is classified
+  `cannot-cover:popover`, never adjusted (「標出來，19-26 逐頁決定」). Two harness defects found and fixed in their own
+  commits: pages rebuilt after a step drew signed out (`65aae6280`, cookie client forwarded to the scenario), and the
+  reveal step scrolled the page behind a sheet (`08fe18cad`, it now searches the front-most presentation only). Open
+  for later plans: the app alert keyboard layout and the reader settle instability before 19-26, the iPad Quick Search
+  delete popover with C7 in 19-24, the general form of the dependency-scope defect in 19-27. Next: 19-21.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
@@ -1271,11 +1279,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 322/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 323/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 18 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22, 19-18 to 19-20 done); Phase 20
+5 of 5 plans complete. Phase 19 has 19 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22 and 19-30 on 2026-11-23; 19-18 to 19-20 and 19-30 done); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
@@ -2315,8 +2323,8 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-23T21:03:43.829Z
-Stopped at: Completed 19-30-PLAN.md
+Last session: 2026-11-11T12:00:00.000Z
+Stopped at: Completed 20-11-PLAN.md; main merged
 Resume file: None
 
 Earlier stop (2026-10-13T10:50:00Z, historical): 17-06 revision re-shot, 16/16 captured (`.capture/17-06-t-native-*`); superseded by the owner's 2026-11-02 approval of the 192-image website set.
