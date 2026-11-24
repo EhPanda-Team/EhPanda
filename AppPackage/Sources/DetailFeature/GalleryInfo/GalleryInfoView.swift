@@ -67,8 +67,7 @@ struct GalleryInfoView: View {
             Info(
                 title: .metadataFileSize,
                 value: galleryDetail.fileSize.formatted(locale: locale),
-                accessibilityValue: galleryDetail.fileSize.spokenUnit()
-                    .map({ galleryDetail.fileSize.formattedCount(locale: locale) + " " + $0 })
+                accessibilityValue: galleryDetail.fileSize.spoken(locale: locale)
             ),
             Info(
                 title: .metadataFavoritedTimes,

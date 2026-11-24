@@ -282,8 +282,18 @@ private struct HathArchiveGrid: View {
 
     /// The size the site gave as text, such as "26.2 MiB", is shown with its number in the reader's number format,
     /// like the gallery's own size. Text that is not a site size, such as "N/A", is shown as given.
+    private var siteFileSize: SiteFileSize? {
+        SiteFileSize(siteText: archive.fileSize)
+    }
+
     private var fileSizeText: String {
-        SiteFileSize(siteText: archive.fileSize)?.formatted(locale: locale) ?? archive.fileSize
+        siteFileSize?.formatted(locale: locale) ?? archive.fileSize
+    }
+
+    /// VoiceOver reads the formatted count and the unit's word, as it does for every other size, not the letters of
+    /// the abbreviation.
+    private var fileSizeSpoken: String {
+        siteFileSize?.spoken(locale: locale) ?? fileSizeText
     }
 
     init(isSelected: Bool, archive: GalleryArchive.HathArchive, width: CGFloat) {
@@ -327,6 +337,7 @@ private struct HathArchiveGrid: View {
 
             VStack {
                 Text(fileSizeText)
+                    .accessibilityLabel(fileSizeSpoken)
                     .fontWeight(.medium)
                     .font(.caption)
 

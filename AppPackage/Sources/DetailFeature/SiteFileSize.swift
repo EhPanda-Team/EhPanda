@@ -36,6 +36,13 @@ struct SiteFileSize: Equatable, Sendable {
         formattedCount(locale: locale) + " " + unit
     }
 
+    /// What VoiceOver reads for the whole size: the count in the reader's format, a space and the unit's word, so
+    /// "26.2 MiB" is read as "26,2 mebibytes" rather than with the letters of the abbreviation. `nil` when the unit
+    /// has no spoken form, in which case the caller falls back to the text it shows.
+    func spoken(locale: Locale) -> String? {
+        spokenUnit().map({ formattedCount(locale: locale) + " " + $0 })
+    }
+
     /// The localized binary unit for VoiceOver, or `nil` for a unit the catalog does not know. The count only selects
     /// the plural form; each catalog variant contains the unit word alone, so VoiceOver does not repeat the number.
     func spokenUnit() -> String? {

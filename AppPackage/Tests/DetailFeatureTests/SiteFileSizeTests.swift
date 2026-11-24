@@ -39,4 +39,17 @@ struct SiteFileSizeTests {
     func aUnitTheCatalogDoesNotKnowHasNoSpokenUnit() {
         #expect(SiteFileSize(count: 26.2, unit: "MB").spokenUnit() == nil)
     }
+
+    @Test
+    func theSpokenSizeIsTheFormattedCountAndTheUnitsWord() throws {
+        let size = try #require(SiteFileSize(siteText: "26.2 MiB"))
+        let spoken = try #require(size.spoken(locale: Locale(identifier: "de_DE")))
+        #expect(spoken.hasPrefix("26,2 "))
+        #expect(spoken.hasSuffix(String(localized: .accessibilitySizeMebibyte(quantity: 26.2))))
+    }
+
+    @Test
+    func aUnitTheCatalogDoesNotKnowHasNoSpokenSize() {
+        #expect(SiteFileSize(count: 26.2, unit: "MB").spoken(locale: Locale(identifier: "de_DE")) == nil)
+    }
 }

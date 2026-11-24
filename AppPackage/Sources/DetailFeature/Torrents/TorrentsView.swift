@@ -172,8 +172,7 @@ private extension TorrentsView {
 
         /// VoiceOver reads the formatted count and the spoken unit, not the letters of the abbreviation.
         private var fileSizeSpoken: String {
-            guard let size = siteFileSize, let unit = size.spokenUnit() else { return fileSizeText }
-            return size.formattedCount(locale: locale) + " " + unit
+            siteFileSize?.spoken(locale: locale) ?? fileSizeText
         }
 
         // A list row inflates a `titleAndIcon` label's icon well past the bare `Image` these
