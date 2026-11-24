@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import AutomationIdentifiers
 import ComposableArchitecture
 import GalleryListComponents
@@ -99,6 +100,7 @@ private extension DownloadGalleryItem {
             detailAction: { store.send(.galleryTapped(download.gid)) },
             readAction: { store.send(.openReading(download.gid)) }
         ))
+        .interactiveHover(.lift, in: .rect(cornerRadius: 15))
         .frame(maxHeight: .infinity, alignment: .top)
         .accessibilityFocused(rowFocus, equals: download.id)
         .accessibilityIdentifier(AccessibilityIdentifiers.downloadGallery(gid: download.gid))

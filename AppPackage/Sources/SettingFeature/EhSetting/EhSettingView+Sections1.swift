@@ -37,6 +37,7 @@ struct EhProfileSection: View {
                 Button(.setAsDefault) {
                     performEhProfileAction(.default, nil, ehProfile.value)
                 }
+                .cellRowHover()
                 .disabled(updatingOptions.contains(.profile))
 
                 Button(
@@ -44,6 +45,7 @@ struct EhProfileSection: View {
                     role: .destructive,
                     action: deleteDialogAction
                 )
+                .cellRowHover()
                 .disabled(updatingOptions.contains(.profile))
                 .confirmationDialog(deleteConfirmationDialog)
             }
@@ -63,12 +65,14 @@ struct EhProfileSection: View {
             Button(.rename) {
                 performEhProfileAction(.rename, editingProfileName, ehProfile.value)
             }
+            .cellRowHover()
             .disabled(isFocused || updatingOptions.contains(.profile))
 
             if ehSetting.isCapableOfCreatingNewProfile {
                 Button(.createNew) {
                     performEhProfileAction(.create, editingProfileName, ehProfile.value)
                 }
+                .cellRowHover()
                 .disabled(isFocused || updatingOptions.contains(.profile))
             }
         }
@@ -325,6 +329,7 @@ struct ValuePicker: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Slider(value: $draft, in: range, onEditingChanged: editingChanged)
+                    .interactiveHover(.highlight, in: SliderHoverShape())
                     .frame(maxWidth: .infinity)
                     .accessibilityLabel(title)
 
@@ -344,6 +349,7 @@ struct ValuePicker: View {
                 },
                 onEditingChanged: editingChanged
             )
+            .interactiveHover(.highlight, in: SliderHoverShape())
             .accessibilityLabel(title)
         }
     }
@@ -469,7 +475,7 @@ struct EhSettingPickerStyle: ViewModifier {
     @ContentBuilder
     func body(content: Content) -> some View {
         if dynamicTypeSize <= .large {
-            content.pickerStyle(.menu)
+            content.pickerStyle(.menu).cellRowHover()
         } else {
             content.pickerStyle(.inline)
         }

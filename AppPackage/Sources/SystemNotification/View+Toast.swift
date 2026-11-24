@@ -7,6 +7,7 @@
 
 public import AppComponents
 public import AppModels
+import AppTools
 public import ComposableArchitecture
 public import SwiftUI
 
@@ -57,6 +58,7 @@ private struct ToastViewModifier: ViewModifier {
                                     .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
+                            .interactiveHover(.highlight, in: .capsule)
                         } else {
                             ToastMessageView(content: toast)
                         }

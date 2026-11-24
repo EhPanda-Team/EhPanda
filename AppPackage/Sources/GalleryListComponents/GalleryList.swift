@@ -1,5 +1,6 @@
 import AppComponents
 public import AppModels
+import AppTools
 import AutomationIdentifiers
 import CasePathsCore
 import Resources
@@ -318,8 +319,12 @@ private struct DetailList: View {
                         fetchMoreAction?()
                     }
                 }
+                .cellRowHover()
                 if shouldShowFooter(gallery: gallery) {
                     FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+                        .cellRowHover()
+                        // The footer hides its retry button by opacity, and a hidden control does not light.
+                        .hoverEffectDisabled(!footerLoadingState.is(\.failed))
                 }
             }
         }
@@ -389,6 +394,11 @@ private struct GridList: View {
             }
             if let pageNumber, pageNumber.hasNextPage() {
                 FetchMoreFooter(loadingState: footerLoadingState, retryAction: fetchMoreAction)
+                    .interactiveHover(.highlight, in: .rect(cornerRadius: 15))
+                    // The footer hides its retry button by opacity, and a hidden control does not light.
+                    .hoverEffectDisabled(!footerLoadingState.is(\.failed))
+                    // In line with the tiles, whose corners the highlight shares.
+                    .padding(.horizontal)
             }
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
@@ -418,6 +428,7 @@ private struct GridList: View {
                     detailAction: { navigateAction?(gallery) },
                     readAction: readAction.map { action in { action(gallery) } }
                 ))
+                .interactiveHover(.lift, in: .rect(cornerRadius: 15))
                 .accessibilityIdentifier(AccessibilityIdentifiers.galleryListItem(id: gallery.id))
                 .accessibilityFocused(galleryFocus, equals: gallery.id)
                 .onScrollVisibilityChange(threshold: 0.1) { isVisible in

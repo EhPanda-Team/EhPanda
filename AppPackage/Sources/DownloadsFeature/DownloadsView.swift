@@ -180,6 +180,7 @@ private extension DownloadsView {
                     store.folderFilter = .all
                 }
                 .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
+                .interactiveHover(.highlight, in: .capsule)
                 .padding()
             }
         }

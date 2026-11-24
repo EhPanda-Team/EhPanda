@@ -239,6 +239,12 @@ struct ExcludeRow: View {
 /// the representation supplies the label, the on/off value, the toggle trait and the Voice
 /// Control name in one move, while the rendered glyph and its tap feedback stay exactly as
 /// designed.
+///
+/// The `Button` is the glyph, not the cell: the cell's flexible `Color.clear` only holds the glyph where the grid
+/// puts it. The pointer circle (and the tap area) is sized by the control's own view, so around the glyph it is
+/// 44 pt and stays inside its own cell. A cell-wide `Button` made it as wide as the column, so the circle reached
+/// past the row above and below and could have taken their taps. At every size the grid is shown the column is
+/// wider than 44 pt by arithmetic (about 52 pt at a 240 pt row); that is not measured on every window.
 struct ExcludeToggle: View {
     @Dependency(\.hapticsClient) private var hapticsClient
     let title: LocalizedStringResource
@@ -248,13 +254,16 @@ struct ExcludeToggle: View {
     var body: some View {
         Color.clear
             .overlay {
-                Image(systemSymbol: isOn ? .nosign : .circle)
-                    .foregroundStyle(isOn ? .red : .primary)
-                    .font(.title)
-            }
-            .onTapGesture {
-                withAnimation { isOn.toggle() }
-                hapticsClient.generateFeedback(.soft)
+                Button {
+                    withAnimation { isOn.toggle() }
+                    hapticsClient.generateFeedback(.soft)
+                } label: {
+                    Image(systemSymbol: isOn ? .nosign : .circle)
+                        .foregroundStyle(isOn ? .red : .primary)
+                        .font(.title)
+                }
+                .buttonStyle(.unhighlighted)
+                .interactiveIconHover()
             }
             .accessibilityRepresentation {
                 Toggle(isOn: $isOn) {

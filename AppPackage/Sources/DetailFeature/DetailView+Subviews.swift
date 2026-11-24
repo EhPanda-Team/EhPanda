@@ -122,6 +122,7 @@ struct DescriptionSection: View {
                 .labelStyle(.iconOnly)
                 .font(.title3.weight(.bold))
         }
+        .interactiveIconHover()
     }
 
     @ContentBuilder private func item(for info: DescScrollInfo) -> some View {
@@ -336,6 +337,7 @@ struct ActionSection: View {
                 }
                 .frame(maxWidth: .infinity)
             }
+            .interactiveHover(.highlight, in: HoverTextCapsule())
             .disabled(!isRatingEnabled)
 
             Button(action: findSimilarAction) {
@@ -346,6 +348,7 @@ struct ActionSection: View {
                 }
                 .frame(maxWidth: .infinity)
             }
+            .interactiveHover(.highlight, in: HoverTextCapsule())
         }
         .font(.callout)
         .tint(.primary)
@@ -516,6 +519,7 @@ extension TagsSection {
                     myTag: content.myTagHighlight(in: myTags)
                 )
             }
+            .interactiveHover(.highlight, in: .rect(cornerRadius: 5))
             .contextMenu {
                 tagContextMenu(content: content, translation: translation)
             }
@@ -653,6 +657,7 @@ struct PreviewsSection: View {
                             PreviewThumbnail(url: previewURL)
                                 .frame(width: width, height: height)
                         }
+                        .interactiveHover(.lift, in: GalleryCover.clipShape)
                         // The thumbnail is the button's only content; the page it opens is its name.
                         .accessibilityLabel(.accessibilityPreviewPage(page: index))
                     }
@@ -666,6 +671,8 @@ struct PreviewsSection: View {
             .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
             .contentMargins(.horizontal, 16, for: .scrollContent)
             .scrollIndicators(.hidden)
+            // A hovered tile lifts past the row's edges, which the scroll view would otherwise cut off.
+            .scrollClipDisabled()
         }
     }
 }

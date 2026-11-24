@@ -194,7 +194,6 @@ private struct GalleryDetailCellContent: View {
             ratingAndPageCount
             categoryAndDate
         }
-        .drawingGroup()
     }
 
     /// Uploader and language share a line for as long as both fit it whole. Both members are

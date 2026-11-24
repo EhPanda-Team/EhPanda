@@ -1,4 +1,5 @@
 public import AppModels
+import AppTools
 import AutomationIdentifiers
 import Resources
 import SFSafeSymbols
@@ -47,6 +48,7 @@ public struct LibraryTitleMenu: View {
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
+        .interactiveHover(.highlight, in: HoverCapsule(horizontalOutset: 11, verticalOutset: 8))
         .menuIndicator(.hidden)
         .accessibilityValue(sourceTitle)
         .accessibilityIdentifier(AccessibilityIdentifiers.libraryTitleMenu)

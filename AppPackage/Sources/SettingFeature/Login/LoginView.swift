@@ -167,9 +167,10 @@ struct LoginView: View {
             }
             .font(.title)
             .foregroundStyle(store.loginButtonColor)
-            .disabled(store.loginButtonDisabled)
             .glassEffect(.regular.tint(.init(.systemGray6)).interactive(), in: .circle)
             .clipShape(.circle)
+            .interactiveHover(.highlight, in: .circle)
+            .disabled(store.loginButtonDisabled)
             .padding(.top, 30)
         }
         .frame(maxWidth: .infinity)

@@ -226,6 +226,7 @@ private struct SavedSearchesSection: View {
                     .frame(minWidth: 24, minHeight: 24)
                     .contentShape(.rect)
             }
+            .interactiveHover(.highlight, in: HoverTextCapsule())
         }
     }
 }
@@ -314,6 +315,7 @@ private struct HistoryGalleriesSection: View {
                                 GalleryHistoryCell(gallery: gallery)
                                     .tint(.primary).multilineTextAlignment(.leading)
                             }
+                            .interactiveHover(.highlight, in: GalleryTileHoverShape(outset: 3))
                             .frame(maxHeight: .infinity, alignment: .top)
                             .onGeometryChange(for: CGFloat.self, of: \.size.width) { keeper.cardWidth = $0 }
                             .recordsLeadingEdge(of: gallery.id)
@@ -336,6 +338,9 @@ private struct HistoryGalleriesSection: View {
                 .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
                 .contentMargins(.horizontal, Self.inset, for: .scrollContent)
                 .scrollIndicators(.hidden)
+                // A hovered card draws its background past the row's edges, which the scroll view would otherwise cut
+                // off.
+                .scrollClipDisabled()
             }
         } header: {
             Text(.recentlyViewed)
@@ -393,6 +398,7 @@ private struct RemoveSearchHistoryButton: View {
                 .frame(minWidth: 24, minHeight: 24)
                 .contentShape(.rect)
         }
+        .interactiveHover(.highlight, in: HoverTextCapsule())
         .disabled(isEmpty)
         .accessibilityIdentifier(identifier)
         .confirmationDialog(message, isPresented: $isConfirming, titleVisibility: .visible) {

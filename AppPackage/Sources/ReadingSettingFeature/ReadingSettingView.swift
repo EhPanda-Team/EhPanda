@@ -1,4 +1,5 @@
 import AppModels
+import AppTools
 public import ComposableArchitecture
 import Resources
 import Sharing
@@ -23,6 +24,7 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .cellRowHover()
                 // The picker keeps showing the user's own direction while a webtoon is read vertically; the footer
                 // says why it is locked and how to undo it (D-03).
                 .disabled(store.locksDirection)
@@ -31,6 +33,7 @@ public struct ReadingSettingView: View {
                     .alwaysReadWebtoonsVertically,
                     isOn: Binding(store.sharedSetting.alwaysReadsWebtoonsVertically)
                 )
+                .interactiveHover(.highlight, in: SwitchTrackHoverShape())
 
                 Picker(.preloadLimit, selection: Binding(store.sharedSetting.prefetchLimit)) {
                     ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
@@ -38,6 +41,7 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .cellRowHover()
             } footer: {
                 if store.locksDirection {
                     Text(.directionLockedByWebtoon)
@@ -45,6 +49,7 @@ public struct ReadingSettingView: View {
             }
             Section {
                 Toggle(.matchScreenOrientation, isOn: Binding(store.sharedSetting.readingOrientation.isEnabled))
+                    .interactiveHover(.highlight, in: SwitchTrackHoverShape())
                 Picker(
                     .landscapeDirection,
                     selection: Binding(store.sharedSetting.readingOrientation.landscapeDirection)
@@ -54,6 +59,7 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .cellRowHover()
                 .disabled(!store.setting.readingOrientation.isEnabled)
                 Picker(
                     .portraitDirection,
@@ -64,6 +70,7 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .cellRowHover()
                 .disabled(!store.setting.readingOrientation.isEnabled)
             } header: {
                 Text(.automaticLayout)
@@ -80,6 +87,7 @@ public struct ReadingSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .cellRowHover()
                 // Page spacing applies to the vertical strip, which a webtoon read vertically uses too.
                 .disabled(store.setting.readingDirection != .vertical && !store.locksDirection)
 
@@ -150,6 +158,7 @@ private struct ScaleFactorRow: View {
                         .accessibilityHidden(true)
 
                     Slider(value: $scaleFactor, in: minFactor...maxFactor, step: 0.5)
+                        .interactiveHover(.highlight, in: SliderHoverShape())
                         .frame(maxWidth: .infinity)
                         .accessibilityLabel(labelContent)
                         .accessibilityValue(.accessibilityScaleFactor(scaleFactor.roundedString()))
@@ -177,6 +186,7 @@ private struct ScaleFactorRow: View {
                             .accessibilityHidden(true)
                     }
                 )
+                .interactiveHover(.highlight, in: SliderHoverShape())
                 .accessibilityLabel(labelContent)
                 .accessibilityValue(.accessibilityScaleFactor(scaleFactor.roundedString()))
             }

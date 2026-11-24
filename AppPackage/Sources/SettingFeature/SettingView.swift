@@ -1,4 +1,5 @@
 import AppComponents
+import AppTools
 public import ComposableArchitecture
 import ReadingSettingFeature
 import Resources
@@ -166,6 +167,7 @@ private struct SettingRowStyle: ButtonStyle {
             .background(configuration.isPressed ? color.opacity(0.1) : .clear)
             .clipShape(.rect(cornerRadius: 10))
             .contentShape(.rect)
+            .interactiveHover(.highlight, in: .rect(cornerRadius: 10))
     }
 }
 

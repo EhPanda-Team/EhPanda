@@ -164,6 +164,7 @@ private struct SuggestionCell: View {
                 .contentShape(.rect)
             }
             .buttonStyle(.unhighlighted)
+            .interactiveHover(.highlight, in: .rect(cornerRadius: 10, style: .continuous))
         } else {
             Text(searchCompletionLabel)
                 .searchCompletion(

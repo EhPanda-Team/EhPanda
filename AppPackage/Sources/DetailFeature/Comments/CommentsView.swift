@@ -489,6 +489,7 @@ extension CommentsView {
                     image
                 }
                 .buttonStyle(.plain)
+                .interactiveHover(.highlight, in: .rect)
             } else {
                 image
             }

@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import ComposableArchitecture
 import OSLog
 import Resources
@@ -186,6 +187,7 @@ private struct RunButton: View {
             }
         }
         .foregroundStyle(.primary)
+        .cellRowHover()
     }
 }
 

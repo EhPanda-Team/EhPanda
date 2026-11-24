@@ -1,3 +1,4 @@
+import AppTools
 import Resources
 import SFSafeSymbols
 public import SwiftUI
@@ -46,8 +47,7 @@ private struct CheckboxCard: View {
                 .contentShape(.rect(cornerRadius: 15))
         }
         .buttonStyle(.plain)
-        .contentShape(.hoverEffect, .rect(cornerRadius: 15))
-        .hoverEffect(.highlight)
+        .interactiveHover(.highlight, in: .rect(cornerRadius: 15))
         .sensoryFeedback(.selection, trigger: configuration.isOn)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(configuration.isOn ? [.isToggle, .isSelected] : .isToggle)

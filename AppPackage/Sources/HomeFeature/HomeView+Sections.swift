@@ -254,6 +254,7 @@ struct CardSlideSection: View, Equatable {
             .tint(.primary)
             .multilineTextAlignment(.leading)
         }
+        .interactiveHover(.lift, in: .rect(cornerRadius: 15))
         .frame(width: cardWidth)
         // Nearest-center handoff: `.viewAligned` settles on the nearest alignment, so the card
         // whose actual bounds cross the viewport midpoint is the card the scroll will land on.
@@ -367,6 +368,9 @@ struct CoverWallSection: View {
             .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
             .contentMargins(.horizontal, 20, for: .scrollContent)
             .scrollIndicators(.hidden)
+            // A hovered cover lifts, and a hovered wall tile draws its background, past the row's edges, which the
+            // scroll view would otherwise cut off.
+            .scrollClipDisabled()
             .frame(height: showsRichInformation ? nil : coverSize.height * 2 + 30)
         }
     }
@@ -390,6 +394,7 @@ struct VerticalCoverStack: View {
         } label: {
             HomeFrontPageCell(gallery: gallery, showsRichInformation: false)
         }
+        .interactiveHover(.lift, in: GalleryCover.clipShape)
         .tint(.primary)
         .multilineTextAlignment(.leading)
     }
@@ -560,6 +565,7 @@ struct ToplistsSection: View {
                     .tint(.primary)
                     .multilineTextAlignment(.leading)
             }
+            .interactiveHover(.highlight, in: GalleryTileHoverShape(outset: 6))
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             Divider().opacity(showsDivider ? 1 : 0)
         }
@@ -602,6 +608,7 @@ struct VerticalToplistsStack: View {
                         )
                             .tint(.primary).multilineTextAlignment(.leading)
                     }
+                    .interactiveHover(.highlight, in: GalleryTileHoverShape(outset: 6))
                     Divider().opacity(offset == galleries.count - 1 ? 0 : 1)
                 }
             }
@@ -633,6 +640,7 @@ struct MiscGridSection: View {
                             } label: {
                                 HomeDestinationCard(type: type)
                             }
+                            .interactiveHover(.lift, in: .rect(cornerRadius: 15))
                             // The card is sized against the scroll view's container, which a content
                             // margin would shrink, so its 20pt inset is padding that belongs to the
                             // snap target: a snapped card rests at the inset the first one does.
@@ -650,6 +658,7 @@ struct MiscGridSection: View {
                             } label: {
                                 MiscGridItem(title: type.title, symbol: type.symbol).tint(.primary)
                             }
+                            .interactiveHover(.lift, in: .rect(cornerRadius: 15))
                             .padding(.trailing, type == types.last ? 0 : 10)
                         }
                     }
@@ -662,6 +671,8 @@ struct MiscGridSection: View {
             // spacing beside them.
             .contentMargins(.horizontal, showsRichInformation ? 0 : 16, for: .scrollContent)
             .scrollIndicators(.hidden)
+            // A hovered tile lifts past the row's edges, which the scroll view would otherwise cut off.
+            .scrollClipDisabled()
         }
     }
 }

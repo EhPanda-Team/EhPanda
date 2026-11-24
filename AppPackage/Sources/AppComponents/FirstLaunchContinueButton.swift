@@ -1,3 +1,4 @@
+import AppTools
 import Resources
 public import SwiftUI
 
@@ -24,6 +25,7 @@ public struct FirstLaunchContinueButton: View {
                 .foregroundStyle(isEnabled ? Self.onAccentLabel : Color.secondary)
         }
         .buttonStyle(.glassProminent)
+        .interactiveHover(.highlight, in: .capsule)
         .controlSize(.large)
         .tint(.accentColor)
         .keyboardShortcut(.defaultAction)

@@ -219,6 +219,7 @@ private struct CategoryCell: View {
                 .clipShape(.rect(cornerRadius: cornerRadius))
         }
         .buttonStyle(.unhighlighted)
+        .interactiveHover(.highlight, in: .rect(cornerRadius: cornerRadius))
         // The binding's sense is inverted relative to the trait: `isFiltered == true` means the
         // category is *excluded* from results, so the tile reads as selected exactly when it is
         // not filtered. Passing `[]` rather than removing the trait keeps the modifier unconditional.

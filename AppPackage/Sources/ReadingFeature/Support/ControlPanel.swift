@@ -86,6 +86,7 @@ struct ControlPanel<G: Gesture>: View {
                         }
                         .buttonStyle(.plain)
                         .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 16))
+                        .interactiveHover(.highlight, in: .rect(cornerRadius: 16))
                         .accessibilityIdentifier(AccessibilityIdentifiers.readingMoveControls)
                         .environment(\.layoutDirection, layoutDirection)
                         .offset(x: moveButtonOffset)
@@ -183,6 +184,7 @@ private struct LowerPanel<G: Gesture>: View {
                 }
                 .foregroundStyle(.primary)
                 .glassEffect(.regular.interactive())
+                .interactiveHover(.highlight, in: .capsule)
                 .gesture(dismissGesture)
                 .accessibilityFocused(controlFocus, equals: .close)
                 .visible(!showsSliderPreview)
@@ -214,6 +216,7 @@ private struct LowerPanel<G: Gesture>: View {
                         .padding()
 
                     Slider(value: $sliderValue, in: range)
+                    .interactiveHover(.highlight, in: SliderHoverShape())
                     .frame(maxWidth: containerSize.width * 0.6)
                     .rotationEffect(.init(degrees: isReversed ? 180 : 0))
                     // The slider's own value would be a percentage; the page it stands for is the
@@ -414,7 +417,7 @@ private let previewContainerSize = CGSize(width: 375, height: 667)
         showsCloseButton: true,
         range: 1...14,
         previewURLs: [:],
-        dismissGesture: TapGesture(),
+        dismissGesture: DragGesture(),
         dismissAction: {},
         fetchPreviewURLsAction: { _ in }
     )

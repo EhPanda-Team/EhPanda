@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -27,12 +28,14 @@ struct AppearanceSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .cellRowHover()
 
                 Button(.appIcon) {
                     store.send(.delegate(.pushAppIcon))
                 }
                 .foregroundStyle(.primary)
                 .withArrow()
+                .cellRowHover()
 
                 VStack(alignment: .leading) {
                     Text(.privacyMask)
@@ -44,6 +47,8 @@ struct AppearanceSettingView: View {
                         Image(systemSymbol: .eyeSlash)
                             .accessibilityHidden(true)
                     }
+                    // The eyes are the slider's end marks: on the Slider alone, the highlight ran into them.
+                    .interactiveHover(.highlight, in: SliderHoverShape())
                 }
             } footer: {
                 Text(.privacyMaskFooter)
@@ -66,6 +71,7 @@ struct AppearanceSettingView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .cellRowHover()
                 .disabled(!setting.showTagsInList)
             }
             Section(.gallery) {
@@ -152,6 +158,7 @@ private struct AppIconRow: View {
         }
         .buttonStyle(.unhighlighted)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .cellRowHover()
     }
 }
 

@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import Resources
 import Sharing
 import SwiftUI
@@ -18,6 +19,7 @@ struct DownloadSettingView: View {
                             .animation(.default, value: setting.downloadThreadLimit)
                     }
                     Slider(value: Binding($setting.downloadThreadLimitSliderValue), in: 1...5, step: 1)
+                        .interactiveHover(.highlight, in: SliderHoverShape())
                 }
                 AppToggle(
                     .autoRetryFailedPages,

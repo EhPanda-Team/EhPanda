@@ -1,4 +1,5 @@
 public import AppModels
+import AppTools
 import CasePathsCore
 public import Resources
 import SFSafeSymbols
@@ -20,6 +21,11 @@ public struct LoadingView: View {
     }
 }
 
+/// The row under a gallery list that fetches the next page: a spinner while loading, a retry glyph once a fetch
+/// failed, nothing otherwise.
+///
+/// The whole row is the retry control, not the glyph alone: a List row activates its Button wherever it is tapped,
+/// and the grid gives the row the same reach, so a pointer highlight over the row promises exactly what a tap does.
 public struct FetchMoreFooter: View {
     private let loadingState: LoadingState
     private let retryAction: (() -> Void)?
@@ -37,6 +43,8 @@ public struct FetchMoreFooter: View {
                 .labelStyle(.iconOnly)
                 .foregroundStyle(.red)
                 .imageScale(.large)
+                .frame(maxWidth: .infinity, minHeight: 50)
+                .contentShape(.rect)
         }
         .animation(.default) {
             $0.visible(loadingState.is(\.failed))
@@ -47,7 +55,6 @@ public struct FetchMoreFooter: View {
                     $0.visible(loadingState == .loading)
                 }
         }
-        .frame(maxWidth: .infinity, minHeight: 50)
     }
 }
 
@@ -64,6 +71,7 @@ public struct NotLoginView: View {
         } actions: {
             Button(.RLocalizable.login, action: action)
                 .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
+                .interactiveHover(.highlight, in: .capsule)
                 .padding()
         }
     }
@@ -128,6 +136,7 @@ public struct ErrorView: View {
             } else if let action {
                 Button(buttonTitle, action: action)
                     .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
+                    .interactiveHover(.highlight, in: .capsule)
                     .padding()
             }
         }

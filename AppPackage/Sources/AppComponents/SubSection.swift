@@ -98,6 +98,7 @@ public struct SubSection<Content: View>: View {
                     }
             }
         }
+        .interactiveHover(.highlight, in: HoverTextCapsule())
         .accessibilityAddTraits(.isHeader)
         .allowsHitTesting(reloadAction != nil)
         .foregroundStyle(.primary)
@@ -112,6 +113,7 @@ public struct SubSection<Content: View>: View {
                 .font(.subheadline)
                 .multilineTextAlignment(.leading)
         }
+        .interactiveHover(.highlight, in: HoverTextCapsule())
         .visible(showAll)
     }
 }

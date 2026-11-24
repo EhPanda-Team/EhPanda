@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import ComposableArchitecture
 import ReadingFeature
 import Resources
@@ -44,6 +45,7 @@ struct PreviewsView: View {
                         } label: {
                             PreviewThumbnail(url: displayPreviewURLs[page])
                         }
+                        .interactiveHover(.lift, in: GalleryCover.clipShape)
                         // The thumbnail is the button's only content; the page it opens is its name.
                         .accessibilityLabel(.accessibilityPreviewPage(page: page))
                         Text(page, format: .number)

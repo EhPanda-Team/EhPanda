@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 public import ComposableArchitecture
 import Resources
 import SFSafeSymbols
@@ -115,6 +116,7 @@ public struct QuickSearchView: View {
                             }
                             .withArrow(isVisible: !store.isListEditing)
                             .padding(5)
+                            .cellRowHover(store.isListEditing ? .cardRowEditing : .cardRow)
                         }
                         .onDelete { offsets in
                             store.send(.deleteSavedSearchWithOffsets(offsets))

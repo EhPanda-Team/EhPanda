@@ -148,6 +148,7 @@ struct GalleryInfoView: View {
                 .lineLimit(lineLimit)
                 .font(.caption)
         }
+        .interactiveHover(.highlight, in: HoverTextCapsule())
     }
 
     private func valueText(for info: Info) -> String {
