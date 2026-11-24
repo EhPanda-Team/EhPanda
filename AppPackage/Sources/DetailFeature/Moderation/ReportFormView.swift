@@ -100,17 +100,7 @@ struct ReportFormView: View {
 
     /// A centred state on the form's grouped background, scrollable at the largest text sizes.
     private func centred<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
-        ZStack {
-            Color(.systemGroupedBackground)
-                .ignoresSafeArea()
-            ScrollView {
-                content()
-                    .frame(maxWidth: .infinity)
-                    .containerRelativeFrame(.vertical) { length, _ in length }
-            }
-            .scrollBounceBehavior(.basedOnSize)
-            .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
-        }
+        CentredState(content: content())
     }
 
     // MARK: Form
@@ -279,6 +269,38 @@ struct ReportFormView: View {
         case .send: store.canSend
         case .sending: false
         case .done, .openReportPage: true
+        }
+    }
+}
+
+/// A centred state (sent, unavailable, loading) on the form's grouped background.
+///
+/// The content is centred while it fits and scrolls once it does not. The visible height is a *floor* for the
+/// content's height, not its height: a container tall enough for the content leaves it centred in the room, and a
+/// container too short for it lets the content grow past the floor, so the scroll view has something to scroll.
+/// Pinning the content to the container's height (`containerRelativeFrame`) squeezed it into that height, and the
+/// Sent message was cut to one line at the largest text size in landscape (owner decision C11, 19-13).
+/// `basedOnSize` withholds the bounce until there is something to scroll to.
+private struct CentredState<Content: View>: View {
+    let content: Content
+
+    /// The room the scroll view gives its content. The container size its scroll geometry reports already excludes the
+    /// content insets that keep content clear of the bars, so it is the visible height as it stands.
+    @State private var visibleHeight: CGFloat = 0
+
+    var body: some View {
+        ZStack {
+            Color(.systemGroupedBackground)
+                .ignoresSafeArea()
+            ScrollView {
+                content
+                    .frame(maxWidth: .infinity, minHeight: visibleHeight)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollEdgeEffectStyle(.soft, for: [.top, .bottom])
+            .onScrollGeometryChange(for: CGFloat.self) { $0.containerSize.height } action: {
+                visibleHeight = $1
+            }
         }
     }
 }
