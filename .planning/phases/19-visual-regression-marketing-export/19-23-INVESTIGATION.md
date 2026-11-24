@@ -151,3 +151,19 @@ Common to every layout option: the owner's requirement is that no stat label bre
 - Single column: the scenario's fixture (2 galleries), not the app.
 - Hyphenation: the squeeze of `ViewThatFits`' last option in `HomeCompactSlideshowInformation` on the iPhone in portrait at `accessibility5` (all six locales, hyphens in `en` and `de`), and the equal 166 pt columns under the 360 pt cap in `HomeSlideshowInformation` on the iPad at `accessibility5` (`en` and `de`, including the Category value). Both are app layout.
 - Not covered by the matrix: accessibility sizes between `large` and `accessibility5`, and iPhone widths other than the 420 pt scene; the measurements above are for `accessibility5` at those windows.
+
+## C9 decision
+
+Asked of the owner by the orchestrator on 2026-11-24, in Taiwanese Mandarin, with the baseline2 pictures `iphone/de/accessibility5/home-populated/portrait-light.png` and `ipad/de/accessibility5/home-populated/portrait-light.png` shown. Each question is given as the record's summary; each answer is quoted verbatim.
+
+1. **Front Page fixture.** The question said the Front Page shelf shows one column because the scenario gives it 2 galleries (the app gives up to 25), and offered 8, 6 or 2 galleries.
+   Answer: 「8 部，4 欄（建議）」. Option **`fixture-8`**: the Front Page shows the 8 existing public fixtures (the 6 home galleries plus the 2 carousel neighbours), in 4 columns.
+2. **iPhone stat layout.** The question told the owner that "Bewertung" (200.3 pt) cannot fit in the 176 pt column beside the cover, so any fallback beside the cover still breaks a word in `de`.
+   Answer: 「移到封面下、一項一行（建議）」. Option **`layout-lines`**, refined: the fallback moves the stats below the cover, uses the card's full width (about 338 pt at `accessibility5` portrait) and gives one stat per line as "label value". It is the last option of `HomeCompactSlideshowInformation`'s `ViewThatFits`, used when the two-column grid does not fit.
+3. **iPad stat layout.** The question named the second hyphenating view, `HomeSlideshowInformation`, and offered content-sized columns (the recommendation) or the iPhone's fallback.
+   Answer: 「跟 iPhone 同樣的備援排法」. `HomeSlideshowInformation` gets the same fallback, one stat per line as "label value", used when its two columns do not fit. The content-sized-columns option was offered and was not chosen.
+
+Tests (from the findings above; 19-24 Task 2 writes them first and sees them fail):
+
+- Fixture: in VisualSnapshotTests, `TracerScenarios.home()`'s state has `frontPageGalleries.count == 8`. It fails before the change at 2.
+- Layout: a hosted test at `.accessibility5` for each of the six locales asserting that every stat label is one line tall (51.3 pt). It fails before the change for all six locales on the iPhone (`HomeCompactSlideshowInformation` in the 176 pt column) and for `en` and `de` on the iPad (`HomeSlideshowInformation`), and it must hold for both views.
