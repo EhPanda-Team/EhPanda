@@ -450,7 +450,18 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   (iPhone portrait `ko` accessibility5 only, rows 1 and 5; `de` is not cut); owner decision 「保留系統 Picker」, a known
   limitation, no app change. C9: the one-column Front Page comes from the scenario's 2 galleries; owner decisions
   「8 部，4 欄（建議）」, 「移到封面下、一項一行（建議）」 and, for the iPad's `HomeSlideshowInformation`, which breaks
-  words too, 「跟 iPhone 同樣的備援排法」. 19-24 amended to match (C6 task removed, iPad view added). Next: 19-24.
+  words too, 「跟 iPhone 同樣的備援排法」. 19-24 amended to match (C6 task removed, iPad view added). 19-24 done 2026-11-25
+  (`237f59ebe`..`adb10becc`): C9 the Front Page scenario shows the 8 public fixtures in 4 columns, and a card-level
+  `HomeCompactSlideshowLayout` moves the iPhone stats below the cover, one per line, when the two-column grid does
+  not fit the text column (orchestrator-approved deviation: a stat view cannot place itself below its sibling
+  cover, so the record's "last option of the `ViewThatFits`" became a card layout); the iPad's
+  `HomeSlideshowInformation` takes the same fallback. A stat whose "label value" does not fit one line puts its
+  value under its label (`de` Kategorie/Doujinshi at accessibility5). C7 the Folder Manager and Quick Search delete
+  confirmations hang on their own rows through a `deleteConfirmationFor:` key path, and the iPad popovers point
+  at the row. For 19-26 (27.2 values): the folder confirmation measures 912/656 (iPhone) and 1210 (iPad); Quick
+  Search still does not converge (1328/1093, iPad 1626) and is no longer `cannot-cover:popover`. Exposed by the
+  8-gallery fixture: on the iPad at `de` accessibility5 the Front Page cell's "26 Seiten" wraps after the number.
+  Next: 19-25.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
@@ -1303,11 +1314,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 326/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 327/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 22 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22 and 19-30 on 2026-11-23; 19-18 to 19-23 and 19-30 done); Phase 20
+5 of 5 plans complete. Phase 19 has 23 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22 and 19-30 on 2026-11-23; 19-18 to 19-24 and 19-30 done); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
