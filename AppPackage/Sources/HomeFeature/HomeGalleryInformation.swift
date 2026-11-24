@@ -187,8 +187,7 @@ struct HomeFrontPageCell: View {
                 HomePageLanguage(gallery: gallery, keepsFieldsWhole: true)
             }
         } else {
-            VStack(alignment: .leading, spacing: 10) { cover }
-                .frame(width: coverSize.width, alignment: .leading)
+            cover.frame(width: coverSize.width, alignment: .leading)
         }
     }
 }
