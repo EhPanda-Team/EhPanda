@@ -3,8 +3,10 @@ public import SwiftUI
 
 /// Stable artwork geometry for fixed-cover surfaces, including loading and local download covers.
 public struct GalleryCover: View {
+    /// The cover's corner radius, in points.
+    nonisolated public static let cornerRadius: CGFloat = 5
     /// Shared with artwork verification so its corner coverage follows the production clip.
-    public static let clipShape: RoundedRectangle = .rect(cornerRadius: 5, style: .continuous)
+    public static let clipShape: RoundedRectangle = .rect(cornerRadius: cornerRadius, style: .continuous)
 
     @Environment(\.colorScheme) private var colorScheme
     @GalleryCoverMetrics private var size: CGSize

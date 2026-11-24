@@ -368,7 +368,8 @@ struct CoverWallSection: View {
             .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
             .contentMargins(.horizontal, 20, for: .scrollContent)
             .scrollIndicators(.hidden)
-            // A hovered tile lifts past the row's edges, which the scroll view would otherwise cut off.
+            // A hovered cover lifts, and a hovered wall tile draws its background, past the row's edges, which the
+            // scroll view would otherwise cut off.
             .scrollClipDisabled()
             .frame(height: showsRichInformation ? nil : coverSize.height * 2 + 30)
         }
@@ -564,7 +565,7 @@ struct ToplistsSection: View {
                     .tint(.primary)
                     .multilineTextAlignment(.leading)
             }
-            .interactiveHover(.highlight, in: HoverTextButtonShape())
+            .interactiveHover(.highlight, in: GalleryTileHoverShape(outset: 6))
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             Divider().opacity(showsDivider ? 1 : 0)
         }
@@ -607,7 +608,7 @@ struct VerticalToplistsStack: View {
                         )
                             .tint(.primary).multilineTextAlignment(.leading)
                     }
-                    .interactiveHover(.highlight, in: HoverTextButtonShape())
+                    .interactiveHover(.highlight, in: GalleryTileHoverShape(outset: 6))
                     Divider().opacity(offset == galleries.count - 1 ? 0 : 1)
                 }
             }

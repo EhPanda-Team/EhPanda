@@ -315,7 +315,7 @@ private struct HistoryGalleriesSection: View {
                                 GalleryHistoryCell(gallery: gallery)
                                     .tint(.primary).multilineTextAlignment(.leading)
                             }
-                            .interactiveHover(.lift, in: GalleryCover.clipShape)
+                            .interactiveHover(.highlight, in: GalleryTileHoverShape(outset: 3))
                             .frame(maxHeight: .infinity, alignment: .top)
                             .onGeometryChange(for: CGFloat.self, of: \.size.width) { keeper.cardWidth = $0 }
                             .recordsLeadingEdge(of: gallery.id)
@@ -338,7 +338,8 @@ private struct HistoryGalleriesSection: View {
                 .scrollTargetBehavior(.viewAligned(limitBehavior: .never))
                 .contentMargins(.horizontal, Self.inset, for: .scrollContent)
                 .scrollIndicators(.hidden)
-                // A hovered tile lifts past the row's edges, which the scroll view would otherwise cut off.
+                // A hovered card draws its background past the row's edges, which the scroll view would otherwise cut
+                // off.
                 .scrollClipDisabled()
             }
         } header: {

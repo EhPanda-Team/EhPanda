@@ -96,12 +96,13 @@ public struct HoverTargetCircle: Shape {
     }
 }
 
-/// The hover shape of a control with no background of its own: an 8 pt continuous rounded rect around its content,
-/// grown by 6 pt on every side.
+/// The hover shape of content with no background of its own that is more than one short label: an 8 pt continuous
+/// rounded rect around it, grown by 6 pt on every side.
 ///
-/// A text button, a text link or a content row outside a list (a ranking row, a search keyword) draws nothing behind
-/// its content, so the highlight needs a shape that stands clear of the glyphs and images. The size lives in this one
-/// type so these controls cannot drift apart.
+/// A search keyword row or a gallery title that wraps over several lines draws nothing behind its content, so the
+/// highlight needs a shape that stands clear of the glyphs and images; a capsule around a block of lines would cut
+/// across their corners. A single-line text button takes ``HoverTextCapsule`` instead. The size lives in this one type
+/// so these controls cannot drift apart.
 public struct HoverTextButtonShape: Shape {
     /// The corner radius of the highlight, in points.
     public static let cornerRadius: CGFloat = 8
