@@ -8,6 +8,9 @@ import SwiftUI
 
 struct HomePageLanguage: View {
     let gallery: Gallery
+    /// Each field keeps its one-line width instead of wrapping in the width it is offered, so that the view reports
+    /// the width its fields need. The Front Page cell widens to it (`HomeFrontPageCellLayout`).
+    var keepsFieldsWhole = false
 
     var body: some View {
         ViewThatFits(in: .horizontal) {
@@ -16,14 +19,17 @@ struct HomePageLanguage: View {
         }
         .font(.caption)
         .foregroundStyle(.secondary)
+        // A `Button` centres its label's lines, and the alignment set on the `Button` itself does not reach them, so a
+        // wrapped field would sit centred off the cell's leading edge.
+        .multilineTextAlignment(.leading)
     }
 
     @ViewBuilder private var fields: some View {
         Text(.RLocalizable.pages(count: gallery.pageCount))
-            .fixedSize(horizontal: false, vertical: true)
+            .fixedSize(horizontal: keepsFieldsWhole, vertical: true)
         if let language = gallery.language {
             Text(language.value)
-                .fixedSize(horizontal: false, vertical: true)
+                .fixedSize(horizontal: keepsFieldsWhole, vertical: true)
         }
     }
 }
@@ -153,27 +159,101 @@ struct HomeFrontPageCell: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            GalleryCover(
-                url: gallery.coverURL, style: coverStyle, contentMode: .fill, maximumHeight: maximumCoverHeight
+        content
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(
+                gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle), isEnabled: !showsRichInformation
             )
-                .accessibilityHidden(true)
-            if showsRichInformation {
+            .accessibilityIdentifier("home_front_page_title_\(gallery.id)")
+    }
+
+    private var cover: some View {
+        GalleryCover(
+            url: gallery.coverURL, style: coverStyle, contentMode: .fill, maximumHeight: maximumCoverHeight
+        )
+        .accessibilityHidden(true)
+    }
+
+    @ViewBuilder private var content: some View {
+        if showsRichInformation {
+            HomeFrontPageCellLayout(coverSize: coverSize, spacing: 10) {
+                cover
                 Text(gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle))
                     .font(coverStyle == .homeCompact ? .footnote.bold() : .subheadline.bold())
                     .lineLimit(2, reservesSpace: true)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
-                HomePageLanguage(gallery: gallery)
+                HomePageLanguage(gallery: gallery, keepsFieldsWhole: true)
             }
+        } else {
+            VStack(alignment: .leading, spacing: 10) { cover }
+                .frame(width: coverSize.width, alignment: .leading)
         }
-        .frame(width: coverSize.width, alignment: .leading)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(
-            gallery.displayTitle(prefersJapanese: setting.displayJapaneseTitle), isEnabled: !showsRichInformation
+    }
+}
+
+/// The cover, the title and the fields of a Front Page cell with rich information, in a column as wide as the widest of
+/// the cover and the fields' one-line widths, and never narrower than the cover.
+///
+/// The cover's scale stops at `GalleryCoverStyle.maximumScale` while the text keeps growing with Dynamic Type, so from
+/// `.accessibility4` up a page count or a language is wider than the cover. A column exactly as wide as the cover made
+/// the field wrap, after the number ("26" / "Seiten") and, in Japanese, inside the unit. The owner chose a wider
+/// column over a broken field (19-31, 2026-11-25). At the sizes where the fields fit the cover, which is every size up
+/// to `.accessibility3`, the column is the cover's width as before. The cover keeps its size on the leading edge and
+/// the title takes the column's width; the wall's columns follow, as `HomeCoverWallLayout` sizes a column by its widest
+/// cell.
+///
+/// The subviews are the cover, the title and the fields (a `HomePageLanguage` that keeps its fields whole). The width
+/// asked of the fields is the cover's: they answer with the width they need when it is more, and with a width within it
+/// when the page count and the language share a line or when each fits.
+private struct HomeFrontPageCellLayout: Layout {
+    let coverSize: CGSize
+    let spacing: CGFloat
+
+    private struct Parts {
+        let cover: LayoutSubview
+        let title: LayoutSubview
+        let fields: LayoutSubview
+
+        init?(_ subviews: Subviews) {
+            guard subviews.count == 3, let cover = subviews.first, let title = subviews.dropFirst().first,
+                  let fields = subviews.last
+            else { return nil }
+            self.cover = cover
+            self.title = title
+            self.fields = fields
+        }
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        guard let parts = Parts(subviews) else { return coverSize }
+        let width = columnWidth(parts)
+        let columnProposal = ProposedViewSize(width: width, height: nil)
+        let titleHeight = parts.title.sizeThatFits(columnProposal).height
+        let fieldsHeight = parts.fields.sizeThatFits(columnProposal).height
+        return CGSize(width: width, height: coverSize.height + spacing + titleHeight + spacing + fieldsHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        guard let parts = Parts(subviews) else { return }
+        let columnProposal = ProposedViewSize(width: columnWidth(parts), height: nil)
+        let titleOrigin = bounds.minY + coverSize.height + spacing
+        let fieldsOrigin = titleOrigin + parts.title.sizeThatFits(columnProposal).height + spacing
+        parts.cover.place(
+            at: CGPoint(x: bounds.minX, y: bounds.minY), anchor: .topLeading, proposal: ProposedViewSize(coverSize)
         )
-        .accessibilityIdentifier("home_front_page_title_\(gallery.id)")
+        parts.title.place(
+            at: CGPoint(x: bounds.minX, y: titleOrigin), anchor: .topLeading, proposal: columnProposal
+        )
+        parts.fields.place(
+            at: CGPoint(x: bounds.minX, y: fieldsOrigin), anchor: .topLeading, proposal: columnProposal
+        )
+    }
+
+    private func columnWidth(_ parts: Parts) -> CGFloat {
+        let fieldsWidth = parts.fields.sizeThatFits(ProposedViewSize(width: coverSize.width, height: nil)).width
+        return max(coverSize.width, fieldsWidth)
     }
 }
 
