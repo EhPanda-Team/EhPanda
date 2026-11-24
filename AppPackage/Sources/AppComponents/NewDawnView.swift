@@ -42,6 +42,7 @@ public struct NewDawnView: View {
                 let sunWidth = size.width * (size.width >= 500 ? 0.5 : 0.6)
                 let sunCenter = CGPoint(x: size.width - sunWidth / 2 + offset, y: sunWidth / 2 - offset)
 
+                // Only the body of the sun or moon, in light and dark: no rays around it (owner decision C5).
                 context.fill(
                     Path(ellipseIn: CGRect(
                         x: sunCenter.x - sunWidth / 2, y: sunCenter.y - sunWidth / 2,
@@ -49,26 +50,6 @@ public struct NewDawnView: View {
                     )),
                     with: .color(.yellow)
                 )
-
-                if colorScheme == .dark {
-                    let beamWidth = sunWidth / 10
-                    for index in 0..<8 {
-                        var beamContext = context
-                        beamContext.translateBy(x: sunCenter.x, y: sunCenter.y)
-                        beamContext.rotate(by: .degrees(Double(index) * 45))
-                        beamContext.translateBy(x: 0, y: -sunWidth / 1.2)
-                        beamContext.fill(
-                            Path(
-                                roundedRect: CGRect(
-                                    x: -beamWidth / 2, y: -beamWidth * 2.5,
-                                    width: beamWidth, height: beamWidth * 5
-                                ),
-                                cornerRadius: beamWidth / 3
-                            ),
-                            with: .color(.yellow)
-                        )
-                    }
-                }
             }
         }
         // The backdrop is decoration, so it bleeds to every edge of the sheet.
@@ -90,9 +71,11 @@ public struct NewDawnView: View {
             // to exactly the container's height. Were the floor left whole, the margin would push the
             // content past the container at every size and the greeting would always scroll.
             //
-            // The container is the sheet's full height, so the greeting ignores the safe area top to
-            // bottom, but it is prose, so sideways it stays inside the safe area and no line runs
-            // beneath a sensor housing or a vertical bar.
+            // The greeting is centred between the top margin and the bottom safe area, so its last line,
+            // the reward line, is never under the home indicator (owner decision C5). Only the top edge
+            // is ignored: the scroll view insets its content for the bottom safe area, while the
+            // backdrop above still bleeds to every edge. It is prose, so sideways it stays inside the
+            // safe area too and no line runs beneath a sensor housing or a vertical bar.
             ScrollView {
                 VStack(spacing: 50) {
                     VStack(spacing: 10) {
@@ -109,7 +92,7 @@ public struct NewDawnView: View {
             .scrollIndicators(.hidden)
             .scrollBounceBehavior(.basedOnSize)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { containerHeight = $0 }
-            .ignoresSafeArea(edges: .vertical)
+            .ignoresSafeArea(edges: .top)
         }
     }
 }
