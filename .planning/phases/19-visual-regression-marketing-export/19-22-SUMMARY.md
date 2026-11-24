@@ -16,10 +16,10 @@ affects: [19-13, 19-26]
 actuals:
   tokens: 11500
   tasks: 3
-  commits: 3
+  commits: 4
 
 plan_head_before: 2faff08d1372d5c0a192bc086129f72a5018c067
-plan_head_after: 9693f7c95d8e3b02bd92d907376b142a021f543a
+plan_head_after: 8930327deb32b09cf52297d5cb57aee0f8c6dd94
 
 key-files:
   created:
@@ -28,6 +28,7 @@ key-files:
     - AppPackage/Tests/HostedViewTests/NewDawnLayoutTests.swift
     - AppPackage/Tests/HostedViewTests/TorrentFileSizeTests.swift
     - AppPackage/Tests/DetailFeatureTests/SiteFileSizeTests.swift
+    - AppPackage/Tests/HostedViewTests/ArchiveFileSizeTests.swift
   modified:
     - AppPackage/Sources/SystemNotification/View+Toast.swift
     - AppPackage/Sources/AppFeature/View/TabBar/TabBarView.swift
@@ -64,6 +65,7 @@ All local runs of this plan (the RED and GREEN test runs and the picture checks)
 - **Task 1, C3** (`d2e05f8d0`): `View+Toast.swift` replaces the fixed 88 pt bottom padding with `.padding(.bottom)` and adds `bottomClearance: CGFloat = 0` (documented as the height of a bar over the host but outside its safe area), applied as extra bottom padding. `TabBarView` holds `selectedTabBottomInset` and `tabViewBottomInset` as `@State`, written by `.onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.bottom }` on each tab's root (only while that tab is selected) and on `tabs`, and passes the computed `tabBarClearance` to the root `.toast`. No other call site changed. `ToastPlacementTests`: a plain screen at the scene's size, and the app root (branch by the window's horizontal size class, see Deviations).
 - **Task 2, C5** (`c1f2dda56`): the dark-only block of eight beams is gone (light never drew beams), the disc is kept in both appearances, and the greeting's scroll view now ignores only the top safe area (`.ignoresSafeArea(edges: .top)`), with the comment above it rewritten. `NewDawnLayoutTests`: the dark sun has no yellow outside its disc, the reward line ends above the bottom safe-area edge at `.accessibility5`, and the greeting still does not scroll at `.large`.
 - **Task 3, C16** (`9693f7c95`): `SiteFileSize` (`count`, `unit`, `init?(siteText:)`, `formattedCount(locale:)`, `formatted(locale:)`, `spokenUnit()`), `GalleryDetail.fileSize`, the Detail strip, Gallery Info, the torrent cell and the archive card moved onto it; `formattedSizeCount` and `accessibilitySizeUnit` are deleted (no wrapper) and `GalleryDetail+Accessibility.swift`, which held only the latter, is deleted. The torrent cell's accessibility label is the formatted count and the spoken unit.
+- **Task 3 addition, C16 follow-up** (`8930327de`, orchestrator-approved review finding): `SiteFileSize.spoken(locale:)` returns the formatted count, a space and the unit's word, or `nil` when the unit has no spoken form. `GalleryInfoView`'s `accessibilityValue` and the torrent cell use it (the hand-built composition in both is gone), and the archive card's size `Text` now has the same accessibility label (the spoken form, falling back to the shown text), so VoiceOver no longer reads "MiB" letter by letter there. The Detail strip keeps its separate count and unit. `SiteFileSizeTests` gained two cases (`de_DE` "26.2 MiB" starts with "26,2 " and ends with the catalog's mebibyte word; "MB" gives `nil`), and `ArchiveFileSizeTests` is a new hosted test (the Archive page with one 26.2 MiB archive in `de_DE`; `ArchivesView` hosts like `TorrentsView` does).
 
 ## RED and GREEN evidence (iOS 27.2)
 
@@ -72,9 +74,10 @@ All local runs of this plan (the RED and GREEN test runs and the picture checks)
 | C3, iPhone Air | `Failed 6 2`: the plain screen's capsule is 88.0 pt above the safe-area edge (limit 20); on the app root the capsule is 39.0 pt above the tab bar's top (tab bar top 829.0), allowed 8...24 | `** TEST SUCCEEDED **`, `Passed 8 0` (`ToastPlacementTests` 2, `ReportFormCentredStateTests` 2, `SystemNotificationTests` 4) |
 | C3, iPad Pro 11-inch | `Failed 6 2`: the plain screen's capsule is 88.0 pt above the edge; on the app root, under the top tab bar, also 88.0 pt above the edge (limit 20) | `** TEST SUCCEEDED **`, `Passed 8 0` |
 | C5, iPhone Air | `Failed 3 2`: 56025 pixels of the sun's yellow lie outside the disc (dark); the reward line ends at 895.99, below the safe-area edge 878.0; the default-size case passed on the old code (a guard that the fix must keep) | `** TEST SUCCEEDED **`, `Passed 3 0` |
+| C16 follow-up, iPhone Air | `Failed 1 1`: the archive card's label reads "1280x, 26,2 MiB, 380", with the unit's letters and no word | `** TEST SUCCEEDED **`, `Passed 206 0` (`DetailFeatureTests` with the two new `spoken(locale:)` cases, `TorrentFileSizeTests` and `ArchiveFileSizeTests`; the two unit cases need no RED, as `spoken(locale:)` did not exist) |
 | C16, iPhone Air | `Failed 2 1`: the cell's label reads "26.2 MiB" (the labels include "Abgeschlossene Downloads: 1.280", so the de_DE environment was in force); the "not a site size is unchanged" case passed on the old code | `** TEST SUCCEEDED **`, `Passed 203 0` (all of `DetailFeatureTests`, which holds `SiteFileSizeTests` and the moved `GalleryDetailFileSizeTests`, and `TorrentFileSizeTests`) |
 
-`SiteFileSizeTests` has no runtime RED: `SiteFileSize` did not exist, so the test could not compile before the fix, and the plan names only the hosted test as the one that must fail. The runs are in `$W` (`$ROOT/.capture/agent-work/phase19-22`, ignored): `c3-red`, `c3-red2`, `c3-green`, `c5-red`, `c5-green`, `c16-red`, `c16-green` (`.xcresult` and `.log` per device, the UDID in the name).
+`SiteFileSizeTests` has no runtime RED: `SiteFileSize` did not exist, so the test could not compile before the fix, and the plan names only the hosted test as the one that must fail. The runs are in `$W` (`$ROOT/.capture/agent-work/phase19-22`, ignored): `c3-red`, `c3-red2`, `c3-green`, `c5-red`, `c5-green`, `c16-red`, `c16-green`, `c16b-red`, `c16b-green` (`.xcresult` and `.log` per device, the UDID in the name).
 
 Acceptance: `grep -c 'padding(.bottom, 88)' View+Toast.swift` prints 0; `grep -c bottomClearance TabBarView.swift` prints 1; `grep -c beamContext NewDawnView.swift` prints 0; `grep -c 'ignoresSafeArea(edges: .vertical)' NewDawnView.swift` prints 0; the `formattedSizeCount`/`accessibilitySizeUnit` count over Sources and Tests is 0; `grep -c 'Text(torrent.fileSize)' TorrentsView.swift` prints 0; strict lint of `SystemNotification`, `AppFeature`, `AppComponents`, `DetailFeature`, `Tests/DetailFeatureTests` and `Tests/HostedViewTests` prints nothing. No `GeometryReader`, lifecycle modifier or SwiftLint suppression was added.
 
@@ -83,7 +86,7 @@ Acceptance: `grep -c 'padding(.bottom, 88)' View+Toast.swift` prints 0; `grep -c
 - **C3, `SettingsSnapshotTests/testLoginError`, `en-large`** (`$W/c3-capture`): the run reports `error=4`, all four `page-height` (portrait needs 944 pt, committed 912; landscape needs 740, committed 420). In portrait the Error toast sits just above the bottom edge (about 16 pt above it), well below the circular sign-in button; nothing overlaps it. In landscape the toast sits below the button and its subtitle reads in full on one line ("The site refused the login without saying why."). **The one-line truncation remains in portrait:** the subtitle reads "The site refused the login without saying…", cut with an ellipsis at the end of the capsule's single line (the designed line budget at and below the default size, `ToastMessageView.subtitleLineLimit`; not changed here). **Question for the owner: does that truncation stay as it is, or is it a further fix?** The C3 verdict named only the offset.
 - **C3, `AppWideSnapshotTests/testToastSuccess`, `en-large`** (same folder): the Success toast ("Copied to Clipboard") sits just above the floating tab bar on the Search tab, with a gap of the standard spacing, and clears it.
 - **C5, `DetailPagesMoreSnapshotTests/testNewDawn`, `en-accessibility5`** (`$W/c5-capture`): `error=4`, all `page-height` (portrait needs 2148 pt, committed 912; landscape needs 1668, committed 420). The portrait light picture shows the teal-to-indigo gradient with only the yellow disc at the top right, no rays, and the title text over the gradient; the portrait dark picture shows the grey gradient with the same disc alone; the landscape dark picture shows the disc alone with the title's last word crossing its edge but no ray. The pictures are cut at the screen height, so the reward line's end is not in them (it is covered by `theRewardLineEndsAboveTheBottomSafeArea`; the full height is 19-26's).
-- **C16, `DetailPagesMoreSnapshotTests/testTorrents` and `DetailPagesSnapshotTests/testArchives`, `de-large`** (`$W/c16-capture`): `error=4`, all `page-height` (landscape needs 656 pt, committed 420; the portrait pictures recorded). The Torrents page shows "26,2 MiB" and "51 MiB" (the site's "51.0" shows as 51, as the gallery's size does); the Archive page shows "12,4 MiB", "18,6 MiB", "26,2 MiB", "34,8 MiB", "51 MiB" and, for the unavailable original archive, "N/A" unchanged, with the price "Kostenlos" untouched.
+- **C16, `DetailPagesMoreSnapshotTests/testTorrents` and `DetailPagesSnapshotTests/testArchives`, `de-large`** (`$W/c16-capture`): `error=4`, all `page-height` (landscape needs 656 pt, committed 420; the portrait pictures recorded). The Torrents page shows "26,2 MiB" and "51 MiB" (the site's "51.0" shows as 51, as the gallery's size does); the Archive page shows "12,4 MiB", "18,6 MiB", "26,2 MiB", "34,8 MiB", "51 MiB" and, for the unavailable original archive, "N/A" unchanged, with the price "Kostenlos" untouched. The follow-up commit changes only the archive card's accessibility label, so these pictures were not re-captured; its effect is shown by `ArchiveFileSizeTests`.
 
 ## Notes for the owner's review in 19-13
 
@@ -122,7 +125,7 @@ No other hit shows a site-given decimal number as raw text.
 5. **Test details of C5, not plan deviations:** my first draft of the reward-line test also required that the greeting scrolls at `.accessibility5` on the scene; it does not (see the notes), so that premise was dropped and the test scrolls to the end of the scroll range, which is the rest position when the greeting fits (`max(end of range, -top inset)`). The first draft's RED is kept as `first-draft-c5-red`. The sun test has a premise check that the page shows a sun at all.
 6. **Test hosts at file scope** (lint): the toast test's host reducer and view are file-private types after the test struct, because the `nesting` rule warns at depth 2 and the build plugin fails strict.
 7. **`GalleryDetail+Accessibility.swift` is deleted**, not left empty: its only member moved to `SiteFileSize.spokenUnit()`.
-8. **The archive card shows the formatted size only**; the plan asked for the spoken label on the torrent cell, and the archive card's combined element is unchanged.
+8. **Archive card label, first the number format only:** the first C16 commit gave the archive card the formatted size without a spoken label (the plan asked for the label on the torrent cell only); the orchestrator-approved follow-up commit `8930327de` (see Accomplishments) added it, with the shared `SiteFileSize.spoken(locale:)`, and removed the duplicated composition. The commit count is 4 (three plan tasks, the follow-up); the docs commits are not counted.
 9. **Process notes:** three runs were lost to compile errors in my new tests (a missing `import AppModels`, a message built with `+`, a line over 120 characters in the build plugin's lint); they are kept as `compile-error-*` and are not counted. Several runs started late because other projects' `xcodebuild` runs on the host held the one-at-a-time wait for up to an hour.
 
 ## Auth gates
@@ -139,4 +142,4 @@ None. T-19-49 (a toast hidden under a bar) is mitigated by the hosted tests on t
 
 ## Self-Check: PASSED
 
-Commits `d2e05f8d0`, `c1f2dda56` and `9693f7c95` are in the branch history (signed, +08:00 dates); the five created files and the deletion named in `key-files` are in the tree.
+Commits `d2e05f8d0`, `c1f2dda56`, `9693f7c95` and `8930327de` are in the branch history (signed, +08:00 dates); the six created files (with `ArchiveFileSizeTests.swift`) and the deletion named in `key-files` are in the tree.
