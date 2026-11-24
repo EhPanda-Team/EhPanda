@@ -21,18 +21,25 @@ extension View {
     /// ```swift
     /// .toast($store.scope(state: \.toast, action: \.toast))
     /// ```
+    ///
+    /// The capsule keeps the standard spacing above the host's bottom safe area. `bottomClearance` is the
+    /// height of a bar that lies over the host but outside its safe area, such as the tab bar under the app
+    /// root's toast, and raises the capsule by that much on top of the standard spacing. Only a host that
+    /// sits over such a bar passes it, so no screen without one keeps clear of one.
     @MainActor
     public func toast(
         _ item: Binding<Store<AppAlertState<Never>, Never>?>,
+        bottomClearance: CGFloat = 0,
         onErrorTap: @escaping (ErrorInfo) -> Void = { _ in }
     ) -> some View {
-        modifier(ToastViewModifier(item: item, onErrorTap: onErrorTap))
+        modifier(ToastViewModifier(item: item, bottomClearance: bottomClearance, onErrorTap: onErrorTap))
     }
 }
 
 private struct ToastViewModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var item: Store<AppAlertState<Never>, Never>?
+    let bottomClearance: CGFloat
     let onErrorTap: (ErrorInfo) -> Void
 
     func body(content: Content) -> some View {
@@ -65,7 +72,8 @@ private struct ToastViewModifier: ViewModifier {
                     .glassEffect(.regular, in: .capsule)
                     .id(id)
                     .padding(.horizontal)
-                    .padding(.bottom, 88)
+                    .padding(.bottom)
+                    .padding(.bottom, bottomClearance)
                     .gesture(dismissGesture(
                         isDismissible: toast.autoHide || store.state.errorInfo != nil,
                         presentedID: id

@@ -29,6 +29,12 @@ enum HostedView {
         return try body(controller.view)
     }
 
+    /// The size of the host app's foreground scene, which is the size a screen has on the device: a window of this
+    /// size has the device's safe area.
+    static func sceneSize() throws -> CGSize {
+        try foregroundScene().coordinateSpace.bounds.size
+    }
+
     /// The host app's foreground scene. The app may still be launching when the first test starts, so the main run
     /// loop is turned until the scene is active, for at most `timeout` seconds.
     private static func foregroundScene(timeout: TimeInterval = 30) throws -> UIWindowScene {

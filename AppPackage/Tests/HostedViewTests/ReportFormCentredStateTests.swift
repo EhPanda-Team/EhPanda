@@ -70,7 +70,7 @@ struct ReportFormCentredStateTests {
             let root = try #require(elements.first as? UIView, "The first element is not the hosted root view.")
             let scrollView = try #require(Self.scrollViews(in: root).first)
             let message = try #require(
-                elements.first(where: { Self.identifier(of: $0) == "report_sent" }),
+                elements.first(where: { AccessibilityElements.identifier(of: $0) == "report_sent" }),
                 "The page has no element identified report_sent."
             )
             let frame = try #require(
@@ -98,13 +98,6 @@ struct ReportFormCentredStateTests {
         return ReportFormView(store: store)
             .environment(\.dynamicTypeSize, size)
             .environment(\.locale, Locale(identifier: "en_US"))
-    }
-
-    /// SwiftUI's accessibility nodes answer `accessibilityIdentifier` but do not all adopt the protocol declaring it.
-    private static func identifier(of element: NSObject) -> String? {
-        let key = "accessibilityIdentifier"
-        guard element.responds(to: NSSelectorFromString(key)) else { return nil }
-        return element.value(forKey: key) as? String
     }
 
     /// The room a scroll view gives its content: its bounds less the insets that keep content clear of the bars.

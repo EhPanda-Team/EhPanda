@@ -26,6 +26,14 @@ enum AccessibilityElements {
         }
     }
 
+    /// The accessibility identifier of `element`. SwiftUI's accessibility nodes answer `accessibilityIdentifier` but
+    /// do not all adopt the protocol declaring it, so it is read by key.
+    static func identifier(of element: NSObject) -> String? {
+        let key = "accessibilityIdentifier"
+        guard element.responds(to: NSSelectorFromString(key)) else { return nil }
+        return element.value(forKey: key) as? String
+    }
+
     private static func elements(under object: NSObject, depth: Int) -> [NSObject] {
         guard depth < 40 else { return [object] }
         var children = (object.accessibilityElements ?? []).compactMap({ $0 as? NSObject })
