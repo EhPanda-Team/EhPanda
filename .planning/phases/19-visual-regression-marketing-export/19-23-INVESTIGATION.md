@@ -167,3 +167,13 @@ Tests (from the findings above; 19-24 Task 2 writes them first and sees them fai
 
 - Fixture: in VisualSnapshotTests, `TracerScenarios.home()`'s state has `frontPageGalleries.count == 8`. It fails before the change at 2.
 - Layout: a hosted test at `.accessibility5` for each of the six locales asserting that every stat label is one line tall (51.3 pt). It fails before the change for all six locales on the iPhone (`HomeCompactSlideshowInformation` in the 176 pt column) and for `en` and `de` on the iPad (`HomeSlideshowInformation`), and it must hold for both views.
+
+## C6 decision
+
+Decided by the owner, asked by the orchestrator on 2026-11-24 in Taiwanese Mandarin, with the baseline2 pictures of the Reading settings at `ko` and `de` `accessibility5` shown (the contact sheet of the first card in all six locales). The record's proposed fix, a custom `Menu` row in place of the stock `Picker` row, changes the page's construction and look beyond removing the clip, so per Task 3 the owner was asked, not the orchestrator.
+
+- Answer, verbatim: 「保留系統 Picker」.
+- Option: **`fix-other`**. The fix is no app change: the stock menu `Picker` rows stay as they are.
+- Exact fix: none. **Test: none.** 19-24 Task 1 has nothing to implement for C6.
+- Decided by: the owner.
+- Recorded as a known limitation: the stock menu `Picker` row's height under-reports a value that wraps to two lines (Apple's own self-sizing behaviour, see "## C6" above). It is visible only on the iPhone in portrait at `ko` `accessibility5`, on rows 1 (Direction) and 5 (Landscape Direction). `de` is not cut, contrary to the original C6 note. The `settings-pages-reading` and `reader-settings-sheet` pictures at `ko` `accessibility5` portrait keep the cut, as accepted. The owner may report it to Apple.
