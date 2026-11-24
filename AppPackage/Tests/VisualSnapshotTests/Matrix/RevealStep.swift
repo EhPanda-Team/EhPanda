@@ -239,10 +239,20 @@ enum RevealStep {
         [controller] + controller.children.flatMap(controllers(in:))
     }
 
-    /// The last controller presented over `controller`, or over a controller it holds, if any.
+    /// The last controller presented over `controller`, or over a controller it holds, if any; one that is being
+    /// dismissed is no longer presented.
+    ///
+    /// An active search controller is not a presentation that covers its page: it hosts the search bar, and the
+    /// suggestions the page lists stay rows of the page's own list, outside the search controller's view (the typing
+    /// suggestions of the Search page, found by looking from the search controller's view: nothing was found). The
+    /// walk goes through it, so a sheet, alert or popover presented over an active search is the front-most
+    /// presentation; a search controller that is itself the last one is skipped, and the controller that presents it
+    /// stays the answer (the sheet that holds an active search, or no presentation at all for the page).
     private static func frontPresentation(over controller: UIViewController) -> UIViewController? {
-        if let presented = controller.presentedViewController, presented.presentingViewController === controller {
-            return frontPresentation(over: presented) ?? presented
+        if let presented = controller.presentedViewController, presented.presentingViewController === controller,
+           !presented.isBeingDismissed {
+            if let deeper = frontPresentation(over: presented) { return deeper }
+            if !(presented is UISearchController) { return presented }
         }
         for child in controller.children {
             if let found = frontPresentation(over: child) { return found }
@@ -295,7 +305,7 @@ enum RevealStep {
             if holdingPlacement {
                 try await holdPlacement(target, in: window)
             }
-            if let (_, view) = element(target, in: window, view: window),
+            if let (_, view) = find(target, in: window),
                let list = scrollView(holding: view, in: window) {
                 restWhereTitleSnaps(list)
             }
@@ -327,7 +337,7 @@ enum RevealStep {
 
     /// Whether `target` is on the page and inside the visible area of the list that holds it.
     private static func isInView(_ target: Target, in window: UIWindow) -> Bool {
-        guard let (element, view) = element(target, in: window, view: window) else { return false }
+        guard let (element, view) = find(target, in: window) else { return false }
         guard let list = scrollView(holding: view, in: window) else { return true }
         let frame = list.convert(element.accessibilityFrame, from: window.screen.coordinateSpace)
         return visibleArea(of: list).contains(frame)
@@ -349,7 +359,7 @@ enum RevealStep {
     private static func holdPlacement(_ target: Target, in window: UIWindow) async throws {
         for _ in 0..<maximumHolds {
             _ = await HostedWindowCapture.settle(window)
-            guard let (element, view) = element(target, in: window, view: window),
+            guard let (element, view) = find(target, in: window),
                   let list = scrollView(holding: view, in: window)
             else { return }
             let frame = list.convert(element.accessibilityFrame, from: window.screen.coordinateSpace)
@@ -371,7 +381,7 @@ enum RevealStep {
         var stalls = 0
         var placements = 0
         while true {
-            if let (element, view) = element(target, in: window, view: window) {
+            if let (element, view) = find(target, in: window) {
                 // A page that fits its screen does not scroll: the part is on screen as it is.
                 guard let list = scrollView(holding: view, in: window) else { return }
                 var frame = list.convert(element.accessibilityFrame, from: window.screen.coordinateSpace)
@@ -461,12 +471,7 @@ enum RevealStep {
 
     /// The largest vertically scrolling list of the front-most presentation (a sheet over the page, or the page).
     private static func frontScrollView(in window: UIWindow) -> UIScrollView? {
-        var front = window.rootViewController
-        while let next = front?.presentedViewController, !next.isBeingDismissed {
-            front = next
-        }
-        guard let view = front?.view else { return nil }
-        return scrollViews(in: view)
+        scrollViews(in: reachableView(in: window))
             .filter(scrollsVertically)
             .max(by: { $0.bounds.width * $0.bounds.height < $1.bounds.width * $1.bounds.height })
     }
@@ -481,14 +486,31 @@ enum RevealStep {
         return ((view as? UIScrollView).map({ [$0] }) ?? []) + view.subviews.flatMap(scrollViews(in:))
     }
 
-    /// The first element in `window`, depth first, that `target` names.
-    static func element(_ target: Target, in window: UIWindow) -> NSObject? {
-        element(target, in: window, view: window)?.element
+    /// What the step may look through: the front-most presentation's view when something is presented, else the
+    /// window. A user reaches only the front-most presentation (VoiceOver does not read the page behind a sheet, and
+    /// the page cannot be scrolled), so a row of the page behind that shares its label with one of the sheet's is
+    /// never the step's target: the Search page lists the saved searches the Quick Search sheet over it lists too.
+    private static func reachableView(in window: UIWindow) -> UIView {
+        guard let root = window.rootViewController, let front = frontPresentation(over: root)?.view else {
+            return window
+        }
+        return front
     }
 
-    /// The nearest view at or above the first element in `window` that `target` names.
+    /// The first element the user can reach, depth first, that `target` names, with its view.
+    private static func find(_ target: Target, in window: UIWindow) -> (element: NSObject, view: UIView)? {
+        let root = reachableView(in: window)
+        return element(target, in: root, view: root)
+    }
+
+    /// The first element the user can reach, depth first, that `target` names.
+    static func element(_ target: Target, in window: UIWindow) -> NSObject? {
+        find(target, in: window)?.element
+    }
+
+    /// The nearest view at or above the first element the user can reach that `target` names.
     static func view(of target: Target, in window: UIWindow) -> UIView? {
-        element(target, in: window, view: window)?.view
+        find(target, in: window)?.view
     }
 
     /// The first element below `root`, depth first, that `target` names, with the view it belongs to: `root`'s
