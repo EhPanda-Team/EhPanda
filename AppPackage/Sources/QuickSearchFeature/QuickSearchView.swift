@@ -212,10 +212,16 @@ extension QuickSearchView {
                         .submitLabel(.next).focused(focusedField, equals: .name)
                 }
                 Section(.searchTerms) {
-                    TextEditor(text: $savedSearch.content)
-                        .autocorrectionDisabled(true)
-                        .textInputAutocapitalization(.never)
-                        .focused(focusedField, equals: .content)
+                    // A vertical-axis `TextField`, not a `TextEditor`: a form gives a `TextEditor` a height of its
+                    // own, which cut a query of a few lines off. The field grows with its text instead, the same
+                    // pattern as the Report form's details field, so it never clips at any text size.
+                    TextField(text: $savedSearch.content, axis: .vertical) {
+                        Text(.searchTerms)
+                    }
+                    .lineLimit(3...)
+                    .autocorrectionDisabled(true)
+                    .textInputAutocapitalization(.never)
+                    .focused(focusedField, equals: .content)
                 }
             }
             .scrollEdgeEffectStyle(.soft, for: .top)
