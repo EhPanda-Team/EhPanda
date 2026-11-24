@@ -49,13 +49,14 @@ public struct FolderManagerView: View {
                                     .labelStyle(.iconOnly)
                             }
                         }
+                        // On the row whose Delete was tapped, so the iPad's popover points at that row (C7).
+                        .confirmationDialog(
+                            $store.scope(state: \.[deleteConfirmationFor: folder], action: \.confirmationDialog)
+                        )
                 }
             }
             .scrollEdgeEffectStyle(.soft, for: .top)
             .overlay(content: { stateOverlay })
-            .confirmationDialog(
-                $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
-            )
             .animation(listAnimation, value: store.folders)
             .animation(listAnimation, value: store.editingField)
             .synchronize($store.editingField, $focusedField)

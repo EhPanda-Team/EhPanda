@@ -114,6 +114,12 @@ public struct QuickSearchView: View {
                                 }
                             }
                             .withArrow(isVisible: !store.isListEditing)
+                            // On the row whose Delete was tapped, so the iPad's popover points at that row (C7).
+                            .confirmationDialog(
+                                $store.scope(
+                                    state: \.[deleteConfirmationFor: savedSearch.id], action: \.confirmationDialog
+                                )
+                            )
                             .padding(5)
                         }
                         .onDelete { offsets in
@@ -126,9 +132,6 @@ public struct QuickSearchView: View {
                 }
             }
             .animation(listAnimation, value: store.savedSearches)
-            .confirmationDialog(
-                $store.scope(\.$confirmationDialog, action: \.confirmationDialog)
-            )
             .synchronize($store.focusedField, $focusedField)
             .environment(\.editMode, $store.listEditMode)
             .animation(listAnimation, value: store.listEditMode)

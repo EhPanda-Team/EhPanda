@@ -30,12 +30,26 @@ public struct FolderManagerReducer: Sendable {
     @ObservableState
     public struct State: Equatable {
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
+        /// The folder the open delete confirmation belongs to. The dialog is one `@Presents` value; this names the row
+        /// it is exposed on (see ``subscript(deleteConfirmationFor:)``).
+        var pendingDeletion: String?
         public var editingField: EditingField?
         public var editingFolderName = ""
         public var loadingState: LoadingState = .idle
         public var folders = [String]()
 
         public init() {}
+
+        /// The delete confirmation, for the folder it was asked for, and `nil` for every other folder.
+        ///
+        /// One `@Presents` dialog exposed per row through a key path, so each row scopes a binding of its own
+        /// (`$store.scope(state: \.[deleteConfirmationFor: folder], action: \.confirmationDialog)`) without a closure
+        /// `Binding`, and the popover on the iPad is anchored on the row whose Delete was tapped, not on the list (the
+        /// owner's C7 item, 19-13). `DownloadRowFeature` keeps a dialog per row in a reducer of its own because its
+        /// rows carry other per-row state; these rows carry none, so the target name is all it takes.
+        subscript(deleteConfirmationFor folder: String) -> ConfirmationDialogState<Dialog>? {
+            pendingDeletion == folder ? confirmationDialog : nil
+        }
 
         var normalizedEditingFolderName: String? {
             DownloadStore.normalizedUserFolderName(editingFolderName)
@@ -85,6 +99,7 @@ public struct FolderManagerReducer: Sendable {
                 return .none
 
             case .deleteButtonTapped(let folder):
+                state.pendingDeletion = folder
                 state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
                     TextState(localized: .RLocalizable.delete)
                 } actions: {
@@ -100,9 +115,11 @@ public struct FolderManagerReducer: Sendable {
                 return .none
 
             case .confirmationDialog(.presented(.confirmDelete(let folder))):
+                state.pendingDeletion = nil
                 return .send(.deleteFolder(folder))
 
-            case .confirmationDialog:
+            case .confirmationDialog(.dismiss):
+                state.pendingDeletion = nil
                 return .none
 
             case .setEditingField(let editingField):

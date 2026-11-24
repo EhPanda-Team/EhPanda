@@ -31,6 +31,9 @@ public struct QuickSearchReducer: Sendable {
     public struct State: Equatable, Sendable {
         public var editKind: SavedSearchEditKind?
         @Presents public var confirmationDialog: ConfirmationDialogState<Dialog>?
+        /// The saved search the open delete confirmation belongs to. The dialog is one `@Presents` value; this names
+        /// the row it is exposed on (see ``subscript(deleteConfirmationFor:)``).
+        var pendingDeletion: SavedSearch.ID?
         public var focusedField: FocusField?
         public var editingSavedSearch: SavedSearch = .empty
         public var listEditMode: EditMode = .inactive
@@ -42,6 +45,17 @@ public struct QuickSearchReducer: Sendable {
         @Shared(.savedSearches) public var savedSearches: [SavedSearch]
 
         public init() {}
+
+        /// The delete confirmation, for the saved search it was asked for, and `nil` for every other one.
+        ///
+        /// One `@Presents` dialog exposed per row through a key path, so each row scopes a binding of its own
+        /// (`$store.scope(state: \.[deleteConfirmationFor: savedSearch.id], action: \.confirmationDialog)`) without a
+        /// closure `Binding`, and the popover on the iPad is anchored on the row whose Delete was tapped, not on the
+        /// list (the owner's C7 item, 19-13). `DownloadRowFeature` keeps a dialog per row in a reducer of its own
+        /// because its rows carry other per-row state; these rows carry none, so the target's ID is all it takes.
+        subscript(deleteConfirmationFor id: SavedSearch.ID) -> ConfirmationDialogState<Dialog>? {
+            pendingDeletion == id ? confirmationDialog : nil
+        }
 
         // The add button is disabled once this is true (see `savedSearchLimit`).
         public var isAtSavedSearchLimit: Bool { savedSearches.count >= QuickSearchReducer.savedSearchLimit }
@@ -95,6 +109,7 @@ public struct QuickSearchReducer: Sendable {
                     return .run(operation: { _ in analyticsClient.send(.savedSearchUsed) })
 
                 case .deleteSavedSearchButtonTapped(let savedSearch):
+                    state.pendingDeletion = savedSearch.id
                     state.confirmationDialog = ConfirmationDialogState(titleVisibility: .hidden) {
                         TextState(localized: .RLocalizable.delete)
                     } actions: {
@@ -110,9 +125,11 @@ public struct QuickSearchReducer: Sendable {
                     return .none
 
                 case .confirmationDialog(.presented(.confirmDelete(let savedSearch))):
+                    state.pendingDeletion = nil
                     return .send(.deleteSavedSearch(savedSearch))
 
-                case .confirmationDialog:
+                case .confirmationDialog(.dismiss):
+                    state.pendingDeletion = nil
                     return .none
 
                 case .toggleListEditing:
