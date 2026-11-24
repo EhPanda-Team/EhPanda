@@ -11,7 +11,8 @@ public import SwiftUI
 /// propagate through the environment to the wrapped `Toggle`.
 ///
 /// It also gives every switch the pointer highlight (rule W): the system's highlight, in the switch track grown by
-/// 6 pt (``SwitchTrackHoverShape``). The label stays flat, because tapping it does not flip the switch.
+/// 6 pt (``SwitchTrackHoverShape``). The highlight is drawn around the track alone, because tapping the label does
+/// not flip the switch.
 public struct AppToggle<Label: View>: View {
     private let isOn: Binding<Bool>
     private let label: Label

@@ -265,13 +265,20 @@ private struct CellRowHoverModifier: ViewModifier {
 
 /// The hover shape of a switch: its track, grown by 6 pt on every side.
 ///
-/// The track is a fixed 61 x 28 pt at the trailing edge, centred vertically (measured on iOS 27: the intrinsic size
-/// of a `UISwitch`). Tapping a switch's label does not flip it, so the highlight covers the track only and the label
-/// stays flat.
+/// Measured on iOS 27.2 (iPad Pro 11-inch (M5) simulator, General settings, 2026-11-24): the drawn track is 63 x 28
+/// pt, centred vertically, and runs from 61 pt before the Toggle's trailing edge to 2 pt past it (the pixels give the
+/// track; the old 61 pt shape, ending at the trailing edge, cleared it by 6 pt before and 4.5 pt after). The shape
+/// follows the drawn track, so the highlight stands 6 pt clear of it on both sides.
+///
+/// It goes on the whole Toggle, as the reference project's toggle style does (owner decision, 2026-11-24): the
+/// system's highlight then also scales the label by about 1 pt while the track is hovered, which is accepted. Every
+/// way to keep the label still rebuilt the Form's switch row and changed its height at rest.
 public struct SwitchTrackHoverShape: Shape {
-    /// The track's width, in points.
-    public static let trackWidth: CGFloat = 61
-    /// The track's height, in points.
+    /// How far before the Toggle's trailing edge the track starts, in points.
+    public static let trackStart: CGFloat = 61
+    /// The drawn track's width, in points.
+    public static let trackWidth: CGFloat = 63
+    /// The drawn track's height, in points.
     public static let trackHeight: CGFloat = 28
     /// How far the highlight stands clear of the track on every side, in points.
     public static let outset: CGFloat = 6
@@ -284,7 +291,7 @@ public struct SwitchTrackHoverShape: Shape {
 
     public func path(in rect: CGRect) -> Path {
         let track = CGRect(
-            x: rect.maxX - Self.trackWidth, y: rect.midY - Self.trackHeight / 2,
+            x: rect.maxX - Self.trackStart, y: rect.midY - Self.trackHeight / 2,
             width: Self.trackWidth, height: Self.trackHeight
         )
         return Capsule(style: .continuous).path(in: track.insetBy(dx: -Self.outset, dy: -Self.outset))

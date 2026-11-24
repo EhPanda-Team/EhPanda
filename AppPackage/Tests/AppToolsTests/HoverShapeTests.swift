@@ -95,13 +95,14 @@ import Testing
         }
     }
 
-    @Test func switchTrackHighlightGrowsTheMeasuredTrackBySixAtTheTrailingEdge() {
+    @Test func switchTrackHighlightGrowsTheDrawnTrackBySix() {
         let row = CGRect(x: 0, y: 0, width: 300, height: 44)
         let path = SwitchTrackHoverShape().path(in: row)
-        // The track is the measured 61 x 28 pt, at the trailing edge and centred vertically.
-        expectEqual(path.boundingRect, CGRect(x: 300 - 61 - 6, y: 22 - 14 - 6, width: 61 + 12, height: 28 + 12))
+        // The drawn track is the measured 63 x 28 pt, from 61 pt before the frame's trailing edge to 2 pt past it,
+        // centred vertically.
+        expectEqual(path.boundingRect, CGRect(x: 300 - 61 - 6, y: 22 - 14 - 6, width: 63 + 12, height: 28 + 12))
         #expect(!path.contains(CGPoint(x: 10, y: 22)))
-        #expect(path.contains(CGPoint(x: 300 - 61 / 2, y: 22)))
+        #expect(path.contains(CGPoint(x: 300 - 61 + 63 / 2, y: 22)))
     }
 
     @Test func switchTrackHighlightMirrorsForARightToLeftLayout() {
