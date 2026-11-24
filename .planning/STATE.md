@@ -426,7 +426,20 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   commits: pages rebuilt after a step drew signed out (`65aae6280`, cookie client forwarded to the scenario), and the
   reveal step scrolled the page behind a sheet (`08fe18cad`, it now searches the front-most presentation only). Open
   for later plans: the app alert keyboard layout and the reader settle instability before 19-26, the iPad Quick Search
-  delete popover with C7 in 19-24, the general form of the dependency-scope defect in 19-27. Next: 19-21.
+  delete popover with C7 in 19-24, the general form of the dependency-scope defect in 19-27.
+  2026-11-24: the main checkout's `.capture`, the phase simulators, the iOS 27.0 simulator runtime and DerivedData were
+  removed outside any session; the inputs later plans need were re-downloaded into this worktree's own gitignored
+  `.capture` (owner decision 「下載後續要用的」; rebuilt baseline2 matches all 210 hashes in 19-18's move proof), and the
+  phase simulators were recreated on iOS 27.2 (owner decision 「改用 iOS 27.2」; the hosted gate stays pinned to 27.0,
+  19-26 stops before measuring until the gap is settled). 19-21 done 2026-11-24 (`240e2ffdb`..`3c87ee29f`): C1 the
+  Search Terms field grows with its text (Return still inserts a line break), C2 the empty Activity Logs page keeps its
+  title (the cover now follows loading; the title stays hidden while a run loads with no logs), C11 the Report form's
+  centred states take the visible height as a floor, so the Sent message scrolls at AX5 landscape. Deviations decided
+  by the orchestrator: one retry of the iPad turn after a first-boot accessibility error, the plan's floor formula
+  corrected (scroll geometry's container size already excludes the insets), and a differential centring check (the
+  Sent block's accessibility frame is 6 pt short of its layout box). For 19-26: the word editor still does not converge
+  (1328/1093 pt), so the Search Terms field was not its cause; the iPhone delete confirmation is now
+  `cannot-cover:popover`, the iPad one still does not converge (1626 pt). Next: 19-22.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
@@ -1279,11 +1292,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 323/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 324/334 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 19 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22 and 19-30 on 2026-11-23; 19-18 to 19-20 and 19-30 done); Phase 20
+5 of 5 plans complete. Phase 19 has 20 of 30 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22 and 19-30 on 2026-11-23; 19-18 to 19-21 and 19-30 done); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
