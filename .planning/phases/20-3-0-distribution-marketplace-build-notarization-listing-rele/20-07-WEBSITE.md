@@ -1,55 +1,49 @@
-# 20-07 Website URLs (DRAFT; live check pending)
+# 20-07 Website URLs
 
-*Amended 2026-11-11 (owner decision; product lead decision):* the website gets no GitHub Issues link, so there is no
-contact URL to check, and the support URL is no longer the home page: it is the GitHub repository page,
-https://github.com/EhPanda-Team/EhPanda (its Issues tab is the contact route), which returns 200 and needs no website
-change. The rows and checks below for the contact link and the home-page support URL are history. The live check
-records `- privacy: <url> 200` lines for the privacy pages, `- support: https://github.com/EhPanda-Team/EhPanda 200`
-and the PAL source redirect.
+**Status: checked live, all pass.** Checked 2026-11-25T08:34Z (UTC) from this Mac, after the website went live with
+the 3.0 release (D-26). The agent does not edit the website; the webmaster owns it (D-05).
 
-**Status: DRAFT.** The webmaster's answer and the orchestrator's give the four URLs; owner decision
-makes the home page the support URL. The live check waits for the site, which is offline on purpose (no DNS) until it
-goes live with the 3.0 release (D-26, owner decision). 20-07 Task 2 stays open until then. The privacy link now goes
-to each language's own page, because there is no page at `/privacy` (the webmaster; owner decision; see below). The
-agent does not edit the website; the webmaster owns it (D-05).
+## Live check
 
-## The four URLs (the webmaster; owner decision)
+Each line is `curl -sSfL -o /dev/null -w "%{http_code} %{url_effective}\n"`.
 
-| Purpose | URL | Where it stands |
-|---------|-----|-----------------|
-| Privacy policy | https://ehpanda.app/en/privacy/, and `/de/`, `/ja/`, `/ko/`, `/zh-Hans/`, `/zh-Hant/` | There is no page at `/privacy`; it returns 404 (the webmaster). The owner chose to have the app link the per-language pages (owner decision; addresses from the website). `contact.privacy_policy` (`Constant.xcstrings`) now gives each language its own page, with English as the fallback (`fee87bae6`, checked by `PrivacyPolicyLinkTests`). The rewrite for the three analytics levels stays for the 3.0 release (D-10). |
-| Support | https://ehpanda.app | The home page; there is no separate support page (owner decision) |
-| Contact (published contact link) | https://github.com/EhPanda-Team/EhPanda/issues | GitHub Issues; linked from the website (D-05) |
-| PAL source | https://ehpanda.app/AltStorePAL.json | Being added on the website's `develop` branch. Expected to redirect to `https://raw.githubusercontent.com/EhPanda-Team/EhPanda/main/AltStorePAL.json`, as `AltStore.json`'s does. Confirm the redirect target at the live check. |
+- privacy: https://ehpanda.app/en/privacy/ 200
+- privacy: https://ehpanda.app/de/privacy/ 200
+- privacy: https://ehpanda.app/ja/privacy/ 200
+- privacy: https://ehpanda.app/ko/privacy/ 200
+- privacy: https://ehpanda.app/zh-Hans/privacy/ 200
+- privacy: https://ehpanda.app/zh-Hant/privacy/ 200
+- support: https://github.com/EhPanda-Team/EhPanda 200
+
+PAL source (`curl -sSI https://ehpanda.app/AltStorePAL.json`; only the redirect is checked, the target may 404 until the
+first PAL publish):
+
+- pal: https://ehpanda.app/AltStorePAL.json HTTP/2 302, `location: https://github.com/EhPanda-Team/EhPanda/raw/main/AltStorePAL.json` (AltStorePAL.json on `main`)
+
+Wording: the six privacy pages were fetched and grepped, case-insensitively, for `apple[- ]approved` and
+`approved by apple`. No match in any of them (0 hits per page). No tracked file outside `.planning/` carries the wording
+either (`actions-tool/tests/test_no_apple_approved.py`, `49dd2b8be`, passing).
+
+## The four URLs (the webmaster's answers; owner decision)
+
+| Purpose | URL | Answer |
+|---------|-----|--------|
+| Privacy policy | `https://ehpanda.app/<language>/privacy/` for en, de, ja, ko, zh-Hans, zh-Hant | Live. There is no page at `/privacy` (404); the owner chose to have the app link each language's own page. `contact.privacy_policy` (`Constant.xcstrings`) gives each language its page, with English as the fallback (`fee87bae6`, checked by `PrivacyPolicyLinkTests`). The rewrite for the three analytics levels stays for the 3.0 release (D-10). |
+| Support | https://github.com/EhPanda-Team/EhPanda | The GitHub repository page; its Issues tab is the contact route. Needs no website change. |
+| PAL source | https://ehpanda.app/AltStorePAL.json | Live, redirects to `AltStorePAL.json` on `main` as above. |
+
+There is no published contact link: the website gets no GitHub Issues link (owner decision), so no contact URL is
+checked.
 
 App Store Connect takes one privacy policy URL per listing language. The proposal is the English page
-(`https://ehpanda.app/en/privacy/`), with a localized listing's own page where one exists. The collaborator enters
-it at 20-08 Task 3, and the owner may choose otherwise.
+(`https://ehpanda.app/en/privacy/`), with a localized listing's own page where one exists. The collaborator enters it
+at 20-08 Task 3, and the owner may choose otherwise.
 
-## Checks so far (2026-11-09T01:35Z, this Mac)
+## Amendment history
 
-```
-000 https://ehpanda.app/privacy curl: (6) Could not resolve host: ehpanda.app (the app now links /<language>/privacy/, owner decision)
-000 https://ehpanda.app/support curl: (6) Could not resolve host: ehpanda.app (support is now the home page, owner decision)
-200 https://github.com/EhPanda-Team/EhPanda/issues
-    https://ehpanda.app/AltStorePAL.json   curl: (6) Could not resolve host: ehpanda.app
-```
-
-The site has no DNS on purpose, so the three `ehpanda.app` URLs cannot be checked yet. GitHub Issues returns 200.
-
-Wording guard: no tracked file outside `.planning/` uses the Apple-approval wording (`test_no_apple_approved.py`,
-`49dd2b8be`). The website pages are grepped for it at the live check.
-
-## Still to do at the live check (Task 2, steps 2 to 4)
-
-1. Run `curl -sSfL -o /dev/null -w "%{http_code} %{url_effective}\n"` on the six privacy pages
-   (`https://ehpanda.app/<language>/privacy/` for en, de, ja, ko, zh-Hans, zh-Hant), the support URL (the home page)
-   and the contact URL. Each must return 200.
-2. Run `curl -sSI` on the PAL source URL and read its `Location`. It must point at `AltStorePAL.json` on `main`.
-   The target may return 404 until the first PAL publish (20-08), so only the redirect is checked.
-3. Fetch the six privacy pages and the home page, plus the website's contact entry, and grep them for the wording.
-4. Replace this draft's table with lines like `- privacy: <url> 200`, the redirect line and the wording result.
-
-Under D-26 the site goes live with the 3.0 GitHub and AltStore Classic release, and the PAL submission (20-08)
-comes after it. So this check runs when the site goes live. That is still before the build goes to Apple, as D-05
-requires.
+- Earlier draft: the support URL was the website's home page and a GitHub Issues contact link was to be published on
+  the website (D-05).
+- 2026-11-11 (owner decision; product lead decision): the contact link and the home-page support URL were dropped. The
+  support URL is the GitHub repository page, which returns 200. The privacy link goes to each language's own page.
+- 2026-11-25: the website went live with the 3.0 release (D-26); the checks above replace the earlier pending checks
+  (the site had no DNS before then).
