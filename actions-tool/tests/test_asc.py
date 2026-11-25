@@ -26,11 +26,13 @@ ASC = TOOLS / "asc.py"
 sys.path.insert(0, str(TOOLS))
 
 import asc  # noqa: E402
+import release_notes  # noqa: E402
 
 OPENSSL = shutil.which("openssl")
 KEY_ID = "FAKEKEY123"
 ISSUER_ID = "00000000-0000-4000-8000-000000000000"
 APP_ID = "1234567890"
+NOTES = TOOLS / "tests" / "fixtures" / "release-notes" / "9.9.9.md"
 
 
 def b64url_decode(text):
@@ -116,6 +118,11 @@ def version(version_id, string, state, review_type="NOTARIZATION"):
                            "reviewType": review_type, "releaseType": "MANUAL"}}
 
 
+def localization(localization_id, locale):
+    return {"type": "appStoreVersionLocalizations", "id": localization_id,
+            "attributes": {"locale": locale, "whatsNew": None}}
+
+
 @unittest.skipUnless(OPENSSL, "openssl is not installed")
 class TokenTests(unittest.TestCase):
     @classmethod
@@ -186,6 +193,8 @@ class AllowListTests(unittest.TestCase):
             ("GET", r"^/v1/builds$"),
             ("GET", r"^/v1/apps/[0-9]+/appStoreVersions$"),
             ("POST", r"^/v1/appStoreVersions$"),
+            ("GET", r"^/v1/appStoreVersions/[A-Za-z0-9-]+/appStoreVersionLocalizations$"),
+            ("PATCH", r"^/v1/appStoreVersionLocalizations/[A-Za-z0-9-]+$"),
             ("PATCH", r"^/v1/appStoreVersions/[A-Za-z0-9-]+/relationships/build$"),
             ("GET", r"^/v1/reviewSubmissions$"),
             ("POST", r"^/v1/reviewSubmissions$"),
@@ -217,6 +226,8 @@ class AllowListTests(unittest.TestCase):
     def test_the_paths_the_client_uses_are_allowed(self):
         for method, path in (("GET", "/v1/builds"), ("GET", "/v1/apps/1/appStoreVersions"),
                              ("POST", "/v1/appStoreVersions"),
+                             ("GET", "/v1/appStoreVersions/v-1/appStoreVersionLocalizations"),
+                             ("PATCH", "/v1/appStoreVersionLocalizations/l-1"),
                              ("PATCH", "/v1/appStoreVersions/v-1/relationships/build"),
                              ("GET", "/v1/reviewSubmissions"), ("POST", "/v1/reviewSubmissions"),
                              ("GET", "/v1/reviewSubmissions/s-1/items"), ("POST", "/v1/reviewSubmissionItems"),
@@ -234,12 +245,17 @@ class AllowListTests(unittest.TestCase):
                              ("PATCH", "/v1/appStoreVersions/a/b/relationships/build"),
                              ("PATCH", "/v1/appStoreVersions/../relationships/build"),
                              ("PATCH", "/v1/reviewSubmissions/s-1?x=1"), ("GET", "/v1/builds\n"),
-                             ("POST", "/v1/apps"), ("GET", "/v1/apps/1")):
+                             ("POST", "/v1/apps"), ("GET", "/v1/apps/1"),
+                             ("POST", "/v1/appStoreVersionLocalizations"),
+                             ("GET", "/v1/appStoreVersionLocalizations/l-1"),
+                             ("DELETE", "/v1/appStoreVersionLocalizations/l-1"),
+                             ("PATCH", "/v1/appStoreVersionLocalizations/l-1/appScreenshotSets")):
             with self.subTest(method=method, path=path):
                 self.assertFalse(asc.allowed(method, path))
 
     def test_the_commands_are_the_build_check_and_the_submission(self):
-        self.assertEqual(set(asc.COMMANDS), {"check-build", "wait-build", "ensure-version", "attach-build", "submit"})
+        self.assertEqual(set(asc.COMMANDS), {"check-build", "wait-build", "ensure-version", "whats-new",
+                                                  "attach-build", "submit"})
         result = subprocess.run([sys.executable, str(ASC), "adp-id"], capture_output=True, text=True, timeout=60)
         self.assertEqual(result.returncode, 2)
         self.assertIn("invalid choice", result.stderr)
@@ -247,7 +263,8 @@ class AllowListTests(unittest.TestCase):
     def test_an_id_that_could_change_the_path_is_refused_by_the_parser(self):
         for args in (("attach-build", "--version-id", "v/1", "--build-id", "b-1"),
                      ("attach-build", "--version-id", "v-1", "--build-id", "b-1?x=1"),
-                     ("submit", "--app", APP_ID, "--version-id", "../1")):
+                     ("submit", "--app", APP_ID, "--version-id", "../1"),
+                     ("whats-new", "--version-id", "v/1", "--notes", str(NOTES))):
             with self.subTest(args=args):
                 result = subprocess.run([sys.executable, str(ASC), *args], capture_output=True, text=True,
                                         timeout=60)
@@ -440,6 +457,76 @@ class CommandTests(unittest.TestCase):
         self.assertIn("409", result.stderr)
         self.assertIn("Another version is editable.", result.stderr)
 
+    # whats-new
+
+    def localization_routes(self, *localizations):
+        self.fake.routes[("GET", "/v1/appStoreVersions/v-1/appStoreVersionLocalizations")] = [
+            (200, {"data": [localization(*item) for item in localizations]})]
+        for localization_id, locale in localizations:
+            self.fake.routes[("PATCH", f"/v1/appStoreVersionLocalizations/{localization_id}")] = [
+                (200, {"data": localization(localization_id, locale)})]
+
+    def test_whats_new_writes_the_only_localization_from_its_language(self):
+        expected = release_notes.read(NOTES)
+        self.localization_routes(("l-1", "en-US"))
+        result = self.run_asc("whats-new", "--version-id", "v-1", "--notes", str(NOTES))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.calls("GET")[0]["query"]["limit"], ["200"])
+        patches = self.calls("PATCH")
+        self.assertEqual(len(patches), 1)
+        self.assertEqual(patches[0]["path"], "/v1/appStoreVersionLocalizations/l-1")
+        self.assertEqual(patches[0]["body"], {"data": {"type": "appStoreVersionLocalizations", "id": "l-1",
+                                                       "attributes": {"whatsNew": expected["en"]}}})
+
+    def test_whats_new_matches_each_locale_to_its_languages_section(self):
+        expected = release_notes.read(NOTES)
+        self.localization_routes(("l-1", "en-US"), ("l-2", "en-GB"), ("l-3", "de-DE"), ("l-4", "zh-Hant"))
+        result = self.run_asc("whats-new", "--version-id", "v-1", "--notes", str(NOTES))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        written = {request["body"]["data"]["id"]: request["body"]["data"]["attributes"]["whatsNew"]
+                   for request in self.calls("PATCH")}
+        self.assertEqual(written, {"l-1": expected["en"], "l-2": expected["en"], "l-3": expected["de"],
+                                   "l-4": expected["zh-Hant"]})
+
+    def test_a_localization_without_a_section_is_refused_before_any_write(self):
+        self.localization_routes(("l-1", "en-US"), ("l-2", "fr-FR"))
+        result = self.run_asc("whats-new", "--version-id", "v-1", "--notes", str(NOTES))
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("fr-FR", result.stderr)
+        self.assertIn("no fallback", result.stderr)
+        self.assertEqual(self.calls("PATCH"), [])
+
+    def test_the_notes_are_checked_before_any_request(self):
+        incomplete = pathlib.Path(self.tmp.name) / "incomplete.md"
+        incomplete.write_text("# 9.9.9\n\n## English\n\nNew.\n", encoding="utf-8")
+        missing = pathlib.Path(self.tmp.name) / "missing.md"
+        for label, notes, needle in (("missing", missing, str(missing)), ("incomplete", incomplete, "Deutsch")):
+            with self.subTest(notes=label):
+                result = self.run_asc("whats-new", "--version-id", "v-1", "--notes", str(notes))
+                self.assertEqual(result.returncode, 1)
+                self.assertIn(needle, result.stderr)
+                self.assertEqual(self.fake.requests, [])
+
+    def test_a_version_without_localizations_is_refused(self):
+        self.fake.routes[("GET", "/v1/appStoreVersions/v-1/appStoreVersionLocalizations")] = [
+            (200, {"data": []})]
+        result = self.run_asc("whats-new", "--version-id", "v-1", "--notes", str(NOTES))
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(self.calls("PATCH"), [])
+
+    def test_a_section_over_apples_limit_is_refused_before_any_write(self):
+        text = NOTES.read_text(encoding="utf-8")
+        start = text.index("## Deutsch")
+        end = text.index("## 日本語")
+        long_notes = pathlib.Path(self.tmp.name) / "long.md"
+        long_notes.write_text(text[:start] + "## Deutsch\n\n" + "x" * 4001 + "\n\n" + text[end:], encoding="utf-8")
+        self.localization_routes(("l-1", "en-US"), ("l-2", "de-DE"))
+        result = self.run_asc("whats-new", "--version-id", "v-1", "--notes", str(long_notes))
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("de-DE", result.stderr)
+        self.assertIn("4000", result.stderr)
+        self.assertEqual(self.calls("PATCH"), [])
+
     # attach-build
 
     def test_attach_build_links_the_build_to_the_version(self):
@@ -526,6 +613,9 @@ class CommandTests(unittest.TestCase):
             ("GET", "/v1/builds"): [(200, {"data": []}), (200, {"data": [build("b-1", "159", "VALID")]})],
             ("GET", f"/v1/apps/{APP_ID}/appStoreVersions"): [(200, {"data": []})],
             ("POST", "/v1/appStoreVersions"): [(201, {"data": version("v-1", "3.0.0", "PREPARE_FOR_SUBMISSION")})],
+            ("GET", "/v1/appStoreVersions/v-1/appStoreVersionLocalizations"): [
+                (200, {"data": [localization("l-1", "en-US")]})],
+            ("PATCH", "/v1/appStoreVersionLocalizations/l-1"): [(200, {"data": localization("l-1", "en-US")})],
             ("PATCH", "/v1/appStoreVersions/v-1/relationships/build"): [(204, None)],
             ("GET", "/v1/reviewSubmissions"): [(200, {"data": []})],
             ("POST", "/v1/reviewSubmissions"): [(201, {"data": self.submission("s-1", "READY_FOR_REVIEW")})],
@@ -535,6 +625,7 @@ class CommandTests(unittest.TestCase):
         for args in (("check-build", "--app", APP_ID, "--version", "3.0.0", "--build", "159"),
                      ("wait-build", "--app", APP_ID, "--version", "3.0.0", "--build", "159", "--interval", "0"),
                      ("ensure-version", "--app", APP_ID, "--version", "3.0.0"),
+                     ("whats-new", "--version-id", "v-1", "--notes", str(NOTES)),
                      ("attach-build", "--version-id", "v-1", "--build-id", "b-1"),
                      ("submit", "--app", APP_ID, "--version-id", "v-1")):
             result = self.run_asc(*args)
@@ -549,7 +640,7 @@ class CommandTests(unittest.TestCase):
                 self.assertEqual(set(line), {"method", "path", "status", "keyID"})
                 self.assertEqual((line["method"], line["path"]), (request["method"], request["path"]))
                 self.assertEqual(line["keyID"], KEY_ID)
-        self.assertEqual([line["status"] for line in lines], [200, 200, 200, 201, 204, 200, 201, 201, 200])
+        self.assertEqual([line["status"] for line in lines], [200, 200, 200, 201, 200, 200, 204, 200, 201, 201, 200])
 
     def test_every_call_is_logged_with_method_path_status_and_key(self):
         self.run_whole_sequence()

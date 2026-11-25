@@ -1,8 +1,9 @@
 name: AltStore PAL upload
 # Builds the AltStore PAL flavor (DIST-18-03) and uploads it to App Store Connect. With `submit` on, the same job then
 # submits it for notarization (owner decisions, 2026-11-26): it waits until App Store Connect has processed the build,
-# creates the version with review type Notarization (or reuses an editable one), attaches the build and submits it.
-# Once Apple accepts it, publish-pal.yml publishes the package with the ADP ID the collaborator shares.
+# creates the version with review type Notarization (or reuses an editable one), fills What's New for each of its
+# localizations from that language's section of ReleaseNotes/<version>.md, attaches the build and submits it. Once
+# Apple accepts it, publish-pal.yml publishes the package with the ADP ID the collaborator shares.
 #
 # Two ways in. deploy.yml calls it after each release with `submit` on (owner decision, 2026-11-26), so the PAL build
 # carries the release's commit, version and build number (D-26). It can also be started by hand, from any branch, to
@@ -54,6 +55,9 @@ env:
   SCHEME_NAME: 'EhPanda'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
   UPLOAD_DSYMS_SCRIPT_PATH: './actions-tool/upload-dsyms.sh'
+  # What's New comes from the release's notes file, as the release's own notes do (owner decision, 2026-11-26).
+  RELEASE_NOTES_TOOL_PATH: './actions-tool/release_notes.py'
+  RELEASE_NOTES_DIR: './ReleaseNotes'
 
 jobs:
   AltStorePAL:
@@ -97,6 +101,13 @@ jobs:
           [[ "$versions" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::The project's targets do not share one MARKETING_VERSION: '$(tr '\n' ' ' <<< "$versions")'."; exit 1; }
           echo "version=$versions" >> "$GITHUB_OUTPUT"
           echo "The project is version $versions."
+      - name: Check the release notes
+        if: inputs.submit
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Before anything is built or uploaded: the submission writes What's New from every language's section.
+          python3 "$RELEASE_NOTES_TOOL_PATH" check "$RELEASE_NOTES_DIR/$VERSION.md"
       - name: Write App Store Connect key
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
@@ -295,6 +306,18 @@ jobs:
           # review, is refused.
           version_id="$(python3 "$ASC_TOOL_PATH" ensure-version --app "$ASC_APP_ID" --version "$VERSION")"
           echo "version_id=$version_id" >> "$GITHUB_OUTPUT"
+      - name: Fill What's New
+        if: inputs.submit
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          VERSION: ${{ steps.version.outputs.version }}
+          VERSION_ID: ${{ steps.ensure-version.outputs.version_id }}
+        run: |
+          set -euo pipefail
+          # Each localization gets its language's section; one with no section stops the run before anything is
+          # written or submitted (owner decision, 2026-11-26).
+          python3 "$ASC_TOOL_PATH" whats-new --version-id "$VERSION_ID" --notes "$RELEASE_NOTES_DIR/$VERSION.md"
       - name: Attach the build
         if: inputs.submit
         env:

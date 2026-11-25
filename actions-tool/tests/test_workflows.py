@@ -444,6 +444,7 @@ PAL_VARIABLES = ["ALTSTORE_PAL_MARKETPLACE_ID"]
 PAL_UPLOAD_STEPS = [
     "Checkout",
     "Read the version",
+    "Check the release notes",
     "Write App Store Connect key",
     "Check build number",
     "Install iOS 27 Platform",
@@ -459,14 +460,17 @@ PAL_UPLOAD_STEPS = [
     "Tear down signing",
     "Wait for the build",
     "Ensure the notarization version",
+    "Fill What's New",
     "Attach the build",
     "Submit for notarization",
     "Upload the call record",
     "Remove the API key",
 ]
 # The steps after the signing teardown that run only with `submit` on (owner decisions, 2026-11-26).
-PAL_SUBMIT_STEPS = ["Wait for the build", "Ensure the notarization version", "Attach the build",
-                    "Submit for notarization"]
+PAL_SUBMIT_STEPS = ["Wait for the build", "Ensure the notarization version", "Fill What's New",
+                    "Attach the build", "Submit for notarization"]
+# The check before the build that runs only with `submit` on.
+PAL_SUBMIT_CHECKS = ["Check the release notes"]
 PAL_ALWAYS_STEPS = ["Tear down signing", "Upload the call record", "Remove the API key"]
 # What no step after the signing teardown may name.
 PAL_SIGNING_NAMES = ["DISTRIBUTION_CERTIFICATE", "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP",
@@ -544,7 +548,8 @@ class PalUploadJobTests(unittest.TestCase):
             with self.subTest(needle=needle):
                 self.assertIn(needle, run)
         for name in ("Check build number", "Verify marketplace build", "Export and upload", "Wait for the build",
-                     "Ensure the notarization version", "Submit for notarization"):
+                     "Ensure the notarization version", "Submit for notarization", "Check the release notes",
+                     "Fill What's New"):
             with self.subTest(step=name):
                 self.assertEqual(step_named(self.job, name)["env"]["VERSION"], "${{ steps.version.outputs.version }}")
         self.assertEqual(set(re.findall(r"inputs\.(\w+)", json.dumps(self.job))), {"submit"})
@@ -610,7 +615,7 @@ class PalUploadJobTests(unittest.TestCase):
         for step in self.job["steps"]:
             name = step.get("name")
             with self.subTest(step=name):
-                if name in PAL_SUBMIT_STEPS:
+                if name in PAL_SUBMIT_CHECKS + PAL_SUBMIT_STEPS:
                     self.assertEqual(step.get("if"), "inputs.submit")
                 elif name in PAL_ALWAYS_STEPS:
                     self.assertEqual(step.get("if"), "always()")
@@ -620,7 +625,7 @@ class PalUploadJobTests(unittest.TestCase):
     def test_the_client_calls_are_the_build_check_then_the_submission(self):
         text = "\n".join(self.run_text(step["name"]) for step in self.job["steps"] if "run" in step)
         self.assertEqual(re.findall(r'actions-tool/asc\.py" ([\w-]+)', text),
-                         ["check-build", "wait-build", "ensure-version", "attach-build", "submit"])
+                         ["check-build", "wait-build", "ensure-version", "whats-new", "attach-build", "submit"])
         for needle in ("adp-id", "pal_publish.py"):
             with self.subTest(needle=needle):
                 self.assertNotIn(needle, text)
@@ -691,6 +696,21 @@ class PalUploadJobTests(unittest.TestCase):
         for name in PAL_SUBMIT_STEPS:
             self.assertLess(step_index(self.job, name), step_index(self.job, "Upload the call record"))
 
+    def test_whats_new_comes_from_the_release_notes(self):
+        self.assertEqual(self.env["RELEASE_NOTES_DIR"], "./ReleaseNotes")
+        self.assertEqual(self.env["RELEASE_NOTES_TOOL_PATH"], "./actions-tool/release_notes.py")
+        self.assertLess(step_index(self.job, "Check the release notes"),
+                        step_index(self.job, "Write App Store Connect key"))
+        self.assertIn('./actions-tool/release_notes.py" check "./ReleaseNotes/$VERSION.md"',
+                      self.run_text("Check the release notes"))
+        fill = step_named(self.job, "Fill What's New")
+        self.assertEqual(fill["env"]["VERSION_ID"], "${{ steps.ensure-version.outputs.version_id }}")
+        self.assertIn('./actions-tool/asc.py" whats-new --version-id "$VERSION_ID" '
+                      '--notes "./ReleaseNotes/$VERSION.md"', self.run_text("Fill What's New"))
+        self.assertLess(step_index(self.job, "Ensure the notarization version"),
+                        step_index(self.job, "Fill What's New"))
+        self.assertLess(step_index(self.job, "Fill What's New"), step_index(self.job, "Attach the build"))
+
     def test_the_api_key_is_removed_last_whatever_happens(self):
         last = self.job["steps"][-1]
         self.assertEqual(last["name"], "Remove the API key")
@@ -717,8 +737,8 @@ class PalUploadJobTests(unittest.TestCase):
         self.assertNotIn("secrets.", json.dumps(self.job.get("env", {})))
 
     def test_the_checks_see_no_signing_secret(self):
-        for name in ("Read the version", "Install iOS 27 Platform", "Verify analytics credentials",
-                     "Verify crash reporting DSN"):
+        for name in ("Read the version", "Check the release notes", "Install iOS 27 Platform",
+                     "Verify analytics credentials", "Verify crash reporting DSN"):
             with self.subTest(step=name):
                 self.assertNotIn("secrets.", json.dumps(step_named(self.job, name).get("env", {})))
 

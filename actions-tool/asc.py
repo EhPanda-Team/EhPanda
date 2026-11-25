@@ -4,8 +4,9 @@
 It makes the calls that job needs and nothing else (Phase 20 D-07, D-21; App Store Connect OpenAPI 4.6). Before the
 archive it checks that the build number is still unused. After the upload, when the run submits (the release path;
 owner decisions, 2026-11-26), it waits until App Store Connect has processed the build, creates or reuses the
-version with review type Notarization, attaches the build and submits it for notarization. The standard library and
-`openssl` are all it uses, so a release job holding signing secrets installs nothing.
+version with review type Notarization, fills What's New for each of its localizations from that language's section
+of the release notes, attaches the build and submits it for notarization. The standard library and `openssl` are all
+it uses, so a release job holding signing secrets installs nothing.
 
 Usage:
   asc.py check-build --app <id> --version <x.y.z> --build <n>
@@ -15,6 +16,9 @@ Usage:
   asc.py ensure-version --app <id> --version <x.y.z>
       prints the ID of the editable iOS version <x.y.z>, creating it with review type NOTARIZATION and manual
       release if there is none; refuses an existing version with another review type
+  asc.py whats-new --version-id <id> --notes <file>
+      writes each of the version's localizations' What's New from that language's section of the notes file
+      (ReleaseNotes/<version>.md); refuses, before writing anything, a localization whose language has no section
   asc.py attach-build --version-id <id> --build-id <id>
       sets the version's build
   asc.py submit --app <id> --version-id <id>
@@ -50,6 +54,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+import altstore_languages
+import release_notes
+
 DEFAULT_BASE_URL = "https://api.appstoreconnect.apple.com"
 TOKEN_LIFETIME = 1200  # Apple's maximum: 20 minutes.
 TOKEN_REFRESH = 900    # A long wait gets a new token well before the old one expires.
@@ -60,6 +67,8 @@ ALLOWED = [
     ("GET", r"^/v1/builds$"),
     ("GET", r"^/v1/apps/[0-9]+/appStoreVersions$"),
     ("POST", r"^/v1/appStoreVersions$"),
+    ("GET", r"^/v1/appStoreVersions/[A-Za-z0-9-]+/appStoreVersionLocalizations$"),
+    ("PATCH", r"^/v1/appStoreVersionLocalizations/[A-Za-z0-9-]+$"),
     ("PATCH", r"^/v1/appStoreVersions/[A-Za-z0-9-]+/relationships/build$"),
     ("GET", r"^/v1/reviewSubmissions$"),
     ("POST", r"^/v1/reviewSubmissions$"),
@@ -74,6 +83,8 @@ EDITABLE_VERSION_STATES = {"PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJE
 # Review submission states: the open one that can still take items, and those that block a new submission.
 OPEN_SUBMISSION_STATE = "READY_FOR_REVIEW"
 BUSY_SUBMISSION_STATES = ["WAITING_FOR_REVIEW", "IN_REVIEW", "UNRESOLVED_ISSUES", "CANCELING", "COMPLETING"]
+# App Store Connect's limit for a version's What's New, checked before anything is written.
+WHATS_NEW_LIMIT = 4000
 
 
 class AscError(Exception):
@@ -281,6 +292,41 @@ def ensure_version(client, args):
     print(created["data"]["id"])
 
 
+def whats_new(client, args):
+    """Owner decision 3 (2026-11-26): each localization of the version gets its language's section of the release
+    notes, matched as AltStore matches a language (`altstore_languages.localized_value`). A localization whose
+    language has none stops the run before anything is written; there is no fallback."""
+    try:
+        notes = release_notes.read(args.notes)
+    except release_notes.NotesError as error:
+        raise AscError(str(error)) from None
+    path = f"/v1/appStoreVersions/{args.version_id}/appStoreVersionLocalizations"
+    localizations = (client.request("GET", path, {"limit": "200"}) or {}).get("data") or []
+    if not localizations:
+        raise AscError(f"Version {args.version_id} has no localizations in App Store Connect, so What's New has "
+                       f"nowhere to go.")
+    missing, writes = [], []
+    for item in localizations:
+        locale = item["attributes"]["locale"]
+        text = altstore_languages.localized_value(notes, [locale])
+        if text is None:
+            missing.append(locale)
+            continue
+        if len(text) > WHATS_NEW_LIMIT:
+            raise AscError(f"The {locale} section of {args.notes} has {len(text)} characters; What's New takes at "
+                           f"most {WHATS_NEW_LIMIT}. Nothing was written.")
+        writes.append((item["id"], locale, text))
+    if missing:
+        raise AscError(f"{args.notes} has no section for {', '.join(missing)}, and What's New has no fallback to "
+                       f"another language. Add the section, or remove that localization in App Store Connect. "
+                       f"Nothing was written.")
+    for localization_id, locale, text in writes:
+        body = {"data": {"type": "appStoreVersionLocalizations", "id": localization_id,
+                         "attributes": {"whatsNew": text}}}
+        client.request("PATCH", f"/v1/appStoreVersionLocalizations/{localization_id}", body=body)
+        print(f"Wrote What's New for {locale}.", file=sys.stderr)
+
+
 def attach_build(client, args):
     body = {"data": {"type": "builds", "id": args.build_id}}
     client.request("PATCH", f"/v1/appStoreVersions/{args.version_id}/relationships/build", body=body)
@@ -350,6 +396,9 @@ def parse(argv):
     command = commands.add_parser("ensure-version")
     command.add_argument("--app", required=True, type=number)
     command.add_argument("--version", required=True, type=version)
+    command = commands.add_parser("whats-new")
+    command.add_argument("--version-id", required=True, type=identifier)
+    command.add_argument("--notes", required=True)
     command = commands.add_parser("attach-build")
     command.add_argument("--version-id", required=True, type=identifier)
     command.add_argument("--build-id", required=True, type=identifier)
@@ -360,7 +409,7 @@ def parse(argv):
 
 
 COMMANDS = {"check-build": check_build, "wait-build": wait_build, "ensure-version": ensure_version,
-            "attach-build": attach_build, "submit": submit}
+            "whats-new": whats_new, "attach-build": attach_build, "submit": submit}
 
 
 def main(argv=None):
