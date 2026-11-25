@@ -239,7 +239,11 @@ class CanonicalGraphTests(unittest.TestCase):
             item for item in objects.values()
             if item.get("isa") == "XCSwiftPackageProductDependency" and item.get("package") == app_package_id
         ]
-        self.assertEqual({item.get("productName") for item in local_products}, {"AppFeature", "VisualSnapshotSupport"})
+        # AutomationIdentifiers is the UI tests' shared accessibility identifiers (e4bcd2b47), not an SDK edge.
+        self.assertEqual(
+            {item.get("productName") for item in local_products},
+            {"AppFeature", "VisualSnapshotSupport", "AutomationIdentifiers"},
+        )
         self.assertFalse(any(
             item.get("isa") == "XCSwiftPackageProductDependency"
             and item.get("productName") in {"Appshot", "AppshotProtocol", "AppshotXCTest"}
