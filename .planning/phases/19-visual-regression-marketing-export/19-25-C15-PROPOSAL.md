@@ -1,6 +1,7 @@
 # 19-25 C15 proposal: insufficient funds on Archives
 
-Status: proposed, waiting for the owner's answer (Task 2). Nothing in this file has landed in source. No key, string or
+Status: decided 2026-11-25: C15 is accepted, nothing lands in source (see "Owner decision"). Before that it was
+proposed, waiting for the owner's answer (Task 2). Nothing in this file has landed in source. No key, string or
 view change is made before the owner approves the exact text of every locale below.
 
 Origin: C15 in `19-13-PRECHECK.md`, `detail-pages-archives-insufficient-funds`: insufficient funds are not indicated and
@@ -370,3 +371,24 @@ covers the shortfall from Credits at an exchange rate the app does not know. A g
 the site would fulfil, which is exactly T-19-54. Only a price above the GP balance with no Credits at all (a known
 zero) is certainly unaffordable. When the site does refuse, the app already shows the site's own response text
 (`parseDownloadCommandResponse`) in a toast.
+
+## Owner decision
+
+Asked of the owner by the orchestrator on 2026-11-25, second round, in Taiwanese Mandarin, after the site evidence:
+the H@H price reads "1343 GP" and is paid in GP, but the site covers a GP shortfall from Credits at the GP Exchange's
+24-hour "High" rate, which the app does not know, and the site itself does not grey out a size the GP cannot pay. The
+question was when a card should be disabled, with three options: only when it is certainly unaffordable (a price above
+the GP balance and no Credits; recommended), never (C15 accepted), or on GP alone (blocks downloads the site would
+fulfil, T-19-54). Answer, verbatim: 「不停用，C15 改為接受」.
+
+- Option: **accepted**, neither `U1` nor `U2`. No card is disabled and the download button keeps its current gate (a
+  selection). The app does not judge affordability; the site decides, and its response is shown in the toast as
+  today. Decided by: the owner.
+- Copy: none. No key is added, so no copy table is final and the six-locale drafts above are not used. The copy
+  rewrite promised in the first round's answer is therefore not needed.
+- Price format: the site writes the H@H price as digits with " GP" and no grouping ("1343 GP"), see "Site evidence".
+  No parser change follows from it, because nothing reads the price as a number.
+- Task 3 is not run: there is no approved design or copy to implement. `HathArchive.gpCost`, the affordability gate
+  and the three planned test files are not written.
+- C15 in `19-13-PRECHECK.md` is now accepted, with this reason. The `detail-pages-archives-insufficient-funds` picture
+  stays as it is in the next recording.
