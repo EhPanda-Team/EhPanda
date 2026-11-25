@@ -106,13 +106,13 @@
     {
       "number": "20",
       "name": "3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks",
-      "status": "pending"
+      "status": "in_progress"
     }
   ],
   "next": {
-    "command": "/gsd-discuss-phase 20",
-    "label": "Discuss and plan Phase 20 (3.0 Distribution)",
-    "reason": "Phase 19 complete with deferred items (19-12, 19-13, the green hosted gate run and the hosted controlled regression; owner decision); Phase 20 has a CONTEXT file and no plans"
+    "command": "/gsd-progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 21 of 21 · 90% · executing"
   },
-  "updated_at": "2026-11-11T09:16:37.000Z"
+  "updated_at": "2026-11-25T08:31:50.873Z"
 }
