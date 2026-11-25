@@ -103,7 +103,7 @@ Accessibility:
 
 | Element | Label | Value | Other |
 |---|---|---|---|
-| Unaffordable card (Button) | unchanged, VoiceOver reads the card text: resolution, size, price | `archives_unaffordable` | still activatable |
+| Unaffordable card (Button) | unchanged, VoiceOver reads the card text: resolution, size, price | `accessibility.archive_unaffordable` | still activatable |
 | Other cards | unchanged | none | unchanged |
 | Download button | `download_to_hath_client`, unchanged | none | `.disabled`, so VoiceOver reports it as dimmed |
 | The line | its own text, static, read directly after the button | none | not hidden, not repeated as a hint |
@@ -112,7 +112,9 @@ Keys (module-local, `DetailFeature/Resources/Localizable.xcstrings`, `extraction
 every locale):
 
 - `archives_insufficient_funds`, generated as `func archivesInsufficientFunds(cost: Int, balance: Int)`.
-- `archives_unaffordable`, generated as `archivesUnaffordable`, no arguments.
+- `accessibility.archive_unaffordable`, generated as `accessibilityArchiveUnaffordable`, no arguments. It is a
+  spoken value, so it takes the `accessibility.` prefix and the spelled-out currency of the existing spoken balance
+  label (`accessibility.gallery_points_balance`).
 
 Format variables:
 
@@ -120,7 +122,7 @@ Format variables:
 |---|---|---|---|---|---|---|---|---|---|
 | `archives_insufficient_funds` | `cost` | 1 | lld | other | other | other | other | other | other |
 | `archives_insufficient_funds` | `balance` | 2 | lld | other | other | other | other | other | other |
-| `archives_unaffordable` | none | none | none | none | none | none | none | none | none |
+| `accessibility.archive_unaffordable` | none | none | none | none | none | none | none | none | none |
 
 Each variable's `other` value is `%arg`. GP is the unit abbreviation and does not change with the count, so `other`-only
 is coherent for en and de, as it is in the existing balance keys.
@@ -129,37 +131,40 @@ is coherent for en and de, as it is in the existing balance keys.
 
 | Locale | Text |
 |---|---|
-| en | This archive costs %#@cost@ GP, but you only have %#@balance@ GP, so it can't be downloaded to your H@H client. |
-| de | Dieses Archiv kostet %#@cost@ GP, du hast aber nur %#@balance@ GP und kannst es deshalb nicht auf deinen H@H-Client laden. |
-| ja | このアーカイブには%#@cost@ GPが必要ですが、残高は%#@balance@ GPです。H@Hクライアントにダウンロードできません。 |
-| ko | 이 아카이브는 %#@cost@ GP가 필요하지만 잔액이 %#@balance@ GP뿐이라 H@H 클라이언트로 저장할 수 없습니다. |
-| zh-Hans | 此归档需要 %#@cost@ GP，但你只有 %#@balance@ GP，无法下载到 H@H 客户端。 |
-| zh-Hant | 此壓縮檔需要 %#@cost@ GP，但你只有 %#@balance@ GP，無法下載至 H@H 用戶端。 |
+| en | The selected archive costs %#@cost@ GP, but you only have %#@balance@ GP, so you can't download it to your H@H client. |
+| de | Das ausgewählte Archiv kostet %#@cost@ GP, du hast aber nur %#@balance@ GP. Deshalb kannst du es nicht auf deinen H@H-Client laden. |
+| ja | 選択したアーカイブには%#@cost@ GPが必要ですが、残高が%#@balance@ GPのため、H@Hクライアントにダウンロードできません。 |
+| ko | 선택한 아카이브는 %#@cost@ GP가 필요하지만 잔액이 %#@balance@ GP뿐이어서 H@H 클라이언트로 저장할 수 없습니다. |
+| zh-Hans | 所选归档需要 %#@cost@ GP，但你目前只有 %#@balance@ GP，无法下载到 H@H 客户端。 |
+| zh-Hant | 所選壓縮檔需要 %#@cost@ GP，但你目前只有 %#@balance@ GP，無法下載至 H@H 用戶端。 |
 
-#### `archives_unaffordable`
+#### `accessibility.archive_unaffordable`
 
 | Locale | Text |
 |---|---|
-| en | Not enough GP |
-| de | Zu wenig GP |
-| ja | GPが足りません |
-| ko | GP 부족 |
-| zh-Hans | GP 不足 |
-| zh-Hant | GP 不足 |
+| en | Not enough Gallery points |
+| de | Nicht genug Galeriepunkte |
+| ja | ギャラリーポイントが足りません |
+| ko | 갤러리 포인트 부족 |
+| zh-Hans | 画廊点数不足 |
+| zh-Hant | 畫廊點數不足 |
 
-Word choice per locale (U1):
+Word choice per locale (U1), after the blind review (see "Blind locale review"):
 
-- en: "costs" for the price and "only have" for the balance, the plain way a store line reads; "download to your H@H
-  client" repeats the button's own verb and noun.
-- de: informal "du", as the existing H@H copy ("Dein H@H-Client ist offline"); "Archiv" and "H@H-Client" as in the
-  existing keys; "laden" as in the button ("Auf H@H-Client laden").
-- ja: polite です/ます like the neighbouring keys; "残高" as in the credits label; "H@Hクライアント" with no space,
-  as the existing keys write it; a space between the number and GP, as `greeting.reward_gp` does.
-- ko: "잔액" as in the existing labels; "저장" as in the button ("H@H 클라이언트로 저장"); "GP가" follows the vowel
-  ending of "피"; "뿐이라" gives the natural single-sentence reason.
-- zh-Hans: "归档" and "客户端" as in the existing keys, "你" as in the other detail copy, "下载到" as in the button.
-- zh-Hant: Taiwan Mandarin, "壓縮檔", "用戶端", "下載至" as in the button; the sentence is the same as zh-Hans in
-  everyday Taiwan usage, so only the regional words and the script differ.
+- Every locale names the selected archive ("The selected archive", "Das ausgewählte Archiv", 選択した, 선택한, 所选,
+  所選), because the line sits under the button and the sheet lists several cards.
+- en: active "you can't download it to your H@H client", which repeats the button's verb and noun.
+- de: two sentences instead of one chained clause, informal "du" as in "Dein H@H-Client ist offline"; "laden" as in the
+  button.
+- ja: 「残高が…GPのため」 makes the second half the result of the first, polite です/ます as the neighbouring keys,
+  「H@Hクライアント」 with no space, a space between the number and GP.
+- ko: 「뿐이어서」 fits the app's 합니다 register better than 「뿐이라」; 「잔액」 and 「저장」 as in the existing keys.
+- zh-Hans and zh-Hant: 「目前只有」 for the balance, the everyday way Taiwan copy states a balance and natural in
+  mainland copy too, so both carry it; 归档 / 壓縮檔, 客户端 / 用戶端 and 下载到 / 下載至 as in the existing keys.
+- Spoken value: five of the six reviewers preferred the spelled-out currency, because VoiceOver reads "GP" letter by
+  letter and the spoken balance on the same sheet already says Gallery points. The ja reviewer preferred 「GP」 only on
+  the condition that the card's spoken price says "GP"; the card speaks its price as the bare site text (for example
+  "380") with no unit, so that condition does not hold and every locale spells the currency out.
 
 ## U2 Unaffordable cards disabled like unavailable ones, with a note under the funds
 
@@ -182,7 +187,7 @@ Accessibility:
 
 | Element | Label | Value | Other |
 |---|---|---|---|
-| Unaffordable card (Button) | unchanged, VoiceOver reads the card text | `archives_unaffordable` | `.disabled`, tap ignored |
+| Unaffordable card (Button) | unchanged, VoiceOver reads the card text | `accessibility.archive_unaffordable` | `.disabled`, tap ignored |
 | Other cards | unchanged | none | unchanged |
 | Download button | `download_to_hath_client`, unchanged | none | `.disabled` only without a selection |
 | The note under the funds | its own text, static, read after the funds | none | not hidden |
@@ -190,69 +195,68 @@ Accessibility:
 Keys:
 
 - `archives_unaffordable_list`, generated as `func archivesUnaffordableList(_ arg1: String)`, one positional `%@`.
-- `archives_unaffordable`, the same key and text as in U1.
+- `accessibility.archive_unaffordable`, the same key and text as in U1.
 
 Format variables:
 
 | Key | Variable | Kind | en | de | ja | ko | zh-Hans | zh-Hant |
 |---|---|---|---|---|---|---|---|---|
 | `archives_unaffordable_list` | `%@` list of resolutions | positional string | none | none | none | none | none | none |
-| `archives_unaffordable` | none | none | none | none | none | none | none | none |
+| `accessibility.archive_unaffordable` | none | none | none | none | none | none | none | none |
 
 Neither key has a numeric argument, so neither has a plural variation. The list is one string, so the wording does not
-depend on how many archives are named ("Archives that cost more GP than you have" holds for one archive or for three).
+depend on how many archives are named (every locale's line holds for one archive or for three).
 
 #### `archives_unaffordable_list`
 
 | Locale | Text |
 |---|---|
-| en | Archives that cost more GP than you have: %@ |
-| de | Archive, die mehr GP kosten, als du hast: %@ |
-| ja | GPが足りないアーカイブ：%@ |
-| ko | GP가 부족한 아카이브: %@ |
-| zh-Hans | GP 不足的归档：%@ |
-| zh-Hant | GP 不足的壓縮檔：%@ |
+| en | You don't have enough GP for %@. |
+| de | Dein GP-Guthaben reicht nicht für %@. |
+| ja | GPが足りずダウンロードできないアーカイブ：%@ |
+| ko | GP가 부족해 저장할 수 없는 아카이브: %@ |
+| zh-Hans | GP 不足，无法下载：%@ |
+| zh-Hant | GP 不足，無法下載：%@ |
 
-#### `archives_unaffordable`
+#### `accessibility.archive_unaffordable`
 
 | Locale | Text |
 |---|---|
-| en | Not enough GP |
-| de | Zu wenig GP |
-| ja | GPが足りません |
-| ko | GP 부족 |
-| zh-Hans | GP 不足 |
-| zh-Hant | GP 不足 |
+| en | Not enough Gallery points |
+| de | Nicht genug Galeriepunkte |
+| ja | ギャラリーポイントが足りません |
+| ko | 갤러리 포인트 부족 |
+| zh-Hans | 画廊点数不足 |
+| zh-Hant | 畫廊點數不足 |
 
-Word choice per locale (U2):
+Word choice per locale (U2), after the blind review:
 
-- en: "Archives that cost more GP than you have" is a noun phrase, so it is true for one name or several, with no
-  singular/plural agreement to get wrong.
-- de: the same shape, with the comma German requires before "als"; "kosten" and "du" as in U1.
-- ja: a noun phrase ending in the list, with the full-width colon the existing labels use ("残高：").
-- ko: a relative clause ("GP가 부족한") before the noun, the natural order; ASCII colon and space as in the existing
-  Korean labels.
-- zh-Hans and zh-Hant: "GP 不足的" before the noun, the full-width colon as in the existing labels; only the term for
-  archive differs by region.
+- Every reviewer found the first draft read as if the archives were short of GP. Each line now says the account is
+  short and, where the language puts the list after a label, what it prevents.
+- en and de name the shortfall with the list as its object ("You don't have enough GP for %@.", "Dein GP-Guthaben
+  reicht nicht für %@."), which reads for one archive or several without a plural noun.
+- ja and ko keep a label before the list and state the result (ダウンロードできない, 저장할 수 없는).
+- zh-Hans and zh-Hant state cause then result (「GP 不足，无法下载：」), the full-width colon as in the existing labels.
 
 ## Pair check: zh-Hans against zh-Hant
 
 The check reads this file, takes every zh-Hans and zh-Hant row under the same key, converts the zh-Hans text with the
 regional-word table first and the script table second, and requires the result to equal the zh-Hant text. Anything
 the two tables do not explain fails. The regional words are the ones the existing catalog already pairs
-(归档 and 壓縮檔, 客户端 and 用戶端, and the button's 下载到 and 下載至).
+(归档 and 壓縮檔, 客户端 and 用戶端, and the button's 下载到 and 下載至); every other difference must be a
+character of the script table.
 
 ```python
 import re
 import sys
 
 REGIONAL_WORDS = {"归档": "壓縮檔", "客户端": "用戶端", "下载到": "下載至"}
-SCRIPT_CHARS = {"无": "無"}
+SCRIPT_CHARS = {"无": "無", "选": "選", "载": "載", "画": "畫", "点": "點", "数": "數"}
 
 key = None
 rows = {}
 for line in open(sys.argv[1], encoding="utf-8"):
-    heading = re.match(r"#### `([a-z_]+)`", line)
+    heading = re.match(r"#### `([a-z_.]+)`", line)
     if heading:
         key = heading.group(1)
         continue
@@ -285,10 +289,10 @@ sys.exit(1 if failures else 0)
 Output of `python3 -I <script> 19-25-C15-PROPOSAL.md`:
 
 ```text
-archives_insufficient_funds: OK; applied: 归档->壓縮檔, 客户端->用戶端, 下载到->下載至, 无->無
-archives_unaffordable: OK; applied: none
-archives_unaffordable: OK; applied: none
-archives_unaffordable_list: OK; applied: 归档->壓縮檔
+archives_insufficient_funds: OK; applied: 归档->壓縮檔, 客户端->用戶端, 下载到->下載至, 无->無, 选->選
+accessibility.archive_unaffordable: OK; applied: 画->畫, 点->點, 数->數
+accessibility.archive_unaffordable: OK; applied: 画->畫, 点->點, 数->數
+archives_unaffordable_list: OK; applied: 无->無, 载->載
 pairs-with-differences 0
 ```
 
@@ -297,13 +301,12 @@ pairs-with-differences 0
 - Price format. The card price text is shown as the site wrote it, and the rule accepts "Free", plain digits, comma
   grouping and a trailing " GP". Whether the site writes archive prices in one of those forms is not provable from the
   repository (see Evidence). The H@H cost is assumed to be paid in GP; the screen shows the account's GP and Credits.
-- Spoken GP. The visible copy and the new spoken value write "GP". The existing spoken balance label spells the term
-  out (Gallery points, Galeriepunkte, ギャラリーポイント, 갤러리 포인트, 画廊点数, 畫廊點數). If the owner prefers the
-  spelled-out form for the spoken value `archives_unaffordable`, the text changes and nothing else does.
-- Number grouping. A numeric substitution prints the plain integer, like the existing balance labels, so the line
-  reads "380 GP" and "24680 GP" while the funds row above prints "24,680". A grouped number in the line would need a
-  string argument instead of the labeled numeric one, which the copy rules do not allow, so the proposal keeps the
-  plain integer.
+- Spoken currency. Settled by the blind review: the spoken value spells the currency out, as the spoken balance does
+  (see "Word choice per locale (U1)"). The visible lines keep "GP", as the site and the funds row write it.
+- Number grouping. The numbers in the line are grouped by the locale, as the funds row's are: a labeled numeric
+  argument of a generated `LocalizedStringResource` is formatted with the resource's locale (checked with the 27.2 SDK:
+  24680 reads "24,680" in en and ja and "24.680" in de). Task 3 checks it in a picture with a balance of four digits
+  or more.
 - Selection state. The cards show their selection by border colour only and carry no selected trait today. This plan
   does not change that.
 
@@ -312,3 +315,19 @@ pairs-with-differences 0
 Show the owner this file (both options with their copy) and ask in Taiwanese Mandarin, verbatim:
 
 「C15（GP 不夠時的壓縮檔畫面）的提案在這裡：兩種顯示方式各附六種語言的文案。想請你決定：一、用 U1 還是 U2（我建議 U1：卡片還能選，但選了買不起的就停用下載鈕，下面一行說明差多少 GP）；二、文案可以照這樣用，還是要改哪裡；三、網站上壓縮檔的價格實際是怎麼寫的（例如「180」、「180 GP」還是「1,234 GP」），H@H 下載扣的是 GP 對嗎？」
+
+## Blind locale review
+
+Done by the orchestrator on 2026-11-25 before Task 2, under the project's rule that each locale is read by a reviewer
+who has not seen the English. Six reviewers, one per locale; each saw only its own locale's draft, that locale's
+neighbouring strings on this sheet and the facts each line must express. What they found and what changed:
+
+- U1 line: every non-English reviewer asked that the line name the selected archive, since it sits under the button
+  among several cards; adopted in every locale. en: passive "it can't be downloaded" made active. de: the chained
+  sentence split in two. ja: 「のため」 added so the second half reads as the result. ko: 「뿐이라」 to 「뿐이어서」 for
+  the 합니다 register. zh-Hant: 「目前只有」 for the balance, carried into zh-Hans to keep the pair aligned (the zh-Hans
+  reviewer found the draft natural and offered 所选 as an improvement).
+- Spoken value: spelled-out currency in every locale (five of six; the sixth's condition does not hold, see above);
+  the key is renamed to `accessibility.archive_unaffordable` to match the other spoken keys.
+- U2 line: every reviewer found the draft described the archives as short of GP; each locale rewritten as recorded
+  above.
