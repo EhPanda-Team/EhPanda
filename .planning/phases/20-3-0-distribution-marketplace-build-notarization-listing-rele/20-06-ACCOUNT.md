@@ -66,3 +66,52 @@ The three secrets exist: `APP_STORE_CONNECT_KEY_ID` (2026-11-25T08:00:28Z), `APP
 Open: the key's ID, its type (team or individual) and its role, and who created it and when. Helm signs in with its
 own key, which is not necessarily this one, so nothing from Helm is recorded as the CI key. The plan's `role:` line
 is therefore not yet in this file.
+
+## Task 2: Agreements, marketplace, trader status, age rating, App Privacy answers and countries
+
+What shows that the account steps happened, and what does not: Apple accepted build 163 for Notarization (owner's
+report, 20-08-SUBMISSION.md), and AltStore processed the ADP `453ead28-2d2b-49d1-a398-5a06ca29186b` (created
+2026-11-20T15:53:04Z). Both need the DPLA, the AltStore registration and the marketplace integration to exist.
+Neither names who did them or when, so each item below says "not recorded" where that is so.
+
+| Item | State (2026-11-25) | Who and when |
+|---|---|---|
+| DPLA acceptance (Account Holder) | implied by the accepted Notarization submission | not recorded |
+| AltStore Developer ID registration (`POST https://api.altstore.io/register`) | implied by AltStore processing the ADP | not recorded |
+| AltStore PAL under Users and Access, Integrations, Marketplace, with the app selected and notifications on | implied by the same | not recorded |
+| Trader status | not readable through Helm | not recorded |
+| Age rating | answered; see below | not recorded |
+| App Privacy answers | not readable through Helm; see below | not recorded |
+| Countries (EU, Japan, Brazil) | not readable through Helm | not recorded |
+| `developerName` | "EhPanda Team", as D-24 decided; no question asked, template unchanged | verified in `actions-tool/altstore-pal.template.json` and `AltStorePAL.json` line 35 |
+
+### Age rating (verified 2026-11-25 with `helm-asc apps 6832942312 age-rating --agent`, read only)
+
+The declaration is answered, with no unanswered question; calculated rating 18+, rating 18+, app info state
+`READY_FOR_DISTRIBUTION`, not editable. Answers: Parental Controls no; Age Assurance yes; Unrestricted Web Access no;
+User-Generated Content yes; Messaging and Chat yes; Social Media yes (age restricted no); Advertising no; Profanity or
+Crude Humor frequent; Horror or Fear Themes infrequent; Alcohol, Tobacco or Drug Use infrequent; Medical or Treatment
+Information none; Health or Wellness Topics no; Mature or Suggestive Themes, Sexual Content or Nudity and Graphic
+Sexual Content and Nudity frequent; Cartoon or Fantasy Violence frequent; Realistic Violence infrequent; Prolonged
+Graphic or Sadistic Realistic Violence infrequent; Guns or Other Weapons none; Simulated Gambling, Contests, Gambling
+and Loot Boxes none or no.
+
+### App Privacy answers
+
+Helm's CLI has no command that reads the App Privacy answers, so what App Store Connect holds is unknown. What it
+needs, from `App/PrivacyInfo.xcprivacy` (the source the plan names, as changed by commit `4c661deef`, crash reporting,
+2026-11-23):
+
+| App Store Connect type | Manifest type | Purpose | Linked to the user | Tracking |
+|---|---|---|---|---|
+| Usage Data: Product Interaction | `ProductInteraction` | Analytics | no | no |
+| Identifiers: Device ID | `DeviceID` | Analytics | no | no |
+| Diagnostics: Other Diagnostic Data | `OtherDiagnosticData` | Analytics | no | no |
+| Diagnostics: Crash Data | `CrashData` | App Functionality | no | no |
+
+`NSPrivacyTracking` is false and `NSPrivacyTrackingDomains` is empty. The plan's must-have names only the first three
+types, all with the Analytics purpose (D-18). The fourth, Crash Data with App Functionality, was added after the plan
+was written. The README's Analytics section describes TelemetryDeck only and does not mention crash reports; the
+manifest test's header explains that crash reports are declared separately because they are not analytics data.
+Open: the answers the account holds today, and the owner's decision whether to enter four types (to match the
+manifest) or three (to match the plan text).
