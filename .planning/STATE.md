@@ -123,7 +123,8 @@ source_head: b5eca09d1
   published contact link is out of the 3.0 plan (ROADMAP Phase 20 item 4 and SC4, D-05, 20-07, 20-08 amended), and
   UGC-18-01 is marked complete. The App Store Connect Support URL is the GitHub repository page,
   https://github.com/EhPanda-Team/EhPanda (guideline 1.5 is a Notarization guideline; 1.2 is not).
-- **20-06 Task 3 in progress (2026-11-22, owner decisions):** the GitHub environment is named `app-marketplace`
+- **20-06 status (2026-11-25):** `20-06-ACCOUNT.md` is written from verified facts (the app record, the environment's eight secrets and reviewer rule, the age rating); open and waiting on the owner or collaborator: the profile names and App Store type, the CI key's ID, type, role and creator, who did each Task 2 item and when, and the App Privacy answers (four types in the manifest, three in the plan). No SUMMARY yet.
+- **20-06 Task 3 history (2026-11-22, owner decisions; the live check below superseded its missing-secret list):** the GitHub environment is named `app-marketplace`
   (was `pal-notarization`; `deploy.yml`, `marketplace-signing.sh` and the workflow tests renamed), created on
   EhPanda-Team/EhPanda with the owner (chihchy) as required reviewer and no branch policy.
   `ALTSTORE_PAL_MARKETPLACE_ID` = 6832942312 is a repository variable, not an environment one, because
