@@ -30,7 +30,6 @@ import asc  # noqa: E402
 OPENSSL = shutil.which("openssl")
 KEY_ID = "FAKEKEY123"
 ISSUER_ID = "00000000-0000-4000-8000-000000000000"
-ROLE = "APP_MANAGER"
 APP_ID = "1234567890"
 
 
@@ -224,8 +223,7 @@ class AllowListTests(unittest.TestCase):
     def test_a_path_off_the_list_is_refused_before_any_request(self):
         fake = FakeASC()
         self.addCleanup(fake.close)
-        client = asc.Client(fake.base_url, token=lambda: "unused", key_id=KEY_ID, key_role=ROLE, record=None,
-                            log=lambda line: None)
+        client = asc.Client(fake.base_url, token=lambda: "unused", key_id=KEY_ID, record=None, log=lambda line: None)
         for method, path in (("POST", "/v1/apps"), ("POST", "/v1/bundleIds"), ("POST", "/v1/certificates"),
                              ("POST", "/v1/profiles"), ("GET", "/v1/users")):
             with self.subTest(method=method, path=path), self.assertRaises(asc.AscError):
@@ -235,11 +233,10 @@ class AllowListTests(unittest.TestCase):
     def test_the_base_url_must_be_https_unless_it_is_local(self):
         for url in ("http://api.appstoreconnect.apple.com", "ftp://127.0.0.1", "http://example.com"):
             with self.subTest(url=url), self.assertRaises(asc.AscError):
-                asc.Client(url, token=lambda: "", key_id="", key_role="", record=None, log=lambda line: None)
-        asc.Client("https://api.appstoreconnect.apple.com", token=lambda: "", key_id="", key_role="", record=None,
+                asc.Client(url, token=lambda: "", key_id="", record=None, log=lambda line: None)
+        asc.Client("https://api.appstoreconnect.apple.com", token=lambda: "", key_id="", record=None,
                    log=lambda line: None)
-        asc.Client("http://127.0.0.1:8080", token=lambda: "", key_id="", key_role="", record=None,
-                   log=lambda line: None)
+        asc.Client("http://127.0.0.1:8080", token=lambda: "", key_id="", record=None, log=lambda line: None)
 
 
 @unittest.skipUnless(OPENSSL, "openssl is not installed")
@@ -261,7 +258,7 @@ class CommandTests(unittest.TestCase):
     def run_asc(self, *args):
         env = {key: value for key, value in os.environ.items() if not key.startswith("ASC_")}
         env.update({"ASC_BASE_URL": self.fake.base_url, "APP_STORE_CONNECT_KEY_ID": KEY_ID, "APP_STORE_CONNECT_ISSUER_ID": ISSUER_ID,
-                    "ASC_KEY_PATH": str(self.key), "APP_STORE_CONNECT_KEY_ROLE": ROLE, "ASC_CALL_RECORD": str(self.record)})
+                    "ASC_KEY_PATH": str(self.key), "ASC_CALL_RECORD": str(self.record)})
         result = subprocess.run([sys.executable, str(ASC), *args], capture_output=True, text=True, env=env,
                                 timeout=60)
         self.outputs = getattr(self, "outputs", "") + result.stdout + result.stderr
@@ -311,18 +308,17 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(len(lines), len(self.fake.requests))
         for line, request in zip(lines, self.fake.requests):
             with self.subTest(line=line):
-                self.assertEqual(set(line), {"method", "path", "status", "keyID", "keyRole"})
+                self.assertEqual(set(line), {"method", "path", "status", "keyID"})
                 self.assertEqual((line["method"], line["path"]), (request["method"], request["path"]))
                 self.assertEqual(line["keyID"], KEY_ID)
-                self.assertEqual(line["keyRole"], ROLE)
         self.assertEqual([line["status"] for line in lines], [200, 200])
 
     def test_every_call_is_logged_with_method_path_status_and_key(self):
         self.run_build_checks()
         for request in self.fake.requests:
             with self.subTest(request=request["path"]):
-                self.assertRegex(self.outputs, rf"ASC {request['method']} {re.escape(request['path'])} \d{{3}} "
-                                               rf"key={KEY_ID} role={ROLE}")
+                self.assertRegex(self.outputs, rf"(?m)ASC {request['method']} {re.escape(request['path'])} \d{{3}} "
+                                               rf"key={KEY_ID}$")
 
     def test_neither_the_key_nor_a_token_reaches_the_logs_or_the_record(self):
         self.run_build_checks()

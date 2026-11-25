@@ -20,8 +20,6 @@ name: Deploy
 #   PROVISIONING_PROFILE_APP              the App Store Connect profile for app.ehpanda.store, base64
 #   PROVISIONING_PROFILE_SHARE_EXTENSION  the App Store Connect profile for app.ehpanda.store.ShareExtension, base64
 #   APPLE_TEAM_ID                         the team that owns the certificate and the profiles
-# Its variable:
-#   APP_STORE_CONNECT_KEY_ROLE            the key's role as recorded when it was made (D-21; written to the call record)
 # It also reads the repository variable ALTSTORE_PAL_MARKETPLACE_ID, the app's Apple ID in App Store Connect (also
 # the PAL source's marketplaceID), kept at repository level because publish-pal.yml, which runs in no environment,
 # reads it too. The PAL archive also reads the repository secrets TELEMETRYDECK_APP_ID, TELEMETRYDECK_SALT and
@@ -30,7 +28,7 @@ name: Deploy
 #
 # Nothing here creates an App ID, certificate, profile or key: signing is manual with the profiles above, and
 # actions-tool/asc.py refuses every endpoint outside its allow-list (D-07). Its calls are recorded with the key's ID
-# and role and uploaded as an artifact (D-21); the upload uses the same key.
+# and uploaded as an artifact (D-21); the upload uses the same key.
 on:
   workflow_dispatch:
 env:
@@ -385,7 +383,6 @@ jobs:
       contents: read
     env:
       ASC_APP_ID: ${{ vars.ALTSTORE_PAL_MARKETPLACE_ID }}
-      APP_STORE_CONNECT_KEY_ROLE: ${{ vars.APP_STORE_CONNECT_KEY_ROLE }}
       ALTSTORE_PAL_JSON_PATH: './AltStorePAL.json'
       ASC_TOOL_PATH: './actions-tool/asc.py'
       SIGNING_SCRIPT_PATH: './actions-tool/marketplace-signing.sh'

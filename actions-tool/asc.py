@@ -16,12 +16,11 @@ The `--app` ID is the app's Apple ID in App Store Connect, the same number as th
 Environment:
   APP_STORE_CONNECT_KEY_ID, APP_STORE_CONNECT_ISSUER_ID   the API key's ID and issuer
   ASC_KEY_PATH                the key's `.p8` file
-  APP_STORE_CONNECT_KEY_ROLE  the key's role as recorded when it was made (informational, for the call record)
   ASC_CALL_RECORD             optional: a file each call is appended to as one JSON line
   ASC_BASE_URL                optional: the API's base URL (tests point it at a local fake)
 
-Each call is logged on stderr as `ASC <method> <path> <status> key=<id> role=<role>` and, with ASC_CALL_RECORD,
-recorded as {"method", "path", "status", "keyID", "keyRole"}: D-21 asks which key type and role made each call.
+Each call is logged on stderr as `ASC <method> <path> <status> key=<id>` and, with ASC_CALL_RECORD, recorded as
+{"method", "path", "status", "keyID"}: the run's record of which key made each call (D-21).
 No token, key, query or body is ever logged or recorded. Results (IDs) go to stdout, one per line.
 
 The client refuses every endpoint outside `ALLOWED`, which holds only that build read. In particular it can never
@@ -126,20 +125,20 @@ class TokenSource:
 # HTTP
 
 class Client:
-    def __init__(self, base_url, token, key_id, key_role, record, log):
+    def __init__(self, base_url, token, key_id, record, log):
         parsed = urllib.parse.urlsplit(base_url)
         local = parsed.scheme == "http" and parsed.hostname in ("127.0.0.1", "localhost", "::1")
         if parsed.scheme != "https" and not local:
             raise AscError(f"The API base URL must use https (got {parsed.scheme}://{parsed.hostname}).")
         self.base_url = base_url.rstrip("/")
-        self.token, self.key_id, self.key_role, self.record, self.log = token, key_id, key_role, record, log
+        self.token, self.key_id, self.record, self.log = token, key_id, record, log
 
     def note(self, method, path, status):
-        self.log(f"ASC {method} {path} {status} key={self.key_id} role={self.key_role}")
+        self.log(f"ASC {method} {path} {status} key={self.key_id}")
         if self.record:
             with open(self.record, "a", encoding="utf-8") as handle:
                 handle.write(json.dumps({"method": method, "path": path, "status": status,
-                                         "keyID": self.key_id, "keyRole": self.key_role}) + "\n")
+                                         "keyID": self.key_id}) + "\n")
 
     def request(self, method, path, query=None, attempts=3):
         if not allowed(method, path):
@@ -230,7 +229,7 @@ def main(argv=None):
         key_id = os.environ["APP_STORE_CONNECT_KEY_ID"]
         client = Client(os.environ.get("ASC_BASE_URL") or DEFAULT_BASE_URL,
                         token=TokenSource(key_id, os.environ["APP_STORE_CONNECT_ISSUER_ID"], os.environ["ASC_KEY_PATH"]),
-                        key_id=key_id, key_role=os.environ.get("APP_STORE_CONNECT_KEY_ROLE") or "unrecorded",
+                        key_id=key_id,
                         record=os.environ.get("ASC_CALL_RECORD") or None,
                         log=lambda line: print(line, file=sys.stderr, flush=True))
         COMMANDS[args.command](client, args)

@@ -142,8 +142,11 @@ source_head: b5eca09d1
   `DISCORD_WEBHOOK`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHANNEL_ID`, `TELEMETRYDECK_APP_ID`, `TELEMETRYDECK_SALT`,
   `SENTRY_DSN` and `SENTRY_AUTH_TOKEN`, and the variables `ALTSTORE_PAL_MARKETPLACE_ID`, `SENTRY_ORGANIZATION`,
   `SENTRY_PROJECT` and `SENTRY_URL` (crash reporting's setup is complete). Still missing, all from the collaborator:
-  `PROVISIONING_PROFILE_APP` and `PROVISIONING_PROFILE_SHARE_EXTENSION` (App Store profiles), the three
-  `APP_STORE_CONNECT_*` secrets and the `APP_STORE_CONNECT_KEY_ROLE` variable.
+  `PROVISIONING_PROFILE_APP` and `PROVISIONING_PROFILE_SHARE_EXTENSION` (App Store profiles) and the three
+  `APP_STORE_CONNECT_*` secrets.
+  **`APP_STORE_CONNECT_KEY_ROLE` removed (2026-11-25, owner decision):** it only copied the key's role into the
+  call record for D-21's App Manager key test, which no longer runs since the job only uploads (2026-11-21). The
+  variable, its `deploy.yml` header line and the record's `keyRole` field are gone; the record keeps the key ID.
 - **20-08: first PAL source by hand (2026-11-21, owner decision).** Apple accepted 3.0.0 (163) for Notarization,
   submitted outside `deploy-pal.yml` (no run yet); the App Store Connect key is not available yet, so the first
   `AltStorePAL.json` was made by hand. ADP `453ead28-2d2b-49d1-a398-5a06ca29186b`, fetched with
