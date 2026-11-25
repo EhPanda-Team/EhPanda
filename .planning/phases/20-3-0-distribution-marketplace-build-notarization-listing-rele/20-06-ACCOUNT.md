@@ -115,3 +115,45 @@ was written. The README's Analytics section describes TelemetryDeck only and doe
 manifest test's header explains that crash reports are declared separately because they are not analytics data.
 Open: the answers the account holds today, and the owner's decision whether to enter four types (to match the
 manifest) or three (to match the plan text).
+
+## Task 3: GitHub environment and secrets
+
+### The owner's go-ahead
+
+The owner's yes to creating the environment and the variable was given and acted on on 2026-11-22 (STATE.md, "20-06
+Task 3 in progress"), with the owner (`chihchy`) as required reviewer. The owner's words are not quoted here because
+this session holds only the STATE.md record of them. On 2026-11-25 the owner said the collaborator had delivered the
+profiles and the App Store Connect key. Decisions that amend the plan: the environment is `app-marketplace` (2026-11-22),
+`ALTSTORE_PAL_MARKETPLACE_ID` is a repository variable (2026-11-22), and `APP_STORE_CONNECT_KEY_ROLE` is removed
+(2026-11-25).
+
+### Live check (2026-11-25, as `chihchy`, names and timestamps only)
+
+Commands: `gh api repos/EhPanda-Team/EhPanda/environments/app-marketplace/secrets --jq '.secrets[] | "\(.name) \(.updated_at)"'`,
+`gh api repos/EhPanda-Team/EhPanda/environments/app-marketplace --jq '[.protection_rules[].type]|join(",")'` and
+`gh api repos/EhPanda-Team/EhPanda/actions/variables --jq '.variables[].name'`.
+
+Environment `app-marketplace` (created 2026-11-22T07:25:27Z; no deployment branch policy; administrators can bypass;
+protection rules: `required_reviewers`, reviewer `chihchy`, `prevent_self_review` false; no environment variables):
+
+| Secret | Updated (UTC) | In `deploy.yml`'s header and `AltStorePAL` job |
+|---|---|---|
+| `APPLE_TEAM_ID` | 2026-11-22T07:27:39Z | yes |
+| `APP_STORE_CONNECT_ISSUER_ID` | 2026-11-25T08:00:46Z | yes |
+| `APP_STORE_CONNECT_KEY_ID` | 2026-11-25T08:00:28Z | yes |
+| `APP_STORE_CONNECT_PRIVATE_KEY` | 2026-11-25T08:01:25Z | yes |
+| `DISTRIBUTION_CERTIFICATE` | 2026-11-22T07:27:37Z | yes |
+| `DISTRIBUTION_CERTIFICATE_PASSWORD` | 2026-11-22T07:30:28Z | yes |
+| `PROVISIONING_PROFILE_APP` | 2026-11-25T08:03:31Z | yes |
+| `PROVISIONING_PROFILE_SHARE_EXTENSION` | 2026-11-25T08:03:45Z | yes |
+
+Every `secrets.*` the `AltStorePAL` job uses from the environment is present, and the header lists the same eight.
+The job's other references are repository level and exist: secrets `SENTRY_AUTH_TOKEN`, `SENTRY_DSN`,
+`TELEMETRYDECK_APP_ID` and `TELEMETRYDECK_SALT`, and variables `SENTRY_ORGANIZATION`, `SENTRY_PROJECT`, `SENTRY_URL`
+and `ALTSTORE_PAL_MARKETPLACE_ID` (6832942312, updated 2026-11-22T07:25:51Z). No secret value was read, typed or
+written by this session (T-20-18). Who entered each secret is not recorded beyond STATE.md's 2026-11-22 entry
+(the agent set `DISTRIBUTION_CERTIFICATE` and `APPLE_TEAM_ID` on the owner's instruction) and the owner's statement
+that the collaborator delivered the rest.
+
+The plan's verify commands name `pal-notarization`; the same commands against `app-marketplace` give
+`required_reviewers` and the eight names above.
