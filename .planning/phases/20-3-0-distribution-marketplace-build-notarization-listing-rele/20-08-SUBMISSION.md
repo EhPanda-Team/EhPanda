@@ -12,6 +12,11 @@ GitHub showed. Times are UTC.
 - **The first `AltStorePAL.json` was made by hand** (owner decision), because the App Store Connect API key is not
   available to the owner yet. This overrides the plan's "no live publish in this plan": the owner chose to publish
   3.0.0 on AltStore PAL now.
+- **PAL copy: Classic copy kept** (owner decision, 2026-11-25). D-25 is dropped: the PAL listing keeps the Classic
+  subtitle, description and screenshots. Nothing changes in the template or its tests.
+- **DIST-18-03 closes on the first successful CI upload** (owner decision, 2026-11-25): the first Deploy run whose
+  `AltStorePAL` job uploads a marketplace build with the `app-marketplace` secrets. Its run ID and build number go
+  here. D-21 is no longer asked.
 
 ## Submission and verdict (Task 3)
 

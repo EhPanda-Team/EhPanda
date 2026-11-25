@@ -123,7 +123,8 @@ source_head: b5eca09d1
   published contact link is out of the 3.0 plan (ROADMAP Phase 20 item 4 and SC4, D-05, 20-07, 20-08 amended), and
   UGC-18-01 is marked complete. The App Store Connect Support URL is the GitHub repository page,
   https://github.com/EhPanda-Team/EhPanda (guideline 1.5 is a Notarization guideline; 1.2 is not).
-- **20-06 status (2026-11-25):** `20-06-ACCOUNT.md` is written from verified facts (the app record, the environment's eight secrets and reviewer rule, the age rating); open and waiting on the owner or collaborator: the profile names and App Store type, the CI key's ID, type, role and creator, who did each Task 2 item and when, and the App Privacy answers (four types in the manifest, three in the plan). No SUMMARY yet.
+- **20-06 status (2026-11-25):** `20-06-ACCOUNT.md` is written from verified facts (the app record, the environment's eight secrets and reviewer rule, the age rating). Amended (owner decision, `14151e019`): the profile names, the key's ID, type and role, and who did each step and when are not required; the first CI upload proves the profiles and key. Open: the App Privacy answers must match the manifest's four types, Crash Data included (to be checked in App Store Connect; the public API does not serve them). No SUMMARY yet.
+- **20-08 amended (2026-11-25, owner decisions):** D-25 is dropped, so the PAL listing keeps the Classic copy and screenshots. DIST-18-03 closes on the first Deploy run whose `AltStorePAL` job uploads a marketplace build with the `app-marketplace` secrets; D-21 is no longer asked. 20-08 stays open until that run.
 - **20-06 Task 3 history (2026-11-22, owner decisions; the live check below superseded its missing-secret list):** the GitHub environment is named `app-marketplace`
   (was `pal-notarization`; `deploy.yml`, `marketplace-signing.sh` and the workflow tests renamed), created on
   EhPanda-Team/EhPanda with the owner (chihchy) as required reviewer and no branch policy.
