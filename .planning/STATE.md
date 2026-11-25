@@ -135,6 +135,15 @@ source_head: b5eca09d1
   upload; an App Store profile is needed. Still missing: `PROVISIONING_PROFILE_APP`,
   `DISTRIBUTION_CERTIFICATE_PASSWORD`, the three `APP_STORE_CONNECT_*` secrets and the
   `APP_STORE_CONNECT_KEY_ROLE` environment variable.
+  **Live check (2026-11-25, as chihchy, owner's OK):** the record above was wrong in two places.
+  `PROVISIONING_PROFILE_SHARE_EXTENSION` is not in `app-marketplace`, and `DISTRIBUTION_CERTIFICATE_PASSWORD` is
+  (set 2026-11-22). The environment holds `APPLE_TEAM_ID`, `DISTRIBUTION_CERTIFICATE` and
+  `DISTRIBUTION_CERTIFICATE_PASSWORD`, and no variables. The repository holds the secrets `DEPLOY_KEY`,
+  `DISCORD_WEBHOOK`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHANNEL_ID`, `TELEMETRYDECK_APP_ID`, `TELEMETRYDECK_SALT`,
+  `SENTRY_DSN` and `SENTRY_AUTH_TOKEN`, and the variables `ALTSTORE_PAL_MARKETPLACE_ID`, `SENTRY_ORGANIZATION`,
+  `SENTRY_PROJECT` and `SENTRY_URL` (crash reporting's setup is complete). Still missing, all from the collaborator:
+  `PROVISIONING_PROFILE_APP` and `PROVISIONING_PROFILE_SHARE_EXTENSION` (App Store profiles), the three
+  `APP_STORE_CONNECT_*` secrets and the `APP_STORE_CONNECT_KEY_ROLE` variable.
 - **20-08: first PAL source by hand (2026-11-21, owner decision).** Apple accepted 3.0.0 (163) for Notarization,
   submitted outside `deploy-pal.yml` (no run yet); the App Store Connect key is not available yet, so the first
   `AltStorePAL.json` was made by hand. ADP `453ead28-2d2b-49d1-a398-5a06ca29186b`, fetched with
