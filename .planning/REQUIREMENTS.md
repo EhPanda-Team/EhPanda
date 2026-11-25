@@ -167,6 +167,7 @@ Owner decisions 2026-11-02 and 2026-11-03. Every requirement here applies to eve
   - *Phase 20 (split 2026-11-05).*
   - *Amended 2026-11-21 (owner decision):* the CI uploads the build only (the `AltStorePAL` job of `deploy.yml`, after the GitHub release). The collaborator creates the version, attaches the build and submits it for notarization by hand in App Store Connect, and `publish-pal.yml` takes the ADP ID and publishes it to the PAL source. So a workflow run can show which key uploaded the build, but it no longer tests whether an App Manager key can create the version and submit. Still Pending.
   - *Closed 2026-11-25 (owner decision):* it closes on the first successful CI upload of a marketplace build with the `app-marketplace` secrets: run 45583656180 (`marketplace-upload.yml`) uploaded 3.1.0 (164). D-21 is no longer asked. Complete (20-08).
+  - *Amended 2026-11-26 (owner decisions):* on the release path the CI also creates the version, fills What's New from the release notes and submits: Deploy calls `marketplace-upload.yml` with `submit: true`, and after the upload the same `app-marketplace` job, with the signing material already removed, waits for App Store Connect to process the build, creates the version with review type Notarization (or reuses an editable one), writes What's New for each of its localizations from that language's section of `ReleaseNotes/<version>.md` (a localization with no section stops the run before anything is submitted; no fallback), attaches the build and submits it for notarization. A hand dispatch submits only with its `submit` input on (default off); the push trigger on `develop` is gone. Every App Store Connect call is in the run's call record (D-21). `publish-pal.yml` still takes the ADP ID by hand. Stays Complete (quick 261126-0b9).
 - [ ] **DEV-18-01**: Run the two outstanding real-device checks on owner hardware.
   - The iPad Gallery Detail stall (deferred in Phase 16) on a Release build, and continued background downloads (Phase 15) on an iPhone.
   - *Phase 20 (split 2026-11-05).*
@@ -258,7 +259,8 @@ Deferred to a future milestone after 3.0 (owner decision; product lead decision)
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-11-25 — 20-08 closed: DIST-18-03 complete on the first CI upload of a marketplace build (run 45583656180, 3.1.0 (164); owner decision).*
+*Last updated: 2026-11-26 — quick 261126-0b9: DIST-18-03 amended (owner decisions): on the release path the CI also creates the version, fills What's New from the release notes, attaches the build and submits it for notarization; it stays Complete.*
+*Previously updated: 2026-11-25 — 20-08 closed: DIST-18-03 complete on the first CI upload of a marketplace build (run 45583656180, 3.1.0 (164); owner decision).*
 *Previously updated: 2026-11-21 — quick 261121-jps: DIST-18-03 amended (owner decision): the CI uploads the PAL build only, the collaborator creates, attaches and submits by hand, and `publish-pal.yml` publishes by ADP ID; it stays Pending.*
 *Previously updated: 2026-11-21 — 20-08: the first AltStore PAL source is live (hand-made, owner decision); DIST-18-02 notes the progress and stays Pending; DIST-18-03 stays Pending (no `deploy-pal.yml` run, D-21 unanswered).*
 *Previously updated: 2026-11-10 — 20-10 closed with the owner's seven iPhone screenshots (product lead decision): MKT-18-01 and DIST-18-02 rows note the progress and stay Pending; CAP-17-05 unchanged (not met as written).*

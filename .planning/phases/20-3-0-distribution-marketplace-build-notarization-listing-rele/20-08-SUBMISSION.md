@@ -157,5 +157,15 @@ Sentry in the Upload dSYMs step.
   version, attach the build and submit. DIST-18-03 stays Pending.
   *Closed 2026-11-25 (owner decision):* run 45583656180 uploaded 3.1.0 (164) with the
   `app-marketplace` secrets (see First CI upload). DIST-18-03 is Complete.
+  *Amended 2026-11-26 (owner decisions):* the release path submits again. Deploy calls `marketplace-upload.yml`
+  with `submit: true`. After the upload the same `app-marketplace` job removes the signing material, waits for App
+  Store Connect to process the build, creates the version with review type Notarization (or reuses an editable
+  one), writes What's New for each of the version's localizations from that language's section of
+  `ReleaseNotes/<version>.md` (a localization with no section stops the run before anything is submitted; there is
+  no fallback), attaches the build and submits it. One approval covers the whole run, and the call record holds
+  every call (D-21). A hand dispatch submits only with its `submit` input on (default off), and the push trigger on
+  `develop` is gone. `publish-pal.yml` is unchanged and still takes the ADP ID by hand. This reverses the
+  upload-only part of the 2026-11-21 split (quick 261121-jps). DIST-18-03 stays Complete; the first live submission
+  is the next release (quick 261126-0b9).
 - **Not recorded:** the owner's copy-and-caption approval and the collaborator's App Store Connect entries (Task 3,
   steps 1 and 2).
