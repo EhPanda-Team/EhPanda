@@ -706,10 +706,10 @@ class ArtifactLayoutTests(unittest.TestCase):
 class WiringTests(unittest.TestCase):
     # Snapshot gate off for 3.0 (owner decision): the release workflows neither call the gate nor wait for it.
     # The gate itself is still run by pull requests, dispatches and dependency updates.
-    def assert_gate_off(self, path, needs=None):
+    def assert_gate_off(self, path, needs=None, uses=None):
         workflow = load(path)
         for name, job in workflow['jobs'].items():
-            self.assertNotIn('uses', job, f'{path.name}: {name}')
+            self.assertEqual(job.get('uses'), (uses or {}).get(name), f'{path.name}: {name}')
             self.assertEqual(job.get('needs'), (needs or {}).get(name), f'{path.name}: {name}')
         text = path.read_text(encoding='utf-8')
         body = '\n'.join(line for line in text.splitlines() if not line.strip().startswith('#'))
@@ -718,9 +718,13 @@ class WiringTests(unittest.TestCase):
         return workflow
 
     def test_the_release_does_not_wait_for_the_gate(self):
-        # deploy.yml's AltStore PAL job waits only for the release job (owner decision, 2026-11-21).
-        workflow = self.assert_gate_off(WORKFLOWS / 'deploy.yml', needs={'AltStorePAL': 'Deploy'})
+        # deploy.yml's AltStore PAL job waits only for the release job (owner decision, 2026-11-21) and calls
+        # marketplace-upload.yml, which runs no gate either (owner decision, 2026-11-25).
+        workflow = self.assert_gate_off(WORKFLOWS / 'deploy.yml', needs={'AltStorePAL': 'Deploy'},
+                                        uses={'AltStorePAL': './.github/workflows/marketplace-upload.yml'})
         self.assertEqual(list(workflow['jobs']), ['Deploy', 'AltStorePAL'])
+        upload = self.assert_gate_off(WORKFLOWS / 'marketplace-upload.yml')
+        self.assertEqual(list(upload['jobs']), ['AltStorePAL'])
 
     def test_the_beta_does_not_wait_for_the_gate(self):
         workflow = self.assert_gate_off(WORKFLOWS / 'deploy-beta.yml')

@@ -6,8 +6,9 @@ name: Deploy
 # Two jobs. `Deploy` makes the release: the archive, the GitHub release, AltStore.json and SideStore.json on main,
 # and the Telegram and Discord posts. `AltStorePAL` then calls marketplace-upload.yml, which builds the AltStore PAL
 # flavor (DIST-18-03) from the same commit with the release's version and build number (D-26), uploads it to App Store
-# Connect and stops (owner decision, 2026-11-21). marketplace-upload.yml lists its environment (`app-marketplace`,
-# D-07) and secrets; it receives the repository secrets through `secrets: inherit`.
+# Connect and submits it for notarization (`submit: true`; owner decisions, 2026-11-26). marketplace-upload.yml lists
+# its environment (`app-marketplace`, D-07) and secrets; it receives the repository secrets through
+# `secrets: inherit`.
 on:
   workflow_dispatch:
 env:
@@ -347,11 +348,13 @@ jobs:
           discord_id="$(printf '%s' "$discord_message" | jq -r .id)"
           echo "Discord message id: $discord_id"
 
-  # The AltStore PAL build of this release, from the same commit (D-26): marketplace-upload.yml archives, verifies and
-  # uploads it in the app-marketplace environment.
+  # The AltStore PAL build of this release, from the same commit (D-26): marketplace-upload.yml archives, verifies,
+  # uploads and submits it for notarization in the app-marketplace environment (owner decision, 2026-11-26).
   AltStorePAL:
     needs: Deploy
     permissions:
       contents: read
     uses: ./.github/workflows/marketplace-upload.yml
+    with:
+      submit: true
     secrets: inherit

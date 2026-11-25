@@ -9,8 +9,11 @@
 #       makes a temporary keychain with the distribution certificate, installs both provisioning profiles,
 #       and writes the signing xcconfig and the export options; exports MARKETPLACE_XCCONFIG,
 #       MARKETPLACE_EXPORT_OPTIONS and MARKETPLACE_KEYCHAIN
+#   marketplace-signing.sh teardown-signing
+#       deletes the keychain (restoring the search list), the installed profiles and every file setup wrote, and
+#       keeps the API key for the App Store Connect calls after the upload; never fails
 #   marketplace-signing.sh teardown
-#       deletes the keychain, the installed profiles and every file the other commands wrote; never fails
+#       does what teardown-signing does and deletes the API key too: every file the other commands wrote; never fails
 #   marketplace-signing.sh xcconfig-only <out> <team> <app profile> <share extension profile>
 #       writes only the signing xcconfig, touching no keychain or profile directory (offline check)
 #   marketplace-signing.sh export-options-only <out> <team> <app profile> <share extension profile>
@@ -208,10 +211,10 @@ setup() {
   echo "Signing is set up: the app uses '$app_profile', the share extension '$share_profile'."
 }
 
-teardown() {
-  set +e
-  local dir line keychain="" restore=()
-  dir="$(work_dir 2>/dev/null)" || exit 0
+remove_signing() {
+  # remove_signing <work folder>: everything setup made, and the generated files beside the work folder. The API key
+  # in the work folder's private_keys stays.
+  local dir="$1" line keychain="" restore=()
   if [[ -f "$dir/keychain" ]]; then
     keychain="$(cat "$dir/keychain")"
   fi
@@ -232,8 +235,28 @@ teardown() {
       [[ -n "$line" ]] && rm -f "$line"
     done < "$dir/installed-profiles"
   fi
-  rm -rf "$dir" "$RUNNER_TEMP/marketplace-signing.xcconfig" "$RUNNER_TEMP/ExportOptions-marketplace.plist"
-  echo "Signing material removed."
+  if [[ -d "$dir" ]]; then
+    find "$dir" -mindepth 1 -maxdepth 1 ! -name private_keys -exec rm -rf {} +
+  fi
+  rm -f "$RUNNER_TEMP/marketplace-signing.xcconfig" "$RUNNER_TEMP/ExportOptions-marketplace.plist"
+}
+
+teardown_signing() {
+  set +e
+  local dir
+  dir="$(work_dir 2>/dev/null)" || exit 0
+  remove_signing "$dir"
+  echo "Signing material removed; the App Store Connect API key stays for the calls after the upload."
+  exit 0
+}
+
+teardown() {
+  set +e
+  local dir
+  dir="$(work_dir 2>/dev/null)" || exit 0
+  remove_signing "$dir"
+  rm -rf "$dir"
+  echo "Signing material and the App Store Connect API key removed."
   exit 0
 }
 
@@ -242,6 +265,7 @@ shift || true
 case "$command" in
   api-key) api_key ;;
   setup) setup ;;
+  teardown-signing) teardown_signing ;;
   teardown) teardown ;;
   xcconfig-only)
     (( $# == 4 )) || fail "Usage: marketplace-signing.sh xcconfig-only <out> <team> <app profile> <share profile>"
@@ -249,5 +273,5 @@ case "$command" in
   export-options-only)
     (( $# == 4 )) || fail "Usage: marketplace-signing.sh export-options-only <out> <team> <app profile> <share profile>"
     write_export_options "$@" ;;
-  *) fail "Usage: marketplace-signing.sh api-key|setup|teardown|xcconfig-only|export-options-only" ;;
+  *) fail "Usage: marketplace-signing.sh api-key|setup|teardown-signing|teardown|xcconfig-only|export-options-only" ;;
 esac

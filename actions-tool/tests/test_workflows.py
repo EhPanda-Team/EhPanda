@@ -1,6 +1,7 @@
 """The release workflows' shape: the steps a release relies on stay in place (Phase 20 D-03, D-19; REL-18-01),
-the AltStore PAL upload (20-04, amended 2026-11-21 and 2026-11-25: marketplace-upload.yml, called by deploy.yml after
-each release or started by hand; D-07, D-21, D-26) and publish-pal.yml (20-05, amended 2026-11-21; D-19, D-26).
+the AltStore PAL upload and submission (20-04, amended 2026-11-21, 2026-11-25 and 2026-11-26: marketplace-upload.yml,
+called by deploy.yml after each release with `submit` on, or started by hand; D-07, D-21, D-26) and publish-pal.yml
+(20-05, amended 2026-11-21; D-19, D-26).
 
 YAML is read through Ruby's standard library (`ruby -ryaml -rjson`), because PyYAML is not installed on the
 machines that run these tests. YAML 1.1 reads the `on:` key as `true`; only the PAL tests read triggers.
@@ -455,17 +456,32 @@ PAL_UPLOAD_STEPS = [
     "Upload dSYMs",
     "Keep the dSYMs",
     "Export and upload",
-    "Upload the call record",
     "Tear down signing",
+    "Wait for the build",
+    "Ensure the notarization version",
+    "Attach the build",
+    "Submit for notarization",
+    "Upload the call record",
+    "Remove the API key",
 ]
+# The steps after the signing teardown that run only with `submit` on (owner decisions, 2026-11-26).
+PAL_SUBMIT_STEPS = ["Wait for the build", "Ensure the notarization version", "Attach the build",
+                    "Submit for notarization"]
+PAL_ALWAYS_STEPS = ["Tear down signing", "Upload the call record", "Remove the API key"]
+# What no step after the signing teardown may name.
+PAL_SIGNING_NAMES = ["DISTRIBUTION_CERTIFICATE", "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP",
+                     "PROVISIONING_PROFILE_SHARE_EXTENSION", "APPLE_TEAM_ID", "APP_STORE_CONNECT_PRIVATE_KEY",
+                     "MARKETPLACE_KEYCHAIN", "MARKETPLACE_XCCONFIG", "MARKETPLACE_EXPORT_OPTIONS"]
+PAL_SUBMIT_INPUT = {"description": "Submit the uploaded build for notarization", "required": False,
+                    "type": "boolean", "default": False}
 
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
 class PalUploadJobTests(unittest.TestCase):
-    """marketplace-upload.yml's `AltStorePAL` job (20-04, amended 2026-11-21 and 2026-11-25; D-07, D-21, D-26): it
-    archives the marketplace build on its own, verifies and uploads it, and stops there (owner decision). deploy.yml
-    calls it after each release; it can also be started by hand or by a push to develop, without a release (owner
-    decisions, 2026-11-25)."""
+    """marketplace-upload.yml's `AltStorePAL` job (20-04, amended 2026-11-21, 2026-11-25 and 2026-11-26; D-07, D-21,
+    D-26): it archives the marketplace build on its own, verifies and uploads it, and with `submit` on submits it for
+    notarization in the same job (owner decisions, 2026-11-26). deploy.yml calls it after each release with `submit`
+    on; a hand dispatch submits only when asked."""
 
     @classmethod
     def setUpClass(cls):
@@ -483,20 +499,21 @@ class PalUploadJobTests(unittest.TestCase):
     def test_it_is_the_only_job_and_is_called_by_deploy_or_started_by_hand(self):
         self.assertEqual(list(self.upload["jobs"]), ["AltStorePAL"])
         triggers = self.upload.get("on", self.upload.get("true"))
-        # No inputs: the version and build number come from the checked-out project. A push to develop also starts
-        # it (owner decision, 2026-11-25); every run still waits at the app-marketplace review.
-        self.assertEqual(triggers, {"workflow_call": None, "workflow_dispatch": None,
-                                    "push": {"branches": ["develop"]}})
+        # The version and build number come from the checked-out project; the one input is `submit`, off unless set
+        # (owner decisions, 2026-11-26). No push starts it.
+        self.assertEqual(triggers, {"workflow_call": {"inputs": {"submit": PAL_SUBMIT_INPUT}},
+                                    "workflow_dispatch": {"inputs": {"submit": PAL_SUBMIT_INPUT}}})
         text = code(self.text)
-        for word in ("pull_request", "schedule", "release", "workflow_run"):
+        for word in ("push", "pull_request", "schedule", "release", "workflow_run"):
             with self.subTest(trigger=word):
                 self.assertNotRegex(text, rf"(?m)^\s*{word}:")
 
-    def test_deploy_calls_it_after_a_successful_release_with_the_repository_secrets(self):
+    def test_deploy_calls_it_after_a_successful_release_to_submit(self):
         self.assertEqual(self.deploy["jobs"]["AltStorePAL"], {
             "needs": "Deploy",
             "permissions": {"contents": "read"},
             "uses": "./.github/workflows/marketplace-upload.yml",
+            "with": {"submit": True},
             "secrets": "inherit",
         })
 
@@ -507,7 +524,7 @@ class PalUploadJobTests(unittest.TestCase):
         name = environment["name"] if isinstance(environment, dict) else environment
         self.assertEqual(name, "app-marketplace")
         self.assertEqual(self.job["permissions"], {"contents": "read"})
-        self.assertIn("timeout-minutes", self.job)
+        self.assertEqual(self.job["timeout-minutes"], 240)
         self.assertEqual(self.job["concurrency"], {"group": "pal-upload", "cancel-in-progress": False})
 
     def test_the_steps_run_in_order(self):
@@ -526,10 +543,12 @@ class PalUploadJobTests(unittest.TestCase):
                        'echo "version=', "GITHUB_OUTPUT"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, run)
-        for name in ("Check build number", "Verify marketplace build", "Export and upload"):
+        for name in ("Check build number", "Verify marketplace build", "Export and upload", "Wait for the build",
+                     "Ensure the notarization version", "Submit for notarization"):
             with self.subTest(step=name):
                 self.assertEqual(step_named(self.job, name)["env"]["VERSION"], "${{ steps.version.outputs.version }}")
-        self.assertNotIn("inputs.", json.dumps(self.job))
+        self.assertEqual(set(re.findall(r"inputs\.(\w+)", json.dumps(self.job))), {"submit"})
+        self.assertNotIn("github.event.", json.dumps(self.job))
 
     def test_the_build_number_is_checked_against_the_pal_source_and_app_store_connect(self):
         run = self.run_text("Check build number")
@@ -587,29 +606,78 @@ class PalUploadJobTests(unittest.TestCase):
             with self.subTest(flag=flag):
                 self.assertIn(flag, run)
 
-    def test_it_uploads_and_stops(self):
-        # Owner decision, 2026-11-21: the collaborator creates the version, attaches the build and submits it. The
-        # one call the client still makes is the build-number check before the archive.
+    def test_only_the_submission_steps_wait_for_submit(self):
+        for step in self.job["steps"]:
+            name = step.get("name")
+            with self.subTest(step=name):
+                if name in PAL_SUBMIT_STEPS:
+                    self.assertEqual(step.get("if"), "inputs.submit")
+                elif name in PAL_ALWAYS_STEPS:
+                    self.assertEqual(step.get("if"), "always()")
+                else:
+                    self.assertNotIn("if", step)
+
+    def test_the_client_calls_are_the_build_check_then_the_submission(self):
         text = "\n".join(self.run_text(step["name"]) for step in self.job["steps"] if "run" in step)
-        self.assertEqual(re.findall(r'actions-tool/asc\.py" ([\w-]+)', text), ["check-build"])
-        for needle in ("wait-build", "ensure-version", "attach-build", "adp-id", "reviewSubmission",
-                       "appStoreVersions", "NOTARIZATION", "pal_publish.py"):
+        self.assertEqual(re.findall(r'actions-tool/asc\.py" ([\w-]+)', text),
+                         ["check-build", "wait-build", "ensure-version", "attach-build", "submit"])
+        for needle in ("adp-id", "pal_publish.py"):
             with self.subTest(needle=needle):
                 self.assertNotIn(needle, text)
-        names = [step.get("name") for step in self.job["steps"]]
-        for name in ("Wait for the build", "Ensure the notarization version", "Attach the build",
-                     "Submit for notarization"):
-            with self.subTest(step=name):
-                self.assertNotIn(name, names)
 
-    def test_the_summary_hands_over_to_the_collaborator(self):
+    def test_the_signing_material_is_gone_before_the_wait(self):
+        teardown = step_index(self.job, "Tear down signing")
+        self.assertEqual(teardown, step_index(self.job, "Export and upload") + 1)
+        self.assertEqual(code(step_named(self.job, "Tear down signing")["run"]).strip(),
+                         'bash "$SIGNING_SCRIPT_PATH" teardown-signing')
+        for name in PAL_SUBMIT_STEPS:
+            self.assertLess(teardown, step_index(self.job, name))
+        for step in self.job["steps"][teardown + 1:]:
+            with self.subTest(step=step.get("name")):
+                for secret in PAL_SIGNING_NAMES:
+                    self.assertNotIn(secret, json.dumps(step))
+                self.assertNotIn("xcodebuild", expand(code(step.get("run", "")),
+                                                      {**self.env, **self.job.get("env", {})}))
+
+    def test_the_submission_waits_for_the_build_and_chains_its_ids(self):
+        wait = step_named(self.job, "Wait for the build")
+        self.assertEqual(wait["id"], "wait-build")
+        self.assertEqual(wait["env"]["BUILD_NUMBER"], "${{ steps.build-number.outputs.build }}")
+        run = code(wait["run"])
+        self.assertIn('wait-build --app "$ASC_APP_ID" --version "$VERSION" --build "$BUILD_NUMBER" --timeout ', run)
+        self.assertIn('echo "build_id=', run)
+        # The wait leaves two hours for the build and upload.
+        timeout = int(re.search(r"--timeout (\d+)", run).group(1))
+        self.assertLessEqual(timeout, (self.job["timeout-minutes"] - 120) * 60)
+        ensure = step_named(self.job, "Ensure the notarization version")
+        self.assertEqual(ensure["id"], "ensure-version")
+        self.assertIn('ensure-version --app "$ASC_APP_ID" --version "$VERSION"', code(ensure["run"]))
+        self.assertIn('echo "version_id=', code(ensure["run"]))
+        attach = step_named(self.job, "Attach the build")
+        self.assertEqual(attach["env"]["VERSION_ID"], "${{ steps.ensure-version.outputs.version_id }}")
+        self.assertEqual(attach["env"]["BUILD_ID"], "${{ steps.wait-build.outputs.build_id }}")
+        self.assertIn('attach-build --version-id "$VERSION_ID" --build-id "$BUILD_ID"', code(attach["run"]))
+        submit = step_named(self.job, "Submit for notarization")
+        self.assertEqual(submit["env"]["VERSION_ID"], "${{ steps.ensure-version.outputs.version_id }}")
+        for needle in ('submit --app "$ASC_APP_ID" --version-id "$VERSION_ID"', "GITHUB_STEP_SUMMARY",
+                       "Publish AltStore PAL"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, code(submit["run"]))
+        for name in PAL_SUBMIT_STEPS:
+            with self.subTest(step=name):
+                env = step_named(self.job, name)["env"]
+                self.assertEqual(env["APP_STORE_CONNECT_KEY_ID"], "${{ secrets.APP_STORE_CONNECT_KEY_ID }}")
+                self.assertEqual(env["APP_STORE_CONNECT_ISSUER_ID"], "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}")
+
+    def test_the_summary_says_whether_the_run_submits(self):
+        export = step_named(self.job, "Export and upload")
+        self.assertEqual(export["env"]["SUBMIT"], "${{ inputs.submit }}")
+        self.assertEqual(export["env"]["BUILD_NUMBER"], "${{ steps.build-number.outputs.build }}")
         run = self.run_text("Export and upload")
-        for needle in ("GITHUB_STEP_SUMMARY", "collaborator", "Publish AltStore PAL"):
+        for needle in ("GITHUB_STEP_SUMMARY", '"$SUBMIT" == "true"', "collaborator", "Publish AltStore PAL"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, run)
         self.assertLess(run.index("xcodebuild -exportArchive"), run.index("GITHUB_STEP_SUMMARY"))
-        self.assertEqual(step_named(self.job, "Export and upload")["env"]["BUILD_NUMBER"],
-                         "${{ steps.build-number.outputs.build }}")
 
     def test_the_call_record_is_kept_even_when_a_step_fails(self):
         upload = step_named(self.job, "Upload the call record")
@@ -618,12 +686,16 @@ class PalUploadJobTests(unittest.TestCase):
         self.assertIn("asc-calls.jsonl", upload["with"]["path"])
         self.assertEqual(upload["with"]["name"], "asc-call-record-${{ steps.version.outputs.version }}-upload")
         self.assertIn("asc-calls.jsonl", self.run_text("Write App Store Connect key"))
+        # It follows every call the client makes, and only the key's removal comes after it.
+        self.assertEqual(step_index(self.job, "Upload the call record"), len(self.job["steps"]) - 2)
+        for name in PAL_SUBMIT_STEPS:
+            self.assertLess(step_index(self.job, name), step_index(self.job, "Upload the call record"))
 
-    def test_the_signing_material_is_always_removed(self):
-        teardown = step_named(self.job, "Tear down signing")
-        self.assertEqual(teardown["if"], "always()")
-        self.assertIn("marketplace-signing.sh\" teardown", self.run_text("Tear down signing"))
-        self.assertEqual(self.job["steps"][-1]["name"], "Tear down signing")
+    def test_the_api_key_is_removed_last_whatever_happens(self):
+        last = self.job["steps"][-1]
+        self.assertEqual(last["name"], "Remove the API key")
+        self.assertEqual(last["if"], "always()")
+        self.assertEqual(code(last["run"]).strip(), 'bash "$SIGNING_SCRIPT_PATH" teardown')
 
     def test_no_step_stamps_tags_or_releases(self):
         for step in self.job["steps"]:
@@ -658,9 +730,76 @@ class PalUploadJobTests(unittest.TestCase):
                 self.assertIn(name, header)
         self.assertTrue(set(PAL_SECRETS) <= used)
         self.assertTrue(set(PAL_VARIABLES) <= used)
-        for needle in ("app-marketplace", "D-07", "D-21", "D-26", "publish-pal.yml"):
+        for needle in ("app-marketplace", "D-07", "D-21", "D-26", "publish-pal.yml", "submit"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, header)
+
+
+class SigningTeardownTests(unittest.TestCase):
+    """actions-tool/marketplace-signing.sh: the signing teardown after the upload keeps only the API key, and the last
+    step's teardown removes it (owner decision, 2026-11-26). A stand-in `security` on PATH records the keychain calls,
+    so the test never touches a real keychain."""
+
+    def test_teardown_signing_keeps_only_the_api_key_and_teardown_removes_it(self):
+        script = ROOT / "actions-tool" / "marketplace-signing.sh"
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = pathlib.Path(directory)
+            (tmp / "bin").mkdir()
+            (tmp / "home").mkdir()
+            runner = tmp / "runner"
+            runner.mkdir()
+            stand_in = tmp / "bin" / "security"
+            stand_in.write_text('#!/bin/sh\necho "$*" >> "$SECURITY_LOG"\n', encoding="utf-8")
+            stand_in.chmod(0o755)
+            env = {"PATH": f"{tmp / 'bin'}{os.pathsep}{os.environ['PATH']}", "HOME": str(tmp / "home"),
+                   "RUNNER_TEMP": str(runner), "SECURITY_LOG": str(tmp / "security.log"),
+                   "GITHUB_ENV": str(tmp / "github_env")}
+            self.assertEqual(shutil.which("security", path=env["PATH"]), str(stand_in))
+
+            def run(command, **extra):
+                return subprocess.run(["bash", str(script), command], capture_output=True, text=True, timeout=60,
+                                      env={**env, **extra})
+
+            made = run("api-key", APP_STORE_CONNECT_KEY_ID="FAKEKEY123",
+                       APP_STORE_CONNECT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nAAAA\n-----END PRIVATE KEY-----")
+            self.assertEqual(made.returncode, 0, made.stderr)
+            work = runner / "marketplace-signing"
+            key = work / "private_keys" / "AuthKey_FAKEKEY123.p8"
+            self.assertTrue(key.is_file())
+            self.assertIn(f"ASC_KEY_PATH={key}", (tmp / "github_env").read_text(encoding="utf-8").splitlines())
+
+            # What setup leaves behind.
+            keychain = runner / "marketplace-signing.keychain-db"
+            keychain.write_text("keychain", encoding="utf-8")
+            (work / "keychain").write_text(f"{keychain}\n", encoding="utf-8")
+            (work / "keychains").write_text(f"{runner}/login.keychain-db\n{keychain}\n", encoding="utf-8")
+            (tmp / "profiles").mkdir()
+            profiles = [tmp / "profiles" / "one.mobileprovision", tmp / "profiles" / "two.mobileprovision"]
+            for profile in profiles:
+                profile.write_text("profile", encoding="utf-8")
+            (work / "installed-profiles").write_text("".join(f"{profile}\n" for profile in profiles), encoding="utf-8")
+            leftovers = [work / "PROVISIONING_PROFILE_APP.plist", runner / "marketplace-signing.xcconfig",
+                         runner / "ExportOptions-marketplace.plist"]
+            for leftover in leftovers:
+                leftover.write_text("generated", encoding="utf-8")
+
+            signing = run("teardown-signing")
+            self.assertEqual(signing.returncode, 0, signing.stderr)
+            self.assertEqual(sorted(os.listdir(work)), ["private_keys"])
+            self.assertTrue(key.is_file())
+            for gone in [keychain, *profiles, *leftovers]:
+                with self.subTest(gone=gone.name):
+                    self.assertFalse(gone.exists())
+            self.assertEqual((tmp / "security.log").read_text(encoding="utf-8").splitlines(),
+                             [f"list-keychains -d user -s {runner}/login.keychain-db",
+                              f"delete-keychain {keychain}"])
+
+            full = run("teardown")
+            self.assertEqual(full.returncode, 0, full.stderr)
+            self.assertFalse(work.exists())
+            for command in ("teardown", "teardown-signing"):
+                with self.subTest(again=command):
+                    self.assertEqual(run(command).returncode, 0)
 
 
 PUBLISH_STEPS = [

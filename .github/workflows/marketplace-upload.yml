@@ -1,15 +1,20 @@
 name: AltStore PAL upload
-# Builds the AltStore PAL flavor (DIST-18-03) and uploads it to App Store Connect, then stops (owner decision,
-# 2026-11-21): the collaborator creates the version with review type Notarization, adds the build and submits it in
-# App Store Connect. Once Apple accepts it, publish-pal.yml publishes the package.
+# Builds the AltStore PAL flavor (DIST-18-03) and uploads it to App Store Connect. With `submit` on, the same job then
+# submits it for notarization (owner decisions, 2026-11-26): it waits until App Store Connect has processed the build,
+# creates the version with review type Notarization (or reuses an editable one), attaches the build and submits it.
+# Once Apple accepts it, publish-pal.yml publishes the package with the ADP ID the collaborator shares.
 #
-# Three ways in (owner decisions, 2026-11-25). deploy.yml calls it after each release, so the PAL build carries the
-# release's commit, version and build number (D-26). It can also be started by hand, from any branch, or by a push
-# to develop, to upload a marketplace build without a release: a resubmission, or a check of the signing and upload
-# path. Either way it publishes nothing: no GitHub release, no source on main, no announcement.
+# Two ways in. deploy.yml calls it after each release with `submit` on (owner decision, 2026-11-26), so the PAL build
+# carries the release's commit, version and build number (D-26). It can also be started by hand, from any branch, to
+# upload a marketplace build without a release, a resubmission or a check of the signing and upload path; there
+# `submit` is off unless the dispatch turns it on. GitHub offers a hand dispatch only for workflows on the default
+# branch, so that needs this file on main. Either way it publishes nothing: no GitHub release, no source on main, no
+# announcement.
 #
 # Its own archive with Config/Marketplace.xcconfig, signed by Xcode through the generated signing xcconfig. The job
 # runs in the GitHub environment `app-marketplace`, whose required reviewer gives the owner's OK for each run (D-07).
+# The wait and the submission run in this same job, so one OK covers the whole run. The signing material is removed
+# right after the upload; only the API key stays, until the last step.
 # Its secrets are the only place the signing material and the API key exist:
 #   APP_STORE_CONNECT_KEY_ID              the App Store Connect API key's ID
 #   APP_STORE_CONNECT_ISSUER_ID           the key's issuer ID
@@ -30,14 +35,21 @@ name: AltStore PAL upload
 # actions-tool/asc.py refuses every endpoint outside its allow-list (D-07). Its calls are recorded with the key's ID
 # and uploaded as an artifact (D-21); the upload uses the same key.
 on:
+  # Deploy passes submit: true; a hand dispatch submits only when asked (owner decision, 2026-11-26).
   workflow_call:
+    inputs:
+      submit:
+        description: 'Submit the uploaded build for notarization'
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
-  # Each push to develop starts an upload too (owner decision, 2026-11-25), waiting at the app-marketplace review
-  # like every run. It also registers this workflow while the file is on develop only: GitHub dispatches by hand
-  # only the workflows it knows from the default branch.
-  push:
-    branches:
-      - develop
+    inputs:
+      submit:
+        description: 'Submit the uploaded build for notarization'
+        required: false
+        type: boolean
+        default: false
 env:
   SCHEME_NAME: 'EhPanda'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'
@@ -47,7 +59,9 @@ jobs:
   AltStorePAL:
     runs-on: xcode-27
     environment: app-marketplace
-    timeout-minutes: 120
+    # The build and upload (about 16 minutes for 3.1.0 (164)), App Store Connect's processing of the build (up to 90
+    # minutes here) and the submission.
+    timeout-minutes: 240
     # One upload at a time: queue, never cancel.
     concurrency:
       group: pal-upload
@@ -227,6 +241,7 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           VERSION: ${{ steps.version.outputs.version }}
           BUILD_NUMBER: ${{ steps.build-number.outputs.build }}
+          SUBMIT: ${{ inputs.submit }}
         run: |
           set -euo pipefail
           # destination upload: xcodebuild signs the export with the profiles named in the export options and
@@ -238,12 +253,71 @@ jobs:
             -authenticationKeyPath "$ASC_KEY_PATH" \
             -authenticationKeyID "$APP_STORE_CONNECT_KEY_ID" \
             -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID"
-          # Upload only (owner decision, 2026-11-21): the version, the build's attachment and the submission are
-          # the collaborator's steps in App Store Connect.
+          # With submit on (the release path, owner decision 2026-11-26), the steps after the signing teardown
+          # submit the build; otherwise the run ends with the upload.
           {
             echo "### AltStore PAL $VERSION ($BUILD_NUMBER) uploaded"
             echo ""
-            echo "The collaborator now creates version $VERSION in App Store Connect with review type Notarization, adds this build and submits it. Once Apple accepts it, run Publish AltStore PAL with the ADP ID."
+            if [[ "$SUBMIT" == "true" ]]; then
+              echo "This run now waits for App Store Connect to process the build, then submits it for notarization."
+            else
+              echo "Submit was off for this run, so nothing was submitted. The collaborator can add this build to version $VERSION in App Store Connect, with review type Notarization, and submit it there. Once Apple accepts it, run Publish AltStore PAL with the ADP ID."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      # The signing material goes as soon as the upload is done (owner decision, 2026-11-26): the wait and the
+      # submission need only the API key, which the last step removes.
+      - name: Tear down signing
+        if: always()
+        run: bash "$SIGNING_SCRIPT_PATH" teardown-signing
+      - name: Wait for the build
+        id: wait-build
+        if: inputs.submit
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ steps.build-number.outputs.build }}
+        run: |
+          set -euo pipefail
+          # App Store Connect processes an upload before a version can take it, which can take tens of minutes.
+          build_id="$(python3 "$ASC_TOOL_PATH" wait-build --app "$ASC_APP_ID" --version "$VERSION" --build "$BUILD_NUMBER" --timeout 5400)"
+          echo "build_id=$build_id" >> "$GITHUB_OUTPUT"
+      - name: Ensure the notarization version
+        id: ensure-version
+        if: inputs.submit
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          # Review type NOTARIZATION and manual release; an existing version with another review type, or one in
+          # review, is refused.
+          version_id="$(python3 "$ASC_TOOL_PATH" ensure-version --app "$ASC_APP_ID" --version "$VERSION")"
+          echo "version_id=$version_id" >> "$GITHUB_OUTPUT"
+      - name: Attach the build
+        if: inputs.submit
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          VERSION_ID: ${{ steps.ensure-version.outputs.version_id }}
+          BUILD_ID: ${{ steps.wait-build.outputs.build_id }}
+        run: python3 "$ASC_TOOL_PATH" attach-build --version-id "$VERSION_ID" --build-id "$BUILD_ID"
+      - name: Submit for notarization
+        if: inputs.submit
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD_NUMBER: ${{ steps.build-number.outputs.build }}
+          VERSION_ID: ${{ steps.ensure-version.outputs.version_id }}
+        run: |
+          set -euo pipefail
+          submission_id="$(python3 "$ASC_TOOL_PATH" submit --app "$ASC_APP_ID" --version-id "$VERSION_ID")"
+          {
+            echo "### AltStore PAL $VERSION ($BUILD_NUMBER) submitted for notarization"
+            echo ""
+            echo "Review submission \`$submission_id\`. Once Apple accepts it, run Publish AltStore PAL with the ADP ID the collaborator shares."
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Upload the call record
         if: always()
@@ -252,6 +326,6 @@ jobs:
           name: asc-call-record-${{ steps.version.outputs.version }}-upload
           path: ${{ runner.temp }}/asc-calls.jsonl
           if-no-files-found: ignore
-      - name: Tear down signing
+      - name: Remove the API key
         if: always()
         run: bash "$SIGNING_SCRIPT_PATH" teardown
