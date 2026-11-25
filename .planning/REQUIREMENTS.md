@@ -162,10 +162,11 @@ Owner decisions 2026-11-02 and 2026-11-03. Every requirement here applies to eve
 - [ ] **DIST-18-02**: Prepare the marketplace listing.
   - A separate AltStore PAL source JSON with `marketplaceID`, `nsfw: true` and ADP download URLs, keeping version history; the Classic `AltStore.json` stays for unsigned IPAs. All-ages (4+) icon and listing screenshots. The privacy policy is reachable in the app and on the listing, with a support URL (the pages are website work owned by another team member; this requirement records the dependency). No "Apple-approved" wording anywhere.
   - *Phase 20 (split 2026-11-05).* AltStore PAL is the only marketplace listing for 3.0 (owner decision).
-- [ ] **DIST-18-03**: Automate notarization and publishing.
+- [x] **DIST-18-03**: Automate notarization and publishing.
   - Submission for notarization runs through the collaborator's App Store Connect account. Test and record whether an App Manager API key can create the version and submit. A CI job submits for notarization, waits for the ADP and publishes it to the PAL source. Account setup, keys and the first submission are a collaborator and owner checkpoint; agents never create Apple-service records on their own.
   - *Phase 20 (split 2026-11-05).*
   - *Amended 2026-11-21 (owner decision):* the CI uploads the build only (the `AltStorePAL` job of `deploy.yml`, after the GitHub release). The collaborator creates the version, attaches the build and submits it for notarization by hand in App Store Connect, and `publish-pal.yml` takes the ADP ID and publishes it to the PAL source. So a workflow run can show which key uploaded the build, but it no longer tests whether an App Manager key can create the version and submit. Still Pending.
+  - *Closed 2026-11-25 (owner decision):* it closes on the first successful CI upload of a marketplace build with the `app-marketplace` secrets: run 45583656180 (`marketplace-upload.yml`) uploaded 3.1.0 (164). D-21 is no longer asked. Complete (20-08).
 - [ ] **DEV-18-01**: Run the two outstanding real-device checks on owner hardware.
   - The iPad Gallery Detail stall (deferred in Phase 16) on a Release build, and continued background downloads (Phase 15) on an iPhone.
   - *Phase 20 (split 2026-11-05).*
@@ -245,7 +246,7 @@ Deferred to a future milestone after 3.0 (owner decision; product lead decision)
 | VIS-19-01 | Phase 19 | Pending |
 | MKT-18-01 | Phase 20 (promotional images and store screenshots; 384 export, selection and regeneration dropped 2026-11-06, owner decision) | Pending (the AltStore, SideStore, beta and PAL sources carry the owner's seven screenshots, 20-10 on 2026-11-10; the App Store Connect upload and any iPad set remain at 20-08) |
 | DIST-18-02 | Phase 20 | Pending (PAL source screenshots done at 20-10, 2026-11-10; `marketplaceID`, the 3.0.0 version and the live source at https://ehpanda.app/AltStorePAL.json done at 20-08, 2026-11-21; the owner's approval of the PAL copy and the App Store Connect listing URLs are not recorded yet) |
-| DIST-18-03 | Phase 20 | Pending |
+| DIST-18-03 | Phase 20 | Complete |
 | DEV-18-01 | Phase 20 | Pending |
 | ANALYTICS-02 | Phase 20 (last plan) | Pending |
 
@@ -257,7 +258,8 @@ Deferred to a future milestone after 3.0 (owner decision; product lead decision)
 
 ---
 *Requirements defined: 2026-07-09*
-*Last updated: 2026-11-21 — quick 261121-jps: DIST-18-03 amended (owner decision): the CI uploads the PAL build only, the collaborator creates, attaches and submits by hand, and `publish-pal.yml` publishes by ADP ID; it stays Pending.*
+*Last updated: 2026-11-25 — 20-08 closed: DIST-18-03 complete on the first CI upload of a marketplace build (run 45583656180, 3.1.0 (164); owner decision).*
+*Previously updated: 2026-11-21 — quick 261121-jps: DIST-18-03 amended (owner decision): the CI uploads the PAL build only, the collaborator creates, attaches and submits by hand, and `publish-pal.yml` publishes by ADP ID; it stays Pending.*
 *Previously updated: 2026-11-21 — 20-08: the first AltStore PAL source is live (hand-made, owner decision); DIST-18-02 notes the progress and stays Pending; DIST-18-03 stays Pending (no `deploy-pal.yml` run, D-21 unanswered).*
 *Previously updated: 2026-11-10 — 20-10 closed with the owner's seven iPhone screenshots (product lead decision): MKT-18-01 and DIST-18-02 rows note the progress and stay Pending; CAP-17-05 unchanged (not met as written).*
 *Previously updated: 2026-11-07 — VIS-18-01 amended: three Dynamic Type sizes and a separate public baseline repository (owner decision). Previously 2026-11-06: Phase 19 is the screenshot check plus a daily live-parsing check: MKT-18-01's 384 export, final selection and regeneration dropped (owner decision; lead decision), its remaining part in Phase 20; CAP-17-01 and CAP-17-04 notes updated; VIS-18-01 amended; VIS-19-01 added in Phase 19 (owner decision; product lead decision); TAG-01 and TAG-02 added as v2 (owner decision); 45/45 mapped.*

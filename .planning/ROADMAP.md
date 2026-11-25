@@ -717,7 +717,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | 18. In-App 3.0 Readiness: Age Wall, Analytics Choice, Comment Moderation & Reader Rework | 12/12 | Complete    | 2026-11-06 |
 | 18.1. Native report form (INSERTED) | 5/5 | Complete    | 2026-11-07 |
 | 19. Visual Regression & Daily Live-Parsing Check | 15/17 | Complete with deferred items | 2026-11-11 |
-| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 12/14 | In Progress |  |
+| 20. 3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks | 13/14 | In Progress |  |
 
 ### Phase 12: Cloudflare Login Restoration
 
@@ -1572,7 +1572,7 @@ Cross-cutting constraints:
   8. As the last plan, analytics record every 3.0 flow under the consent levels, within ANALYTICS-01's rules: the install signal carries the distribution channel at every level, Minimal sends nothing else, and nothing is sent before a level is chosen. *(Wording revised at 20-12, OQ-E: there is no level called None since Phase 18.)*
   9. The final 3.0 Release build, including the analytics revision, passes the Release isolation scan with 0 findings.
 
-**Plans**: 12/14 plans executed in 8 waves (the waves follow the fixed order below, with two exceptions: 20-07, 20-09 and 20-12 start in wave 1 (CONTEXT D-23, product lead decision answering OQ-G), and 20-08, the PAL submission, comes last, after the Classic release (CONTEXT D-26, owner decision)).
+**Plans**: 13/14 plans executed in 8 waves (the waves follow the fixed order below, with two exceptions: 20-07, 20-09 and 20-12 start in wave 1 (CONTEXT D-23, product lead decision answering OQ-G), and 20-08, the PAL submission, comes last, after the Classic release (CONTEXT D-26, owner decision)).
 
 Ordered plan outline (CONTEXT D-14; product lead decision; old step numbers are the original Phase 18's):
 
@@ -1623,4 +1623,4 @@ Plans:
 
 **Wave 8** *(blocked on Waves 4 to 7, 20-07, and the 3.0 GitHub and Classic release, D-26)* — (c), the PAL submission
 
-- [ ] 20-08-PLAN.md — the first live submission, which is also the final build; the App Manager key test, Apple's verdict and a dry-run publish *(checkpoints: OQ-A/OQ-B as D-26 settles them; owner OK per dispatch; real ADP layout; pauses for the designer if the icon is rejected under 2.3.8, D-22)*
+- [x] 20-08-PLAN.md — the first live submission, which is also the final build; the App Manager key test, Apple's verdict and a dry-run publish *(checkpoints: OQ-A/OQ-B as D-26 settles them; owner OK per dispatch; real ADP layout; pauses for the designer if the icon is rejected under 2.3.8, D-22)*

@@ -32,6 +32,7 @@ PAL copy with the first screenshot's caption (D-25, step 1), the collaborator's 
 screenshot upload (step 2), and the D-21 table. Without a call record, which key and role created the version,
 attached the build and submitted it is unknown: create version: unknown, attach build: unknown, submit: unknown.
 DIST-18-03 stays Pending until a `deploy-pal.yml` run answers D-21.
+*Closed 2026-11-25:* DIST-18-03 closed on the first CI upload instead (see First CI upload).
 
 ## The ADP (Task 4)
 
@@ -111,6 +112,31 @@ So AltStore accepted the listed entitlements.
   (owner decision): only the PAL source went to `main`.
 - `https://ehpanda.app/AltStorePAL.json` returns 200 with the same bytes as `main`.
 
+## First CI upload (DIST-18-03)
+
+The first CI upload of a marketplace build with the `app-marketplace` secrets succeeded, so DIST-18-03 closes as the
+2026-11-25 owner decision set out.
+
+| | |
+|---|---|
+| Run | [45583656180](https://github.com/EhPanda-Team/EhPanda/actions/runs/45583656180), AltStore PAL upload (`marketplace-upload.yml`) |
+| Trigger | push to `develop` at `33efae302`; the `app-marketplace` deployment approved on the owner's word |
+| Build | `app.ehpanda.store` 3.1.0 (164), a test upload: no GitHub release, announcement or source change |
+| Job | started 2026-11-25T12:11:37Z, done 12:27:46Z, every step green |
+| Upload | `xcodebuild -exportArchive` reported "Upload succeeded" at 12:27:36Z; the package was processing |
+| Call record | `asc-call-record-3.1.0-upload`: one call, `GET /v1/builds` 200 (the build-number check), key `86972AQ69S` |
+
+The decision named "the first Deploy run whose `AltStorePAL` job" uploads. Since `3b64b957d` that job is
+`marketplace-upload.yml`, which Deploy calls after a release and which also runs on each push to `develop` (owner
+decision, 2026-11-25), so this push-started run of the same job counts.
+
+**Observed, not part of the closing:** the export warned "Upload Symbols Failed" for `Sentry.framework`
+(UUID `6C5F22F7-8C8A-3804-A52A-FC2CD9676BF1`): the archive has no dSYM for the Sentry SDK, which came in on
+2026-11-23 after the last Classic deploy, so Classic releases will show the same warning. The app's own dSYMs went to
+Sentry in the Upload dSYMs step.
+
+**Build number 164 is used.** The 3.1.0 release needs 165 or later.
+
 ## Open
 
 - **Closed (2026-11-21): `publish` follows the owner's rule.** `pal_publish.py publish` takes the version,
@@ -129,5 +155,7 @@ So AltStore accepted the listed entitlements.
   and the collaborator creates the version, attaches the build and submits it by hand in App Store Connect. A run's
   call record can show which key uploaded the build; it cannot answer whether an App Manager key alone can create the
   version, attach the build and submit. DIST-18-03 stays Pending.
+  *Closed 2026-11-25 (owner decision):* run 45583656180 uploaded 3.1.0 (164) with the
+  `app-marketplace` secrets (see First CI upload). DIST-18-03 is Complete.
 - **Not recorded:** the owner's copy-and-caption approval and the collaborator's App Store Connect entries (Task 3,
   steps 1 and 2).
