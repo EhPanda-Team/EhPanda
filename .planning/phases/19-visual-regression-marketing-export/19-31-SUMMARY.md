@@ -94,7 +94,7 @@ None.
 
 ## Threat Flags
 
-None. T-19-53 (a visible design change made without the owner) is mitigated: the wider column was the owner's own choice, asked before it was built.
+None. T-19-67 (a visible design change made without the owner) is mitigated: the wider column was the owner's own choice, asked before it was built.
 
 ## Self-Check: PASSED
 
