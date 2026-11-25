@@ -1,6 +1,6 @@
 """The release workflows' shape: the steps a release relies on stay in place (Phase 20 D-03, D-19; REL-18-01),
-deploy.yml's AltStore PAL upload job (20-04, amended 2026-11-21; D-07, D-21, D-26) and publish-pal.yml (20-05,
-amended 2026-11-21; D-19, D-26).
+the AltStore PAL upload (20-04, amended 2026-11-21 and 2026-11-25: marketplace-upload.yml, called by deploy.yml after
+each release or started by hand; D-07, D-21, D-26) and publish-pal.yml (20-05, amended 2026-11-21; D-19, D-26).
 
 YAML is read through Ruby's standard library (`ruby -ryaml -rjson`), because PyYAML is not installed on the
 machines that run these tests. YAML 1.1 reads the `on:` key as `true`; only the PAL tests read triggers.
@@ -34,18 +34,21 @@ FORBIDDEN = [
 ]
 
 
-# Phase 19's screenshot check is OFF in the release workflows for 3.0 (owner decision): neither deploy.yml (its
-# release job and its AltStore PAL job) nor deploy-beta.yml calls snapshot-gate.yml or reads the `aggregate` check.
+# Phase 19's screenshot check is OFF in the release workflows for 3.0 (owner decision): neither deploy.yml, nor
+# marketplace-upload.yml (its AltStore PAL upload), nor deploy-beta.yml calls snapshot-gate.yml or reads the
+# `aggregate` check.
 # The workflow and actions-tool/require-snapshot-gate.sh stay in the repository (pull requests and manual dispatch
 # still use them).
 GATE_CHECK = "aggregate"
 GATE_SCRIPT = "./actions-tool/require-snapshot-gate.sh"
-RELEASE_WORKFLOWS = ("deploy.yml", "deploy-beta.yml")
+RELEASE_WORKFLOWS = ("deploy.yml", "marketplace-upload.yml", "deploy-beta.yml")
 GATE_MENTIONS = ("snapshot-gate.yml", "require-snapshot-gate", "REQUIRE_SNAPSHOT_GATE", "SNAPSHOT_GATE_CHECK",
                  "Require the screenshot check")
 # The one job a release job waits for: deploy.yml's AltStore PAL job runs after the release (owner decision,
-# 2026-11-21).
+# 2026-11-21), and it is the one job that calls another workflow: the upload in marketplace-upload.yml (owner
+# decision, 2026-11-25).
 RELEASE_NEEDS = {("deploy.yml", "AltStorePAL"): "Deploy"}
+RELEASE_USES = {("deploy.yml", "AltStorePAL"): "./.github/workflows/marketplace-upload.yml"}
 
 
 def load(path):
@@ -398,6 +401,7 @@ class ReleasesDoNotTestTests(unittest.TestCase):
     # (workflow file, release job) -> that job's permissions
     RELEASES = {("deploy.yml", "Deploy"): {"contents": "write"},
                 ("deploy.yml", "AltStorePAL"): {"contents": "read"},
+                ("marketplace-upload.yml", "AltStorePAL"): {"contents": "read"},
                 ("deploy-beta.yml", "Deploy"): {"contents": "write"},
                 ("publish-pal.yml", "Publish"): {"contents": "write"}}
 
@@ -458,22 +462,43 @@ PAL_UPLOAD_STEPS = [
 
 @unittest.skipUnless(RUBY, "ruby is not installed")
 class PalUploadJobTests(unittest.TestCase):
-    """deploy.yml's `AltStorePAL` job (20-04, amended 2026-11-21; D-07, D-21, D-26): after the release it archives the
-    marketplace build on its own, verifies and uploads it, and stops there (owner decision)."""
+    """marketplace-upload.yml's `AltStorePAL` job (20-04, amended 2026-11-21 and 2026-11-25; D-07, D-21, D-26): it
+    archives the marketplace build on its own, verifies and uploads it, and stops there (owner decision). deploy.yml
+    calls it after each release; it can also be started by hand without a release (owner decision, 2026-11-25)."""
 
     @classmethod
     def setUpClass(cls):
-        cls.path = WORKFLOWS / "deploy.yml"
+        cls.path = WORKFLOWS / "marketplace-upload.yml"
         cls.text = cls.path.read_text(encoding="utf-8")
-        cls.deploy = load(cls.path)
-        cls.env = cls.deploy.get("env", {})
-        cls.job = cls.deploy["jobs"]["AltStorePAL"]
+        cls.upload = load(cls.path)
+        cls.env = cls.upload.get("env", {})
+        cls.job = cls.upload["jobs"]["AltStorePAL"]
+        cls.deploy = load(WORKFLOWS / "deploy.yml")
+        cls.deploy_env = cls.deploy.get("env", {})
 
     def run_text(self, name):
         return expand(code(step_named(self.job, name).get("run", "")), {**self.env, **self.job.get("env", {})})
 
-    def test_it_runs_after_a_successful_release_in_the_protected_environment(self):
-        self.assertEqual(self.job["needs"], "Deploy")
+    def test_it_is_the_only_job_and_is_called_by_deploy_or_started_by_hand(self):
+        self.assertEqual(list(self.upload["jobs"]), ["AltStorePAL"])
+        triggers = self.upload.get("on", self.upload.get("true"))
+        # No inputs: the version and build number come from the checked-out project.
+        self.assertEqual(triggers, {"workflow_call": None, "workflow_dispatch": None})
+        text = code(self.text)
+        for word in ("push", "pull_request", "schedule", "release", "workflow_run"):
+            with self.subTest(trigger=word):
+                self.assertNotRegex(text, rf"(?m)^\s*{word}:")
+
+    def test_deploy_calls_it_after_a_successful_release_with_the_repository_secrets(self):
+        self.assertEqual(self.deploy["jobs"]["AltStorePAL"], {
+            "needs": "Deploy",
+            "permissions": {"contents": "read"},
+            "uses": "./.github/workflows/marketplace-upload.yml",
+            "secrets": "inherit",
+        })
+
+    def test_it_runs_in_the_protected_environment(self):
+        self.assertNotIn("needs", self.job)
         self.assertNotIn("if", self.job)
         environment = self.job["environment"]
         name = environment["name"] if isinstance(environment, dict) else environment
@@ -528,12 +553,12 @@ class PalUploadJobTests(unittest.TestCase):
         self.assertNotIn("Config/Marketplace.xcconfig", run)
         self.assertIn("marketplace-signing.sh\" setup", self.run_text("Set up signing"))
         # Never the Classic archive: not reused, not re-signed.
-        self.assertNotEqual(self.job["env"]["PAL_ARCHIVE_PATH"], self.env["ARCHIVE_PATH"])
+        self.assertNotEqual(self.job["env"]["PAL_ARCHIVE_PATH"], self.deploy_env["ARCHIVE_PATH"])
         for step in self.job["steps"]:
             with self.subTest(step=step.get("name")):
                 run = expand(code(step.get("run", "")), {**self.env, **self.job.get("env", {})})
-                self.assertNotIn(self.env["ARCHIVE_PATH"], run)
-                self.assertNotIn(self.env["PAYLOAD_PATH"], run)
+                self.assertNotIn(self.deploy_env["ARCHIVE_PATH"], run)
+                self.assertNotIn(self.deploy_env["PAYLOAD_PATH"], run)
                 self.assertFalse(step.get("uses", "").startswith("actions/download-artifact@"))
 
     def test_nothing_asks_xcode_to_make_signing_records(self):
@@ -818,7 +843,7 @@ class CrashReportingWorkflowTests(unittest.TestCase):
     # it, the dSYMs artifact)
     RELEASES = (
         ("deploy.yml", "Deploy", "ARCHIVE_PATH", "Export .ipa files", "EhPanda-dSYMs"),
-        ("deploy.yml", "AltStorePAL", "PAL_ARCHIVE_PATH", "Export and upload", "EhPanda-AltStorePAL-dSYMs"),
+        ("marketplace-upload.yml", "AltStorePAL", "PAL_ARCHIVE_PATH", "Export and upload", "EhPanda-AltStorePAL-dSYMs"),
         ("deploy-beta.yml", "Deploy", "ARCHIVE_PATH", "Export .ipa file", "EhPanda-Beta-dSYMs"),
     )
     UPLOAD_ENV = {
@@ -921,7 +946,7 @@ class GateOffTests(unittest.TestCase):
             document = load(WORKFLOWS / workflow)
             for name, job in document["jobs"].items():
                 with self.subTest(workflow=workflow, job=name):
-                    self.assertNotIn("uses", job)
+                    self.assertEqual(job.get("uses"), RELEASE_USES.get((workflow, name)))
                     self.assertEqual(job.get("needs"), RELEASE_NEEDS.get((workflow, name)))
                     for step in job.get("steps", []):
                         self.assertNotIn("require-snapshot-gate", step.get("run", ""))

@@ -131,7 +131,7 @@ and re-runs once the classes a crash or the budget left without results. Jobs:
   mismatches) in the run summary, writes the report and is the run's verdict, together with `native-policy`.
 
 A newer push to the same pull request cancels the superseded run; a release, dispatch or dependency run is never
-cancelled. The release workflows (`deploy.yml`, including its AltStore PAL job, and `deploy-beta.yml`) do not call the gate or read its `aggregate` check for 3.0 (owner decision); restore by re-adding the `snapshot-gate` job and the `require-snapshot-gate.sh` step (see git history).
+cancelled. The release workflows (`deploy.yml`, `marketplace-upload.yml` (its AltStore PAL upload) and `deploy-beta.yml`) do not call the gate or read its `aggregate` check for 3.0 (owner decision); restore by re-adding the `snapshot-gate` job and the `require-snapshot-gate.sh` step (see git history).
 
 **Restricting a candidate run.** A `workflow_dispatch` of mode `candidate` takes an optional `shards` input,
 comma-separated shard IDs of `snapshot-shards.json` (`s05,s19`; empty runs all). `checks` refuses an ID the plan does

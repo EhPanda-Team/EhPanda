@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A small App Store Connect API client for the AltStore PAL upload (the `AltStorePAL` job of `deploy.yml`).
+"""A small App Store Connect API client for the AltStore PAL upload (the `AltStorePAL` job of `marketplace-upload.yml`).
 
 It makes the one call that job needs and nothing else (Phase 20 D-07, D-21; App Store Connect OpenAPI 4.6): before
 the archive, it checks that the build number is still unused. The job uploads the build with xcodebuild and stops;
