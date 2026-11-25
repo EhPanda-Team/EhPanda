@@ -3,10 +3,10 @@ name: AltStore PAL upload
 # 2026-11-21): the collaborator creates the version with review type Notarization, adds the build and submits it in
 # App Store Connect. Once Apple accepts it, publish-pal.yml publishes the package.
 #
-# Two ways in (owner decision, 2026-11-25). deploy.yml calls it after each release, so the PAL build carries the
-# release's commit, version and build number (D-26). It can also be started by hand, from any branch, to upload a
-# marketplace build without a release: a resubmission, or a check of the signing and upload path. Either way it
-# publishes nothing: no GitHub release, no source on main, no announcement.
+# Three ways in (owner decisions, 2026-11-25). deploy.yml calls it after each release, so the PAL build carries the
+# release's commit, version and build number (D-26). It can also be started by hand, from any branch, or by a push
+# to develop, to upload a marketplace build without a release: a resubmission, or a check of the signing and upload
+# path. Either way it publishes nothing: no GitHub release, no source on main, no announcement.
 #
 # Its own archive with Config/Marketplace.xcconfig, signed by Xcode through the generated signing xcconfig. The job
 # runs in the GitHub environment `app-marketplace`, whose required reviewer gives the owner's OK for each run (D-07).
@@ -32,6 +32,12 @@ name: AltStore PAL upload
 on:
   workflow_call:
   workflow_dispatch:
+  # Each push to develop starts an upload too (owner decision, 2026-11-25), waiting at the app-marketplace review
+  # like every run. It also registers this workflow while the file is on develop only: GitHub dispatches by hand
+  # only the workflows it knows from the default branch.
+  push:
+    branches:
+      - develop
 env:
   SCHEME_NAME: 'EhPanda'
   CHECK_BUILD_NUMBER_SCRIPT_PATH: './actions-tool/check-build-number.sh'

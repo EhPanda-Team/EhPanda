@@ -464,7 +464,8 @@ PAL_UPLOAD_STEPS = [
 class PalUploadJobTests(unittest.TestCase):
     """marketplace-upload.yml's `AltStorePAL` job (20-04, amended 2026-11-21 and 2026-11-25; D-07, D-21, D-26): it
     archives the marketplace build on its own, verifies and uploads it, and stops there (owner decision). deploy.yml
-    calls it after each release; it can also be started by hand without a release (owner decision, 2026-11-25)."""
+    calls it after each release; it can also be started by hand or by a push to develop, without a release (owner
+    decisions, 2026-11-25)."""
 
     @classmethod
     def setUpClass(cls):
@@ -482,10 +483,12 @@ class PalUploadJobTests(unittest.TestCase):
     def test_it_is_the_only_job_and_is_called_by_deploy_or_started_by_hand(self):
         self.assertEqual(list(self.upload["jobs"]), ["AltStorePAL"])
         triggers = self.upload.get("on", self.upload.get("true"))
-        # No inputs: the version and build number come from the checked-out project.
-        self.assertEqual(triggers, {"workflow_call": None, "workflow_dispatch": None})
+        # No inputs: the version and build number come from the checked-out project. A push to develop also starts
+        # it (owner decision, 2026-11-25); every run still waits at the app-marketplace review.
+        self.assertEqual(triggers, {"workflow_call": None, "workflow_dispatch": None,
+                                    "push": {"branches": ["develop"]}})
         text = code(self.text)
-        for word in ("push", "pull_request", "schedule", "release", "workflow_run"):
+        for word in ("pull_request", "schedule", "release", "workflow_run"):
             with self.subTest(trigger=word):
                 self.assertNotRegex(text, rf"(?m)^\s*{word}:")
 
