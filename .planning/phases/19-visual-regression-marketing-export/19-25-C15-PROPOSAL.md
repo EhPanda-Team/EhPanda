@@ -331,3 +331,42 @@ neighbouring strings on this sheet and the facts each line must express. What th
   the key is renamed to `accessibility.archive_unaffordable` to match the other spoken keys.
 - U2 line: every reviewer found the draft described the archives as short of GP; each locale rewritten as recorded
   above.
+
+## Owner answers, first round (2026-11-25)
+
+Asked by the orchestrator in Taiwanese Mandarin, four questions. Answers, verbatim:
+
+- Display: 「維持現狀，卡片 disabled 不能選，不用加一列」 (an unaffordable card is disabled and cannot be selected; no
+  line is added).
+- Copy: 「你有按 global agents.md 的指示來寫嗎」. Answered honestly: not fully. One writer drafted all six locales
+  with the English and the other locales in view, the blind reviewers corrected those drafts instead of writing from
+  the facts, and one zh-Hant change was carried into zh-Hans. The copy that the owner's display choice still needs is
+  rewritten under the rule: one writer per locale from the facts alone, then a different blind reviewer per locale,
+  then the side-by-side and pair checks.
+- Price format: 「你去網站看」. Done, see "Site evidence".
+- Currency: 「不確定」. Settled by the site, see "Site evidence".
+
+## Site evidence (2026-11-25)
+
+Read by the orchestrator on e-hentai.org with a signed-in account, read only (no download, no purchase, no form
+submitted), from one gallery's archiver page (`archiver.php?gid=…&token=…`) and the site's wiki.
+
+- The H@H table, the part the app parses: each cell is `<p><a onclick="return do_hathdl('1280')">1280x</a></p>`,
+  `<p>64.01 MiB</p>`, `<p>1343 GP</p>`. So the H@H price is digits with no grouping and a trailing " GP", even above
+  999 ("14441 GP"). The direct-download section above it writes the same costs grouped ("Download Cost: 14,441 GP");
+  the app does not parse that section. The proposal's cost rule (digits, optional "," grouping, optional " GP")
+  already covers both. Note that the fixtures' bare "180" is not what the site writes; the card shows the stored text,
+  so a real card reads "1343 GP".
+- The funds line (the account's amounts replaced): `<p>1,234 GP [<a href="…/wiki/Gallery_Points">?</a>] &nbsp; 5,678 Credits [<a href="…/wiki/Credits">?</a>]</p>`,
+  as `parseCurrentFunds` expects.
+- The page does not mark or disable an H@H size the account's GP cannot pay: on an account whose GP was below every
+  H@H price, all five sizes were the same plain links.
+- What pays for an archive, from the wiki page "Gallery Points", section Uses: "Purchasing archives of galleries. …
+  Credits can be used in place of GP for the above if not enough GP are available. In these cases, the system
+  auto-converts credits to GP using the "High" rate from the last 24 hours in the GP Exchange."
+
+Consequence for the rule: a price above the GP balance does not mean the archive cannot be downloaded. The site
+covers the shortfall from Credits at an exchange rate the app does not know. A gate on GP alone would block downloads
+the site would fulfil, which is exactly T-19-54. Only a price above the GP balance with no Credits at all (a known
+zero) is certainly unaffordable. When the site does refuse, the app already shows the site's own response text
+(`parseDownloadCommandResponse`) in a toast.
