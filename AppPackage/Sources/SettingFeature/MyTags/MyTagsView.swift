@@ -11,8 +11,9 @@ import SwiftUI
 import SystemNotification
 
 /// The My Tags page (port of PR 462 item 10, design approved 2026-11-22): the tag set (its picker, Enabled and default
-/// colour) and its tags, one row each; a row opens Edit Tag and a trailing swipe removes the tag. Add Tag sits in the
-/// toolbar. Signed out it shows Log In; loading, the loading view; failed, the error with Open in Browser.
+/// colour, and New Tag Set) and its tags, one row each; a row opens Edit Tag and a trailing swipe removes the tag. Add
+/// Tag sits in the toolbar. Signed out it shows Log In; loading, the loading view; failed, the error with Open in
+/// Browser.
 struct MyTagsView: View {
     @Bindable private var store: StoreOf<MyTagsFeature>
     @SharedReader(.didLogin) private var didLogin: Bool
@@ -92,6 +93,16 @@ struct MyTagsView: View {
                     prompt: nil
                 )
                 .appAlert(alert(for: .defaultColor))
+                Button(.myTagsNewTagSet) {
+                    store.send(.newTagSetTapped)
+                }
+                .disabled(store.isCreatingTagSet)
+                // On the row that opens them, the name alert and its failure alert (AGENTS.md dialog placement).
+                .appAlert(
+                    $store.scope(\.$newTagSetAlert, action: \.newTagSetAlert),
+                    text: $store.newTagSetName.sending(\.newTagSetNameChanged)
+                )
+                .appAlert(alert(for: .newTagSet))
             } footer: {
                 Text(.myTagsTagSetFooter)
             }

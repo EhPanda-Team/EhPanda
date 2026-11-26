@@ -18,6 +18,10 @@ public import SwiftUI
 /// Tag, Add Tag the same form empty, and a swipe removes the tag at once. Every write takes the page the site
 /// answered with into the cached My Tags. The edit API's credentials of the last page read stay in this state and are
 /// never persisted.
+///
+/// New Tag Set asks for a name in an alert, then has the site create the set from the form of the set shown; the
+/// page then chooses the new set and reads it, and a refusal or a failure shows the alert on the row (quick
+/// 261126-pfh).
 @Reducer
 public struct MyTagsFeature: Sendable {
     @Reducer
@@ -33,6 +37,13 @@ public struct MyTagsFeature: Sendable {
         case enabled
         case defaultColor
         case tag(Int)
+        /// The New Tag Set row, whose create was refused or failed.
+        case newTagSet
+    }
+
+    /// The New Tag Set alert's action besides Cancel.
+    public enum NewTagSetAlert: Equatable, Sendable {
+        case create
     }
 
     public enum Delegate: Equatable, Sendable {
@@ -52,6 +63,8 @@ public struct MyTagsFeature: Sendable {
         @Presents public var destination: Destination.State?
         @Presents public var alert: AppAlertState<Never>?
         @Presents public var toast: AppAlertState<Never>?
+        /// The alert that names a new tag set (N-2 of quick 261126-pfh).
+        @Presents public var newTagSetAlert: AppAlertState<NewTagSetAlert>?
         public var alertSource: AlertSource?
         public var loadingState: LoadingState = .idle
         /// The edit API's credentials of the last page read; in memory only.
@@ -59,6 +72,11 @@ public struct MyTagsFeature: Sendable {
         public var apikey: String?
         /// The tag set as the site last had it while an Enabled or colour change is on its way.
         public var confirmedTagSet: MyTagSet?
+        /// The name typed into the New Tag Set alert; emptied each time the alert opens.
+        public var newTagSetName = ""
+        /// A create is on its way: the New Tag Set row is disabled, and another create is refused, until the site
+        /// answers.
+        public var isCreatingTagSet = false
 
         public init() {}
 
@@ -75,6 +93,7 @@ public struct MyTagsFeature: Sendable {
         case destination(PresentationAction<Destination.Action>)
         case alert(PresentationAction<Never>)
         case toast(PresentationAction<Never>)
+        case newTagSetAlert(PresentationAction<NewTagSetAlert>)
         case delegate(Delegate)
         /// Sent when the page is presented.
         case onPresented
@@ -92,6 +111,9 @@ public struct MyTagsFeature: Sendable {
         case tagTapped(MyTag)
         case removeSwiped(MyTag)
         case removeTagDone(tagID: Int, result: Result<MyTagsPage, AppError>)
+        case newTagSetTapped
+        case newTagSetNameChanged(String)
+        case createTagSetDone(knownTagSetIDs: [Int], result: Result<MyTagsPage, AppError>)
         case openInBrowserTapped
         case browserChanged(URL?)
     }
@@ -105,7 +127,7 @@ public struct MyTagsFeature: Sendable {
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .alert, .toast, .delegate:
+            case .alert, .toast, .delegate, .newTagSetAlert(.dismiss):
                 return .none
 
             case .onPresented:
@@ -156,10 +178,10 @@ public struct MyTagsFeature: Sendable {
                 guard tagSetID != state.selectedTagSetID else { return .none }
                 state.$user.withLock({ $0.myTags = $0.myTags?.selecting(tagSetID) })
                 state.loadingState = .loading
-                return fetchTagSet(state)
+                return fetchTagSet(state.selectedTagSetID, host: state.setting.galleryHost)
 
             case .refresh:
-                return fetchTagSet(state)
+                return fetchTagSet(state.selectedTagSetID, host: state.setting.galleryHost)
 
             case .fetchTagSetDone(.success(let page)):
                 state.loadingState = .idle
@@ -223,6 +245,82 @@ public struct MyTagsFeature: Sendable {
                     &state, .tag(tagID), title: .RLocalizable.myTagsRemoveFailed, message: error.alertText
                 )
 
+            // The name starts empty each time (N-2); Create waits for one (N-3).
+            case .newTagSetTapped:
+                state.newTagSetName = ""
+                state.newTagSetAlert = AppAlertState(
+                    title: {
+                        TextState(localized: .myTagsNewTagSetTitle)
+                    },
+                    textField: AppAlertTextFieldState(
+                        placeholder: TextState(localized: .myTagsNewTagSetName),
+                        requiresText: true
+                    ),
+                    actions: {
+                        ButtonState(action: .create) {
+                            TextState(localized: .myTagsNewTagSetCreate)
+                        }
+                        ButtonState(role: .cancel) {
+                            TextState(localized: .RLocalizable.cancel)
+                        }
+                    },
+                    message: {
+                        TextState(localized: .myTagsNewTagSetMessage)
+                    }
+                )
+                return .none
+
+            case .newTagSetNameChanged(let name):
+                state.newTagSetName = name
+                return .none
+
+            // A blank name is refused here too, though Create waits for one (N-3), and so is a second create while
+            // one is on its way: a create is not safe to send twice (`CreateMyTagSetRequest`). The sets the cache
+            // has now are the ones the site's answer is read against (N-5).
+            case .newTagSetAlert(.presented(.create)):
+                let name = state.newTagSetName.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !name.isEmpty, !state.isCreatingTagSet, let shownTagSet = state.selectedTagSet
+                else { return .none }
+                state.isCreatingTagSet = true
+                let knownTagSetIDs = state.user.myTags?.tagSets.map(\.id) ?? []
+                let host = state.setting.galleryHost
+                return .run { send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await myTagsClient.createTagSet(host, name, shownTagSet)
+                    }
+                    await send(.createTagSetDone(knownTagSetIDs: knownTagSetIDs, result: result))
+                }
+
+            // The new set is the one id the answer's picker lists that the cache lacked before the post (N-5). It is
+            // chosen, kept with the cache as a choice in the picker is, and read, so the loading view shows until its
+            // page arrives with the name, Enabled and colour the site gave it; that read puts it in the picker (N-6).
+            // A reason on the page, or no new id, fails the create. More than one new id means a set was also made
+            // elsewhere meanwhile: none is chosen, and every set is read again so each shows with its name.
+            case .createTagSetDone(let knownTagSetIDs, .success(let page)):
+                state.isCreatingTagSet = false
+                take(page, into: &state)
+                if let message = page.message {
+                    return presentAlert(&state, .newTagSet, title: .myTagsCreateTagSetFailed, message: message)
+                }
+                let newTagSetIDs = page.tagSetIDs.filter({ !knownTagSetIDs.contains($0) })
+                guard let newTagSetID = newTagSetIDs.first else {
+                    // Neither the new set nor a reason: the page was read (no parse failure), so all the app knows
+                    // is that the set is not there.
+                    return presentAlert(
+                        &state, .newTagSet, title: .myTagsCreateTagSetFailed, message: AppError.unknown.alertText
+                    )
+                }
+                guard newTagSetIDs.count == 1 else { return .send(.fetchMyTags) }
+                state.$user.withLock({ $0.myTags = $0.myTags?.selecting(newTagSetID) })
+                state.loadingState = .loading
+                return fetchTagSet(newTagSetID, host: state.setting.galleryHost)
+
+            case .createTagSetDone(_, .failure(let error)):
+                state.isCreatingTagSet = false
+                return presentAlert(
+                    &state, .newTagSet, title: .myTagsCreateTagSetFailed, message: error.alertText
+                )
+
             case .destination(.presented(.editor(.delegate(.removed)))):
                 state.toast = .success(caption: .RLocalizable.myTagsRemoved)
                 return .none
@@ -245,12 +343,14 @@ public struct MyTagsFeature: Sendable {
         .ifLet(\.$destination, action: \.destination)
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$toast, action: \.toast)
+        .ifLet(\.$newTagSetAlert, action: \.newTagSetAlert)
     }
 
-    private func fetchTagSet(_ state: State) -> Effect<Action> {
-        let host = state.setting.galleryHost
-        let tagSetID = state.selectedTagSetID
-        return .run { send in
+    /// Reads the set `tagSetID`'s page on `host`, in place of any read still on its way. It takes the id rather than
+    /// reading the state's: right after a create, the new set is chosen but not yet in the cache, so the state's
+    /// `selectedTagSetID` still names the first set.
+    private func fetchTagSet(_ tagSetID: Int, host: GalleryHost) -> Effect<Action> {
+        .run { send in
             let result = await Result.Swift::init { () async throws(AppError) in
                 try await myTagsClient.fetchTagSet(host, tagSetID)
             }
