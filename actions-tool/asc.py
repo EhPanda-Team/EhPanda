@@ -78,6 +78,10 @@ TOKEN_REFRESH = 900    # A long wait gets a new token well before the old one ex
 LOCAL_HOSTS = ("127.0.0.1", "localhost", "::1")
 # How long one part of an upload may take.
 PART_TIMEOUT = 300
+# A header App Store Connect lists for a part: an HTTP token as its name and a value on one line.
+HEADER_NAME = re.compile(r"[!#$%&'*+.^_`|~0-9A-Za-z-]+")
+# A part is the same bytes to the same URL, so it is sent again as a read is.
+PART_ATTEMPTS = 3
 
 # The only endpoints this client may call, as (method, path pattern): exactly what the commands below call. An ID in a
 # path is letters, digits and hyphens, so it can never add a segment or a query.
@@ -251,36 +255,47 @@ class Client:
     def send_part(self, part, data):
         """PUTs one part to the storage URL App Store Connect gave for it: only the headers it listed, plus Host and
         Content-Length when it did not list them, and never the API token. No redirect is followed, and the reply's
-        body is never shown: a storage error can echo the signature."""
+        body is never shown: a storage error can echo the signature. 429, a server error or a lost connection get the
+        part sent again, at most PART_ATTEMPTS times."""
         parsed = urllib.parse.urlsplit(part.url)
-        if parsed.scheme == "https":
-            connection = http.client.HTTPSConnection(parsed.hostname, parsed.port, timeout=PART_TIMEOUT,
-                                                     context=ssl.create_default_context())
-        else:
-            connection = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=PART_TIMEOUT)
         target = (parsed.path or "/") + ("?" + parsed.query if parsed.query else "")
         listed = {name.lower() for name, _ in part.headers}
-        try:
-            connection.putrequest("PUT", target, skip_host=True, skip_accept_encoding=True)
-            if "host" not in listed:
-                connection.putheader("Host", parsed.netloc)
-            for name, value in part.headers:
-                connection.putheader(name, value)
-            if "content-length" not in listed:
-                connection.putheader("Content-Length", str(len(data)))
-            connection.endheaders(message_body=data)
-            response = connection.getresponse()
-            response.read()
-            status = response.status
-        except (OSError, http.client.HTTPException) as error:
-            self.note_part(part, 0)
-            raise AscError(f"PUT {part.public} failed: {type(error).__name__}; the file was not marked "
-                           f"uploaded.") from None
-        finally:
-            connection.close()
-        self.note_part(part, status)
-        if not 200 <= status < 300:
-            raise AscError(f"PUT {part.public} returned {status}; the file was not marked uploaded.")
+        # A part is sent again on 429, a server error or a lost connection, like a read; any other refusal is final.
+        for attempt in range(1, PART_ATTEMPTS + 1):
+            if parsed.scheme == "https":
+                connection = http.client.HTTPSConnection(parsed.hostname, parsed.port, timeout=PART_TIMEOUT,
+                                                         context=ssl.create_default_context())
+            else:
+                connection = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=PART_TIMEOUT)
+            lost = None
+            try:
+                connection.putrequest("PUT", target, skip_host=True, skip_accept_encoding=True)
+                if "host" not in listed:
+                    connection.putheader("Host", parsed.netloc)
+                for name, value in part.headers:
+                    connection.putheader(name, value)
+                if "content-length" not in listed:
+                    connection.putheader("Content-Length", str(len(data)))
+                connection.endheaders(message_body=data)
+                response = connection.getresponse()
+                response.read()
+                status = response.status
+            except (OSError, http.client.HTTPException) as error:
+                lost, status = error, 0
+            finally:
+                connection.close()
+            self.note_part(part, status)
+            if lost is None and 200 <= status < 300:
+                return
+            if lost is None and status != 429 and status < 500:
+                raise AscError(f"PUT {part.public} returned {status}; the file was not marked uploaded.")
+            if attempt < PART_ATTEMPTS:
+                time.sleep(attempt * 5)
+        if lost is not None:
+            raise AscError(f"PUT {part.public} failed {PART_ATTEMPTS} times ({type(lost).__name__}); the file was "
+                           f"not marked uploaded.")
+        raise AscError(f"PUT {part.public} returned {status} {PART_ATTEMPTS} times; the file was not marked "
+                       f"uploaded.")
 
 
 def describe_errors(payload):
@@ -329,12 +344,44 @@ def upload_parts(operations, size, local):
     file order."""
     if not isinstance(operations, list) or not operations:
         raise AscError("App Store Connect gave no upload operations for the file. Nothing was uploaded.")
-    publics = [check_part_url(operation.get("url"), local) for operation in operations]
-    ordered = sorted(zip(operations, publics), key=lambda pair: pair[0]["offset"])
-    return [Part(number=number, offset=operation["offset"], length=operation["length"], url=operation["url"],
-                 public=public,
-                 headers=tuple((header["name"], header["value"]) for header in operation.get("requestHeaders") or []))
-            for number, (operation, public) in enumerate(ordered, start=1)]
+    checked = []
+    for number, item in enumerate(operations, start=1):
+        if not isinstance(item, dict):
+            raise AscError(f"Upload operation {number} is not an object. Nothing was uploaded.")
+        method = item.get("method")
+        if method != "PUT":
+            raise AscError(f"Upload operation {number} asks for {method!r}; only PUT is sent. Nothing was uploaded.")
+        offset, length = item.get("offset"), item.get("length")
+        if type(offset) is not int or offset < 0 or type(length) is not int or length <= 0:
+            raise AscError(f"Upload operation {number} has no usable byte range. Nothing was uploaded.")
+        public = check_part_url(item.get("url"), local)
+        listed = item.get("requestHeaders")
+        if listed is not None and not isinstance(listed, list):
+            raise AscError(f"Upload operation {number} lists its headers in an unknown form. Nothing was uploaded.")
+        headers = []
+        for header in listed or []:
+            name = header.get("name") if isinstance(header, dict) else None
+            value = header.get("value") if isinstance(header, dict) else None
+            if (not isinstance(name, str) or not HEADER_NAME.fullmatch(name) or not isinstance(value, str)
+                    or any(character in value for character in "\r\n\0")):
+                raise AscError(f"Upload operation {number} lists a header that cannot be sent. "
+                               f"Nothing was uploaded.")
+            if name.lower() == "content-length" and value != str(length):
+                raise AscError(f"Upload operation {number} gives a Content-Length other than its length. "
+                               f"Nothing was uploaded.")
+            headers.append((name, value))
+        checked.append((offset, length, item["url"], public, tuple(headers)))
+    checked.sort(key=lambda entry: entry[0])
+    end = 0
+    for offset, length, _, _, _ in checked:
+        if offset != end:
+            raise AscError(f"The upload operations do not meet: one ends at byte {end}, the next starts at "
+                           f"{offset}. Nothing was uploaded.")
+        end = offset + length
+    if end != size:
+        raise AscError(f"The upload operations cover {end} of the file's {size} bytes. Nothing was uploaded.")
+    return [Part(number=number, offset=offset, length=length, url=url, public=public, headers=headers)
+            for number, (offset, length, url, public, headers) in enumerate(checked, start=1)]
 
 
 def describe_upload_issues(details):

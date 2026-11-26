@@ -17,12 +17,15 @@ import os
 import pathlib
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import tempfile
 import threading
+import types
 import unittest
 import urllib.parse
+from unittest import mock
 
 TOOLS = pathlib.Path(__file__).resolve().parents[1]
 ASC = TOOLS / "asc.py"
@@ -383,6 +386,137 @@ class UploadUrlTests(unittest.TestCase):
                 self.assertNotIn("pw", message)
 
 
+class UploadPlanTests(unittest.TestCase):
+    SIZE = 2563
+    RANGES = ((0, 1024), (1024, 1024), (2048, 515))
+    STORAGE = types.SimpleNamespace(base_url="https://storage.example.com")
+    REMOVE = object()
+
+    def plan(self, ranges=RANGES, **second):
+        operations = [operation(self.STORAGE, number, offset, length)
+                      for number, (offset, length) in enumerate(ranges, start=1)]
+        for key, value in second.items():
+            if value is self.REMOVE:
+                del operations[1][key]
+            else:
+                operations[1][key] = value
+        return operations
+
+    def test_the_parts_come_back_in_file_order(self):
+        parts = asc.upload_parts(self.plan(((2048, 515), (0, 1024), (1024, 1024))), self.SIZE, False)
+        self.assertEqual([part.number for part in parts], [1, 2, 3])
+        self.assertEqual([part.offset for part in parts], [0, 1024, 2048])
+        self.assertEqual([part.public for part in parts], [f"https://storage.example.com/upload/part-{n}"
+                                                          for n in (2, 3, 1)])
+        self.assertEqual([part.headers for part in parts],
+                         [(("Content-Type", "application/octet-stream"), ("x-apple-part", str(n)))
+                          for n in (2, 3, 1)])
+
+    def test_no_headers_is_allowed(self):
+        parts = asc.upload_parts(self.plan(requestHeaders=None), self.SIZE, False)
+        self.assertEqual(parts[1].headers, ())
+
+    def test_a_malformed_plan_is_refused_before_any_byte(self):
+        cases = {
+            "none": None,
+            "empty": [],
+            "not an object": ["PUT"],
+            "method POST": self.plan(method="POST"),
+            "method missing": self.plan(method=self.REMOVE),
+            "offset text": self.plan(offset="1024"),
+            "offset boolean": self.plan(offset=True),
+            "length zero": self.plan(length=0),
+            "headers text": self.plan(requestHeaders="Content-Type: application/octet-stream"),
+            "header without a name": self.plan(requestHeaders=[{"value": "x"}]),
+            "header name not a token": self.plan(requestHeaders=[{"name": "Content Type", "value": "x"}]),
+            "header value with a line break": self.plan(
+                requestHeaders=[{"name": "X-A", "value": "a\r\nAuthorization: Bearer t"}]),
+            "header value with NUL": self.plan(requestHeaders=[{"name": "X-A", "value": "a\0"}]),
+            "content length other than the length": self.plan(
+                requestHeaders=[{"name": "content-length", "value": "1"}]),
+            "starts at 1": self.plan(((1, 1023), (1024, 1024), (2048, 515))),
+            "negative offset": self.plan(((-1, 1025), (1024, 1024), (2048, 515))),
+            "gap": self.plan(((0, 1000), (1024, 1024), (2048, 515))),
+            "overlap": self.plan(((0, 1100), (1024, 1024), (2048, 515))),
+            "short of the file": self.plan(((0, 1024), (1024, 1024), (2048, 514))),
+            "past the file": self.plan(((0, 1024), (1024, 1024), (2048, 516))),
+        }
+        for label, operations in cases.items():
+            with self.subTest(case=label):
+                with self.assertRaises(asc.AscError) as raised:
+                    asc.upload_parts(operations, self.SIZE, False)
+                message = str(raised.exception)
+                self.assertTrue(message.endswith("Nothing was uploaded."), message)
+                self.assertNotIn("secret-sig", message)
+
+
+class PartRetryTests(unittest.TestCase):
+    DATA = b"part-data"
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.storage = FakeStorage()
+        self.addCleanup(self.storage.close)
+        self.record = pathlib.Path(self.tmp.name) / "calls.jsonl"
+        self.lines = []
+        # A loopback base URL that is never contacted, so loopback http parts are allowed.
+        self.client = asc.Client("http://127.0.0.1:1", token=self.no_token, key_id=KEY_ID, record=str(self.record),
+                                 log=self.lines.append)
+
+    def no_token(self):
+        self.fail("sending a part read the API token")
+
+    def part(self, url=None):
+        part_operation = operation(self.storage, 1, 0, 9)
+        if url is not None:
+            part_operation["url"] = url
+        return asc.upload_parts([part_operation], 9, True)[0]
+
+    def statuses(self):
+        return [json.loads(line)["status"] for line in self.record.read_text(encoding="utf-8").splitlines()]
+
+    def test_a_part_is_sent_again_after_a_server_error(self):
+        self.storage.replies["/upload/part-1"] = [500, 200]
+        with mock.patch.object(asc.time, "sleep") as slept:
+            self.client.send_part(self.part(), self.DATA)
+        self.assertEqual([request["body"] for request in self.storage.requests], [self.DATA, self.DATA])
+        self.assertEqual(self.statuses(), [500, 200])
+        slept.assert_called_once_with(5)
+
+    def test_a_part_that_keeps_failing_stops_after_three_attempts(self):
+        self.storage.replies["/upload/part-1"] = [429]
+        with mock.patch.object(asc.time, "sleep"), self.assertRaises(asc.AscError) as raised:
+            self.client.send_part(self.part(), self.DATA)
+        message = str(raised.exception)
+        self.assertIn("429", message)
+        self.assertIn("3 times", message)
+        self.assertNotIn("secret-sig", message)
+        self.assertEqual(len(self.storage.requests), 3)
+        self.assertEqual(self.statuses(), [429, 429, 429])
+
+    def test_a_refused_part_is_not_sent_again(self):
+        self.storage.replies["/upload/part-1"] = [403]
+        with mock.patch.object(asc.time, "sleep") as slept, self.assertRaises(asc.AscError) as raised:
+            self.client.send_part(self.part(), self.DATA)
+        self.assertIn("403", str(raised.exception))
+        self.assertEqual(len(self.storage.requests), 1)
+        self.assertEqual(self.statuses(), [403])
+        slept.assert_not_called()
+
+    def test_a_lost_connection_is_tried_again_then_fails(self):
+        with socket.socket() as listener:
+            listener.bind(("127.0.0.1", 0))
+            port = listener.getsockname()[1]
+        url = f"http://127.0.0.1:{port}/upload/part-1?X-Signature=secret-sig-1"
+        with mock.patch.object(asc.time, "sleep") as slept, self.assertRaises(asc.AscError) as raised:
+            self.client.send_part(self.part(url), self.DATA)
+        self.assertIn("3 times", str(raised.exception))
+        self.assertNotIn("secret-sig", str(raised.exception))
+        self.assertEqual(self.statuses(), [0, 0, 0])
+        self.assertEqual(slept.call_args_list, [mock.call(5), mock.call(10)])
+
+
 @unittest.skipUnless(OPENSSL, "openssl is not installed")
 class CommandTests(unittest.TestCase):
     def setUp(self):
@@ -624,6 +758,16 @@ class CommandTests(unittest.TestCase):
         self.assertEqual([r["path"] for r in self.storage.requests], ["/upload/part-1", "/upload/part-2"])
         self.assertEqual(self.calls("PATCH"), [])
         self.assertNotIn("/v1/buildUploads/u-1", [r["path"] for r in self.calls("GET")])
+
+    def test_an_overlapping_plan_uploads_nothing(self):
+        self.upload_routes(self.CONTENT, 1024, ops=[operation(self.storage, 1, 0, 1100),
+                                                    operation(self.storage, 2, 1024, 1024),
+                                                    operation(self.storage, 3, 2048, 515)])
+        result = self.run_upload("--interval", "0")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Nothing was uploaded.", result.stderr)
+        self.assertEqual(self.storage.requests, [])
+        self.assertEqual(self.calls("PATCH"), [])
 
     def test_a_missing_ipa_fails_before_any_request(self):
         result = self.run_upload("--interval", "0")
