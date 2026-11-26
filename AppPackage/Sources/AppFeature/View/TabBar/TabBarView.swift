@@ -54,12 +54,6 @@ struct TabBarView: View {
             GallerySheetView(store: galleryStore)
             .privacyMask()
         }
-        .toast(
-            $store.scope(\.presentationState.$toast, action: \.presentation.toast),
-            onErrorTap: { errorInfo in
-                store.send(.presentation(.presentErrorInfo(errorInfo)))
-            }
-        )
         .onChange(of: scenePhase) { _, newValue in
             store.send(.onScenePhaseChange(newValue))
         }
@@ -78,26 +72,38 @@ struct TabBarView: View {
         TabView(selection: $tabBarStore.tabBarItemType.sending(\.setTabBarItemType)) {
             ForEach(TabBarItemType.allCases) { type in
                 Tab(value: type) {
-                    switch type {
-                    case .home:
-                        HomeView(
-                            store: store.scope(\.homeState, action: \.home)
-                        )
-                    case .library:
-                        LibraryView(
-                            store: store.scope(\.libraryState, action: \.library),
-                            favoritesStore: store.scope(\.favoritesState, action: \.favorites),
-                            downloadsStore: store.scope(\.downloadsState, action: \.downloads)
-                        )
-                    case .search:
-                        SearchRootView(
-                            store: store.scope(\.searchRootState, action: \.searchRoot)
-                        )
-                    case .setting:
-                        SettingView(
-                            store: store.scope(\.settingState, action: \.setting)
-                        )
+                    // The app-wide toast stands over each tab's own content, not over the TabView: a tab's safe area
+                    // ends at its tab bar, so the toast clears the bar wherever it sits (bottom on iPhone, top on
+                    // iPad) with no fixed or measured clearance (T-1). Only the selected tab is in the window, so
+                    // the toast shows once.
+                    Group {
+                        switch type {
+                        case .home:
+                            HomeView(
+                                store: store.scope(\.homeState, action: \.home)
+                            )
+                        case .library:
+                            LibraryView(
+                                store: store.scope(\.libraryState, action: \.library),
+                                favoritesStore: store.scope(\.favoritesState, action: \.favorites),
+                                downloadsStore: store.scope(\.downloadsState, action: \.downloads)
+                            )
+                        case .search:
+                            SearchRootView(
+                                store: store.scope(\.searchRootState, action: \.searchRoot)
+                            )
+                        case .setting:
+                            SettingView(
+                                store: store.scope(\.settingState, action: \.setting)
+                            )
+                        }
                     }
+                    .toast(
+                        $store.scope(\.presentationState.$toast, action: \.presentation.toast),
+                        onErrorTap: { errorInfo in
+                            store.send(.presentation(.presentErrorInfo(errorInfo)))
+                        }
+                    )
                 } label: {
                     Label(type.title, systemSymbol: type.symbol)
                 }

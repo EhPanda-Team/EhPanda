@@ -124,7 +124,10 @@ public struct ReadingView: View {
                 .scrollEdgeEffectStyle(.soft, for: .top)
                 .privacyMask()
         }
-        .toast($store.scope(\.$toast, action: \.toast))
+        // The control panel is an overlay, outside the safe area the toast stands on, so while it shows the toast
+        // stands above its measured lower panel, and with the panel hidden on the bottom edge; the panel's own
+        // animation carries the toast with it (T-1).
+        .toast($store.scope(\.$toast, action: \.toast), bottomInset: store.showsPanel ? lowerPanelHeight : 0)
         .environment(liveTextHandler.translator)
         .liveTextTranslations(for: liveTextHandler.translator)
 

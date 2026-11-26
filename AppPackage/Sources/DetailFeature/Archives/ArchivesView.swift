@@ -13,6 +13,10 @@ struct ArchivesView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @Bindable private var store: StoreOf<ArchivesReducer>
+    /// The height of the pinned arrangement's funds-and-download footer. The footer is a safe-area bar of the column
+    /// inside the toast's host, so the host's safe area does not include it, and the toast stands this much higher to
+    /// clear it (T-1). Unused in the scrolling arrangement, where the footer scrolls with the grid.
+    @State private var pinnedFooterHeight: CGFloat = 0
     private let gid: String
     private let galleryURL: URL
     private let archiveURL: URL
@@ -49,7 +53,10 @@ struct ArchivesView: View {
                     }
                 }
                 .scrollEdgeEffectStyle(.soft, for: .top)
-                .toast($store.scope(\.$toast, action: \.toast))
+                .toast(
+                    $store.scope(\.$toast, action: \.toast),
+                    bottomInset: dynamicTypeSize.isAccessibilitySize ? 0 : pinnedFooterHeight
+                )
                 .navigationTitle(.archives)
         }
     }
@@ -93,6 +100,7 @@ struct ArchivesView: View {
                 funds
                 downloadButton
             }
+            .onGeometryChange(for: CGFloat.self, of: \.size.height) { pinnedFooterHeight = $0 }
         }
         .scrollEdgeEffectStyle(.soft, for: .bottom)
     }

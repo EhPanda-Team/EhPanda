@@ -94,12 +94,6 @@ struct LoginView: View {
                 ErrorInfoView(errorInfo: errorInfo.wrappedValue)
                     .privacyMask()
             }
-            .toast(
-                $store.scope(\.$toast, action: \.toast),
-                onErrorTap: { errorInfo in
-                    store.send(.presentErrorInfo(errorInfo))
-                }
-            )
             .onSubmit {
                 switch focusedField {
                 case .username:
@@ -112,6 +106,15 @@ struct LoginView: View {
             .toolbar(content: toolbar)
             .navigationTitle(.RLocalizable.login)
             .ignoresSafeArea(ignoredSafeAreaRegions, edges: .all)
+            // After the regions the screen ignores at default text sizes, so the toast keeps the safe area the form
+            // gives up: it stands above the tab bar or the sheet's bottom edge, and above the keyboard while it is up
+            // (T-1).
+            .toast(
+                $store.scope(\.$toast, action: \.toast),
+                onErrorTap: { errorInfo in
+                    store.send(.presentErrorInfo(errorInfo))
+                }
+            )
     }
 
     /// The column keeps its centred, unscrolled shape while the height it is offered can hold it,

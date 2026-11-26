@@ -22,18 +22,27 @@ extension View {
     /// ```swift
     /// .toast($store.scope(state: \.toast, action: \.toast))
     /// ```
+    ///
+    /// The toast stands on the bottom edge of its host's safe area, a default padding above it. That edge already
+    /// clears what the system insets the host by, such as the tab bar of a page inside a tab, a toolbar or the home
+    /// indicator, so nothing fixed is added: a constant tuned for a toast over the tab bar's root counted the tab bar
+    /// a second time on every page inside a tab (T-1, 2026-11-26). A host whose own bottom chrome is outside that safe
+    /// area, such as the reader's control panel overlay or a bar applied inside the host's content, passes the
+    /// chrome's height, measured from its own layout, as `bottomInset`, and the toast stands that much higher.
     @MainActor
     public func toast(
         _ item: Binding<Store<AppAlertState<Never>, Never>?>,
+        bottomInset: CGFloat = 0,
         onErrorTap: @escaping (ErrorInfo) -> Void = { _ in }
     ) -> some View {
-        modifier(ToastViewModifier(item: item, onErrorTap: onErrorTap))
+        modifier(ToastViewModifier(item: item, bottomInset: bottomInset, onErrorTap: onErrorTap))
     }
 }
 
 private struct ToastViewModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var item: Store<AppAlertState<Never>, Never>?
+    let bottomInset: CGFloat
     let onErrorTap: (ErrorInfo) -> Void
 
     func body(content: Content) -> some View {
@@ -67,7 +76,7 @@ private struct ToastViewModifier: ViewModifier {
                     .glassEffect(.regular, in: .capsule)
                     .id(id)
                     .padding(.horizontal)
-                    .padding(.bottom, 88)
+                    .padding(.bottom)
                     .gesture(dismissGesture(
                         isDismissible: toast.autoHide || store.state.errorInfo != nil,
                         presentedID: id
@@ -92,6 +101,7 @@ private struct ToastViewModifier: ViewModifier {
             // Scoped inside the overlay: the host view can mutate in the same transaction that
             // presents or clears the toast, and must not inherit this animation.
             .animation(toastAnimation, value: item?.state.id)
+            .padding(.bottom, bottomInset)
         }
     }
 
