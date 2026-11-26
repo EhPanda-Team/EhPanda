@@ -12,7 +12,7 @@ import TestingSupport
 /// departure keeps D-G2-01's retirement, which `DownloadContinuedSessionLedgerTests` pins.
 ///
 /// Every case runs one fixture of two galleries, a 10-page `large` with 6 finished and a 4-page
-/// `small` with none, so the opening card reads "6 / 14 pages · 2 galleries". Deletions are driven
+/// `small` with none, so the opening card reads "6 of 14 pages in 2 galleries". Deletions are driven
 /// through the coordinator's own `delete(gid:)` and `deleteFolder(name:)`, and the arithmetic is
 /// asserted per regime: the pushes recorded before the deletion must never lose ground, the pair the
 /// deletion leaves is asserted exactly (the one deliberate step back, which the series helper is not
@@ -33,7 +33,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
     private static let survivorOnlyPair = PushedPair(
         completedUnitCount: 0,
         totalUnitCount: 4,
-        subtitle: "0 / 4 pages · 1 gallery"
+        subtitle: "0 of 4 pages in 1 gallery"
     )
 
     /// The terminal pair of a session whose last gallery was deleted: the empty-denominator display
@@ -41,7 +41,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
     private static let drainedPair = PushedPair(
         completedUnitCount: 0,
         totalUnitCount: 1,
-        subtitle: "0 / 1 page · 0 galleries"
+        subtitle: "0 of 1 page in 0 galleries"
     )
 
     /// How `large` left the queue before the user deleted it.
@@ -53,7 +53,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
     /// The core rule, at the state the owner reported: a deleted gallery that had finished pages
     /// leaves X, Y and N, and the floor gives its six pages back.
     ///
-    /// `6 / 6 pages · 1 gallery` is the absorbed reading this case exists to refuse: the ledger
+    /// `6 of 6 pages in 1 gallery` is the absorbed reading this case exists to refuse: the ledger
     /// keeps the deleted gallery's six pages in both X and Y and the floor keeps them counted, so a
     /// survivor at two of four reads as six of six.
     @Test
@@ -71,7 +71,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
         await manager.testingEnsureContinuedSession()
         let sessionID = try #require(await manager.testingContinuedSessionID())
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try firstPushedPair(spy.progressUpdates).subtitle == "6 / 14 pages · 2 galleries")
+        #expect(try firstPushedPair(spy.progressUpdates).subtitle == "6 of 14 pages in 2 galleries")
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
 
         try await manager.delete(gid: large.gid).get()
@@ -80,7 +80,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
 
         await patchManifest(of: small, completedPageCount: 2, in: fixture)
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "2 / 4 pages · 1 gallery")
+        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "2 of 4 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -106,12 +106,12 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
         switch prior {
         case .paused:
             try await manager.pause(gid: large.gid).get()
-            #expect(try lastPushedPair(spy.progressUpdates).subtitle == "6 / 10 pages · 2 galleries")
+            #expect(try lastPushedPair(spy.progressUpdates).subtitle == "6 of 10 pages in 2 galleries")
         case .completed:
             await completeManifest(of: large, in: fixture)
             await manager.settleCompletedDownload(gid: large.gid)
             await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-            #expect(try lastPushedPair(spy.progressUpdates).subtitle == "10 / 14 pages · 2 galleries")
+            #expect(try lastPushedPair(spy.progressUpdates).subtitle == "10 of 14 pages in 2 galleries")
         }
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
 
@@ -121,7 +121,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
 
         await patchManifest(of: small, completedPageCount: 2, in: fixture)
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "2 / 4 pages · 1 gallery")
+        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "2 of 4 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -143,7 +143,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
         await manager.testingEnsureContinuedSession()
         let sessionID = try #require(await manager.testingContinuedSessionID())
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try firstPushedPair(spy.progressUpdates).subtitle == "6 / 10 pages · 1 gallery")
+        #expect(try firstPushedPair(spy.progressUpdates).subtitle == "6 of 10 pages in 1 gallery")
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
 
         try await manager.delete(gid: only.gid).get()
@@ -189,7 +189,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
         await manager.testingEnsureContinuedSession()
         let sessionID = try #require(await manager.testingContinuedSessionID())
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "6 / 14 pages · 2 galleries")
+        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "6 of 14 pages in 2 galleries")
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
 
         try await manager.delete(gid: large.gid).get()
@@ -199,7 +199,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
 
         await patchManifest(of: small, completedPageCount: 2, in: fixture)
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "2 / 4 pages · 1 gallery")
+        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "2 of 4 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -233,7 +233,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
 
         gate.release()
         await sessionStart.value
-        #expect(spy.startSubtitles == ["6 / 14 pages · 2 galleries"])
+        #expect(spy.startSubtitles == ["6 of 14 pages in 2 galleries"])
 
         let sessionID = try #require(await manager.testingContinuedSessionID())
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
@@ -241,7 +241,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
 
         await patchManifest(of: small, completedPageCount: 2, in: fixture)
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "2 / 4 pages · 1 gallery")
+        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "2 of 4 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -268,7 +268,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
 
         try await manager.enqueue(payload: makeStartPayload(for: large, mode: .redownload)).get()
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "0 / 14 pages · 2 galleries")
+        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "0 of 14 pages in 2 galleries")
 
         await patchManifest(
             of: SessionGallery(gid: large.gid, title: large.title, pageCount: large.pageCount),
@@ -276,7 +276,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
             in: fixture
         )
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "3 / 14 pages · 2 galleries")
+        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "3 of 14 pages in 2 galleries")
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -298,7 +298,7 @@ struct DownloadContinuedSessionDeletionTests: DownloadFeatureTestCase {
         await manager.testingEnsureContinuedSession()
         let sessionID = try #require(await manager.testingContinuedSessionID())
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try firstPushedPair(spy.progressUpdates).subtitle == "6 / 14 pages · 2 galleries")
+        #expect(try firstPushedPair(spy.progressUpdates).subtitle == "6 of 14 pages in 2 galleries")
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
 
         try await manager.deleteFolder(name: "Folder").get()

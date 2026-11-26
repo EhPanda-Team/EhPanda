@@ -147,15 +147,15 @@ struct DownloadQueueInterruptTests: DownloadFeatureTestCase {
         await manager.testingEnsureContinuedSession()
         let sessionID = try #require(await manager.testingContinuedSessionID())
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try firstPushedPair(spy.progressUpdates).subtitle == "6 / 14 pages · 2 galleries")
+        #expect(try firstPushedPair(spy.progressUpdates).subtitle == "6 of 14 pages in 2 galleries")
 
         try await manager.performQueueOperation(gid: small.gid, operation: .downloadNow).get()
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "6 / 14 pages · 2 galleries")
+        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "6 of 14 pages in 2 galleries")
 
         await patchManifest(of: small, completedPageCount: 2, in: fixture)
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
-        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "8 / 14 pages · 2 galleries")
+        #expect(try lastPushedPair(spy.progressUpdates).subtitle == "8 of 14 pages in 2 galleries")
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }

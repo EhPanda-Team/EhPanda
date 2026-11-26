@@ -21,7 +21,7 @@ struct ContinuedProcessingSessionFoldTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "4 / 10 pages · 1 gallery",
+                subtitle: "4 of 10 pages in 1 gallery",
                 completedUnitCount: 4,
                 totalUnitCount: 10
             )
@@ -35,7 +35,7 @@ struct ContinuedProcessingSessionFoldTests {
             completedUnitCount: 4,
             totalUnitCount: 10,
             subunits: .init(inFlightSubunitCount: 500),
-            subtitle: "4 / 10 pages · 1 gallery"
+            subtitle: "4 of 10 pages in 1 gallery"
         )
 
         #expect(task.progress.completedUnitCount == 4500)
@@ -44,7 +44,7 @@ struct ContinuedProcessingSessionFoldTests {
         // shows, never a unit the text speaks in.
         expectNoDifference(
             task.titleUpdates,
-            [.init(title: "Downloading galleries", subtitle: "4 / 10 pages · 1 gallery")]
+            [.init(title: "Downloading galleries", subtitle: "4 of 10 pages in 1 gallery")]
         )
 
         store.finish(sessionID: session.id, success: true)
@@ -64,7 +64,7 @@ struct ContinuedProcessingSessionFoldTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "10 / 10 pages · 1 gallery",
+                subtitle: "10 of 10 pages in 1 gallery",
                 completedUnitCount: 10,
                 totalUnitCount: 10
             )
@@ -78,7 +78,7 @@ struct ContinuedProcessingSessionFoldTests {
             completedUnitCount: 10,
             totalUnitCount: 10,
             subunits: .init(inFlightSubunitCount: 999),
-            subtitle: "10 / 10 pages · 1 gallery"
+            subtitle: "10 of 10 pages in 1 gallery"
         )
 
         #expect(
@@ -99,7 +99,7 @@ struct ContinuedProcessingSessionFoldTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "2 / 8 pages · 1 gallery",
+                subtitle: "2 of 8 pages in 1 gallery",
                 completedUnitCount: 2,
                 totalUnitCount: 8
             )
@@ -113,7 +113,7 @@ struct ContinuedProcessingSessionFoldTests {
             completedUnitCount: 2,
             totalUnitCount: 8,
             subunits: .init(inFlightSubunitCount: 250),
-            subtitle: "2 / 8 pages · 1 gallery"
+            subtitle: "2 of 8 pages in 1 gallery"
         )
 
         let task = ContinuedTaskSpy()
@@ -144,7 +144,7 @@ struct ContinuedProcessingSessionFoldTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "3 / 10 pages · 1 gallery",
+                subtitle: "3 of 10 pages in 1 gallery",
                 completedUnitCount: 3,
                 totalUnitCount: 10
             )
@@ -160,7 +160,7 @@ struct ContinuedProcessingSessionFoldTests {
                 completedUnitCount: 4,
                 totalUnitCount: 10,
                 subunits: .init(inFlightSubunitCount: 0, nudgesWhenStalled: true),
-                subtitle: "4 / 10 pages · 1 gallery"
+                subtitle: "4 of 10 pages in 1 gallery"
             )
             published.append(task.progress.completedUnitCount)
         }
@@ -182,7 +182,7 @@ struct ContinuedProcessingSessionFoldTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "10 / 10 pages · 1 gallery",
+                subtitle: "10 of 10 pages in 1 gallery",
                 completedUnitCount: 10,
                 totalUnitCount: 10
             )
@@ -199,7 +199,7 @@ struct ContinuedProcessingSessionFoldTests {
                 completedUnitCount: 10,
                 totalUnitCount: 10,
                 subunits: .init(inFlightSubunitCount: 999, nudgesWhenStalled: true),
-                subtitle: "10 / 10 pages · 1 gallery"
+                subtitle: "10 of 10 pages in 1 gallery"
             )
             published.append(task.progress.completedUnitCount)
         }
@@ -229,7 +229,7 @@ struct ContinuedProcessingSessionFoldTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "3 / 10 pages · 1 gallery",
+                subtitle: "3 of 10 pages in 1 gallery",
                 completedUnitCount: 3,
                 totalUnitCount: 10
             )
@@ -256,7 +256,7 @@ struct ContinuedProcessingSessionFoldTests {
                     inFlightSubunitCount: step.inFlightSubunitCount,
                     nudgesWhenStalled: true
                 ),
-                subtitle: "\(step.completedUnitCount) / 10 pages · 1 gallery"
+                subtitle: "\(step.completedUnitCount) of 10 pages in 1 gallery"
             )
             published.append(task.progress.completedUnitCount)
         }

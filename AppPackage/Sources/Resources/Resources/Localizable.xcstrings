@@ -241,7 +241,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%#@completed@ / %#@total@ · %#@galleries@"
+            "value" : "%#@completed@ von %#@total@ aus %#@galleries@"
           },
           "substitutions" : {
             "completed" : {
@@ -303,7 +303,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%#@completed@ / %#@total@ · %#@galleries@"
+            "value" : "%#@completed@ of %#@total@ in %#@galleries@"
           },
           "substitutions" : {
             "completed" : {
@@ -365,7 +365,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%#@completed@ / %#@total@ · %#@galleries@"
+            "value" : "全%#@total@ページ中%#@completed@ページ完了（ギャラリー%#@galleries@件）"
           },
           "substitutions" : {
             "completed" : {
@@ -390,7 +390,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%argページ"
+                      "value" : "%arg"
                     }
                   }
                 }
@@ -404,7 +404,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg件のギャラリー"
+                      "value" : "%arg"
                     }
                   }
                 }
@@ -415,7 +415,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%#@completed@ / %#@total@ · %#@galleries@"
+            "value" : "총 %#@total@페이지 중 %#@completed@페이지 완료 (갤러리 %#@galleries@개)"
           },
           "substitutions" : {
             "completed" : {
@@ -440,7 +440,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg페이지"
+                      "value" : "%arg"
                     }
                   }
                 }
@@ -454,7 +454,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "갤러리 %arg개"
+                      "value" : "%arg"
                     }
                   }
                 }
@@ -465,7 +465,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%#@completed@ / %#@total@ · %#@galleries@"
+            "value" : "已下载 %#@completed@ 页，共 %#@total@ 页（%#@galleries@ 个画廊）"
           },
           "substitutions" : {
             "completed" : {
@@ -490,7 +490,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg 页"
+                      "value" : "%arg"
                     }
                   }
                 }
@@ -504,7 +504,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg 个画廊"
+                      "value" : "%arg"
                     }
                   }
                 }
@@ -515,7 +515,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%#@completed@ / %#@total@ · %#@galleries@"
+            "value" : "已下載 %#@completed@ 頁，共 %#@total@ 頁（%#@galleries@ 個畫廊）"
           },
           "substitutions" : {
             "completed" : {
@@ -540,7 +540,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg 頁"
+                      "value" : "%arg"
                     }
                   }
                 }
@@ -554,7 +554,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg 個畫廊"
+                      "value" : "%arg"
                     }
                   }
                 }

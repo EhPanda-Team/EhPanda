@@ -211,7 +211,7 @@ struct ContinuedProcessingSessionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "6 / 20 pages · 1 gallery",
+                subtitle: "6 of 20 pages in 1 gallery",
                 completedUnitCount: 6,
                 totalUnitCount: 20
             )
@@ -243,7 +243,7 @@ struct ContinuedProcessingSessionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "1 / 10 pages · 1 gallery",
+                subtitle: "1 of 10 pages in 1 gallery",
                 completedUnitCount: 1,
                 totalUnitCount: 10
             )
@@ -257,24 +257,24 @@ struct ContinuedProcessingSessionTests {
             sessionID: session.id,
             completedUnitCount: 4,
             totalUnitCount: 10,
-            subtitle: "4 / 10 pages · 1 gallery"
+            subtitle: "4 of 10 pages in 1 gallery"
         )
         expectNoDifference(
             task.titleUpdates,
-            [.init(title: "Downloading galleries", subtitle: "4 / 10 pages · 1 gallery")]
+            [.init(title: "Downloading galleries", subtitle: "4 of 10 pages in 1 gallery")]
         )
 
         store.updateProgress(
             sessionID: UUID(),
             completedUnitCount: 99,
             totalUnitCount: 100,
-            subtitle: "99 / 100 pages · 9 galleries"
+            subtitle: "99 of 100 pages in 9 galleries"
         )
         #expect(task.progress.completedUnitCount == 4 * ContinuedProcessingSession.subunitsPerUnit)
         #expect(task.progress.totalUnitCount == 10 * ContinuedProcessingSession.subunitsPerUnit)
         expectNoDifference(
             task.titleUpdates,
-            [.init(title: "Downloading galleries", subtitle: "4 / 10 pages · 1 gallery")]
+            [.init(title: "Downloading galleries", subtitle: "4 of 10 pages in 1 gallery")]
         )
 
         store.finish(sessionID: session.id, success: true)
@@ -299,7 +299,7 @@ struct ContinuedProcessingSessionTests {
         let firstSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -330,13 +330,13 @@ struct ContinuedProcessingSessionTests {
             sessionID: UUID(),
             completedUnitCount: 7,
             totalUnitCount: 9,
-            subtitle: "7 / 9 pages · 1 gallery"
+            subtitle: "7 of 9 pages in 1 gallery"
         )
 
         let secondSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "2 / 4 pages · 1 gallery",
+                subtitle: "2 of 4 pages in 1 gallery",
                 completedUnitCount: 2,
                 totalUnitCount: 4
             )
@@ -390,7 +390,7 @@ struct ContinuedProcessingSessionTests {
         let firstSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -401,7 +401,7 @@ struct ContinuedProcessingSessionTests {
         let secondSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 6 pages · 1 gallery",
+                subtitle: "0 of 6 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 6
             )
@@ -447,7 +447,7 @@ struct ContinuedProcessingSessionTests {
         let firstSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -465,7 +465,7 @@ struct ContinuedProcessingSessionTests {
         let secondSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 6 pages · 1 gallery",
+                subtitle: "0 of 6 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 6
             )
@@ -511,7 +511,7 @@ struct ContinuedProcessingSessionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "3 / 10 pages · 1 gallery",
+                subtitle: "3 of 10 pages in 1 gallery",
                 completedUnitCount: 3,
                 totalUnitCount: 10
             )
@@ -528,12 +528,12 @@ struct ContinuedProcessingSessionTests {
             sessionID: session.id,
             completedUnitCount: 6,
             totalUnitCount: 10,
-            subtitle: "6 / 10 pages · 1 gallery"
+            subtitle: "6 of 10 pages in 1 gallery"
         )
         #expect(task.progress.completedUnitCount == 6 * ContinuedProcessingSession.subunitsPerUnit)
         #expect(
             task.titleUpdates == [
-                .init(title: "Downloading galleries", subtitle: "6 / 10 pages · 1 gallery")
+                .init(title: "Downloading galleries", subtitle: "6 of 10 pages in 1 gallery")
             ]
         )
 
@@ -557,7 +557,7 @@ struct ContinuedProcessingSessionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -574,13 +574,13 @@ struct ContinuedProcessingSessionTests {
             sessionID: session.id,
             completedUnitCount: 4,
             totalUnitCount: 10,
-            subtitle: "4 / 10 pages · 1 gallery"
+            subtitle: "4 of 10 pages in 1 gallery"
         )
         #expect(task.progress.totalUnitCount == 10 * ContinuedProcessingSession.subunitsPerUnit)
         #expect(task.progress.completedUnitCount == 4 * ContinuedProcessingSession.subunitsPerUnit)
         #expect(
             task.titleUpdates == [
-                .init(title: "Downloading galleries", subtitle: "4 / 10 pages · 1 gallery")
+                .init(title: "Downloading galleries", subtitle: "4 of 10 pages in 1 gallery")
             ]
         )
 
@@ -604,7 +604,7 @@ struct ContinuedProcessingSessionTests {
         let firstSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -616,7 +616,7 @@ struct ContinuedProcessingSessionTests {
 
         let refusedSession = store.start(
             title: "Downloading galleries",
-            subtitle: "0 / 20 pages · 2 galleries",
+            subtitle: "0 of 20 pages in 2 galleries",
             completedUnitCount: 0,
             totalUnitCount: 20
         )
@@ -632,7 +632,7 @@ struct ContinuedProcessingSessionTests {
         let laterSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 20 pages · 2 galleries",
+                subtitle: "0 of 20 pages in 2 galleries",
                 completedUnitCount: 0,
                 totalUnitCount: 20
             )
@@ -674,7 +674,7 @@ struct ContinuedProcessingSessionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -699,7 +699,7 @@ struct ContinuedProcessingSessionTests {
         let laterSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
@@ -734,7 +734,7 @@ struct ContinuedProcessingSessionTests {
         let refusedSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -755,7 +755,7 @@ struct ContinuedProcessingSessionTests {
         let grantedSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
@@ -800,7 +800,7 @@ struct ContinuedProcessingSessionTests {
         let failedSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -819,7 +819,7 @@ struct ContinuedProcessingSessionTests {
         let grantedSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
@@ -863,7 +863,7 @@ struct ContinuedProcessingSessionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -886,7 +886,7 @@ struct ContinuedProcessingSessionTests {
         let laterSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
@@ -932,7 +932,7 @@ struct ContinuedProcessingSessionTests {
         let staleSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -950,7 +950,7 @@ struct ContinuedProcessingSessionTests {
         let liveSession = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 6 pages · 1 gallery",
+                subtitle: "0 of 6 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 6
             )

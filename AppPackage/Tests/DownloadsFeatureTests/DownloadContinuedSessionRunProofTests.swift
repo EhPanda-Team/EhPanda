@@ -145,7 +145,7 @@ extension DownloadContinuedSessionLedgerTests {
         let openingCredit = try #require(spy.startCompletedUnitCounts.last)
         #expect(openingCredit == 0)
         #expect(spy.startTotalUnitCounts.last == 6)
-        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "0 of 6 pages in 1 gallery")
 
         // THE DISCRIMINATOR. Pages landing through the production flush are credited only for a
         // gallery this session trusts: an untrusted complete-reading record contributes zero at
@@ -230,7 +230,7 @@ extension DownloadContinuedSessionLedgerTests {
         await manager.testingEnsureContinuedSession()
         // The precondition for THIS ordering: a session really is live when the run prepares.
         #expect(await manager.testingHasContinuedSession())
-        #expect(spy.startSubtitles == ["0 / 6 pages · 1 gallery"])
+        #expect(spy.startSubtitles == ["0 of 6 pages in 1 gallery"])
 
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(interrupted.gid)_token] \(interrupted.title)"
@@ -411,7 +411,7 @@ extension DownloadContinuedSessionLedgerTests {
         // session's progress. Inheriting the previous run's proof is what would open it at six.
         #expect(spy.startCount == 1)
         #expect(spy.startCompletedUnitCounts.last == 0)
-        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "0 of 6 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -533,7 +533,7 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(spy.startCount == 1)
         #expect(spy.startCompletedUnitCounts.last == 2)
         #expect(spy.startTotalUnitCounts.last == 6)
-        #expect(spy.startSubtitles.last == "2 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "2 of 6 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -579,7 +579,7 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(await manager.resumeMode(for: staged) == .repair)
 
         await manager.testingEnsureContinuedSession()
-        #expect(spy.startSubtitles == ["0 / 6 pages · 1 gallery"])
+        #expect(spy.startSubtitles == ["0 of 6 pages in 1 gallery"])
 
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(climbing.gid)_token] \(climbing.title)"
@@ -680,7 +680,7 @@ extension DownloadContinuedSessionLedgerTests {
         await manager.testingEnsureContinuedSession()
         // The card opens on the record's claim — no scan has run yet, so four is the best reading
         // the session has.
-        #expect(spy.startSubtitles == ["4 / 6 pages · 1 gallery"])
+        #expect(spy.startSubtitles == ["4 of 6 pages in 1 gallery"])
 
         // The claim regime, reached through the production convergence tail rather than asserted
         // from the start's own subtitle. Two pushes land: this call's own reconcile, and the
@@ -710,7 +710,7 @@ extension DownloadContinuedSessionLedgerTests {
         // announcement's own push already reads the evidence.
         let announcedPair = try lastPushedPair(spy.progressUpdates)
         #expect(announcedPair.completedUnitCount == 0)
-        #expect(announcedPair.subtitle == "0 / 6 pages · 1 gallery")
+        #expect(announcedPair.subtitle == "0 of 6 pages in 1 gallery")
         // Where the regimes meet. Read from the quiesced series above rather than assumed, so a
         // convergence path that pushes a different number of times before the announcement moves
         // this index instead of breaking the case.
@@ -822,7 +822,7 @@ extension DownloadContinuedSessionLedgerTests {
         #expect(await manager.resumeMode(for: staged) == .repair)
 
         await manager.testingEnsureContinuedSession()
-        #expect(spy.startSubtitles == ["0 / 16 pages · 2 galleries"])
+        #expect(spy.startSubtitles == ["0 of 16 pages in 2 galleries"])
 
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(abandoned.gid)_token] \(abandoned.title)"
@@ -875,7 +875,7 @@ extension DownloadContinuedSessionLedgerTests {
         // a positive count keeps its gallery named, so the count holds at two straight through this
         // departure and would satisfy a count-keyed barrier on entry without observing anything.
         try await waitUntil {
-            spy.progressUpdates.last?.subtitle.contains("/ 12 pages") == true
+            spy.progressUpdates.last?.subtitle.contains("of 12 pages") == true
         }
 
         // Back in the queue, through the product's own tap, inside the SAME session.
@@ -885,7 +885,7 @@ extension DownloadContinuedSessionLedgerTests {
         // the last update reads 12 when this wait begins. Without it the queued pair below could be
         // read off the departure frame.
         try await waitUntil {
-            spy.progressUpdates.last?.subtitle.contains("/ 16 pages") == true
+            spy.progressUpdates.last?.subtitle.contains("of 16 pages") == true
         }
         #expect(spy.startCount == 1)
         let requeued = try #require(await manager.fetchDownload(gid: abandoned.gid))
@@ -895,7 +895,7 @@ extension DownloadContinuedSessionLedgerTests {
         let queuedPair = try lastPushedPair(spy.progressUpdates)
         #expect(queuedPair.completedUnitCount == 2)
         #expect(queuedPair.totalUnitCount == 16)
-        #expect(queuedPair.subtitle == "2 / 16 pages · 2 galleries")
+        #expect(queuedPair.subtitle == "2 of 16 pages in 2 galleries")
 
         // The queued-window pair above cannot tell a retired basis from a leaked one on its own:
         // the floor holds the two fetched pages either way, and a leaked basis credits exactly those
@@ -918,7 +918,7 @@ extension DownloadContinuedSessionLedgerTests {
         let finalPair = try lastPushedPair(spy.progressUpdates)
         #expect(finalPair.completedUnitCount == 3)
         #expect(finalPair.totalUnitCount == 16)
-        #expect(finalPair.subtitle == "3 / 16 pages · 2 galleries")
+        #expect(finalPair.subtitle == "3 of 16 pages in 2 galleries")
         #expect(spy.startCount == 1)
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }

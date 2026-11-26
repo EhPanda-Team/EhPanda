@@ -79,7 +79,7 @@ private extension DownloadProgressSeriesGuardTests {
                 completedUnitCount: numerator,
                 totalUnitCount: 6,
                 subunits: .init(),
-                subtitle: "\(numerator) / 6 pages · 1 gallery"
+                subtitle: "\(numerator) of 6 pages in 1 gallery"
             )
         }
     }

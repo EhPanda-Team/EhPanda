@@ -853,7 +853,7 @@ extension DownloadCoordinator {
     /// numbers are legal.
     ///
     /// The total clamp exists so the bar and the text can never describe different pairs. A reader
-    /// sees both at once, and a bar sitting at full beside text reading "0 / 4 pages" looks like a
+    /// sees both at once, and a bar sitting at full beside text reading "0 of 4 pages" looks like a
     /// defect however defensible each number is on its own.
     ///
     /// The live sums enter the arithmetic raw, and exactly one display clamp applies, at the end,

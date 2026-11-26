@@ -23,7 +23,7 @@ extension DownloadCoordinator {
     /// valid manifest and returns it verbatim. The record went on reading complete for the whole
     /// run, `isIncomplete` stayed false, so D-G4-01's basis counted zero session pages for the
     /// gallery from its first push to its untrusted departure, and the session finished a terminal
-    /// `0 / N pages · 0 galleries` card over real repair work. That is the maximally stalled reading
+    /// `0 of N pages in 0 galleries` card over real repair work. That is the maximally stalled reading
     /// the scheduler force-expires first, and D-11 turns that expiration into a pause of every
     /// schedulable download — so the lie costs liveness, not just honesty.
     ///

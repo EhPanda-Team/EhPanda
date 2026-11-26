@@ -16,10 +16,10 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let client = BackgroundProcessingClient()
 
         await withKnownIssue("start is unimplemented") {
-            _ = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery", 0, 10)
+            _ = await client.start("Downloading galleries", "0 of 10 pages in 1 gallery", 0, 10)
         }
         await withKnownIssue("updateProgress is unimplemented") {
-            await client.updateProgress(UUID(), 3, 10, .init(), "3 / 10 pages · 1 gallery")
+            await client.updateProgress(UUID(), 3, 10, .init(), "3 of 10 pages in 1 gallery")
         }
         await withKnownIssue("finish is unimplemented") {
             await client.finish(UUID(), true)
@@ -32,10 +32,10 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
     func testNoopClientRefusesEveryStart() async {
         let client = BackgroundProcessingClient.noop
 
-        let session = await client.start("Downloading galleries", "0 / 10 pages · 1 gallery", 0, 10)
+        let session = await client.start("Downloading galleries", "0 of 10 pages in 1 gallery", 0, 10)
         #expect(session == nil)
 
-        await client.updateProgress(UUID(), 3, 10, .init(), "3 / 10 pages · 1 gallery")
+        await client.updateProgress(UUID(), 3, 10, .init(), "3 of 10 pages in 1 gallery")
         await client.finish(UUID(), true)
     }
 
@@ -49,17 +49,17 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let client = spy.client
 
         let session = try #require(
-            await client.start("Downloading galleries", "0 / 10 pages · 1 gallery", 0, 10)
+            await client.start("Downloading galleries", "0 of 10 pages in 1 gallery", 0, 10)
         )
         #expect(spy.startCount == 1)
         #expect(spy.startTitles == ["Downloading galleries"])
-        #expect(spy.startSubtitles == ["0 / 10 pages · 1 gallery"])
+        #expect(spy.startSubtitles == ["0 of 10 pages in 1 gallery"])
         #expect(spy.startSessionIDs == [session.id])
 
         let foreignSessionID = UUID()
         await client.finish(foreignSessionID, false)
         spy.emit(.granted)
-        await client.updateProgress(session.id, 3, 10, .init(inFlightSubunitCount: 250), "3 / 10 pages · 1 gallery")
+        await client.updateProgress(session.id, 3, 10, .init(inFlightSubunitCount: 250), "3 of 10 pages in 1 gallery")
         #expect(spy.progressUpdates == [
             .init(
                 sessionID: session.id,
@@ -68,7 +68,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
                 // Recorded alongside the pair rather than dropped: the spy has to hold up the same
                 // contract the live client does, and the sub-page term is now part of it.
                 subunits: .init(inFlightSubunitCount: 250),
-                subtitle: "3 / 10 pages · 1 gallery"
+                subtitle: "3 of 10 pages in 1 gallery"
             )
         ])
         #expect(spy.finishRecords == [
@@ -84,7 +84,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(events == [.granted])
 
         let expiringSession = try #require(
-            await client.start("Downloading galleries", "3 / 10 pages · 1 gallery", 3, 10)
+            await client.start("Downloading galleries", "3 of 10 pages in 1 gallery", 3, 10)
         )
         spy.expire()
         var expiringEvents = [BackgroundProcessingEvent]()
@@ -181,7 +181,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let recordedSubtitle = try #require(spy.startSubtitles.first)
         #expect(recordedTitle == "Downloading Galleries")
         // Two pages, none downloaded, one gallery: the fixture manifest's whole content surface.
-        #expect(recordedSubtitle == "0 / 2 pages · 1 gallery")
+        #expect(recordedSubtitle == "0 of 2 pages in 1 gallery")
         for recorded in [recordedTitle, recordedSubtitle] {
             #expect(!recorded.contains(galleryTitle))
             #expect(!recorded.contains(gid))
@@ -244,7 +244,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         // counted. The positive side is `testCancellingTheLastQueuedWorkItemCompletesTheSession`
         // in the expiration suite, where the one page the gallery did finish keeps it named.
         #expect(spy.progressUpdates.count == 1)
-        #expect(spy.progressUpdates.last?.subtitle == "0 / 1 page · 0 galleries")
+        #expect(spy.progressUpdates.last?.subtitle == "0 of 1 page in 0 galleries")
         #expect(spy.rejectedProgressUpdates.isEmpty)
         #expect(!(await context.manager.testingHasContinuedSession()))
     }
@@ -293,7 +293,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         // "At most once" covers the terminal push too: the later passes find no live session, so
         // the card keeps the one string the drain left it.
         #expect(spy.progressUpdates.count == pushesAtDrain)
-        #expect(spy.progressUpdates.last?.subtitle == "0 / 1 page · 0 galleries")
+        #expect(spy.progressUpdates.last?.subtitle == "0 of 1 page in 0 galleries")
         #expect(spy.rejectedProgressUpdates.isEmpty)
         #expect(!(await context.manager.testingHasContinuedSession()))
     }
@@ -322,7 +322,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(spy.progressUpdates.count == 1)
         #expect(update.completedUnitCount == 5)
         #expect(update.totalUnitCount == 16)
-        #expect(update.subtitle == "5 / 16 pages · 2 galleries")
+        #expect(update.subtitle == "5 of 16 pages in 2 galleries")
     }
 
     /// D-06 folds a new gallery into the live session rather than starting a second one, so the
@@ -351,8 +351,8 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [4, 13])
         #expect(spy.progressUpdates.map(\.completedUnitCount) == [1, 3])
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "1 / 4 pages · 1 gallery",
-            "3 / 13 pages · 2 galleries"
+            "1 of 4 pages in 1 gallery",
+            "3 of 13 pages in 2 galleries"
         ])
     }
 
@@ -415,8 +415,8 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         let secondUpdate = try #require(spy.progressUpdates.last)
         #expect(secondUpdate.completedUnitCount < secondUpdate.totalUnitCount)
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "6 / 14 pages · 2 galleries",
-            "10 / 14 pages · 2 galleries"
+            "6 of 14 pages in 2 galleries",
+            "10 of 14 pages in 2 galleries"
         ])
     }
 
@@ -452,7 +452,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         #expect(update.totalUnitCount >= 1)
         #expect(update.completedUnitCount >= 0)
         #expect(update.completedUnitCount <= update.totalUnitCount)
-        #expect(update.subtitle == "0 / 1 page · 1 gallery")
+        #expect(update.subtitle == "0 of 1 page in 1 gallery")
     }
 
     /// The start string is already covered; this covers every *later* string, because the card is
@@ -484,8 +484,8 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         // The second gallery's record was complete before the session began, so its three pages are
         // the redo's target rather than session work: it counts zero, and retires zero (D-G4-01).
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "1 / 8 pages · 2 galleries",
-            "1 / 5 pages · 1 gallery"
+            "1 of 8 pages in 2 galleries",
+            "1 of 5 pages in 1 gallery"
         ])
         for recorded in spy.startSubtitles + spy.progressUpdates.map(\.subtitle) {
             #expect(!recorded.contains(firstTitle))
@@ -634,7 +634,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
         await manager.testingEnsureContinuedSession()
         let sessionID = try #require(await manager.testingContinuedSessionID())
         // Three of A's four pages, none of the keeper's twenty: the session's honest opening.
-        #expect(spy.startSubtitles == ["3 / 24 pages · 2 galleries"])
+        #expect(spy.startSubtitles == ["3 of 24 pages in 2 galleries"])
 
         // A's last page lands through the production flush, so this session WATCHED its record move
         // from incomplete to complete. That observation is what the defect later re-uses.
@@ -655,7 +655,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             PushedPair(
                 completedUnitCount: 4,
                 totalUnitCount: 24,
-                subtitle: "4 / 24 pages · 2 galleries"
+                subtitle: "4 of 24 pages in 2 galleries"
             )
         )
 
@@ -669,7 +669,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             PushedPair(
                 completedUnitCount: 4,
                 totalUnitCount: 24,
-                subtitle: "4 / 24 pages · 2 galleries"
+                subtitle: "4 of 24 pages in 2 galleries"
             )
         )
 
@@ -710,7 +710,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             PushedPair(
                 completedUnitCount: 6,
                 totalUnitCount: 24,
-                subtitle: "6 / 24 pages · 2 galleries"
+                subtitle: "6 of 24 pages in 2 galleries"
             )
         )
 
@@ -730,7 +730,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             PushedPair(
                 completedUnitCount: 7,
                 totalUnitCount: 24,
-                subtitle: "7 / 24 pages · 2 galleries"
+                subtitle: "7 of 24 pages in 2 galleries"
             )
         )
 
@@ -749,7 +749,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             PushedPair(
                 completedUnitCount: 9,
                 totalUnitCount: 24,
-                subtitle: "9 / 24 pages · 2 galleries"
+                subtitle: "9 of 24 pages in 2 galleries"
             )
         )
         #expect(measuredPair.completedUnitCount > queuedWindowPair.completedUnitCount)
@@ -859,7 +859,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             PushedPair(
                 completedUnitCount: 4,
                 totalUnitCount: 24,
-                subtitle: "4 / 24 pages · 2 galleries"
+                subtitle: "4 of 24 pages in 2 galleries"
             )
         )
 
@@ -877,7 +877,7 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
             PushedPair(
                 completedUnitCount: 0,
                 totalUnitCount: 24,
-                subtitle: "0 / 24 pages · 2 galleries"
+                subtitle: "0 of 24 pages in 2 galleries"
             )
         )
 
@@ -911,22 +911,22 @@ struct DownloadContinuedSessionTests: DownloadFeatureTestCase {
                 PushedPair(
                     completedUnitCount: 1,
                     totalUnitCount: 24,
-                    subtitle: "1 / 24 pages · 2 galleries"
+                    subtitle: "1 of 24 pages in 2 galleries"
                 ),
                 PushedPair(
                     completedUnitCount: 2,
                     totalUnitCount: 24,
-                    subtitle: "2 / 24 pages · 2 galleries"
+                    subtitle: "2 of 24 pages in 2 galleries"
                 ),
                 PushedPair(
                     completedUnitCount: 3,
                     totalUnitCount: 24,
-                    subtitle: "3 / 24 pages · 2 galleries"
+                    subtitle: "3 of 24 pages in 2 galleries"
                 ),
                 PushedPair(
                     completedUnitCount: 4,
                     totalUnitCount: 24,
-                    subtitle: "4 / 24 pages · 2 galleries"
+                    subtitle: "4 of 24 pages in 2 galleries"
                 )
             ]
         )

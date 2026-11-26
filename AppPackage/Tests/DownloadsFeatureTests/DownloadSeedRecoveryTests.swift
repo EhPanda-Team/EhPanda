@@ -222,7 +222,7 @@ struct DownloadSeedRecoveryTests: DownloadFeatureTestCase {
         // {1, 2} \ {2} — so the announcement may never push more than one.
         #expect(announced.completedUnitCount == 1)
         #expect(announced.totalUnitCount == 3)
-        #expect(announced.subtitle == "1 / 3 pages · 1 gallery")
+        #expect(announced.subtitle == "1 of 3 pages in 1 gallery")
 
         // The dispositioned residual, stated rather than implied: the retry could not enumerate
         // either, so the record legitimately still claims the removed page and the divergence is
@@ -270,7 +270,7 @@ struct DownloadSeedRecoveryTests: DownloadFeatureTestCase {
 
         #expect(announced.completedUnitCount == 1)
         #expect(announced.totalUnitCount == 3)
-        #expect(announced.subtitle == "1 / 3 pages · 1 gallery")
+        #expect(announced.subtitle == "1 of 3 pages in 1 gallery")
 
         let diskManifest = try fixture.storage.readManifest(
             folderURL: galleryFolderURL(for: gallery, in: fixture)

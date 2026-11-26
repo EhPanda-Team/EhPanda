@@ -262,7 +262,7 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
 
         #expect(spy.finishCount == 1)
         #expect(spy.finishSuccesses == [true])
-        #expect(spy.progressUpdates.last?.subtitle == "1 / 1 page · 1 gallery")
+        #expect(spy.progressUpdates.last?.subtitle == "1 of 1 page in 1 gallery")
         #expect(!(await fixture.manager.testingHasContinuedSession()))
 
         // D-07: the next queue-mobilizing moment starts a fresh session rather than folding into
@@ -282,8 +282,8 @@ struct DownloadContinuedSessionExpirationTests: DownloadFeatureTestCase {
         // because the second is a fresh one whose ledger opens empty and whose entire Y is that one
         // persisted-complete page, retired again by its own pause-drain.
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "1 / 1 page · 1 gallery",
-            "1 / 1 page · 1 gallery"
+            "1 of 1 page in 1 gallery",
+            "1 of 1 page in 1 gallery"
         ])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         #expect(!(await fixture.manager.testingHasContinuedSession()))

@@ -82,7 +82,7 @@ extension DownloadContinuedSessionBasisTests {
         #expect(staged.completedPageCount == 4)
 
         await manager.testingEnsureContinuedSession()
-        #expect(spy.startSubtitles.last == "4 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "4 of 6 pages in 1 gallery")
 
         // Owner write + execute, no read anywhere: listing is denied, path-addressed opens are not.
         try FileManager.default.setAttributes(
@@ -106,7 +106,7 @@ extension DownloadContinuedSessionBasisTests {
         let refusalPair = try lastPushedPair(spy.progressUpdates)
         #expect(refusalPair.completedUnitCount == 4)
         #expect(refusalPair.totalUnitCount == 6)
-        #expect(refusalPair.subtitle == "4 / 6 pages · 1 gallery")
+        #expect(refusalPair.subtitle == "4 of 6 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
 
         // Nothing written: the manifest on disk is the one the fixture staged, hash for hash.
@@ -205,7 +205,7 @@ extension DownloadContinuedSessionBasisTests {
         #expect(staged.completedPageCount == 4)
 
         await manager.testingEnsureContinuedSession()
-        #expect(spy.startSubtitles.last == "4 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "4 of 6 pages in 1 gallery")
 
         // No owner bits at all on the three files: the double throws the metadata read, the
         // content-read fallback then throws EACCES against the real filesystem, and the folder
@@ -233,7 +233,7 @@ extension DownloadContinuedSessionBasisTests {
         let refusalPair = try lastPushedPair(spy.progressUpdates)
         #expect(refusalPair.completedUnitCount == 4)
         #expect(refusalPair.totalUnitCount == 6)
-        #expect(refusalPair.subtitle == "4 / 6 pages · 1 gallery")
+        #expect(refusalPair.subtitle == "4 of 6 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
 
         // Nothing written: the manifest on disk is the one the fixture staged, hash for hash.
@@ -281,7 +281,7 @@ extension DownloadContinuedSessionBasisTests {
         #expect(staged.completedPageCount == 4)
 
         await manager.testingEnsureContinuedSession()
-        #expect(spy.startSubtitles.last == "4 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "4 of 6 pages in 1 gallery")
 
         for page in [3, 4] {
             let relativePath = fixture.storage.makePageRelativePath(
@@ -307,7 +307,7 @@ extension DownloadContinuedSessionBasisTests {
         let correctedPair = try lastPushedPair(spy.progressUpdates)
         #expect(correctedPair.completedUnitCount == 2)
         #expect(correctedPair.totalUnitCount == 6)
-        #expect(correctedPair.subtitle == "2 / 6 pages · 1 gallery")
+        #expect(correctedPair.subtitle == "2 of 6 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
 
         // Written, and written correctly: pages 1 and 2 keep their hashes, 3 and 4 are blanked.

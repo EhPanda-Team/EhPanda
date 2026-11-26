@@ -48,7 +48,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     static let drainedPair = PushedPair(
         completedUnitCount: 20,
         totalUnitCount: 20,
-        subtitle: "20 / 20 pages · 3 galleries"
+        subtitle: "20 of 20 pages in 3 galleries"
     )
 
     /// The pair a pause owes once a 10-page gallery with 6 finished has left a queue that also
@@ -63,7 +63,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     static let departedPair = PushedPair(
         completedUnitCount: 6,
         totalUnitCount: 10,
-        subtitle: "6 / 10 pages · 2 galleries"
+        subtitle: "6 of 10 pages in 2 galleries"
     )
 
     /// The direct regression for the device-reported gap, at full size: three queued galleries, and
@@ -111,10 +111,10 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(spy.progressUpdates.map(\.completedUnitCount) == [0, 10, 16, 20])
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [20, 20, 20, 20])
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "0 / 20 pages · 3 galleries",
-            "10 / 20 pages · 3 galleries",
-            "16 / 20 pages · 3 galleries",
-            "20 / 20 pages · 3 galleries"
+            "0 of 20 pages in 3 galleries",
+            "10 of 20 pages in 3 galleries",
+            "16 of 20 pages in 3 galleries",
+            "20 of 20 pages in 3 galleries"
         ])
         try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
         let finalPair = try lastPushedPair(spy.progressUpdates)
@@ -175,7 +175,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// What holds the pair up is the ledger, not the monotonic floor: the departing gallery retires
     /// all six of its pages to both sides, so completed equals total *because* nothing is
     /// outstanding — the one moment a 1.0 fraction is honest. Under the old basis this same staging
-    /// pushed `2 / 2 pages`, a full card with two thirds of the work never done, so the case now
+    /// pushed `2 of 2 pages`, a full card with two thirds of the work never done, so the case now
     /// fails on the pre-fix code instead of passing verbatim on it.
     ///
     /// Those six retired pages are also the whole of Y, so the drained card names one gallery
@@ -225,8 +225,8 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(spy.progressUpdates.map(\.completedUnitCount) == [2, 6])
         #expect(update.totalUnitCount == 6)
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "2 / 6 pages · 1 gallery",
-            "6 / 6 pages · 1 gallery"
+            "2 of 6 pages in 1 gallery",
+            "6 of 6 pages in 1 gallery"
         ])
         #expect(spy.finishSuccesses == [true])
     }
@@ -262,8 +262,8 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(update.completedUnitCount >= 0)
         #expect(update.completedUnitCount <= update.totalUnitCount)
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "0 / 6 pages · 1 gallery",
-            "0 / 1 page · 0 galleries"
+            "0 of 6 pages in 1 gallery",
+            "0 of 1 page in 0 galleries"
         ])
     }
 
@@ -303,7 +303,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let openingPair = try firstPushedPair(spy.progressUpdates)
         #expect(openingPair.completedUnitCount == 6)
         #expect(openingPair.totalUnitCount == 14)
-        #expect(openingPair.subtitle == "6 / 14 pages · 2 galleries")
+        #expect(openingPair.subtitle == "6 of 14 pages in 2 galleries")
 
         try await fixture.manager.pause(gid: large.gid).get()
 
@@ -315,7 +315,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let pausedPair = try lastPushedPair(spy.progressUpdates)
         #expect(pausedPair.completedUnitCount == 6)
         #expect(pausedPair.totalUnitCount == 10)
-        #expect(pausedPair.subtitle == "6 / 10 pages · 2 galleries")
+        #expect(pausedPair.subtitle == "6 of 10 pages in 2 galleries")
         #expect(pausedPair == Self.departedPair)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         // A pause must never be able to report the session finished.
@@ -374,9 +374,9 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         #expect(spy.progressUpdates.map(\.completedUnitCount) == [6, 6, 6])
         #expect(spy.progressUpdates.map(\.totalUnitCount) == [14, 10, 14])
         #expect(spy.progressUpdates.map(\.subtitle) == [
-            "6 / 14 pages · 2 galleries",
-            "6 / 10 pages · 2 galleries",
-            "6 / 14 pages · 2 galleries"
+            "6 of 14 pages in 2 galleries",
+            "6 of 10 pages in 2 galleries",
+            "6 of 14 pages in 2 galleries"
         ])
         // Stated as an equality as well as as literals: what the rejoin owes is *the first pair
         // back*, whatever that pair happens to be worth.
@@ -422,7 +422,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
 
         #expect(spy.startCompletedUnitCounts.last == 0)
         #expect(spy.startTotalUnitCounts.last == 6)
-        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "0 of 6 pages in 1 gallery")
 
         let sessionID = try #require(await manager.testingContinuedSessionID())
         await manager.testingPushContinuedSessionProgress(sessionID: sessionID)
@@ -430,7 +430,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let openingPair = try lastPushedPair(spy.progressUpdates)
         #expect(openingPair.completedUnitCount == 0)
         #expect(openingPair.totalUnitCount == 6)
-        #expect(openingPair.subtitle == "0 / 6 pages · 1 gallery")
+        #expect(openingPair.subtitle == "0 of 6 pages in 1 gallery")
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -455,7 +455,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         defer { removeTemporaryItem(at: fixture.rootURL) }
 
         await fixture.manager.testingEnsureContinuedSession()
-        #expect(spy.startSubtitles == ["0 / 6 pages · 1 gallery"])
+        #expect(spy.startSubtitles == ["0 of 6 pages in 1 gallery"])
 
         let download = try #require(await fixture.manager.indexedDownloads(gids: [redo.gid]).first)
         try await fixture.manager.cancelQueuedWorkItem(download, mode: .update).get()
@@ -466,7 +466,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 0)
         #expect(terminalPair.totalUnitCount == 1)
-        #expect(terminalPair.subtitle == "0 / 1 page · 0 galleries")
+        #expect(terminalPair.subtitle == "0 of 1 page in 0 galleries")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         #expect(!(await fixture.manager.testingHasContinuedSession()))
@@ -503,7 +503,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
             await manager.testingHasActiveTask() == false
         }
 
-        #expect(spy.startSubtitles.last == "3 / 14 pages · 2 galleries")
+        #expect(spy.startSubtitles.last == "3 of 14 pages in 2 galleries")
 
         let download = try #require(await manager.indexedDownloads(gids: [redo.gid]).first)
         try await manager.cancelQueuedWorkItem(download, mode: .redownload).get()
@@ -524,7 +524,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let survivingPair = try lastPushedPair(spy.progressUpdates)
         #expect(survivingPair.completedUnitCount == 3)
         #expect(survivingPair.totalUnitCount == 8)
-        #expect(survivingPair.subtitle == "3 / 8 pages · 1 gallery")
+        #expect(survivingPair.subtitle == "3 of 8 pages in 1 gallery")
         // The numerator never reaches nine, on any push and on the start: that value is the whole
         // defect, and a series that merely ends correctly could still have shown it on the way.
         #expect(spy.startCompletedUnitCounts == [3])
@@ -565,7 +565,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let midRunPair = try lastPushedPair(spy.progressUpdates)
         #expect(midRunPair.completedUnitCount == 2)
         #expect(midRunPair.totalUnitCount == 6)
-        #expect(midRunPair.subtitle == "2 / 6 pages · 1 gallery")
+        #expect(midRunPair.subtitle == "2 of 6 pages in 1 gallery")
 
         await completeManifest(of: redo, in: fixture)
         await fixture.manager.settleCompletedDownload(gid: redo.gid)
@@ -574,7 +574,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
+        #expect(terminalPair.subtitle == "6 of 6 pages in 1 gallery")
         try expectTheFractionReachesOneOnlyAtTheDrain(spy.progressUpdates)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
         #expect(spy.finishSuccesses == [true])
@@ -587,7 +587,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
     /// claiming every page: `shouldReuseWorkingFolder` returns `true` unconditionally for `.repair`
     /// and `ensureWorkingManifest` returns the valid manifest verbatim. `isIncomplete` stayed false,
     /// so D-G4-01's basis counted zero session pages for the whole run and the untrusted departure
-    /// retired zero — a terminal `0 / 1 page · 0 galleries` reported with a successful completion.
+    /// retired zero — a terminal `0 of 1 page in 0 galleries` reported with a successful completion.
     /// That is the maximally stalled reading D-11's expiration policy punishes by pausing every
     /// schedulable download, so 15-24 traded a pinned-100% card for a pinned-zero one.
     ///
@@ -644,7 +644,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
 
         // The queued window still counts zero, which is D-G4-01's guarantee and not a regression:
         // nothing has run yet, so the manifest's six pages are the redo's target.
-        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "0 of 6 pages in 1 gallery")
 
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(repair.gid)_token] \(repair.title)"
@@ -666,7 +666,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         // Asserted by presence rather than by position: a straggling convergence push may land on
         // either side of the preparation, and both values it can carry are admitted by the series
         // properties below.
-        #expect(spy.progressUpdates.map(\.subtitle).contains("5 / 6 pages · 1 gallery"))
+        #expect(spy.progressUpdates.map(\.subtitle).contains("5 of 6 pages in 1 gallery"))
 
         let pageThreeRelativePath = fixture.storage.makePageRelativePath(
             gid: repair.gid,
@@ -695,7 +695,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
+        #expect(terminalPair.subtitle == "6 of 6 pages in 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
@@ -789,7 +789,7 @@ struct DownloadContinuedSessionLedgerTests: DownloadFeatureTestCase {
         let terminalPair = try lastPushedPair(spy.progressUpdates)
         #expect(terminalPair.completedUnitCount == 6)
         #expect(terminalPair.totalUnitCount == 6)
-        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
+        #expect(terminalPair.subtitle == "6 of 6 pages in 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)

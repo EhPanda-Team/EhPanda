@@ -20,7 +20,7 @@ import Testing
 /// assert what the SESSION goes on to report when the refused record reads COMPLETE, which is the
 /// state that starves the trust basis (G-15-23): the record stays complete for the whole run, the
 /// flush path only ever moves it upward, and the gallery therefore departed untrusted and retired
-/// zero — a terminal `0 / 1 page · 0 galleries` card over an N-page re-download, which is the
+/// zero — a terminal `0 of 1 page in 0 galleries` card over an N-page re-download, which is the
 /// maximally stalled reading D-11's expiration policy punishes by pausing every schedulable
 /// download.
 ///
@@ -128,7 +128,7 @@ extension DownloadContinuedSessionLedgerTests {
 
         // The queued window still counts zero, which is D-G4-01's guarantee and not a regression:
         // nothing has run yet, so the manifest's six pages are the repair's target.
-        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "0 of 6 pages in 1 gallery")
 
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(vanished.gid)_token] \(vanished.title)"
@@ -156,7 +156,7 @@ extension DownloadContinuedSessionLedgerTests {
         // six of them, so the session has credited nothing yet. This reading is deliberately NOT
         // this case's evidence of trust — an untrusted gallery would push the same zero — and what
         // separates the two is the rise below and the drain after it.
-        #expect(spy.progressUpdates.map(\.subtitle).contains("0 / 6 pages · 1 gallery"))
+        #expect(spy.progressUpdates.map(\.subtitle).contains("0 of 6 pages in 1 gallery"))
 
         // Landed in two batches through the production flush, so the credited work is observed
         // RISING. A gallery this session did not trust contributes zero at every push however many
@@ -190,7 +190,7 @@ extension DownloadContinuedSessionLedgerTests {
         // One gallery, not none: all six pages of the denominator are this gallery's retirement, so
         // D-G2C-01 goes on naming it after it leaves. The drained queue is described by the
         // fraction, never by the count.
-        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
+        #expect(terminalPair.subtitle == "6 of 6 pages in 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
@@ -264,7 +264,7 @@ extension DownloadContinuedSessionLedgerTests {
             await manager.testingHasActiveTask() == false
         }
 
-        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "0 of 6 pages in 1 gallery")
 
         // Owner write + execute, no read anywhere: listing is denied, path-addressed opens are not.
         try FileManager.default.setAttributes(
@@ -295,7 +295,7 @@ extension DownloadContinuedSessionLedgerTests {
         // five really are on disk from an earlier session. The reading discriminates — a gallery
         // this session did not trust contributes zero to every push regardless — and it is derived
         // from the run's own pending list rather than restated from the record's ceiling.
-        #expect(spy.progressUpdates.map(\.subtitle).contains("5 / 6 pages · 1 gallery"))
+        #expect(spy.progressUpdates.map(\.subtitle).contains("5 of 6 pages in 1 gallery"))
         #expect(spy.rejectedProgressUpdates.isEmpty)
 
         restorePermissions(at: folderURL, to: originalPermissions)
@@ -314,7 +314,7 @@ extension DownloadContinuedSessionLedgerTests {
         // Six retired pages are the whole denominator, so the gallery that finished them stays
         // counted (D-G2C-01) — the same reading the page-file refusal above drains to, reached
         // through the directory-level exit.
-        #expect(terminalPair.subtitle == "6 / 6 pages · 1 gallery")
+        #expect(terminalPair.subtitle == "6 of 6 pages in 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)
@@ -391,7 +391,7 @@ extension DownloadContinuedSessionLedgerTests {
             await manager.testingHasActiveTask() == false
         }
 
-        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "0 of 6 pages in 1 gallery")
 
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(selective.gid)_token] \(selective.title)"
@@ -423,7 +423,7 @@ extension DownloadContinuedSessionLedgerTests {
         // the only gallery in the session, so the numerator IS its contribution. The empty rejected
         // list is asserted alongside so an identity refusal cannot be mistaken for that absence.
         #expect(spy.progressUpdates.allSatisfy({ $0.completedUnitCount == 0 }))
-        #expect(spy.progressUpdates.allSatisfy({ $0.subtitle == "0 / 6 pages · 1 gallery" }))
+        #expect(spy.progressUpdates.allSatisfy({ $0.subtitle == "0 of 6 pages in 1 gallery" }))
         #expect(spy.rejectedProgressUpdates.isEmpty)
     }
 
@@ -485,7 +485,7 @@ extension DownloadContinuedSessionLedgerTests {
         try await waitUntil {
             await manager.testingHasActiveTask() == false
         }
-        #expect(spy.startSubtitles.last == "0 / 6 pages · 1 gallery")
+        #expect(spy.startSubtitles.last == "0 of 6 pages in 1 gallery")
 
         let folderURL = fixture.storage.folderURL(
             relativePath: "Folder/[\(halted.gid)_token] \(halted.title)"
@@ -531,7 +531,7 @@ extension DownloadContinuedSessionLedgerTests {
         // The pause retired the two pages that landed and took the other four out of the
         // denominator with it, so those two pages are all of Y — and the gallery they came from is
         // the one gallery Y represents (D-G2C-01).
-        #expect(terminalPair.subtitle == "2 / 2 pages · 1 gallery")
+        #expect(terminalPair.subtitle == "2 of 2 pages in 1 gallery")
         #expect(spy.finishSuccesses == [true])
         #expect(spy.rejectedProgressUpdates.isEmpty)
         expectTheCompletedSeriesNeverLosesGround(spy.progressUpdates)

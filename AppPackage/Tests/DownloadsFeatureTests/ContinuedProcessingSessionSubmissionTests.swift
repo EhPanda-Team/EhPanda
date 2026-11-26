@@ -50,7 +50,7 @@ struct ContinuedSubmissionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 10 pages · 1 gallery",
+                subtitle: "0 of 10 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 10
             )
@@ -64,7 +64,7 @@ struct ContinuedSubmissionTests {
             sessionID: session.id,
             completedUnitCount: 3,
             totalUnitCount: 10,
-            subtitle: "3 / 10 pages · 1 gallery"
+            subtitle: "3 of 10 pages in 1 gallery"
         )
         #expect(spy.submissions.isEmpty)
         let task = ContinuedTaskSpy()
@@ -92,7 +92,7 @@ struct ContinuedSubmissionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
@@ -110,7 +110,7 @@ struct ContinuedSubmissionTests {
         #expect(events.isEmpty)
         #expect(store.start(
             title: "Downloading galleries",
-            subtitle: "0 / 4 pages · 1 gallery",
+            subtitle: "0 of 4 pages in 1 gallery",
             completedUnitCount: 0,
             totalUnitCount: 4
         ) == nil)
@@ -122,7 +122,7 @@ struct ContinuedSubmissionTests {
         let successor = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
@@ -143,7 +143,7 @@ struct ContinuedSubmissionTests {
         let first = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
@@ -162,7 +162,7 @@ struct ContinuedSubmissionTests {
         let successor = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
@@ -185,7 +185,7 @@ struct ContinuedSubmissionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
@@ -218,7 +218,7 @@ struct ContinuedSubmissionTests {
         let session = try #require(
             store.start(
                 title: "Downloading galleries",
-                subtitle: "0 / 4 pages · 1 gallery",
+                subtitle: "0 of 4 pages in 1 gallery",
                 completedUnitCount: 0,
                 totalUnitCount: 4
             )
