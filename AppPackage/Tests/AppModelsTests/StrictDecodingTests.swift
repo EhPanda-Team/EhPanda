@@ -92,7 +92,7 @@ struct StrictDecodingTests {
 
     @Test
     func galleryHistoryEntryRejectsAnUnknownSchemaVersion() {
-        let json = #"{"schemaVersion": 2, "gid": "1", "token": "a", "lastOpenDate": 0, "readingProgress": 0}"#
+        let json = #"{"schemaVersion": 3, "gid": "1", "token": "a", "lastOpenDate": 0, "readingProgress": 0}"#
         #expect(throws: (any Error).self) {
             try decode(GalleryHistoryEntry.self, json)
         }

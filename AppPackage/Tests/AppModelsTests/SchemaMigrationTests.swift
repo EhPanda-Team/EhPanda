@@ -5,13 +5,13 @@ import Testing
 
 // MARK: - MOCK migratable models — REMOVE when real v2 models land
 //
-// No real model has a breaking change yet, so these mocks exercise the migration engine
-// (`SchemaMigrator` walking a `VersionedSchema` history). Each conforms to `MigratableModel`, declares
-// an ordered `schemas` list (its v1 base schema plus a v2 that carries the map), and provides
-// `init(currentFrom:)` for its current shape. A schema's `migrate` is a raw-JSON transform; the engine
+// `Setting` and `GalleryHistoryEntry` carry real migrations, tested below over real blobs; these mocks exercise
+// the migration engine (`SchemaMigrator` walking a `VersionedSchema` history). Each conforms to
+// `MigratableModel`, declares an ordered `schemas` list (its v1 base schema plus a v2 that carries the map), and
+// provides `init(currentFrom:)` for its current shape. A schema's `migrate` is a raw-JSON transform; the engine
 // reads a stored blob's version and runs every schema newer than it, in order, up to `currentSchemaVersion`.
 //
-// Shapes covered, one per model: RENAME, ADD, REMOVE, TYPE, DERIVE, MERGE. `ProgressiveMock` covers a
+// Shapes covered, one per model: ADD, REMOVE, TYPE, MERGE. `ProgressiveMock` covers a
 // multi-step chain (v1 → v2 → v3).
 //
 // FUTURE AGENT: when a model gains a REAL v2 (it adopts `MigratableModel` and appends a real
@@ -82,28 +82,6 @@ private struct TagTranslatorInfoMock: MigratableModel {
     init(currentFrom decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         customTranslations = try container.decode(Int.self, forKey: .customTranslations)
-    }
-}
-
-// MOCK — remove with real GalleryHistoryEntry v2. DERIVE: v2 `started` computed from v1 `readingProgress`.
-private struct GalleryHistoryEntryMock: MigratableModel {
-    var started: Bool
-    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
-    enum SchemaV1: VersionedSchema {
-        static let version = 1
-        static func migrate(_ object: inout [String: JSONValue]) throws {}
-    }
-    enum SchemaV2: VersionedSchema {
-        static let version = 2
-        static func migrate(_ object: inout [String: JSONValue]) throws {
-            let progress = object["readingProgress"]?.intValue ?? 0
-            object["started"] = .bool(progress > 0)
-        }
-    }
-    init(from decoder: any Decoder) throws { self = try SchemaMigrator.migrate(Self.self, from: decoder) }
-    init(currentFrom decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        started = try container.decode(Bool.self, forKey: .started)
     }
 }
 
@@ -258,27 +236,50 @@ struct SchemaMigrationTests {
         #expect(decoded.customTranslations == 5)
     }
 
+    // MARK: GalleryHistoryEntry v2 (W-4 of quick 261126-iq9), over real v1 blobs
     @Test
-    func galleryHistoryEntryDerivesAField() throws {
-        let started = GalleryHistoryEntry(
-            gid: "1", token: "a", lastOpenDate: Date(timeIntervalSince1970: 1), readingProgress: 7
+    func galleryHistoryEntryV2DropsAV1NegativeVerdict() throws {
+        let json = """
+        {"schemaVersion": 1, "gid": "1", "token": "a", "lastOpenDate": 0, "readingProgress": 3, "isWebtoon": false}
+        """
+        let migrated = try decode(GalleryHistoryEntry.self, json)
+
+        #expect(migrated == GalleryHistoryEntry(
+            gid: "1", token: "a", lastOpenDate: Date(timeIntervalSinceReferenceDate: 0), readingProgress: 3
+        ))
+        let encoded = try #require(
+            JSONSerialization.jsonObject(with: JSONEncoder().encode(migrated)) as? [String: Any]
         )
-        let unstarted = GalleryHistoryEntry(
-            gid: "2", token: "b", lastOpenDate: Date(timeIntervalSince1970: 1), readingProgress: 0
-        )
-        let migratedStarted = try JSONDecoder().decode(
-            GalleryHistoryEntryMock.self, from: JSONEncoder().encode(started)
-        )
-        let migratedUnstarted = try JSONDecoder().decode(
-            GalleryHistoryEntryMock.self, from: JSONEncoder().encode(unstarted)
-        )
-        #expect(migratedStarted.started)
-        #expect(!migratedUnstarted.started)
+        #expect(encoded["isWebtoon"] == nil)
+        #expect(encoded["schemaVersion"] as? Int == 2)
     }
+
+    @Test(arguments: [
+        (
+            json: """
+            {"schemaVersion": 1, "gid": "1", "token": "a", "lastOpenDate": 0, "readingProgress": 3, "isWebtoon": true}
+            """,
+            expected: true as Bool?
+        ),
+        (
+            json: #"{"schemaVersion": 1, "gid": "1", "token": "a", "lastOpenDate": 0, "readingProgress": 3}"#,
+            expected: nil as Bool?
+        )
+    ])
+    func galleryHistoryEntryV2KeepsEveryOtherV1Verdict(json: String, expected: Bool?) throws {
+        let migrated = try decode(GalleryHistoryEntry.self, json)
+
+        #expect(migrated.isWebtoon == expected)
+        #expect(migrated.readingProgress == 3)
+        #expect(migrated.schemaVersion == 2)
+    }
+
     @Test
-    func galleryHistoryEntryMockDecodesNatively() throws {
-        let decoded = try decode(GalleryHistoryEntryMock.self, #"{"schemaVersion": 2, "started": true}"#)
-        #expect(decoded.started)
+    func aCurrentGalleryHistoryEntryKeepsItsNegativeVerdict() throws {
+        let json = """
+        {"schemaVersion": 2, "gid": "1", "token": "a", "lastOpenDate": 0, "readingProgress": 3, "isWebtoon": false}
+        """
+        #expect(try decode(GalleryHistoryEntry.self, json).isWebtoon == false)
     }
 
     @Test

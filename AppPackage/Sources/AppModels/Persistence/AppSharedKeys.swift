@@ -34,10 +34,11 @@ public import Sharing
 // four whole-struct models (`Setting`,
 // `User`, the filters, `TagTranslatorInfo`) keep synthesized strict Codable — the typed field gates
 // the version without a hand-written decoder, preserving their `didSet` invariants and optional-field
-// tolerance. The two identity-bearing array-element models (`GalleryHistoryEntry`, `SavedSearch`)
-// still hand-write `init(from:)` for their identity invariants, decoding that same `SchemaVersion`
-// field for the version check, as does `LibraryPickerChoice`, which rejects a favorites category the
-// Library cannot show. Every model also declares an ordered `schemas` history (à la SwiftData's
+// tolerance. The identity-bearing `SavedSearch` still hand-writes `init(from:)` for its identity
+// invariant, decoding that same `SchemaVersion` field for the version check, as does
+// `LibraryPickerChoice`, which rejects a favorites category the Library cannot show;
+// `GalleryHistoryEntry`, which has a real v2, keeps its identity guards in `init(currentFrom:)` behind
+// `SchemaMigrator`. Every model also declares an ordered `schemas` history (à la SwiftData's
 // `SchemaMigrationPlan.schemas`), starting at its v1 base schema, from which `currentSchemaVersion` is
 // derived. When a real breaking change lands, the model appends a `VersionedSchema` whose `migrate` maps
 // the previous shape forward and adopts `MigratableModel`; the `SchemaMigrator` engine then walks the

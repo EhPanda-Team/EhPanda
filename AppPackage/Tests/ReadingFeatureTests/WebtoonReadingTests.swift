@@ -1,7 +1,10 @@
 import AnalyticsClient
 import AppComponents
+import AppLaunchAutomationClient
 import AppModels
 import ComposableArchitecture
+import CookieClient
+import DownloadClient
 import Foundation
 import HapticsClient
 @testable import ReadingFeature
@@ -13,6 +16,8 @@ import TestingSupport
 // Quick 261122-317 (D-01 to D-07): with "always read webtoons vertically" on, the reader decides once, from the page
 // sizes it already knows around the committed page, whether the open gallery is a webtoon, records the verdict in the
 // browsing history, and reads a webtoon vertically without writing the user's own direction.
+// Quick 261126-iq9 (W-1 to W-3) moved the sample to the gallery's middle three pages and asks for their addresses when
+// the gallery opens.
 // `@MainActor` sits on the members that build a `TestStore`, whose `init` and `state` are main-actor-isolated.
 @Suite(.isolatedAppStorage)
 struct WebtoonReadingTests {
@@ -30,14 +35,16 @@ struct WebtoonReadingTests {
         try #require(PagePixelSize(width: 400, height: 999))
     }
 
-    /// A reader of a ten-page gallery on `page`, with `setting` and the history in the case's suite, which knows the
-    /// sizes of `tallPages` as extremely tall. The default gid is one the history cannot key, so nothing is persisted.
+    /// A reader of a gallery of `pageCount` pages (ten by default) on `page`, with `setting` and the history in the
+    /// case's suite, which knows the sizes of `tallPages` as extremely tall. The default gid is one the history cannot
+    /// key, so nothing is persisted.
     private func makeState(
-        gid: String = "not-a-gid", setting: Setting, page: Int, tallPages: [Int]
+        gid: String = "not-a-gid", setting: Setting, page: Int, tallPages: [Int],
+        pageCount: Int = 10, galleryURL: URL? = nil
     ) throws -> ReadingReducer.State {
         let gallery = Gallery(
             gid: gid, token: "token", title: "Webtoon", rating: 0, tags: [], category: .doujinshi,
-            pageCount: 10, postedDate: now, coverURL: nil, galleryURL: nil
+            pageCount: pageCount, postedDate: now, coverURL: nil, galleryURL: galleryURL
         )
         var state = ReadingReducer.State(gallery: gallery)
         state.$setting.withLock({ $0 = setting })
@@ -57,8 +64,11 @@ struct WebtoonReadingTests {
     ) -> TestStoreOf<ReadingReducer> {
         TestStore(initialState: state, reducer: ReadingReducer.init) {
             $0.analyticsClient = .noop
+            $0.appLaunchAutomationClient = .none
             $0.continuousClock = clock
+            $0.cookieClient = .noop
             $0.date = .constant(now)
+            $0.downloadClient = .noop
             $0.hapticsClient = .noop
         }
     }
@@ -77,27 +87,36 @@ struct WebtoonReadingTests {
         }
     }
 
-    // MARK: Sampling and threshold (D-04, D-05)
+    // MARK: Sampling and threshold (W-1, D-05)
 
     @Test(arguments: [
-        (page: 1, pageCount: 10, first: 1), (page: 2, pageCount: 10, first: 1), (page: 5, pageCount: 10, first: 4),
-        (page: 9, pageCount: 10, first: 8), (page: 10, pageCount: 10, first: 8), (page: 25, pageCount: 10, first: 8),
-        (page: 2, pageCount: 3, first: 1)
+        (pageCount: 3, first: 1), (pageCount: 4, first: 1), (pageCount: 5, first: 2),
+        (pageCount: 10, first: 4), (pageCount: 26, first: 12), (pageCount: 27, first: 13)
     ])
-    func theSampleIsTheCommittedPageAndItsNeighboursMovedInsideTheGallery(page: Int, pageCount: Int, first: Int) {
-        #expect(ReadingReducer.State.webtoonSamplePages(around: page, pageCount: pageCount) == first...(first + 2))
+    func theSampleIsTheMiddleThreePages(pageCount: Int, first: Int) {
+        #expect(ReadingReducer.State.webtoonSamplePages(pageCount: pageCount) == first...(first + 2))
     }
 
     @Test(arguments: [0, 1, 2])
     func aGalleryOfFewerThanThreePagesIsNeverSampled(pageCount: Int) {
-        #expect(ReadingReducer.State.webtoonSamplePages(around: 1, pageCount: pageCount) == nil)
+        #expect(ReadingReducer.State.webtoonSamplePages(pageCount: pageCount) == nil)
     }
 
-    @Test(arguments: [
-        (page: 1, tallPages: [1, 2, 3]), (page: 5, tallPages: [4, 5, 6]), (page: 10, tallPages: [8, 9, 10])
-    ])
-    func threePagesOfExactlyTheRatioMakeAWebtoon(page: Int, tallPages: [Int]) throws {
-        let state = try makeState(setting: Setting(), page: page, tallPages: tallPages)
+    @Test(arguments: [1, 5, 10])
+    func theVerdictReadsTheMiddlePagesWhateverThePage(page: Int) throws {
+        let state = try makeState(setting: Setting(), page: page, tallPages: [4, 5, 6])
+        #expect(state.webtoonVerdictFromKnownSizes == true)
+    }
+
+    // Gallery 4354007 has a cover 797 by 1895 (a ratio of 2.38) before pages many times as tall as wide: the cover
+    // is not in the sample, so it cannot decide the gallery.
+    @Test
+    func aCoverUnderTheRatioNoLongerDecidesTheGallery() throws {
+        var state = try makeState(setting: Setting(), page: 1, tallPages: [], pageCount: 26)
+        state.recordSize(try #require(PagePixelSize(width: 797, height: 1895)), ofPage: 1, from: .servedURL)
+        state.recordSize(try #require(PagePixelSize(width: 800, height: 18_400)), ofPage: 12, from: .servedURL)
+        state.recordSize(try #require(PagePixelSize(width: 800, height: 12_640)), ofPage: 13, from: .servedURL)
+        state.recordSize(try #require(PagePixelSize(width: 800, height: 19_200)), ofPage: 14, from: .servedURL)
         #expect(state.webtoonVerdictFromKnownSizes == true)
     }
 
@@ -148,23 +167,23 @@ struct WebtoonReadingTests {
         await store.finish()
     }
 
-    // A newly committed page completes the sample, and the verdict is recorded for a gallery that had no history
-    // entry yet; the progress the commit then saves lands in the same entry.
+    // The verdict lands on the first action once the middle sizes are known, whatever page is committed, and is
+    // recorded for a gallery that had no history entry yet; the progress the commit then saves lands in the same entry.
     @MainActor
     @Test
-    func aCommittedPageDecidesAndTheHistoryRecordsTheVerdict() async throws {
+    func theVerdictIsRecordedInTheHistoryWithTheProgress() async throws {
         let state = try makeState(
             gid: validGID, setting: Setting(alwaysReadsWebtoonsVertically: true), page: 1, tallPages: [4, 5, 6]
         )
         let clock = TestClock()
         let store = makeStore(state, clock: clock)
 
-        await store.send(.pagerSettled(shown: 5, generation: 0)) {
-            _ = $0.position.pagerSettled(shown: 5, generation: 0)
+        await store.send(.pagerSettled(shown: 2, generation: 0)) {
+            _ = $0.position.pagerSettled(shown: 2, generation: 0)
             $0.isWebtoon = true
         }
         await store.receive(\.syncReadingProgress) {
-            $0.visitedPages = [5]
+            $0.visitedPages = [2]
         }
         await clock.advance(by: .seconds(1))
         await store.receive(\.flushReadingProgress)
@@ -172,7 +191,7 @@ struct WebtoonReadingTests {
 
         let entry = try #require(persistedEntry(gid: validGID))
         #expect(entry.isWebtoon == true)
-        #expect(entry.readingProgress == 5)
+        #expect(entry.readingProgress == 2)
         #expect(entry.token == "token")
     }
 
@@ -234,6 +253,138 @@ struct WebtoonReadingTests {
 
         #expect(store.state.readingSetting.readingDirection == .rightToLeft)
         await store.finish()
+    }
+
+    // MARK: Asking for the middle pages at open (W-2, W-3)
+
+    private static let remoteGalleryURL = URL(string: "https://example.com/g/42/abc123/")
+
+    // A hundred-page gallery has its middle pages, 49 to 51, in a batch (41 to 80) the opening page's batch (1 to 40)
+    // does not cover, so they are asked for; the three sends make one request, which marks the batch loading.
+    @MainActor
+    @Test
+    func openingAnUncheckedGalleryAsksForTheMiddlePages() async throws {
+        let state = try makeState(
+            gid: validGID, setting: Setting(alwaysReadsWebtoonsVertically: true), page: 1, tallPages: [],
+            pageCount: 100, galleryURL: Self.remoteGalleryURL
+        )
+        let store = makeStore(state)
+        // Past the asserted actions the requests answer at any moment (the test network guard fails them).
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        let batch = store.state.previewConfig.batchRange(index: 49)
+        #expect(batch == 41...80)
+
+        await store.send(.onPresented)
+        await store.receive(\.fetchImageURLs, 49)
+        await store.receive(\.fetchImageURLs, 50)
+        await store.receive(\.fetchImageURLs, 51)
+        await store.receive(\.fetchThumbnailURLs, 49) {
+            for page in batch { $0.imageURLLoadingStates[page] = .loading }
+        }
+        await store.skipInFlightEffects(strict: false)
+
+        for page in batch {
+            #expect(store.state.imageURLLoadingStates[page] == .loading)
+        }
+    }
+
+    @MainActor
+    @Test(arguments: [
+        (optionOn: false, verdict: nil as Bool?), (optionOn: true, verdict: true as Bool?),
+        (optionOn: true, verdict: false as Bool?)
+    ])
+    func openingAsksForNoMiddlePageWithoutTheOptionOrWithAVerdict(optionOn: Bool, verdict: Bool?) async throws {
+        if let verdict {
+            seedVerdict(verdict, gid: validGID)
+        }
+        let state = try makeState(
+            gid: validGID, setting: Setting(alwaysReadsWebtoonsVertically: optionOn), page: 1, tallPages: [],
+            pageCount: 100, galleryURL: Self.remoteGalleryURL
+        )
+        let store = makeStore(state)
+        store.exhaustivity = .off(showSkippedAssertions: false)
+        let batch = store.state.previewConfig.batchRange(index: 49)
+
+        await store.send(.onPresented)
+        await store.receive(\.fetchImageURLs, 1)
+        await store.skipInFlightEffects(strict: false)
+
+        for page in batch {
+            #expect(store.state.imageURLLoadingStates[page] != .loading)
+        }
+    }
+
+    // The served addresses of the three middle pages name their sizes, which are tall: the gallery is a webtoon, the
+    // reader turns vertical with the toast, and the history keeps the verdict.
+    @MainActor
+    @Test
+    func theMiddlePagesServedSizesDecideTheGallery() async throws {
+        var state = try makeState(
+            gid: validGID, setting: Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true),
+            page: 1, tallPages: [], pageCount: 100, galleryURL: Self.remoteGalleryURL
+        )
+        let batch = state.previewConfig.batchRange(index: 49)
+        for page in batch {
+            state.imageURLLoadingStates[page] = .loading
+        }
+        let store = makeStore(state)
+        let heights = [49: 18_400, 50: 12_640, 51: 19_200]
+        var imageURLs = [Int: URL]()
+        var servedSizes = [Int: KnownPageSize]()
+        for (page, height) in heights {
+            imageURLs[page] = try Self.servedURL(width: 800, height: height)
+            servedSizes[page] = try KnownPageSize(
+                pixelSize: #require(PagePixelSize(width: 800, height: height)), source: .servedURL
+            )
+        }
+
+        await store.send(.fetchNormalImageURLsDone(index: 49, result: .success((imageURLs, [:])))) {
+            for page in batch {
+                $0.imageURLLoadingStates[page] = .idle
+            }
+            $0.imageURLs = imageURLs
+            $0.pageSizes = servedSizes
+            $0.isWebtoon = true
+            $0.toast = .success(title: .webtoonToastTitle, caption: .webtoonToastMessage)
+        }
+        await store.finish()
+
+        #expect(store.state.readingSetting.readingDirection == .vertical)
+        #expect(persistedEntry(gid: validGID)?.isWebtoon == true)
+    }
+
+    // A failed fetch of the middle batch is an ordinary failed batch: no verdict, and nothing asks again (W-3).
+    @MainActor
+    @Test
+    func aFailedMiddleFetchRecordsNoVerdictAndAsksNoMore() async throws {
+        var state = try makeState(
+            gid: validGID, setting: Setting(alwaysReadsWebtoonsVertically: true),
+            page: 1, tallPages: [], pageCount: 100, galleryURL: Self.remoteGalleryURL
+        )
+        let batch = state.previewConfig.batchRange(index: 49)
+        for page in batch {
+            state.imageURLLoadingStates[page] = .loading
+        }
+        let store = makeStore(state)
+
+        await store.send(.fetchThumbnailURLsDone(index: 49, result: .failure(.notFound))) {
+            for page in batch {
+                $0.imageURLLoadingStates[page] = .failed(.notFound)
+            }
+            $0.surfacedErrorKinds = [.notFound]
+        }
+        await store.finish()
+
+        #expect(store.state.isWebtoon == nil)
+        #expect(persistedEntry(gid: validGID) == nil)
+    }
+
+    /// A URL the site would serve for a page of `width` by `height` pixels, whose file identifier names the size.
+    private static func servedURL(width: Int, height: Int) throws -> URL {
+        try #require(URL(string: """
+            https://example.hath.network/h/ea42b28bceeae68f1f6adb414da61d186b3d126b-311480-\(width)-\(height)-jpg\
+            /keystamp=1694132700-fd778f8260;fileindex=132044713;xres=1280/87052610_5090394_0.jpg
+            """))
     }
 
     // MARK: A recorded verdict (D-06, D-07)
