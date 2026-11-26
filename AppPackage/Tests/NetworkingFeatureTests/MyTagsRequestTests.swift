@@ -171,6 +171,53 @@ struct MyTagsRequestTests: TestHelper {
         ])
     }
 
+    // The create posts the shown set's form with the new name, as a browser does: an unchecked Enabled box sends no
+    // field, and no colour sends the field empty.
+    @Test
+    func aTagSetCreatePostsTheShownSetsFormWithTheNameInOrder() async throws {
+        let url = try #require(Self.tagSet2URL)
+        let page = try fixture(.myTagsTagSet2)
+        let (session, handle) = makeStubbedSession(script: StubScript([
+            url: [.http(status: 200, data: page), .http(status: 200, data: page)]
+        ]))
+        defer { cleanUp(session: session, handle: handle) }
+        let green = SiteColor(red: 0x22, green: 0xAA, blue: 0x55)
+        let enabled = MyTagSet(id: 2, name: "Fixture Picks", isEnabled: true, color: green, tags: [])
+        let disabled = MyTagSet(id: 2, name: "Fixture Picks", isEnabled: false, color: nil, tags: [])
+
+        let first = try await createTagSet(named: "Picks & Holds", shown: enabled, session: session).get()
+        let second = try await createTagSet(named: "Fixture Holds", shown: disabled, session: session).get()
+
+        #expect(first.tagSet.id == 2)
+        #expect(second.tagSet.id == 2)
+        let requests = handle.receivedRequests
+        #expect(requests.map(\.httpMethod) == ["POST", "POST"])
+        expectEquivalentURL(requests.first?.url, url)
+        #expect(requests.first?.value(forHTTPHeaderField: "Content-Type") == "application/x-www-form-urlencoded")
+        #expect(requests.map({ body(of: $0) }) == [
+            "tagset_action=create&tagset_name=Picks%20%26%20Holds&tagset_enable=on&tagset_color=%2322AA55",
+            "tagset_action=create&tagset_name=Fixture%20Holds&tagset_color="
+        ])
+    }
+
+    // A create the site took whose answer was lost looks like one it never saw, and posting it again could make a
+    // second set, so a create is put on the wire once (N-4).
+    @Test
+    func aTagSetCreateIsNotRetriedAfterATransportFailure() async throws {
+        let url = try #require(Self.tagSet1URL)
+        let page = try fixture(.myTagsTagSet1)
+        let (session, handle) = makeStubbedSession(script: StubScript([
+            url: [.transportFailure(.networkConnectionLost), .http(status: 200, data: page)]
+        ]))
+        defer { cleanUp(session: session, handle: handle) }
+        let shown = MyTagSet(id: 1, name: "Tagset #1", isEnabled: true, color: nil, tags: [])
+
+        let result = await createTagSet(named: "Fixture Holds", shown: shown, session: session)
+
+        #expect(result == .failure(.networkingFailed))
+        #expect(handle.attempts(for: url) == 1)
+    }
+
     @Test
     func anEditPostsSetUserTagWithTheTagsStateColourAndWeight() async throws {
         let url = try #require(Self.apiURL)
@@ -266,6 +313,19 @@ struct MyTagsRequestTests: TestHelper {
             .response()
         }
         .get()
+    }
+
+    private func createTagSet(
+        named name: String,
+        shown shownTagSet: MyTagSet,
+        session: URLSession
+    ) async -> Result<MyTagsPage, AppError> {
+        await capture { () async throws(AppError) -> MyTagsPage in
+            try await CreateMyTagSetRequest(
+                host: .ehentai, name: name, shownTagSet: shownTagSet, urlSession: session
+            )
+            .response()
+        }
     }
 
     private func fixture(_ filename: HTMLFilename) throws -> Data {

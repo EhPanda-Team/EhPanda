@@ -100,6 +100,20 @@ struct MyTagsTests {
         #expect(applied == MyTags(tagSets: [second, emptied], selectedTagSetID: 2))
     }
 
+    // New Tag Set reads the set it made, which the cache lacks (N-6 of quick 261126-pfh): the page's own set takes its
+    // place in the picker's order, while set 4, which the cache lacks too, stays out until the next fetch.
+    @Test
+    func aPageOfASetTheCacheLacksTakesItsPlaceInThePickersOrder() {
+        let first = MyTagSet(id: 1, name: "Tagset #1", isEnabled: true, color: nil, tags: [Self.glasses])
+        let second = MyTagSet(id: 2, name: "Fixture Picks", isEnabled: false, color: Self.green, tags: [Self.artist])
+        let made = MyTagSet(id: 3, name: "Fixture Holds", isEnabled: false, color: nil, tags: [])
+        let cache = MyTags(tagSets: [first, second], selectedTagSetID: 3)
+
+        let applied = cache.applying(Self.page(made, tagSetIDs: [1, 3, 2, 4]))
+
+        #expect(applied == MyTags(tagSets: [first, made, second], selectedTagSetID: 3))
+    }
+
     @Test
     func anUpdateReplacesOneSetOrOneTagAndKeepsTheRest() {
         var edited = Self.glasses

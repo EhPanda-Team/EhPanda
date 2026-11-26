@@ -180,8 +180,10 @@ public struct MyTags: Codable, Equatable, Hashable, Sendable {
         MyTags(tagSets: tagSets, selectedTagSetID: tagSetID)
     }
 
-    /// The cache with `page`'s set in place of the one stored, in the order of the page's picker: a set the picker
-    /// lists but the cache lacks stays out until the next fetch, and a set the picker no longer lists is dropped.
+    /// The cache with `page`'s set in place of the one stored, in the order of the page's picker. The page's own set
+    /// takes its place even when the cache lacks it, as the set New Tag Set made does when the page reads it (N-6 of
+    /// quick 261126-pfh); any other set the picker lists but the cache lacks stays out until the next fetch, and a set
+    /// the picker no longer lists is dropped.
     public func applying(_ page: MyTagsPage) -> MyTags {
         let tagSets = page.tagSetIDs.compactMap { id in
             id == page.tagSet.id ? page.tagSet : self.tagSets.first(where: { $0.id == id })

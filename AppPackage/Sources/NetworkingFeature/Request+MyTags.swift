@@ -4,10 +4,11 @@ public import Foundation
 import Kanna
 import ParserFeature
 
-// The My Tags reads and writes (port of PR 462 item 10; the site contract read live on 2026-11-22). Every request
-// keeps `fetch`'s default four attempts: the reads are GETs, and a replayed write asks the site for the same end
-// state (an add of a tag the set holds is taken unchanged, a remove of a tag the set no longer holds removes nothing,
-// an edit or a tag set update sets the same values), so a lost response is safe to ask for again.
+// The My Tags reads and writes (port of PR 462 item 10; the site contract read live on 2026-11-22). Every request but
+// the create keeps `fetch`'s default four attempts: the reads are GETs, and a replayed write asks the site for the
+// same end state (an add of a tag the set holds is taken unchanged, a remove of a tag the set no longer holds removes
+// nothing, an edit or a tag set update sets the same values), so a lost response is safe to ask for again. A replayed
+// create would make another set, so `CreateMyTagSetRequest` is put on the wire once (N-4 of quick 261126-pfh).
 
 extension Request {
     /// A My Tags page the site served, or answered a form post with.
@@ -19,17 +20,19 @@ extension Request {
         }
     }
 
-    /// Posts a My Tags form, its fields in order, to `url`, and parses the page the site answers with.
+    /// Posts a My Tags form, its fields in order, to `url`, and parses the page the site answers with. `attempts` is
+    /// `fetch`'s; its default suits a write the site can be asked for again (see the note above).
     fileprivate func postMyTagsForm(
         _ fields: [URLQueryItem],
         to url: URL,
-        in session: URLSession
+        in session: URLSession,
+        attempts: Int = 4
     ) async throws(AppError) -> MyTagsPage {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = Data(fields.formURLEncodedString().utf8)
         request.setURLEncodedContentType()
-        let (data, _) = try await fetch(request, in: session)
+        let (data, _) = try await fetch(request, in: session, attempts: attempts)
         return try myTagsPage(data: data)
     }
 }
@@ -187,6 +190,48 @@ public struct UpdateMyTagSetRequest: Request {
         fields.append(URLQueryItem(name: "tagset_color", value: color?.hex ?? ""))
         let url = Defaults.URL.myTags(host: host, tagSetID: tagSetID)
         return try await postMyTagsForm(fields, to: url, in: urlSession)
+    }
+}
+
+/// Creates a tag set through the tag set form's New (`tagset_action=create`), as the site's `do_tagset_create` posts
+/// it: the form of the set the page shows, to that set's page, its fields in the browser's order. Besides the new
+/// set's name, those are the shown set's Enabled box, which sends nothing when unchecked, and its colour. Answers the
+/// page the site returns, which carries the reason when it refused.
+///
+/// Put on the wire once (N-4 of quick 261126-pfh). A create is not an end state the site can be asked for again: one
+/// the site took whose response was lost looks the same here as one it never received, and posting it again could
+/// make a second set. A lost response costs the user one more Create instead, and a set the site did make shows at
+/// the next read of My Tags.
+public struct CreateMyTagSetRequest: Request {
+    public init(
+        host: GalleryHost,
+        name: String,
+        shownTagSet: MyTagSet,
+        urlSession: URLSession = .shared
+    ) {
+        self.host = host
+        self.name = name
+        self.shownTagSet = shownTagSet
+        self.urlSession = urlSession
+    }
+    public let host: GalleryHost
+    /// The new set's name; the page sends it trimmed.
+    public let name: String
+    /// The set the page shows, whose form the create is posted from.
+    public let shownTagSet: MyTagSet
+    public let urlSession: URLSession
+
+    public func response() async throws(AppError) -> MyTagsPage {
+        var fields = [
+            URLQueryItem(name: "tagset_action", value: "create"),
+            URLQueryItem(name: "tagset_name", value: name)
+        ]
+        if shownTagSet.isEnabled {
+            fields.append(URLQueryItem(name: "tagset_enable", value: "on"))
+        }
+        fields.append(URLQueryItem(name: "tagset_color", value: shownTagSet.color?.hex ?? ""))
+        let url = Defaults.URL.myTags(host: host, tagSetID: shownTagSet.id)
+        return try await postMyTagsForm(fields, to: url, in: urlSession, attempts: 1)
     }
 }
 

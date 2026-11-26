@@ -2,8 +2,8 @@ public import AppModels
 public import ComposableArchitecture
 import NetworkingFeature
 
-/// Every My Tags call a reducer makes: the reads of every tag set or one, and the writes of a tag or a tag set (port
-/// of PR 462 item 10).
+/// Every My Tags call a reducer makes: the reads of every tag set or one, the writes of a tag or a tag set, and the
+/// create of a tag set (port of PR 462 item 10; the create, quick 261126-pfh).
 ///
 /// One dependency, so a test states each outcome and the unimplemented test value reports any call a test did not
 /// expect. `live` builds the requests with their own defaults on the host the caller has selected.
@@ -38,6 +38,13 @@ public struct MyTagsClient: Sendable {
         _ isEnabled: Bool,
         _ color: SiteColor?
     ) async throws(AppError) -> MyTagsPage
+    /// Creates a tag set named `name` from the form of `shownTagSet`, the set the page shows; answers the page the
+    /// site returned. Put on the wire once (`CreateMyTagSetRequest`).
+    public var createTagSet: @Sendable (
+        _ host: GalleryHost,
+        _ name: String,
+        _ shownTagSet: MyTagSet
+    ) async throws(AppError) -> MyTagsPage
 }
 
 // MARK: Live
@@ -48,7 +55,8 @@ extension MyTagsClient {
         addTag: requestAddTag,
         updateTag: requestUpdateTag,
         removeTags: requestRemoveTags,
-        updateTagSet: requestUpdateTagSet
+        updateTagSet: requestUpdateTagSet,
+        createTagSet: requestCreateTagSet
     )
 
     private static func requestMyTags(host: GalleryHost) async throws(AppError) -> MyTagsResponse {
@@ -93,6 +101,14 @@ extension MyTagsClient {
         try await UpdateMyTagSetRequest(host: host, tagSetID: tagSetID, isEnabled: isEnabled, color: color)
             .response()
     }
+
+    private static func requestCreateTagSet(
+        host: GalleryHost,
+        name: String,
+        shownTagSet: MyTagSet
+    ) async throws(AppError) -> MyTagsPage {
+        try await CreateMyTagSetRequest(host: host, name: name, shownTagSet: shownTagSet).response()
+    }
 }
 
 public enum MyTagsClientKey: DependencyKey {
@@ -130,6 +146,9 @@ extension MyTagsClient {
         },
         updateTagSet: { (_: GalleryHost, _: Int, _: Bool, _: SiteColor?) async throws(AppError) -> MyTagsPage in
             throw .notFound
+        },
+        createTagSet: { (_: GalleryHost, _: String, _: MyTagSet) async throws(AppError) -> MyTagsPage in
+            throw .notFound
         }
     )
 
@@ -151,6 +170,9 @@ extension MyTagsClient {
         ),
         updateTagSet: IssueReporting.unimplemented(
             "MyTagsClient.updateTagSet", throwing: AppError.unknown
+        ),
+        createTagSet: IssueReporting.unimplemented(
+            "MyTagsClient.createTagSet", throwing: AppError.unknown
         )
     )
 
@@ -174,6 +196,9 @@ extension MyTagsClient {
                 throw error
             },
             updateTagSet: { (_: GalleryHost, _: Int, _: Bool, _: SiteColor?) async throws(AppError) -> MyTagsPage in
+                throw error
+            },
+            createTagSet: { (_: GalleryHost, _: String, _: MyTagSet) async throws(AppError) -> MyTagsPage in
                 throw error
             }
         )
