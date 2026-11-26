@@ -67,6 +67,14 @@ Open: the key's ID, its type (team or individual) and its role, and who created 
 own key, which is not necessarily this one, so nothing from Helm is recorded as the CI key. The plan's `role:` line
 is therefore not yet in this file.
 
+*Amended 2026-11-26 (owner decisions):* the CI uses the owner's own individual App Store Connect API key, not a team
+key: its type is individual, and it acts with the owner's own role and app access. The three secrets above were removed
+from `app-marketplace`; the owner adds `APP_STORE_CONNECT_KEY_ID` and `APP_STORE_CONNECT_PRIVATE_KEY` for the
+individual key after quick 261126-dkv. `APP_STORE_CONNECT_ISSUER_ID` is gone for good: an individual key's token has no
+`iss` and carries `"sub": "user"`. The build goes up through the App Store Connect Build Upload API (`asc.py upload`),
+not through `xcodebuild` or `altool`, which both ask for an issuer ID with an API key; `xcodebuild` only exports the
+signed `.ipa`. The key's ID and when it was made are not recorded here.
+
 ## Task 2: Agreements, marketplace, trader status, age rating, App Privacy answers and countries
 
 What shows that the account steps happened, and what does not: Apple accepted build 163 for Notarization (owner's
@@ -157,3 +165,11 @@ that the collaborator delivered the rest.
 
 The plan's verify commands name `pal-notarization`; the same commands against `app-marketplace` give
 `required_reviewers` and the eight names above.
+
+*Amended 2026-11-26 (owner decisions):* after this check the environment changed. `APPLE_TEAM_ID`,
+`DISTRIBUTION_CERTIFICATE` and `DISTRIBUTION_CERTIFICATE_PASSWORD` stay, and the owner renewed
+`PROVISIONING_PROFILE_APP` and `PROVISIONING_PROFILE_SHARE_EXTENSION` on 2026-11-26. The three `APP_STORE_CONNECT_*`
+secrets were removed; the owner adds `APP_STORE_CONNECT_KEY_ID` and `APP_STORE_CONNECT_PRIVATE_KEY` for the individual
+key after quick 261126-dkv. So the `AltStorePAL` job, now in `marketplace-upload.yml`, and that workflow's header name
+seven environment secrets, and `APP_STORE_CONNECT_ISSUER_ID` is not among them. This change did not check the
+environment live.
