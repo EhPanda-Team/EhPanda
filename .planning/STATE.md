@@ -1200,7 +1200,7 @@ See: .planning/PROJECT.md (updated 2026-11-05)
 Phase: 20 (3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks) — EXECUTING
 Plan: 20-07 (wave 1); 20-06 and 20-08 open
 Status: Executing Phase 20
-Last activity: 2026-11-26 - Completed quick task 261126-pfh: New Tag Set on My Tags (owner device check pending)
+Last activity: 2026-11-26 - Completed quick task 261126-trf: passive webtoon detection (owner device check pending)
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
 validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); Phase 18.1 closed
@@ -2281,6 +2281,7 @@ None yet.
 | 261126-iq9 | Webtoon detection samples the middle pages, toast clears its host's bottom chrome once, About links show the external arrow | 2026-11-26 | ba7f0e1fa | [261126-iq9-fix-the-findings-and-release-a-new-beta-](./quick/261126-iq9-fix-the-findings-and-release-a-new-beta-/) |
 | 261126-pfh | My Tags gains New Tag Set: an alert names the set, the site creates it, the page selects and reads it; needs the owner's device check | 2026-11-26 | 25ec1d42e | [261126-pfh-add-a-new-tag-set-action-to-the-native-m](./quick/261126-pfh-add-a-new-tag-set-action-to-the-native-m/) |
 | 261126-pfr | Native continued-session subtitle: the continued-processing card's six locale values drop the decorative middle dot (written and blind-reviewed per locale); DownloadsFeatureTests literals updated | 2026-11-26 | 38fc3f9b9 | [261126-pfr-native-continued-session-subtitle](./quick/261126-pfr-native-continued-session-subtitle/) |
+| 261126-trf | Passive webtoon detection: more than two thirds of the known pages extremely tall (at least three known) turn the gallery into a webtoon, a recorded "not a webtoon" included; the middle-page fetch stays; owner device check pending | 2026-11-26 | ad9050e94 | [261126-trf-add-passive-webtoon-detection](./quick/261126-trf-add-passive-webtoon-detection/) |
 
 ### Roadmap Evolution
 
