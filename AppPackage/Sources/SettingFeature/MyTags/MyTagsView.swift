@@ -116,6 +116,9 @@ struct MyTagsView: View {
                             MyTagRow(tag: tag, tagSetColor: tagSet.color)
                                 .withArrow()
                         }
+                        // A row that opens a page, not an action: the label's primary and secondary styles resolve
+                        // against the label colour instead of the button's tint, as the other Settings rows do.
+                        .foregroundStyle(.primary)
                         .swipeActions(edge: .trailing) {
                             // Not the destructive role, which would take the row out before the site answers; the
                             // row leaves once the site's page no longer lists the tag.
