@@ -1,11 +1,12 @@
 ---
 date: "2026-11-26T09:00:00Z"
-promoted: false
+promoted: true
+promoted_to: ".planning/quick/261126-iq9-fix-the-findings-and-release-a-new-beta-/"
 ---
 
-# About page links use the external-link arrow: recorded, not implemented
+# About page links use the external-link arrow: done in quick 261126-iq9
 
-Source: owner, 2026-11-26. Owner direction: record this. Nothing is implemented yet.
+Source: owner, 2026-11-26. Owner direction: record this. Implemented 2026-11-26 in quick 261126-iq9.
 
 ## Request
 

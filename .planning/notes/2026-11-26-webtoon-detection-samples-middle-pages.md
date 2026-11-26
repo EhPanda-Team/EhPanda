@@ -1,11 +1,12 @@
 ---
 date: "2026-11-26T09:00:00Z"
-promoted: false
+promoted: true
+promoted_to: ".planning/quick/261126-iq9-fix-the-findings-and-release-a-new-beta-/"
 ---
 
-# Webtoon detection samples the middle pages: recorded, not implemented
+# Webtoon detection samples the middle pages: done in quick 261126-iq9
 
-Source: owner, 2026-11-26. Owner direction: record the recommended fix option. Nothing is implemented yet.
+Source: owner, 2026-11-26. Owner direction: record the recommended fix option. Implemented 2026-11-26 in quick 261126-iq9.
 
 ## Problem
 
