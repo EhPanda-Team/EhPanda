@@ -26,6 +26,9 @@ Usage:
                                                  English ends with the link
   release_notes.py telegram <file> <url>         English, a blank line, 繁體中文, then the link; bulleted
   release_notes.py discord <file> <url>          English, then the link; bulleted
+  release_notes.py description altstore|github   a beta's release description, read from stdin and held
+                                                 to a section's rules: as AltStore shows it (no bullets)
+                                                 or as the GitHub release body (bulleted)
 
 Within a language's section the first line is the lead sentence. GitHub, Telegram and Discord show it as
 its own paragraph, with each following line as a bullet (`- ` on GitHub and Discord, `• ` on Telegram,
@@ -174,6 +177,34 @@ def bulleted(text, marker, keep_link=True):
     return "\n\n".join(parts)
 
 
+def description(text):
+    """A beta's release description, which stands in for a notes file's English section when the version has none
+    yet (deploy-beta.yml), held to the same rules: a lead sentence, then one item per line, with no bullet, number
+    or heading. Returns the lines, blank lines dropped."""
+    lines = [line.rstrip() for line in text.replace("\r", "").split("\n") if line.strip()]
+    if not lines:
+        raise NotesError("the release description is empty")
+    for number, line in enumerate(lines, start=1):
+        if re.match(r"^#{1,6}(\s|$)", line):
+            raise NotesError(f"description line {number}: no headings: {line!r}")
+        if LIST_MARKER.match(line):
+            raise NotesError(f"description line {number}: write each item as a plain line, without a number or "
+                             f"bullet: {line!r}")
+    return lines
+
+
+def description_altstore(text):
+    """The description as AltStore shows a version's notes: each line its own paragraph, as the notes files are
+    written, with no bullets (the regular sources show no list either)."""
+    return "\n\n".join(description(text))
+
+
+def description_github(text):
+    """The description as the beta's GitHub release body: the lead sentence, then the items as a Markdown list,
+    as a regular release's body is."""
+    return bulleted("\n".join(description(text)), MARKDOWN_BULLET)
+
+
 def github(notes):
     parts = [bulleted(notes["en"], MARKDOWN_BULLET)]
     for code, name in LANGUAGES:
@@ -260,6 +291,9 @@ def main(argv):
             print(json.dumps(read(args[0]), ensure_ascii=False))
         elif command == "github" and len(args) == 1:
             sys.stdout.write(github(read(args[0])))
+        elif command == "description" and args in (["altstore"], ["github"]):
+            text = sys.stdin.read()
+            print(description_altstore(text) if args[0] == "altstore" else description_github(text))
         elif command == "telegram" and len(args) == 2:
             sys.stdout.write(telegram(read(args[0]), args[1]))
         elif command == "discord" and len(args) == 2:

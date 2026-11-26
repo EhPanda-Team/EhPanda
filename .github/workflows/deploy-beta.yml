@@ -78,6 +78,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      # Before anything is built: the release description follows a notes section's rules (a lead sentence, then
+      # one item per line, no bullets), because AltStore shows it when the version has no notes file yet.
+      - name: Check the release description
+        env:
+          RELEASE_DESCRIPTION: ${{ inputs.releaseDescription }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$RELEASE_DESCRIPTION" ]]; then
+            printf '%s' "$RELEASE_DESCRIPTION" | python3 "$RELEASE_NOTES_TOOL_PATH" description altstore > /dev/null
+          fi
       - name: Check build number
         run: |
           set -euo pipefail
@@ -201,6 +211,20 @@ jobs:
           [[ ! -z "$RELEASE_SIZE" ]] || exit 1
           [[ ! -z "$RELEASE_VERSION" ]] || exit 1
           [[ ! -z "$RELEASE_DATE" ]] || exit 1
+      # The GitHub release lists the description's items as bullets, as a regular release's body does; AltStore
+      # gets them as plain paragraphs (Update AltStoreBeta.json below).
+      - name: Write the release body
+        env:
+          RELEASE_DESCRIPTION: ${{ inputs.releaseDescription }}
+        run: |
+          set -euo pipefail
+          body_path="$RUNNER_TEMP/beta-release-body.md"
+          if [[ -n "$RELEASE_DESCRIPTION" ]]; then
+            printf '%s' "$RELEASE_DESCRIPTION" | python3 "$RELEASE_NOTES_TOOL_PATH" description github > "$body_path"
+          else
+            : > "$body_path"
+          fi
+          echo "BETA_RELEASE_BODY_PATH=$body_path" >> "$GITHUB_ENV"
       - name: Release to GitHub
         id: release
         uses: softprops/action-gh-release@v3
@@ -210,7 +234,7 @@ jobs:
          files: ${{ env.BETA_IPA_PATH }}
          token: ${{ secrets.GITHUB_TOKEN }}
          name: ${{ inputs.releaseTitle }}
-         body: ${{ inputs.releaseDescription || '' }}
+         body_path: ${{ env.BETA_RELEASE_BODY_PATH }}
          tag_name: ${{ steps.retrieve-data.outputs.version }}
          # Tag the commit this run built. Without it GitHub tags the default branch (main), which is not
          # what a beta dispatched on a feature branch was built from.
@@ -234,15 +258,19 @@ jobs:
           version_date="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           # The notes are the version's notes file, as for a regular release: English is the plain field, and
           # AltStore also gets every language, English included, in localizedDescriptions. A beta of a version
-          # that has no notes file yet shows the release description, in English only.
+          # that has no notes file yet shows the release description, in English only, as plain paragraphs like
+          # the notes (no bullets).
           notes_path="$RELEASE_NOTES_DIR/$version.md"
           if [[ -f "$notes_path" ]]; then
             python3 "$RELEASE_NOTES_TOOL_PATH" check "$notes_path"
             notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" english "$notes_path")"
             localized_notes="$(python3 "$RELEASE_NOTES_TOOL_PATH" altstore "$notes_path")"
           else
-            notes="${RELEASE_DESCRIPTION:-$RELEASE_TITLE}"
-            notes="$(printf '%s' "$notes" | tr -d '\r')"
+            if [[ -n "$RELEASE_DESCRIPTION" ]]; then
+              notes="$(printf '%s' "$RELEASE_DESCRIPTION" | python3 "$RELEASE_NOTES_TOOL_PATH" description altstore)"
+            else
+              notes="$RELEASE_TITLE"
+            fi
             localized_notes=null
           fi
           privacy="$(

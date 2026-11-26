@@ -337,5 +337,45 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(self.run_tool("telegram", str(FIXTURE)).returncode, 2)
 
 
+class BetaDescriptionTests(unittest.TestCase):
+    """A beta's release description stands in for the English notes when the version has no notes file yet, so it
+    follows a section's rules: AltStore shows plain paragraphs, the GitHub release a bulleted list."""
+
+    TEXT = "EhPanda 3.1 beta.\r\n\r\nMy Tags are marked in every list.  \nEdit your own comments.\n"
+
+    def test_altstore_gets_each_line_as_a_paragraph_without_bullets(self):
+        self.assertEqual(release_notes.description_altstore(self.TEXT),
+                         "EhPanda 3.1 beta.\n\nMy Tags are marked in every list.\n\nEdit your own comments.")
+
+    def test_github_gets_the_lead_then_a_bulleted_list(self):
+        self.assertEqual(release_notes.description_github(self.TEXT),
+                         "EhPanda 3.1 beta.\n\n- My Tags are marked in every list.\n- Edit your own comments.")
+
+    def test_a_bulleted_or_numbered_item_fails(self):
+        for line in ["- Edit your own comments.", "* Edit.", "• Edit.", "1. Edit.", "2) Edit."]:
+            with self.subTest(line=line):
+                with self.assertRaisesRegex(release_notes.NotesError, "without a number or bullet"):
+                    release_notes.description(f"EhPanda 3.1 beta.\n{line}")
+
+    def test_a_heading_or_an_empty_description_fails(self):
+        with self.assertRaisesRegex(release_notes.NotesError, "no headings"):
+            release_notes.description("## English\nEhPanda 3.1 beta.")
+        with self.assertRaisesRegex(release_notes.NotesError, "empty"):
+            release_notes.description(" \n\n")
+
+    def test_the_command_reads_stdin(self):
+        for form, expected in (("altstore", release_notes.description_altstore(self.TEXT)),
+                               ("github", release_notes.description_github(self.TEXT))):
+            with self.subTest(form=form):
+                result = subprocess.run([sys.executable, str(TOOLS / "release_notes.py"), "description", form],
+                                        input=self.TEXT, capture_output=True, text=True, encoding="utf-8")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, expected + "\n")
+        result = subprocess.run([sys.executable, str(TOOLS / "release_notes.py"), "description", "altstore"],
+                                input="Lead.\n- Item.", capture_output=True, text=True, encoding="utf-8")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("without a number or bullet", result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

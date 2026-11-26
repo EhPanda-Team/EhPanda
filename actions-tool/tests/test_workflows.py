@@ -354,9 +354,25 @@ class BetaWorkflowTests(unittest.TestCase):
         self.assertIn('localized_notes="$(python3 "./actions-tool/release_notes.py" altstore "$notes_path")"', run)
         self.assertIn('--arg localizedDescription "$notes"', run)
         self.assertIn('--argjson localizedDescriptions "$localized_notes"', run)
-        # Without a notes file the beta keeps the release description, in English only.
+        # Without a notes file the beta keeps the release description, in English only, as plain paragraphs like
+        # the notes: release_notes.py refuses bullets and drops none of the text.
         self.assertIn("localized_notes=null", run)
-        self.assertIn('"${RELEASE_DESCRIPTION:-$RELEASE_TITLE}"', run)
+        self.assertIn('notes="$(printf \'%s\' "$RELEASE_DESCRIPTION" | python3 "./actions-tool/release_notes.py" '
+                      'description altstore)"', run)
+        self.assertIn('notes="$RELEASE_TITLE"', run)
+
+    def test_the_description_is_checked_before_the_build_and_bulleted_only_on_github(self):
+        beta = load(WORKFLOWS / "deploy-beta.yml")
+        self.assertLess(step_index(beta, "Check the release description"), step_index(beta, "Xcode archive"))
+        check = step_named(beta, "Check the release description")
+        self.assertEqual(check["env"], {"RELEASE_DESCRIPTION": "${{ inputs.releaseDescription }}"})
+        self.assertIn('description altstore > /dev/null', check["run"])
+        body = step_named(beta, "Write the release body")
+        self.assertLess(step_index(beta, "Write the release body"), step_index(beta, "Release to GitHub"))
+        self.assertIn('description github > "$body_path"', body["run"])
+        release = step_named(beta, "Release to GitHub")["with"]
+        self.assertEqual(release["body_path"], "${{ env.BETA_RELEASE_BODY_PATH }}")
+        self.assertNotIn("body", release)
 
     def test_every_beta_takes_its_metadata_from_the_template_and_only_keeps_the_published_versions(self):
         step, env = self.update_step()
