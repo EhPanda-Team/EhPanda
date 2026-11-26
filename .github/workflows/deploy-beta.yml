@@ -67,8 +67,13 @@ jobs:
           fi
       # On a branch ref this checks out the dispatched branch itself, at the commit the run was dispatched for,
       # not a detached sha. The push of AltStoreBeta.json later only needs that commit's parent on the remote.
+      # Develop's rule, like main's, lets only admins and deploy keys past (owner decision, 2026-11-26), so the
+      # checkout carries the repository's deploy key and the source commit is pushed with it. The key could push to
+      # main too: the guard above, which stops a run on main before this step, is what keeps a beta off main.
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
       - name: Modify git config
         run: |
           git config user.name "github-actions[bot]"

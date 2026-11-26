@@ -279,6 +279,15 @@ class BetaWorkflowTests(unittest.TestCase):
         self.assertNotIn("altstore-beta branch", run)
         self.assertNotIn("ls-remote", run)
 
+    def test_the_beta_source_is_pushed_with_the_deploy_key(self):
+        # Develop's rule lets only admins and deploy keys past (owner decision, 2026-11-26), so the checkout carries
+        # the repository's deploy key and AltStoreBeta.json is pushed with it, to the dispatched branch only.
+        beta = load(WORKFLOWS / "deploy-beta.yml")
+        self.assertEqual(step_named(beta, "Checkout")["with"], {"ssh-key": "${{ secrets.DEPLOY_KEY }}"})
+        self.assertLess(step_index(beta, "Refuse to run on main"), step_index(beta, "Checkout"))
+        run = step_named(beta, "Update AltStoreBeta.json on the dispatched branch")["run"]
+        self.assertIn('git push origin "HEAD:refs/heads/$BETA_BRANCH"', run)
+
     def test_the_beta_workflow_has_no_orphan_branch_left(self):
         text = (WORKFLOWS / "deploy-beta.yml").read_text(encoding="utf-8")
         for gone in ("BETA_SOURCE_BRANCH", "git worktree", "switch --orphan", "ls-remote", "altstore-beta/altstore-beta.json"):
