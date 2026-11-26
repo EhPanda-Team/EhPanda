@@ -11,7 +11,7 @@
 #       MARKETPLACE_EXPORT_OPTIONS and MARKETPLACE_KEYCHAIN
 #   marketplace-signing.sh teardown-signing
 #       deletes the keychain (restoring the search list), the installed profiles and every file setup wrote, and
-#       keeps the API key for the App Store Connect calls after the upload; never fails
+#       keeps the API key for the upload and the App Store Connect calls after it; never fails
 #   marketplace-signing.sh teardown
 #       does what teardown-signing does and deletes the API key too: every file the other commands wrote; never fails
 #   marketplace-signing.sh xcconfig-only <out> <team> <app profile> <share extension profile>
@@ -246,7 +246,7 @@ teardown_signing() {
   local dir
   dir="$(work_dir 2>/dev/null)" || exit 0
   remove_signing "$dir"
-  echo "Signing material removed; the App Store Connect API key stays for the calls after the upload."
+  echo "Signing material removed; the App Store Connect API key stays for the upload and the calls after it."
   exit 0
 }
 

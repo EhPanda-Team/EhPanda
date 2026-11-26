@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  Export options for the AltStore PAL upload (the AltStorePAL job of marketplace-upload.yml, Phase 20 plan 20-04).
+  Export options for the AltStore PAL .ipa (the AltStorePAL job of marketplace-upload.yml, Phase 20 plan 20-04).
   A template: actions-tool/marketplace-signing.sh copies it for each run and fills teamID and
   provisioningProfiles (bundle ID to profile name) from the run's secrets, so neither is committed.
+  destination export: xcodebuild only signs and writes the .ipa, with no API key; actions-tool/asc.py uploads it
+  through the Build Upload API (owner decisions, 2026-11-26).
   The build number stays the project's (manageAppVersionAndBuildNumber false): the PAL upload carries
   the Classic release's version and build number (D-26).
 -->
 <plist version="1.0">
 <dict>
 	<key>destination</key>
-	<string>upload</string>
+	<string>export</string>
 	<key>manageAppVersionAndBuildNumber</key>
 	<false/>
 	<key>method</key>

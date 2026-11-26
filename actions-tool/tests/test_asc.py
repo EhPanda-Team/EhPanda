@@ -1,13 +1,16 @@
 """The App Store Connect client (`asc.py`) against a local fake server (Phase 20 plan 20-04; D-07, D-21).
 
-Nothing here reaches Apple: the client runs with its base URL pointed at an `http.server` on 127.0.0.1 and a
-P-256 key made for the test. The tests check the token, the requests and bodies of each command (App Store
-Connect OpenAPI 4.6), the endpoint allow-list, and that neither the key nor a token ever reaches the logs or the call
-record. Since 2026-11-26 (owner decisions) it submits again: after the upload it waits for the build, creates or
-reuses the version, attaches the build and submits it.
+Nothing here reaches Apple: the client runs with its base URL pointed at an `http.server` on 127.0.0.1, the upload's
+parts go to a second one standing in for Apple's storage URLs, and a P-256 key made for the test signs individual-key
+tokens. The tests check the token, the requests and bodies of each command (App Store Connect OpenAPI 4.6), the
+upload's parts and checksums, the endpoint allow-list, and that neither the key nor a token ever reaches the logs or
+the call record. Since 2026-11-26 (owner decisions) it submits again: after the upload it waits for the build, creates
+or reuses the version, attaches the build and submits it. Since 2026-11-26 the build goes up through the Build Upload
+API with an individual key (owner decisions).
 """
 
 import base64
+import hashlib
 import http.server
 import json
 import os
@@ -30,7 +33,6 @@ import release_notes  # noqa: E402
 
 OPENSSL = shutil.which("openssl")
 KEY_ID = "FAKEKEY123"
-ISSUER_ID = "00000000-0000-4000-8000-000000000000"
 APP_ID = "1234567890"
 NOTES = TOOLS / "tests" / "fixtures" / "release-notes" / "9.9.9.md"
 
@@ -108,6 +110,50 @@ class FakeASC:
         self.server.server_close()
 
 
+class FakeStorage:
+    """A local stand-in for the storage URLs App Store Connect hands out for an upload. `replies` maps a path to a
+    list of statuses; each call takes the first and the last one repeats (200 when none). Every request is kept in
+    `requests` with its method, path, query, headers (as received, in order) and body."""
+
+    def __init__(self):
+        self.replies = {}
+        self.requests = []
+        storage = self
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def handle_any(self):
+                parsed = urllib.parse.urlsplit(self.path)
+                length = int(self.headers.get("Content-Length") or 0)
+                raw = self.rfile.read(length) if length else b""
+                storage.requests.append({
+                    "method": self.command,
+                    "path": parsed.path,
+                    "query": urllib.parse.parse_qs(parsed.query),
+                    "headers": list(self.headers.items()),
+                    "body": raw,
+                })
+                replies = storage.replies.get(parsed.path)
+                status = 200 if not replies else replies[0] if len(replies) == 1 else replies.pop(0)
+                self.send_response(status)
+                self.send_header("ETag", f'"{hashlib.md5(raw).hexdigest()}"')
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+
+            do_PUT = do_GET = do_POST = do_PATCH = do_DELETE = handle_any
+
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        self.base_url = f"http://127.0.0.1:{self.server.server_address[1]}"
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+
 def build(build_id, number, state):
     return {"type": "builds", "id": build_id, "attributes": {"version": number, "processingState": state}}
 
@@ -123,6 +169,21 @@ def localization(localization_id, locale):
             "attributes": {"locale": locale, "whatsNew": None}}
 
 
+def operation(storage, number, offset, length):
+    return {"method": "PUT",
+            "url": f"{storage.base_url}/upload/part-{number}?X-Signature=secret-sig-{number}&X-Expires=600",
+            "offset": offset, "length": length, "partNumber": number,
+            "requestHeaders": [{"name": "Content-Type", "value": "application/octet-stream"},
+                               {"name": "x-apple-part", "value": str(number)}],
+            "entityTag": None, "expiration": "2026-11-27T00:00:00Z"}
+
+
+def upload_state(state, errors=(), warnings=()):
+    return {"data": {"type": "buildUploads", "id": "u-1",
+                     "attributes": {"state": {"state": state, "errors": list(errors), "warnings": list(warnings),
+                                              "infos": []}}}}
+
+
 @unittest.skipUnless(OPENSSL, "openssl is not installed")
 class TokenTests(unittest.TestCase):
     @classmethod
@@ -135,15 +196,13 @@ class TokenTests(unittest.TestCase):
         cls.tmp.cleanup()
 
     def test_the_token_verifies_with_openssl(self):
-        token = asc.make_token(KEY_ID, ISSUER_ID, str(self.key), now=1_800_000_000)
+        token = asc.make_token(KEY_ID, str(self.key), now=1_800_000_000)
         header_b64, claims_b64, signature_b64 = token.split(".")
         header = json.loads(b64url_decode(header_b64))
         claims = json.loads(b64url_decode(claims_b64))
         self.assertEqual(header, {"alg": "ES256", "kid": KEY_ID, "typ": "JWT"})
-        self.assertEqual(claims["iss"], ISSUER_ID)
-        self.assertEqual(claims["aud"], "appstoreconnect-v1")
-        self.assertEqual(claims["iat"], 1_800_000_000)
-        self.assertEqual(claims["exp"] - claims["iat"], 1200)
+        self.assertEqual(claims, {"sub": "user", "iat": 1_800_000_000, "exp": 1_800_001_200,
+                                  "aud": "appstoreconnect-v1"})
 
         raw = b64url_decode(signature_b64)
         self.assertEqual(len(raw), 64)
@@ -160,9 +219,9 @@ class TokenTests(unittest.TestCase):
         self.assertIn("Verified OK", result.stdout)
 
     def test_a_tampered_token_does_not_verify(self):
-        token = asc.make_token(KEY_ID, ISSUER_ID, str(self.key), now=1_800_000_000)
+        token = asc.make_token(KEY_ID, str(self.key), now=1_800_000_000)
         header_b64, _, signature_b64 = token.split(".")
-        other = base64.urlsafe_b64encode(json.dumps({"iss": "someone-else"}).encode()).rstrip(b"=").decode()
+        other = base64.urlsafe_b64encode(json.dumps({"sub": "someone-else"}).encode()).rstrip(b"=").decode()
         directory = pathlib.Path(self.tmp.name)
         (directory / "signature.der").write_bytes(der_from_raw(b64url_decode(signature_b64)))
         (directory / "input").write_bytes(f"{header_b64}.{other}".encode())
@@ -191,6 +250,10 @@ class AllowListTests(unittest.TestCase):
     def test_the_allow_list_is_exactly_what_the_commands_call(self):
         self.assertEqual(asc.ALLOWED, [
             ("GET", r"^/v1/builds$"),
+            ("POST", r"^/v1/buildUploads$"),
+            ("POST", r"^/v1/buildUploadFiles$"),
+            ("PATCH", r"^/v1/buildUploadFiles/[A-Za-z0-9-]+$"),
+            ("GET", r"^/v1/buildUploads/[A-Za-z0-9-]+$"),
             ("GET", r"^/v1/apps/[0-9]+/appStoreVersions$"),
             ("POST", r"^/v1/appStoreVersions$"),
             ("GET", r"^/v1/appStoreVersions/[A-Za-z0-9-]+/appStoreVersionLocalizations$"),
@@ -224,7 +287,9 @@ class AllowListTests(unittest.TestCase):
         self.assertFalse(asc.allowed("DELETE", "/v1/appStoreVersions/1"))
 
     def test_the_paths_the_client_uses_are_allowed(self):
-        for method, path in (("GET", "/v1/builds"), ("GET", "/v1/apps/1/appStoreVersions"),
+        for method, path in (("GET", "/v1/builds"), ("POST", "/v1/buildUploads"),
+                             ("POST", "/v1/buildUploadFiles"), ("PATCH", "/v1/buildUploadFiles/f-1"),
+                             ("GET", "/v1/buildUploads/u-1"), ("GET", "/v1/apps/1/appStoreVersions"),
                              ("POST", "/v1/appStoreVersions"),
                              ("GET", "/v1/appStoreVersions/v-1/appStoreVersionLocalizations"),
                              ("PATCH", "/v1/appStoreVersionLocalizations/l-1"),
@@ -249,13 +314,18 @@ class AllowListTests(unittest.TestCase):
                              ("POST", "/v1/appStoreVersionLocalizations"),
                              ("GET", "/v1/appStoreVersionLocalizations/l-1"),
                              ("DELETE", "/v1/appStoreVersionLocalizations/l-1"),
-                             ("PATCH", "/v1/appStoreVersionLocalizations/l-1/appScreenshotSets")):
+                             ("PATCH", "/v1/appStoreVersionLocalizations/l-1/appScreenshotSets"),
+                             ("GET", "/v1/buildUploads"), ("PATCH", "/v1/buildUploads/u-1"),
+                             ("DELETE", "/v1/buildUploads/u-1"), ("GET", "/v1/buildUploadFiles/f-1"),
+                             ("DELETE", "/v1/buildUploadFiles/f-1"), ("GET", "/v1/apps/1/buildUploads"),
+                             ("POST", "/v1/buildUploads/u-1/buildUploadFiles"),
+                             ("PATCH", "/v1/buildUploadFiles/f-1?x=1"), ("GET", "/v1/buildUploads/u/1")):
             with self.subTest(method=method, path=path):
                 self.assertFalse(asc.allowed(method, path))
 
     def test_the_commands_are_the_build_check_and_the_submission(self):
-        self.assertEqual(set(asc.COMMANDS), {"check-build", "wait-build", "ensure-version", "whats-new",
-                                                  "attach-build", "submit"})
+        self.assertEqual(set(asc.COMMANDS), {"check-build", "upload", "wait-build", "ensure-version",
+                                             "whats-new", "attach-build", "submit"})
         result = subprocess.run([sys.executable, str(ASC), "adp-id"], capture_output=True, text=True, timeout=60)
         self.assertEqual(result.returncode, 2)
         self.assertIn("invalid choice", result.stderr)
@@ -290,6 +360,29 @@ class AllowListTests(unittest.TestCase):
         asc.Client("http://127.0.0.1:8080", token=lambda: "", key_id="", record=None, log=lambda line: None)
 
 
+class UploadUrlTests(unittest.TestCase):
+    def test_parts_go_over_https_and_http_only_to_a_local_fake(self):
+        self.assertEqual(asc.check_part_url("https://storage.example.com/a/b?X-Signature=secret-sig#f", False),
+                         "https://storage.example.com/a/b")
+        self.assertEqual(asc.check_part_url("http://127.0.0.1:9/p?X-Signature=secret-sig", True),
+                         "http://127.0.0.1:9/p")
+        for url, local in (("http://127.0.0.1:9/p?X-Signature=secret-sig", False),
+                           ("http://storage.example.com/p?X-Signature=secret-sig", True),
+                           ("ftp://storage.example.com/p?X-Signature=secret-sig", True),
+                           ("https://user:pw@storage.example.com/p?X-Signature=secret-sig", False),
+                           ("https:///p?X-Signature=secret-sig", False),
+                           ("//storage.example.com/p?X-Signature=secret-sig", False),
+                           ("https://storage.example.com:99999/p?X-Signature=secret-sig", False),
+                           (None, False)):
+            with self.subTest(url=url, local=local):
+                with self.assertRaises(asc.AscError) as raised:
+                    asc.check_part_url(url, local)
+                message = str(raised.exception)
+                self.assertTrue(message.endswith("Nothing was uploaded."), message)
+                self.assertNotIn("secret-sig", message)
+                self.assertNotIn("pw", message)
+
+
 @unittest.skipUnless(OPENSSL, "openssl is not installed")
 class CommandTests(unittest.TestCase):
     def setUp(self):
@@ -299,26 +392,40 @@ class CommandTests(unittest.TestCase):
         self.record = pathlib.Path(self.tmp.name) / "calls.jsonl"
         self.fake = FakeASC()
         self.addCleanup(self.fake.close)
+        self.storage = FakeStorage()
+        self.addCleanup(self.storage.close)
+        self.ipa = pathlib.Path(self.tmp.name) / "EhPanda.ipa"
         self.addCleanup(self.check_requests_were_allowed)
         self.addCleanup(self.check_every_call_was_recorded)
 
     def reset_calls(self):
         self.fake.requests.clear()
+        self.storage.requests.clear()
         self.record.unlink(missing_ok=True)
 
     def check_every_call_was_recorded(self):
         lines = self.record.read_text(encoding="utf-8").splitlines() if self.record.exists() else []
-        recorded = [(entry["method"], entry["path"]) for entry in map(json.loads, lines)]
+        entries = [json.loads(line) for line in lines]
+        recorded = [(entry["method"], entry["path"]) for entry in entries if "path" in entry]
         self.assertEqual(recorded, [(request["method"], request["path"]) for request in self.fake.requests])
+        parts = [(entry["method"], entry["url"]) for entry in entries if "url" in entry]
+        self.assertEqual(parts, [(request["method"], self.storage.base_url + request["path"])
+                                 for request in self.storage.requests])
 
     def check_requests_were_allowed(self):
         for request in self.fake.requests:
             self.assertTrue(asc.allowed(request["method"], request["path"]), request)
             self.assertRegex(request["authorization"], r"^Bearer [\w-]+\.[\w-]+\.[\w-]+$")
+            claims = json.loads(b64url_decode(request["authorization"].split(".")[1]))
+            self.assertEqual(set(claims), {"sub", "iat", "exp", "aud"})
+            self.assertEqual(claims["sub"], "user")
+        for request in self.storage.requests:
+            self.assertNotIn("authorization", [name.lower() for name, _ in request["headers"]], request)
 
     def run_asc(self, *args):
-        env = {key: value for key, value in os.environ.items() if not key.startswith("ASC_")}
-        env.update({"ASC_BASE_URL": self.fake.base_url, "APP_STORE_CONNECT_KEY_ID": KEY_ID, "APP_STORE_CONNECT_ISSUER_ID": ISSUER_ID,
+        env = {key: value for key, value in os.environ.items()
+               if not key.startswith(("ASC_", "APP_STORE_CONNECT_"))}
+        env.update({"ASC_BASE_URL": self.fake.base_url, "APP_STORE_CONNECT_KEY_ID": KEY_ID,
                     "ASC_KEY_PATH": str(self.key), "ASC_CALL_RECORD": str(self.record)})
         result = subprocess.run([sys.executable, str(ASC), *args], capture_output=True, text=True, env=env,
                                 timeout=60)
@@ -397,6 +504,131 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("403", result.stderr)
         self.assertIn("The API key in use does not allow this request.", result.stderr)
+
+    # upload
+
+    CONTENT = bytes(range(256)) * 10 + b"end"
+
+    def upload_routes(self, content, part_size, ops=None):
+        self.ipa.write_bytes(content)
+        if ops is None:
+            ops = [operation(self.storage, number, offset, min(part_size, len(content) - offset))
+                   for number, offset in enumerate(range(0, len(content), part_size), start=1)]
+        self.fake.routes.update({
+            ("POST", "/v1/buildUploads"): [(201, {"data": {"type": "buildUploads", "id": "u-1"}})],
+            ("POST", "/v1/buildUploadFiles"): [
+                (201, {"data": {"type": "buildUploadFiles", "id": "f-1", "attributes": {"uploadOperations": ops}}})],
+            ("PATCH", "/v1/buildUploadFiles/f-1"): [(200, {"data": {"type": "buildUploadFiles", "id": "f-1"}})],
+            ("GET", "/v1/buildUploads/u-1"): [(200, upload_state("COMPLETE"))],
+        })
+        return ops
+
+    def run_upload(self, *extra):
+        return self.run_asc("upload", "--app", APP_ID, "--version", "3.0.0", "--build", "159", "--ipa", str(self.ipa),
+                            *extra)
+
+    def test_upload_sends_each_part_to_its_url_and_reports_the_checksums(self):
+        content = self.CONTENT
+        self.upload_routes(content, 1024)
+        self.fake.routes[("GET", "/v1/buildUploads/u-1")] = [(200, upload_state("PROCESSING")),
+                                                             (200, upload_state("COMPLETE"))]
+        result = self.run_upload("--interval", "0")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.strip(), "u-1")
+        self.assertEqual([(r["method"], r["path"]) for r in self.calls()], [
+            ("POST", "/v1/buildUploads"), ("POST", "/v1/buildUploadFiles"), ("PATCH", "/v1/buildUploadFiles/f-1"),
+            ("GET", "/v1/buildUploads/u-1"), ("GET", "/v1/buildUploads/u-1")])
+        posts = self.calls("POST")
+        self.assertEqual(posts[0]["body"], {"data": {
+            "type": "buildUploads",
+            "attributes": {"cfBundleShortVersionString": "3.0.0", "cfBundleVersion": "159", "platform": "IOS"},
+            "relationships": {"app": {"data": {"type": "apps", "id": APP_ID}}}}})
+        self.assertEqual(posts[1]["body"], {"data": {
+            "type": "buildUploadFiles",
+            "attributes": {"assetType": "ASSET", "fileName": "EhPanda.ipa", "fileSize": 2563,
+                           "uti": "com.apple.ipa"},
+            "relationships": {"buildUpload": {"data": {"type": "buildUploads", "id": "u-1"}}}}})
+        puts = self.storage.requests
+        self.assertEqual([(r["method"], r["path"]) for r in puts], [("PUT", f"/upload/part-{n}") for n in (1, 2, 3)])
+        ranges = (content[0:1024], content[1024:2048], content[2048:])
+        for number, (request, body) in enumerate(zip(puts, ranges), start=1):
+            with self.subTest(part=number):
+                self.assertEqual(request["query"]["X-Signature"], [f"secret-sig-{number}"])
+                self.assertEqual(request["body"], body)
+                headers = {name.lower(): value for name, value in request["headers"]}
+                self.assertEqual(set(headers), {"host", "content-length", "content-type", "x-apple-part"})
+                self.assertEqual(headers["content-type"], "application/octet-stream")
+                self.assertEqual(headers["x-apple-part"], str(number))
+                self.assertEqual(headers["content-length"], str(len(body)))
+        digests = b"".join(hashlib.md5(body).digest() for body in ranges)
+        self.assertEqual(self.calls("PATCH")[0]["body"], {"data": {
+            "type": "buildUploadFiles", "id": "f-1", "attributes": {
+                "uploaded": True,
+                "sourceFileChecksums": {
+                    "file": {"algorithm": "MD5", "hash": hashlib.md5(content).hexdigest()},
+                    "composite": {"algorithm": "MD5", "hash": f"{hashlib.md5(digests).hexdigest()}-3-1024"}}}}})
+        lines = [json.loads(line) for line in self.record.read_text(encoding="utf-8").splitlines()]
+        self.assertEqual([line["method"] for line in lines],
+                         ["POST", "POST", "PUT", "PUT", "PUT", "PATCH", "GET", "GET"])
+
+    def test_a_file_in_one_part_has_its_whole_size_in_the_composite(self):
+        content = b"single part" * 100
+        self.upload_routes(content, 4096)
+        result = self.run_upload("--interval", "0")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        checksums = self.calls("PATCH")[0]["body"]["data"]["attributes"]["sourceFileChecksums"]
+        self.assertEqual(checksums["composite"]["hash"],
+                         f"{hashlib.md5(hashlib.md5(content).digest()).hexdigest()}-1-1100")
+        self.assertEqual(checksums["file"]["hash"], hashlib.md5(content).hexdigest())
+
+    def test_a_failed_upload_lists_every_error_and_warning_apple_gives(self):
+        self.upload_routes(self.CONTENT, 1024)
+        self.fake.routes[("GET", "/v1/buildUploads/u-1")] = [(200, upload_state(
+            "FAILED",
+            errors=[{"code": "ASSET_DESCRIPTION_MISSING", "description": "The asset description is missing."}],
+            warnings=[{"code": "SYMBOLS_MISSING", "description": "Some symbols are missing."}]))]
+        result = self.run_upload("--interval", "0")
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stdout, "")
+        for needle in ("ASSET_DESCRIPTION_MISSING", "The asset description is missing.", "SYMBOLS_MISSING",
+                       "Some symbols are missing."):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, result.stderr)
+
+    def test_upload_times_out_with_the_last_state(self):
+        self.upload_routes(self.CONTENT, 1024)
+        self.fake.routes[("GET", "/v1/buildUploads/u-1")] = [(200, upload_state("PROCESSING"))]
+        result = self.run_upload("--interval", "0.05", "--timeout", "0.3")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("timed out", result.stderr)
+        self.assertIn("PROCESSING", result.stderr)
+
+    def test_an_upload_url_without_https_is_refused_before_any_byte(self):
+        refused = operation(self.storage, 1, 0, 2563)
+        refused["url"] = "http://storage.example.com/upload/part-1?X-Signature=secret-sig-1"
+        self.upload_routes(self.CONTENT, 1024, ops=[refused])
+        result = self.run_upload("--interval", "0")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("https", result.stderr)
+        self.assertNotIn("secret-sig", result.stderr)
+        self.assertEqual(self.storage.requests, [])
+        self.assertEqual(self.calls("PATCH"), [])
+
+    def test_a_part_the_storage_refuses_stops_the_upload_before_it_is_marked_uploaded(self):
+        self.upload_routes(self.CONTENT, 1024)
+        self.storage.replies["/upload/part-2"] = [403]
+        result = self.run_upload("--interval", "0")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("403", result.stderr)
+        self.assertNotIn("secret-sig", result.stderr)
+        self.assertEqual([r["path"] for r in self.storage.requests], ["/upload/part-1", "/upload/part-2"])
+        self.assertEqual(self.calls("PATCH"), [])
+        self.assertNotIn("/v1/buildUploads/u-1", [r["path"] for r in self.calls("GET")])
+
+    def test_a_missing_ipa_fails_before_any_request(self):
+        result = self.run_upload("--interval", "0")
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(self.fake.requests, [])
 
     # ensure-version
 
@@ -609,6 +841,7 @@ class CommandTests(unittest.TestCase):
     # the call record (D-21) and the logs
 
     def run_whole_sequence(self):
+        self.upload_routes(bytes(range(256)) * 6, 1024)
         self.fake.routes.update({
             ("GET", "/v1/builds"): [(200, {"data": []}), (200, {"data": [build("b-1", "159", "VALID")]})],
             ("GET", f"/v1/apps/{APP_ID}/appStoreVersions"): [(200, {"data": []})],
@@ -623,6 +856,8 @@ class CommandTests(unittest.TestCase):
             ("PATCH", "/v1/reviewSubmissions/s-1"): [(200, {"data": self.submission("s-1", "WAITING_FOR_REVIEW")})],
         })
         for args in (("check-build", "--app", APP_ID, "--version", "3.0.0", "--build", "159"),
+                     ("upload", "--app", APP_ID, "--version", "3.0.0", "--build", "159", "--ipa", str(self.ipa),
+                      "--interval", "0"),
                      ("wait-build", "--app", APP_ID, "--version", "3.0.0", "--build", "159", "--interval", "0"),
                      ("ensure-version", "--app", APP_ID, "--version", "3.0.0"),
                      ("whats-new", "--version-id", "v-1", "--notes", str(NOTES)),
@@ -633,14 +868,24 @@ class CommandTests(unittest.TestCase):
 
     def test_the_call_record_has_one_line_per_call_and_only_the_allowed_fields(self):
         self.run_whole_sequence()
-        lines = [json.loads(line) for line in self.record.read_text(encoding="utf-8").splitlines()]
-        self.assertEqual(len(lines), len(self.fake.requests))
-        for line, request in zip(lines, self.fake.requests):
+        text = self.record.read_text(encoding="utf-8")
+        lines = [json.loads(line) for line in text.splitlines()]
+        self.assertEqual(len(lines), len(self.fake.requests) + len(self.storage.requests))
+        asc_lines = [line for line in lines if "path" in line]
+        part_lines = [line for line in lines if "url" in line]
+        self.assertEqual(len(asc_lines) + len(part_lines), len(lines))
+        for line, request in zip(asc_lines, self.fake.requests):
             with self.subTest(line=line):
                 self.assertEqual(set(line), {"method", "path", "status", "keyID"})
                 self.assertEqual((line["method"], line["path"]), (request["method"], request["path"]))
                 self.assertEqual(line["keyID"], KEY_ID)
-        self.assertEqual([line["status"] for line in lines], [200, 200, 200, 201, 200, 200, 204, 200, 201, 201, 200])
+        for line in part_lines:
+            with self.subTest(line=line):
+                self.assertEqual(set(line), {"method", "url", "status", "part"})
+                self.assertEqual(line["method"], "PUT")
+        self.assertNotIn("?", text)
+        self.assertEqual([line["status"] for line in lines],
+                         [200, 201, 201, 200, 200, 200, 200, 200, 200, 201, 200, 200, 204, 200, 201, 201, 200])
 
     def test_every_call_is_logged_with_method_path_status_and_key(self):
         self.run_whole_sequence()
@@ -648,6 +893,10 @@ class CommandTests(unittest.TestCase):
             with self.subTest(request=request["path"]):
                 self.assertRegex(self.outputs, rf"(?m)ASC {request['method']} {re.escape(request['path'])} \d{{3}} "
                                                rf"key={KEY_ID}$")
+        for request in self.storage.requests:
+            with self.subTest(part=request["path"]):
+                self.assertRegex(self.outputs, rf"(?m)^UPLOAD PUT {re.escape(self.storage.base_url + request['path'])}"
+                                               rf" 200 part=\d+$")
 
     def test_neither_the_key_nor_a_token_reaches_the_logs_or_the_record(self):
         self.run_whole_sequence()
@@ -667,14 +916,17 @@ class CommandTests(unittest.TestCase):
                     self.assertNotIn(line, haystack)
             self.assertNotIn("Bearer", haystack)
             self.assertNotIn("PRIVATE KEY", haystack)
+            self.assertNotIn("secret-sig", haystack)
+            self.assertNotIn("X-Signature", haystack)
 
     def test_missing_credentials_fail_before_any_request(self):
-        env = {key: value for key, value in os.environ.items() if not key.startswith("ASC_")}
+        env = {key: value for key, value in os.environ.items()
+               if not key.startswith(("ASC_", "APP_STORE_CONNECT_"))}
         env["ASC_BASE_URL"] = self.fake.base_url
         result = subprocess.run([sys.executable, str(ASC), "check-build", "--app", APP_ID, "--version", "3.0.0",
                                  "--build", "159"], capture_output=True, text=True, env=env, timeout=60)
         self.assertEqual(result.returncode, 1)
-        self.assertIn("APP_STORE_CONNECT_KEY_ID", result.stderr)
+        self.assertIn("Missing environment: APP_STORE_CONNECT_KEY_ID, ASC_KEY_PATH.", result.stderr)
         self.assertEqual(self.fake.requests, [])
 
 

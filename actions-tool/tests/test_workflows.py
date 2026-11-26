@@ -11,6 +11,7 @@ import ast
 import json
 import os
 import pathlib
+import plistlib
 import re
 import shutil
 import subprocess
@@ -438,9 +439,12 @@ class ReleasesDoNotTestTests(unittest.TestCase):
                          {"push": {"branches": ["**"]}, "workflow_dispatch": None})
 
 
-PAL_SECRETS = ["APP_STORE_CONNECT_KEY_ID", "APP_STORE_CONNECT_ISSUER_ID", "APP_STORE_CONNECT_PRIVATE_KEY", "DISTRIBUTION_CERTIFICATE", "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP",
-               "PROVISIONING_PROFILE_SHARE_EXTENSION", "APPLE_TEAM_ID"]
+PAL_SECRETS = ["APP_STORE_CONNECT_KEY_ID", "APP_STORE_CONNECT_PRIVATE_KEY", "DISTRIBUTION_CERTIFICATE",
+               "DISTRIBUTION_CERTIFICATE_PASSWORD", "PROVISIONING_PROFILE_APP", "PROVISIONING_PROFILE_SHARE_EXTENSION",
+               "APPLE_TEAM_ID"]
 PAL_VARIABLES = ["ALTSTORE_PAL_MARKETPLACE_ID"]
+# The repository secrets the archive and the dSYM upload read (deploy.yml passes them with `secrets: inherit`).
+PAL_REPOSITORY_SECRETS = ["TELEMETRYDECK_APP_ID", "TELEMETRYDECK_SALT", "SENTRY_DSN", "SENTRY_AUTH_TOKEN"]
 PAL_UPLOAD_STEPS = [
     "Checkout",
     "Read the version",
@@ -456,8 +460,9 @@ PAL_UPLOAD_STEPS = [
     "Verify marketplace build",
     "Upload dSYMs",
     "Keep the dSYMs",
-    "Export and upload",
+    "Export .ipa file",
     "Tear down signing",
+    "Upload to App Store Connect",
     "Wait for the build",
     "Ensure the notarization version",
     "Fill What's New",
@@ -483,8 +488,9 @@ PAL_SUBMIT_INPUT = {"description": "Submit the uploaded build for notarization",
 @unittest.skipUnless(RUBY, "ruby is not installed")
 class PalUploadJobTests(unittest.TestCase):
     """marketplace-upload.yml's `AltStorePAL` job (20-04, amended 2026-11-21, 2026-11-25 and 2026-11-26; D-07, D-21,
-    D-26): it archives the marketplace build on its own, verifies and uploads it, and with `submit` on submits it for
-    notarization in the same job (owner decisions, 2026-11-26). deploy.yml calls it after each release with `submit`
+    D-26): it archives the marketplace build on its own, verifies it, exports the .ipa and uploads it through the Build
+    Upload API with the owner's individual key, and with `submit` on submits it for notarization in the same job
+    (owner decisions, 2026-11-26). deploy.yml calls it after each release with `submit`
     on; a hand dispatch submits only when asked."""
 
     @classmethod
@@ -547,7 +553,8 @@ class PalUploadJobTests(unittest.TestCase):
                        'echo "version=', "GITHUB_OUTPUT"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, run)
-        for name in ("Check build number", "Verify marketplace build", "Export and upload", "Wait for the build",
+        for name in ("Check build number", "Verify marketplace build", "Upload to App Store Connect",
+                     "Wait for the build",
                      "Ensure the notarization version", "Submit for notarization", "Check the release notes",
                      "Fill What's New"):
             with self.subTest(step=name):
@@ -601,15 +608,47 @@ class PalUploadJobTests(unittest.TestCase):
                        "CFBundleShortVersionString", "get-task-allow", "check-build-number.sh"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, run)
-        self.assertLess(step_index(self.job, "Verify marketplace build"), step_index(self.job, "Export and upload"))
+        self.assertLess(step_index(self.job, "Verify marketplace build"), step_index(self.job, "Export .ipa file"))
 
-    def test_the_upload_uses_the_export_options_and_the_api_key(self):
-        run = self.run_text("Export and upload")
-        self.assertIn("xcodebuild -exportArchive", run)
-        self.assertIn('-exportOptionsPlist "$MARKETPLACE_EXPORT_OPTIONS"', run)
-        for flag in ("-authenticationKeyPath", "-authenticationKeyID", "-authenticationKeyIssuerID"):
-            with self.subTest(flag=flag):
-                self.assertIn(flag, run)
+    def test_the_export_only_signs_and_writes_the_ipa(self):
+        self.assertNotIn("env", step_named(self.job, "Export .ipa file"))
+        run = self.run_text("Export .ipa file")
+        for needle in ("xcodebuild -exportArchive", '-archivePath "/tmp/action-builds/EhPanda-AltStorePAL.xcarchive"',
+                       '-exportOptionsPlist "$MARKETPLACE_EXPORT_OPTIONS"',
+                       '-exportPath "/tmp/action-builds/EhPanda-AltStorePAL-export"',
+                       '[[ -f "/tmp/action-builds/EhPanda-AltStorePAL-export/EhPanda.ipa" ]]'):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, run)
+        for word in ("-authentication", "altool"):
+            with self.subTest(word=word):
+                self.assertNotIn(word, run)
+        with open(ROOT / "actions-tool" / "ExportOptions-marketplace.plist", "rb") as handle:
+            options = plistlib.load(handle)
+        self.assertEqual(options, {"destination": "export", "manageAppVersionAndBuildNumber": False,
+                                   "method": "app-store-connect", "provisioningProfiles": {},
+                                   "signingCertificate": "Apple Distribution", "signingStyle": "manual",
+                                   "teamID": "", "uploadSymbols": True})
+
+    def test_the_upload_goes_through_the_build_upload_api_with_the_key(self):
+        upload = step_named(self.job, "Upload to App Store Connect")
+        self.assertNotIn("if", upload)
+        self.assertEqual(upload["env"], {
+            "APP_STORE_CONNECT_KEY_ID": "${{ secrets.APP_STORE_CONNECT_KEY_ID }}",
+            "VERSION": "${{ steps.version.outputs.version }}",
+            "BUILD_NUMBER": "${{ steps.build-number.outputs.build }}",
+            "SUBMIT": "${{ inputs.submit }}",
+        })
+        self.assertIn('upload_id="$(python3 "$ASC_TOOL_PATH" upload --app "$ASC_APP_ID" --version "$VERSION" '
+                      '--build "$BUILD_NUMBER" --ipa "$PAL_EXPORT_PATH/$SCHEME_NAME.ipa" --timeout ',
+                      code(upload["run"]))
+        self.assertEqual(expand("$PAL_EXPORT_PATH/$SCHEME_NAME.ipa", {**self.env, **self.job["env"]}),
+                         "/tmp/action-builds/EhPanda-AltStorePAL-export/EhPanda.ipa")
+        self.assertEqual(step_index(self.job, "Upload to App Store Connect"),
+                         step_index(self.job, "Tear down signing") + 1)
+        run = self.run_text("Upload to App Store Connect")
+        for word in ("xcodebuild", "altool", "-authentication"):
+            with self.subTest(word=word):
+                self.assertNotIn(word, run)
 
     def test_only_the_submission_steps_wait_for_submit(self):
         for step in self.job["steps"]:
@@ -622,25 +661,29 @@ class PalUploadJobTests(unittest.TestCase):
                 else:
                     self.assertNotIn("if", step)
 
-    def test_the_client_calls_are_the_build_check_then_the_submission(self):
+    def test_the_client_calls_are_the_check_the_upload_then_the_submission(self):
         text = "\n".join(self.run_text(step["name"]) for step in self.job["steps"] if "run" in step)
         self.assertEqual(re.findall(r'actions-tool/asc\.py" ([\w-]+)', text),
-                         ["check-build", "wait-build", "ensure-version", "whats-new", "attach-build", "submit"])
+                         ["check-build", "upload", "wait-build", "ensure-version", "whats-new", "attach-build",
+                          "submit"])
         for needle in ("adp-id", "pal_publish.py"):
             with self.subTest(needle=needle):
                 self.assertNotIn(needle, text)
 
-    def test_the_signing_material_is_gone_before_the_wait(self):
+    def test_the_signing_material_is_gone_before_the_upload(self):
         teardown = step_index(self.job, "Tear down signing")
-        self.assertEqual(teardown, step_index(self.job, "Export and upload") + 1)
+        self.assertEqual(teardown, step_index(self.job, "Export .ipa file") + 1)
         self.assertEqual(code(step_named(self.job, "Tear down signing")["run"]).strip(),
                          'bash "$SIGNING_SCRIPT_PATH" teardown-signing')
+        self.assertLess(teardown, step_index(self.job, "Upload to App Store Connect"))
         for name in PAL_SUBMIT_STEPS:
             self.assertLess(teardown, step_index(self.job, name))
         for step in self.job["steps"][teardown + 1:]:
             with self.subTest(step=step.get("name")):
                 for secret in PAL_SIGNING_NAMES:
                     self.assertNotIn(secret, json.dumps(step))
+                secret_names = {name for name, value in step.get("env", {}).items() if "secrets." in str(value)}
+                self.assertLessEqual(secret_names, {"APP_STORE_CONNECT_KEY_ID"})
                 self.assertNotIn("xcodebuild", expand(code(step.get("run", "")),
                                                       {**self.env, **self.job.get("env", {})}))
 
@@ -654,6 +697,10 @@ class PalUploadJobTests(unittest.TestCase):
         # The wait leaves two hours for the build and upload.
         timeout = int(re.search(r"--timeout (\d+)", run).group(1))
         self.assertLessEqual(timeout, (self.job["timeout-minutes"] - 120) * 60)
+        # The upload's wait and the build's wait together leave an hour for the build and the export.
+        upload_run = code(step_named(self.job, "Upload to App Store Connect")["run"])
+        upload_timeout = int(re.search(r"--timeout (\d+)", upload_run).group(1))
+        self.assertLessEqual(upload_timeout + timeout, (self.job["timeout-minutes"] - 60) * 60)
         ensure = step_named(self.job, "Ensure the notarization version")
         self.assertEqual(ensure["id"], "ensure-version")
         self.assertIn('ensure-version --app "$ASC_APP_ID" --version "$VERSION"', code(ensure["run"]))
@@ -672,17 +719,17 @@ class PalUploadJobTests(unittest.TestCase):
             with self.subTest(step=name):
                 env = step_named(self.job, name)["env"]
                 self.assertEqual(env["APP_STORE_CONNECT_KEY_ID"], "${{ secrets.APP_STORE_CONNECT_KEY_ID }}")
-                self.assertEqual(env["APP_STORE_CONNECT_ISSUER_ID"], "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}")
 
     def test_the_summary_says_whether_the_run_submits(self):
-        export = step_named(self.job, "Export and upload")
-        self.assertEqual(export["env"]["SUBMIT"], "${{ inputs.submit }}")
-        self.assertEqual(export["env"]["BUILD_NUMBER"], "${{ steps.build-number.outputs.build }}")
-        run = self.run_text("Export and upload")
-        for needle in ("GITHUB_STEP_SUMMARY", '"$SUBMIT" == "true"', "collaborator", "Publish AltStore PAL"):
+        upload = step_named(self.job, "Upload to App Store Connect")
+        self.assertEqual(upload["env"]["SUBMIT"], "${{ inputs.submit }}")
+        self.assertEqual(upload["env"]["BUILD_NUMBER"], "${{ steps.build-number.outputs.build }}")
+        run = self.run_text("Upload to App Store Connect")
+        for needle in ("GITHUB_STEP_SUMMARY", '"$SUBMIT" == "true"', "collaborator", "Publish AltStore PAL",
+                       "Build upload"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, run)
-        self.assertLess(run.index("xcodebuild -exportArchive"), run.index("GITHUB_STEP_SUMMARY"))
+        self.assertLess(run.index('asc.py" upload'), run.index("GITHUB_STEP_SUMMARY"))
 
     def test_the_call_record_is_kept_even_when_a_step_fails(self):
         upload = step_named(self.job, "Upload the call record")
@@ -742,6 +789,11 @@ class PalUploadJobTests(unittest.TestCase):
             with self.subTest(step=name):
                 self.assertNotIn("secrets.", json.dumps(step_named(self.job, name).get("env", {})))
 
+    def test_the_job_uses_exactly_the_documented_secrets(self):
+        # An individual key (owner decision, 2026-11-26): its ID and its .p8 are the only App Store Connect secrets.
+        self.assertEqual(set(re.findall(r"secrets\.(\w+)", json.dumps(self.job))),
+                         set(PAL_SECRETS) | set(PAL_REPOSITORY_SECRETS))
+
     def test_the_header_lists_every_secret_and_variable(self):
         header = "\n".join(line for line in self.text.splitlines() if line.startswith("#"))
         used = set(re.findall(r"(?:secrets|vars)\.(\w+)", json.dumps(self.job))) - {"GITHUB_TOKEN"}
@@ -750,7 +802,8 @@ class PalUploadJobTests(unittest.TestCase):
                 self.assertIn(name, header)
         self.assertTrue(set(PAL_SECRETS) <= used)
         self.assertTrue(set(PAL_VARIABLES) <= used)
-        for needle in ("app-marketplace", "D-07", "D-21", "D-26", "publish-pal.yml", "submit"):
+        for needle in ("app-marketplace", "D-07", "D-21", "D-26", "publish-pal.yml", "submit", "individual",
+                       "Build Upload API"):
             with self.subTest(needle=needle):
                 self.assertIn(needle, header)
 
@@ -1005,7 +1058,7 @@ class CrashReportingWorkflowTests(unittest.TestCase):
     # it, the dSYMs artifact)
     RELEASES = (
         ("deploy.yml", "Deploy", "ARCHIVE_PATH", "Export .ipa files", "EhPanda-dSYMs"),
-        ("marketplace-upload.yml", "AltStorePAL", "PAL_ARCHIVE_PATH", "Export and upload", "EhPanda-AltStorePAL-dSYMs"),
+        ("marketplace-upload.yml", "AltStorePAL", "PAL_ARCHIVE_PATH", "Export .ipa file", "EhPanda-AltStorePAL-dSYMs"),
         ("deploy-beta.yml", "Deploy", "ARCHIVE_PATH", "Export .ipa file", "EhPanda-Beta-dSYMs"),
     )
     UPLOAD_ENV = {
