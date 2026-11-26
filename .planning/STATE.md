@@ -2280,6 +2280,7 @@ None yet.
 | 261126-dkv | The AltStore PAL CI uses the owner's individual App Store Connect key (sub user, no issuer) and uploads the exported IPA through the Build Upload API with MD5 checksums, resending failed parts (owner decisions 2026-11-26) | 2026-11-26 | 89b65b267 | [261126-dkv-use-an-individual-app-store-connect-api-](./quick/261126-dkv-use-an-individual-app-store-connect-api-/) |
 | 261126-iq9 | Webtoon detection samples the middle pages, toast clears its host's bottom chrome once, About links show the external arrow | 2026-11-26 | ba7f0e1fa | [261126-iq9-fix-the-findings-and-release-a-new-beta-](./quick/261126-iq9-fix-the-findings-and-release-a-new-beta-/) |
 | 261126-pfh | My Tags gains New Tag Set: an alert names the set, the site creates it, the page selects and reads it; needs the owner's device check | 2026-11-26 | 25ec1d42e | [261126-pfh-add-a-new-tag-set-action-to-the-native-m](./quick/261126-pfh-add-a-new-tag-set-action-to-the-native-m/) |
+| 261126-pfr | Native continued-session subtitle: the continued-processing card's six locale values drop the decorative middle dot (written and blind-reviewed per locale); DownloadsFeatureTests literals updated | 2026-11-26 | 38fc3f9b9 | [261126-pfr-native-continued-session-subtitle](./quick/261126-pfr-native-continued-session-subtitle/) |
 
 ### Roadmap Evolution
 
