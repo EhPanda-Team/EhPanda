@@ -225,14 +225,8 @@ struct GeneralSettingView: View {
     @ViewBuilder private var privacyPolicyRow: some View {
         if let url = URL(string: String(localized: .RConstant.contactPrivacyPolicy)) {
             Link(destination: url) {
-                HStack {
-                    Text(.RLocalizable.consentPrivacyLink)
-                    Spacer()
-                    Image(systemSymbol: .arrowUpRight)
-                        .imageScale(.small)
-                        .foregroundStyle(.secondary)
-                        .accessibilityHidden(true)
-                }
+                Text(.RLocalizable.consentPrivacyLink)
+                    .withExternalLinkArrow()
             }
             .foregroundStyle(.primary)
             .accessibilityIdentifier(AccessibilityIdentifiers.settingPrivacyPolicy)

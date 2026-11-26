@@ -46,6 +46,21 @@ extension View {
         }
     }
 
+    /// Ends a row that opens a link outside the app with the arrow that points up and out, drawn as the General
+    /// privacy-policy row has drawn it, so every external link reads the same (A-1, 2026-11-26). A row that pushes a
+    /// page inside the app keeps the chevron of `withArrow(isVisible:)`. The arrow is never announced: the `Link` it
+    /// ends already says it is a link.
+    public func withExternalLinkArrow() -> some View {
+        HStack {
+            self
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Image(systemSymbol: .arrowUpRight)
+                .imageScale(.small)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+        }
+    }
+
     /// Fades the view in or out, and takes it out of the accessibility tree while it is out.
     ///
     /// `opacity(0)` only stops a view being *drawn*. It stays in the layout — usually the whole

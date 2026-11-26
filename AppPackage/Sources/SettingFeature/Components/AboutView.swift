@@ -197,7 +197,7 @@ private struct LinkRow: View {
 
             if let destination {
                 Link(destination: destination) {
-                    title.withArrow()
+                    title.withExternalLinkArrow()
                 }
                 .cellRowHover()
             } else {
