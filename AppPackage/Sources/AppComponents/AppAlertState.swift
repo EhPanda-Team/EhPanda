@@ -121,10 +121,25 @@ public struct AppAlertTextFieldState: Equatable, Hashable, Sendable {
 
     public var placeholder: TextState
     public var keyboard: Keyboard
+    /// Holds every button but the cancel one while the field's text, trimmed of whitespace and newlines, is empty.
+    ///
+    /// For an alert whose action means nothing without a value, such as naming a new tag set (N-3 of quick
+    /// 261126-pfh). A native alert cannot check its own field, and any button closes it: a button the reducer would
+    /// only refuse would close the alert with nothing done and no word why. Off by default, so an alert that takes
+    /// any text keeps every button enabled; the page jump checks its number itself.
+    public var requiresText: Bool
 
-    public init(placeholder: TextState, keyboard: Keyboard = .default) {
+    public init(placeholder: TextState, keyboard: Keyboard = .default, requiresText: Bool = false) {
         self.placeholder = placeholder
         self.keyboard = keyboard
+        self.requiresText = requiresText
+    }
+
+    /// Whether a button of `role` can be tapped while the field holds `text`: always, unless the field
+    /// `requiresText`, which holds every button but Cancel until `text` holds more than whitespace and newlines.
+    public func enablesButton(role: ButtonStateRole?, text: String) -> Bool {
+        guard requiresText, role != .cancel else { return true }
+        return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 
@@ -233,6 +248,7 @@ extension View {
     /// binding it to `text` and auto-focusing it so the keyboard is up the moment the alert appears —
     /// native `.alert` no longer focuses its first field on its own. `text` lives in the host reducer's
     /// state, e.g. `.appAlert($store.scope(state: \.alert, action: \.alert), text: $store.pageIndex)`.
+    /// A field that ``AppAlertTextFieldState/requiresText`` holds every button but Cancel until `text` has some.
     @MainActor
     public func appAlert<Action>(
         _ item: Binding<Store<AppAlertState<Action>, Action>?>,
@@ -248,6 +264,9 @@ private struct AppAlertViewModifier<Action>: ViewModifier {
     @FocusState private var isFieldFocused: Bool
 
     func body(content: Content) -> some View {
+        // Read here, in the modifier's own body, so the field's text is a dependency of this view: each keystroke
+        // renders the alert again, its buttons held or released by the field (`requiresText`).
+        let fieldText = text?.wrappedValue
         content.alert(
             item.map({ Text($0.title) }) ?? Text(verbatim: ""),
             isPresented: Binding($item),
@@ -279,6 +298,7 @@ private struct AppAlertViewModifier<Action>: ViewModifier {
                     } label: {
                         Text(button.label)
                     }
+                    .disabled(!Self.enables(button, field: store.textField, text: fieldText))
                 }
             },
             message: { store in
@@ -287,5 +307,16 @@ private struct AppAlertViewModifier<Action>: ViewModifier {
                 }
             }
         )
+    }
+
+    /// Whether `button` can be tapped while the bound field holds `text`; with no bound field none is shown, and
+    /// nothing is held.
+    private static func enables(
+        _ button: ButtonState<Action>,
+        field: AppAlertTextFieldState?,
+        text: String?
+    ) -> Bool {
+        guard let field, let text else { return true }
+        return field.enablesButton(role: button.role, text: text)
     }
 }
