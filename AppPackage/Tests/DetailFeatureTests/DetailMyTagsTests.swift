@@ -36,7 +36,8 @@ struct DetailMyTagsTests {
         #expect(editor.name == "artist:sample artist")
         #expect(!editor.isNameEditable)
         #expect(editor.tagSetID == 2)
-        #expect(editor.kind == .watched)
+        // A new tag starts Normal (owner decision, 2026-11-26).
+        #expect(editor.kind == .flagged)
     }
 
     @MainActor

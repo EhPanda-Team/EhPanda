@@ -29,9 +29,9 @@ struct MyTagEditorTests {
 
     @MainActor
     @Test
-    func aNewTagStartsWatchedAtTheDefaultWeightAndNeedsAName() {
+    func aNewTagStartsNormalAtTheDefaultWeightAndNeedsAName() {
         var state = MyTagEditorFeature.State(tagSet: Self.set2)
-        #expect(state.kind == .watched)
+        #expect(state.kind == .flagged)
         #expect(state.weight == MyTag.defaultWeight)
         #expect(state.color == nil)
         #expect(!state.canConfirm)
@@ -75,7 +75,7 @@ struct MyTagEditorTests {
             $0.$user.withLock({ $0.myTags = MyTags(tagSets: [Self.set1, added]) })
         }
         await store.receive(\.delegate.saved)
-        #expect(calls.value == ["E-Hentai artist:sample artist watched  -5 2"])
+        #expect(calls.value == ["E-Hentai artist:sample artist flagged  -5 2"])
         #expect(dismissed.value == 1)
     }
 

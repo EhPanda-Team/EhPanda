@@ -52,14 +52,15 @@ public struct MyTagEditorFeature: Sendable {
         public var color: SiteColor?
         public var weight: Int
 
-        /// Add Tag for `tagSet`: a new tag starts Watched, without a colour of its own, at the site's default weight.
+        /// Add Tag for `tagSet`: a new tag starts Normal (owner decision, 2026-11-26), without a colour of its own, at
+        /// the site's default weight.
         public init(adding name: String = "", isNameEditable: Bool = true, tagSet: MyTagSet) {
             self.mode = .add
             self.tagSetID = tagSet.id
             self.tagSetColor = tagSet.color
             self.isNameEditable = isNameEditable
             self.name = name
-            self.kind = .watched
+            self.kind = .flagged
             self.color = nil
             self.weight = MyTag.defaultWeight
         }
