@@ -126,6 +126,17 @@ None to the code or the commits. Process notes:
 - **CONTEXT's host list named eight of the thirteen `.toast(` hosts;** all thirteen are covered by Task 2's table.
 - Reversibility (W-4): a build from before the first commit rejects a v2 history and resets it, the same property `Setting`'s v2 already has.
 
+## Follow-up fix (2026-11-26, after beta 165)
+
+The owner reported that on build 165, gallery 4354007 (26 pages, opened online) still switched only on reaching
+page 12. Cause: with a multi-page viewer, the open-time request for the middle pages fell into the opening page's
+batch, already loading, and was dropped; that batch fetches only the viewer's list, which then resolves pages 1 to 3
+and the shown page. `webtoonReducer` now also asks for the middle pages when a viewer's list arrives with its keys
+(`fetchMPVKeysDone` success with `mpvKey` set), page by page; a list that sizes them asks for nothing, and a refused
+list leaves no key and asks for nothing (W-3). Three cases in `WebtoonReadingTests` cover it (the first failed before
+the fix); ReadingFeatureTests passed (341 cases), lint strict clean. Not verified on a device: the viewer needs the
+owner's account.
+
 ## Known Stubs
 
 None.

@@ -379,6 +379,99 @@ struct WebtoonReadingTests {
         #expect(persistedEntry(gid: validGID) == nil)
     }
 
+    // MARK: Asking for the middle pages in a multi-page viewer (W-2)
+
+    /// A multi-page viewer's list for a gallery of `pageCount` pages, naming the original sizes in `sizes`.
+    private static func imageList(pageCount: Int, sizes: [Int: PagePixelSize] = [:]) -> MPVImageList {
+        MPVImageList(
+            key: "mpv", imageKeys: Dictionary(uniqueKeysWithValues: (1...pageCount).map({ ($0, "key-\($0)") })),
+            originalSizes: sizes
+        )
+    }
+
+    /// The reader of gallery 4354007's shape (26 pages, middle pages 12 to 14) as it stands after opening on page 1:
+    /// the opening page's batch, which holds the middle pages, is loading. A viewer's address request needs a numeric
+    /// gid: with the default one, every request the reader sends stops at that guard, so a case asserts exactly which
+    /// pages are asked for without reaching the network.
+    private func openingViewerState(gid: String = "not-a-gid") throws -> ReadingReducer.State {
+        var state = try makeState(
+            gid: gid, setting: Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true),
+            page: 1, tallPages: [], pageCount: 26, galleryURL: Self.remoteGalleryURL
+        )
+        for page in state.previewConfig.batchRange(index: 1) {
+            state.imageURLLoadingStates[page] = .loading
+        }
+        return state
+    }
+
+    // In a viewer the request made at open falls into the opening page's batch, which fetches only the viewer's
+    // list; the list resolves the first pages and the shown one. The middle pages are asked for again once its keys
+    // are known, page by page.
+    @MainActor
+    @Test
+    func aViewersListAsksForTheMiddlePagesItLeavesUnsized() async throws {
+        let state = try openingViewerState(gid: validGID)
+        let batch = state.previewConfig.batchRange(index: 1)
+        let store = makeStore(state)
+        store.exhaustivity = .off(showSkippedAssertions: false)
+
+        await store.send(.fetchMPVKeysDone(index: 1, result: .success(Self.imageList(pageCount: 26)))) {
+            $0.mpvKey = "mpv"
+            for page in batch { $0.imageURLLoadingStates[page] = .idle }
+        }
+        for page in 12...14 {
+            await store.receive({ action in
+                guard case .fetchMPVImageURL(page, false) = action else { return false }
+                return true
+            }) {
+                $0.imageURLLoadingStates[page] = .loading
+            }
+        }
+        await store.skipInFlightEffects(strict: false)
+    }
+
+    // A list that names the middle pages' sizes decides the gallery as it arrives and asks for no middle page: only
+    // the first pages, which the list resolves anyway, are asked for, and nothing else is received.
+    @MainActor
+    @Test
+    func aViewersListThatSizesTheMiddlePagesDecidesWithoutAsking() async throws {
+        let state = try openingViewerState()
+        let batch = state.previewConfig.batchRange(index: 1)
+        let store = makeStore(state)
+        let tall = try Self.tallSize()
+        let sizes = [12: tall, 13: tall, 14: tall]
+        let imageList = Self.imageList(pageCount: 26, sizes: sizes)
+
+        await store.send(.fetchMPVKeysDone(index: 1, result: .success(imageList))) {
+            $0.mpvKey = "mpv"
+            $0.mpvImageKeys = imageList.imageKeys
+            for page in batch { $0.imageURLLoadingStates[page] = .idle }
+            $0.pageSizes = sizes.mapValues({ KnownPageSize(pixelSize: $0, source: .originalFile) })
+            $0.isWebtoon = true
+            $0.toast = .success(title: .webtoonToastTitle, caption: .webtoonToastMessage)
+        }
+        for _ in 1...3 {
+            await store.receive(\.fetchMPVImageURL)
+        }
+        await store.finish()
+    }
+
+    // A list the reader refuses (its keys do not match the page count) leaves no key: nothing asks for the middle
+    // pages, so the refused batch is not fetched again (W-3).
+    @MainActor
+    @Test
+    func aRefusedViewersListAsksForNoMiddlePage() async throws {
+        let state = try openingViewerState()
+        let batch = state.previewConfig.batchRange(index: 1)
+        let store = makeStore(state)
+
+        await store.send(.fetchMPVKeysDone(index: 1, result: .success(Self.imageList(pageCount: 25)))) {
+            for page in batch { $0.imageURLLoadingStates[page] = .failed(.notFound) }
+            $0.surfacedErrorKinds = [.notFound]
+        }
+        await store.finish()
+    }
+
     /// A URL the site would serve for a page of `width` by `height` pixels, whose file identifier names the size.
     private static func servedURL(width: Int, height: Int) throws -> URL {
         try #require(URL(string: """

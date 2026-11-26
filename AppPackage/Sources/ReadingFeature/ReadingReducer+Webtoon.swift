@@ -8,21 +8,34 @@ import Sharing
 // MARK: - Webtoon detection (D-05 to D-07; W-1 to W-3 of quick 261126-iq9)
 extension ReadingReducer {
     /// Decides once whether the open gallery is a webtoon (D-06, D-07), and asks for the pages it decides from when
-    /// the gallery opens (W-2). It runs after every action, so the verdict lands the moment the known sizes allow
-    /// one, whatever brought them: a size recorded from any source, the middle pages' addresses fetched at open, or
-    /// the option turned on in the reading settings (`webtoonReadingPreferenceChanged`). With the option off, or with
-    /// a verdict already recorded, it does nothing.
+    /// the gallery opens or a multi-page viewer's list arrives (W-2). It runs after every action, so the verdict lands
+    /// the moment the known sizes allow one, whatever brought them: a size recorded from any source, the middle pages'
+    /// addresses fetched at open, or the option turned on in the reading settings (`webtoonReadingPreferenceChanged`).
+    /// With the option off, or with a verdict already recorded, it does nothing.
     var webtoonReducer: some ReducerOf<Self> {
         Reduce { state, action in
             if state.setting.alwaysReadsWebtoonsVertically, state.isWebtoon == nil,
                let isWebtoon = state.webtoonVerdictFromKnownSizes {
                 record(isWebtoon: isWebtoon, in: &state)
             }
-            return action.is(\.onPresented) ? fetchWebtoonSample(state) : .none
+            return asksForWebtoonSample(after: action, in: state) ? fetchWebtoonSample(state) : .none
         }
     }
 
-    /// Asks for the middle pages' image addresses when an unchecked gallery opens with the option on (W-2), through
+    /// The moments the middle pages are asked for (W-2): when the gallery opens, and when a multi-page viewer's list
+    /// arrives. A viewer resolves an address page by page, and only once its list's keys are known: the request made
+    /// at open falls into the opening page's batch, whose fetch brings only the list, and the list then resolves the
+    /// first pages and the shown one, so the middle pages are asked for again here. A list that is refused leaves no
+    /// key and asks for nothing, so the refused batch is not fetched again from here (W-3).
+    private func asksForWebtoonSample(after action: Action, in state: State) -> Bool {
+        switch action {
+        case .onPresented: true
+        case .fetchMPVKeysDone(_, .success): state.mpvKey != nil
+        default: false
+        }
+    }
+
+    /// Asks for the middle pages' image addresses of an unchecked gallery with the option on (W-2), through
     /// `fetchImageURLs`, the reader's own page-address fetch, at its own granularity (the thumbnail batch, or the
     /// page of a multi-page viewer). The served URLs' file identifiers record the sizes the verdict needs, and the
     /// fetched addresses are kept, so those pages are ready if the user reads that far. A page whose size is known,
