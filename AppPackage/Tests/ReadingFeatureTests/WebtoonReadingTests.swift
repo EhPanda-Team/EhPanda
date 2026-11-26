@@ -17,7 +17,8 @@ import TestingSupport
 // sizes it already knows around the committed page, whether the open gallery is a webtoon, records the verdict in the
 // browsing history, and reads a webtoon vertically without writing the user's own direction.
 // Quick 261126-iq9 (W-1 to W-3) moved the sample to the gallery's middle three pages and asks for their addresses when
-// the gallery opens.
+// the gallery opens. Quick 261126-trf (P-1 to P-5) adds the passive rule: more than two thirds of the known pages
+// extremely tall turn the gallery into a webtoon, a recorded "not a webtoon" included.
 // `@MainActor` sits on the members that build a `TestStore`, whose `init` and `state` are main-actor-isolated.
 @Suite(.isolatedAppStorage)
 struct WebtoonReadingTests {
@@ -499,20 +500,120 @@ struct WebtoonReadingTests {
         #expect(state.isWebtoon == true)
     }
 
-    // A gallery is detected once: a recorded "not a webtoon" stands even when every sampled page is now tall.
+    // A recorded "not a webtoon" only spares the open its middle-page fetch (P-3): the pages read can still turn the
+    // gallery into a webtoon, and the turn replaces the recorded verdict.
     @MainActor
     @Test
-    func aRecordedVerdictIsNotCheckedAgain() async throws {
+    func aRecordedNoWebtoonIsTurnedByThePagesRead() async throws {
         seedVerdict(false, gid: validGID)
         let state = try makeState(
             gid: validGID, setting: Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true),
             page: 5, tallPages: [4, 5, 6]
         )
+        #expect(state.isWebtoon == false)
+        let store = makeStore(state)
+
+        await store.send(.webtoonReadingPreferenceChanged) {
+            $0.isWebtoon = true
+            $0.toast = .success(title: .webtoonToastTitle, caption: .webtoonToastMessage)
+        }
+        #expect(store.state.readingSetting.readingDirection == .vertical)
+        #expect(persistedEntry(gid: validGID)?.isWebtoon == true)
+        await store.finish()
+    }
+
+    // A recorded webtoon stays one (P-2): pages that are not tall never turn it back.
+    @MainActor
+    @Test
+    func aRecordedWebtoonIsNeverTurnedBack() async throws {
+        seedVerdict(true, gid: validGID)
+        var state = try makeState(
+            gid: validGID, setting: Setting(alwaysReadsWebtoonsVertically: true), page: 5, tallPages: []
+        )
+        let short = try Self.shortSize()
+        for page in 1...6 {
+            state.recordSize(short, ofPage: page, from: .decodedImage)
+        }
         let store = makeStore(state)
 
         await store.send(.webtoonReadingPreferenceChanged)
-        #expect(store.state.isWebtoon == false)
-        #expect(store.state.readingSetting.readingDirection == .rightToLeft)
+        #expect(store.state.isWebtoon == true)
+        #expect(persistedEntry(gid: validGID)?.isWebtoon == true)
+        await store.finish()
+    }
+
+    // MARK: Passive detection (P-1 to P-5 of quick 261126-trf)
+
+    @Test
+    func moreThanTwoThirdsOfTheKnownPagesTallMakeAWebtoon() throws {
+        var state = try makeState(setting: Setting(), page: 1, tallPages: [1, 2, 3, 20], pageCount: 26)
+        state.recordSize(try Self.shortSize(), ofPage: 21, from: .originalFile)
+        #expect(state.mostKnownPagesAreExtremelyTall)
+    }
+
+    @Test
+    func exactlyTwoThirdsOfTheKnownPagesTallMakeNoWebtoon() throws {
+        var state = try makeState(setting: Setting(), page: 1, tallPages: [1, 2, 3, 4], pageCount: 26)
+        let short = try Self.shortSize()
+        state.recordSize(short, ofPage: 5, from: .servedURL)
+        state.recordSize(short, ofPage: 6, from: .servedURL)
+        #expect(!state.mostKnownPagesAreExtremelyTall)
+    }
+
+    @Test
+    func fewerThanThreeKnownPagesMakeNoWebtoon() throws {
+        let state = try makeState(setting: Setting(), page: 1, tallPages: [1, 2], pageCount: 26)
+        #expect(!state.mostKnownPagesAreExtremelyTall)
+    }
+
+    // The middle sample of a 26-page gallery holds a short page, so it records no webtoon; the pages read then turn
+    // the gallery once more than two thirds of every known page are tall, with the toast of a mid-session verdict.
+    @MainActor
+    @Test
+    func aShortMiddlePageIsOverturnedByThePagesRead() async throws {
+        let setting = Setting(readingDirection: .rightToLeft, alwaysReadsWebtoonsVertically: true)
+        var state = try makeState(setting: setting, page: 1, tallPages: [12, 14], pageCount: 26)
+        let short = try Self.shortSize()
+        let tall = try Self.tallSize()
+        state.recordSize(short, ofPage: 13, from: .servedURL)
+        let store = makeStore(state)
+
+        // Four known pages, two tall: the middle sample decides no webtoon.
+        await store.send(.onWebImageSucceeded(1, pixelSize: short)) {
+            $0.imageURLLoadingStates[1] = .idle
+            $0.webImageLoadSuccessIndices.insert(1)
+            $0.pageSizes[1] = KnownPageSize(pixelSize: short, source: .decodedImage)
+            $0.isWebtoon = false
+        }
+        // Three of five, then four of six: not more than two thirds yet.
+        for page in 2...3 {
+            await store.send(.onWebImageSucceeded(page, pixelSize: tall)) {
+                $0.imageURLLoadingStates[page] = .idle
+                $0.webImageLoadSuccessIndices.insert(page)
+                $0.pageSizes[page] = KnownPageSize(pixelSize: tall, source: .decodedImage)
+            }
+        }
+        // Five of seven turns it.
+        await store.send(.onWebImageSucceeded(4, pixelSize: tall)) {
+            $0.imageURLLoadingStates[4] = .idle
+            $0.webImageLoadSuccessIndices.insert(4)
+            $0.pageSizes[4] = KnownPageSize(pixelSize: tall, source: .decodedImage)
+            $0.isWebtoon = true
+            $0.toast = .success(title: .webtoonToastTitle, caption: .webtoonToastMessage)
+        }
+        #expect(store.state.readingSetting.readingDirection == .vertical)
+        #expect(store.state.setting.readingDirection == .rightToLeft)
+        await store.finish()
+    }
+
+    @MainActor
+    @Test
+    func withTheOptionOffThePagesReadTurnNothing() async throws {
+        let state = try makeState(setting: Setting(), page: 1, tallPages: [1, 2, 3, 20, 21], pageCount: 26)
+        let store = makeStore(state)
+
+        await store.send(.webtoonReadingPreferenceChanged)
+        #expect(store.state.isWebtoon == nil)
         await store.finish()
     }
 

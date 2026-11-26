@@ -5,17 +5,16 @@ import ComposableArchitecture
 import ReadingSettingFeature
 import Sharing
 
-// MARK: - Webtoon detection (D-05 to D-07; W-1 to W-3 of quick 261126-iq9)
+// MARK: - Webtoon detection (D-05 to D-07; W-1 to W-3 of quick 261126-iq9; P-1 to P-5 of quick 261126-trf)
 extension ReadingReducer {
-    /// Decides once whether the open gallery is a webtoon (D-06, D-07), and asks for the pages it decides from when
-    /// the gallery opens or a multi-page viewer's list arrives (W-2). It runs after every action, so the verdict lands
-    /// the moment the known sizes allow one, whatever brought them: a size recorded from any source, the middle pages'
+    /// Decides whether the open gallery is a webtoon (D-06, D-07), and asks for the pages it decides from when the
+    /// gallery opens or a multi-page viewer's list arrives (W-2). It runs after every action, so a verdict lands the
+    /// moment the known sizes allow one, whatever brought them: a size recorded from any source, the middle pages'
     /// addresses fetched at open, or the option turned on in the reading settings (`webtoonReadingPreferenceChanged`).
-    /// With the option off, or with a verdict already recorded, it does nothing.
+    /// With the option off, or with the gallery already a webtoon, it does nothing.
     var webtoonReducer: some ReducerOf<Self> {
         Reduce { state, action in
-            if state.setting.alwaysReadsWebtoonsVertically, state.isWebtoon == nil,
-               let isWebtoon = state.webtoonVerdictFromKnownSizes {
+            if state.setting.alwaysReadsWebtoonsVertically, let isWebtoon = state.pendingWebtoonVerdict {
                 record(isWebtoon: isWebtoon, in: &state)
             }
             return asksForWebtoonSample(after: action, in: state) ? fetchWebtoonSample(state) : .none
@@ -90,6 +89,38 @@ extension ReadingReducer.State {
         return (middle - 1)...(middle + 1)
     }
 
+    /// The fewest known pages the passive rule reads (P-1): as many as the middle sample holds, so it never decides
+    /// from less evidence than the sample does.
+    static let webtoonPassiveMinimumPageCount = 3
+
+    /// Whether the page's height is at least `webtoonAspectRatio` times its width (D-05).
+    static func isExtremelyTall(_ size: PagePixelSize) -> Bool {
+        Double(size.height) / Double(size.width) >= webtoonAspectRatio
+    }
+
+    /// The verdict to record now, `nil` when there is none to record. The passive rule (P-1) comes first: more than two
+    /// thirds of the known pages extremely tall make a webtoon, even when the middle sample held a short page and its
+    /// "not a webtoon" was recorded, in this session or an earlier one (P-3). Otherwise an unchecked gallery takes the
+    /// middle sample's verdict (W-1). A webtoon is final (P-2), so it never has a verdict to record again; a recorded
+    /// "not a webtoon" only spares later opens the middle-page fetch, which asks only while the verdict is `nil`.
+    var pendingWebtoonVerdict: Bool? {
+        guard isWebtoon != true else { return nil }
+        if mostKnownPagesAreExtremelyTall { return true }
+        return isWebtoon == nil ? webtoonVerdictFromKnownSizes : nil
+    }
+
+    /// The passive rule (P-1): more than two thirds of the pages whose size the reader knows, at least
+    /// `webtoonPassiveMinimumPageCount` of them, are extremely tall. A page's size counts from whichever source gave it
+    /// (a thumbnail's original file, a served URL or a decoded image), since each is the page's real size; so the rule
+    /// reads every page the reader has learned of, not only the middle sample, and a short page or two among them
+    /// cannot hide a webtoon.
+    var mostKnownPagesAreExtremelyTall: Bool {
+        let knownCount = pageSizes.count
+        guard knownCount >= Self.webtoonPassiveMinimumPageCount else { return false }
+        let tallCount = pageSizes.values.count(where: { Self.isExtremelyTall($0.pixelSize) })
+        return tallCount * 3 > knownCount * 2
+    }
+
     /// The verdict the known sizes give for the middle sample (D-05, W-1): a webtoon when the three sampled pages are
     /// all extremely tall, not one when any of them is not, and `nil` while a sampled page's size is not known yet.
     /// The sizes are the reader's own (`pageSizes`), from whichever source gave them.
@@ -97,6 +128,6 @@ extension ReadingReducer.State {
         guard let pages = Self.webtoonSamplePages(pageCount: gallery.pageCount) else { return nil }
         let sizes = pages.compactMap({ pageSizes[$0]?.pixelSize })
         guard sizes.count == pages.count else { return nil }
-        return sizes.allSatisfy({ Double($0.height) / Double($0.width) >= Self.webtoonAspectRatio })
+        return sizes.allSatisfy(Self.isExtremelyTall)
     }
 }

@@ -62,10 +62,10 @@ public struct GalleryHistoryEntry: Codable, Equatable, Identifiable, Sendable, M
     public var token: String
     public var lastOpenDate: Date
     public var readingProgress: Int
-    /// Whether the reader found the gallery to be a webtoon, every sampled page extremely tall (D-05, D-07); `nil` =
-    /// not checked yet. Recorded once, so a gallery is checked only once while it stays in the history. Optional, so
-    /// entries written before it existed decode as not checked; `SchemaV2` drops the negative verdicts v1 recorded
-    /// under the old sampling rule.
+    /// Whether the reader found the gallery to be a webtoon (D-05, D-07); `nil` = not checked yet. `true` is final.
+    /// `false` only spares later opens the middle-page fetch: while the user reads, more than two thirds of the known
+    /// pages extremely tall still turn it `true` (P-3 of quick 261126-trf). Optional, so entries written before it
+    /// existed decode as not checked; `SchemaV2` drops the negative verdicts v1 recorded under the old sampling rule.
     public var isWebtoon: Bool?
 }
 

@@ -92,8 +92,9 @@ public struct ReadingReducer: Sendable {
         /// Every page's size the reader has learned this session. Nothing clears it: reloading a page loads the same
         /// image, so the size the page had still sizes it while it reloads.
         var pageSizes = [Int: KnownPageSize]()
-        /// The open gallery's webtoon verdict (D-07): seeded from the browsing history, decided once from the known
-        /// page sizes while the user reads webtoons vertically (`webtoonReducer`), and `nil` until then.
+        /// The open gallery's webtoon verdict (D-07): seeded from the browsing history, decided from the known page
+        /// sizes while the user reads webtoons vertically (`webtoonReducer`), and `nil` until then. `true` is final;
+        /// `false` can still turn `true` as more pages become known (P-3 of quick 261126-trf).
         var isWebtoon: Bool?
 
         public var mpvKey: String?
