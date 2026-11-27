@@ -2,9 +2,9 @@ public import AppModels
 public import ComposableArchitecture
 import NetworkingFeature
 
-/// Every My Tags call a reducer makes: the reads of every tag set or one, the writes of a tag or a tag set, and the
-/// create and the delete of a tag set (port of PR 462 item 10; the create, quick 261126-pfh; the delete, quick
-/// 261126-udx).
+/// Every My Tags call a reducer makes: the reads of every tag set or one, the writes of a tag or a tag set, the
+/// create and the delete of a tag set, and the site's tag suggestions (port of PR 462 item 10; the create, quick
+/// 261126-pfh; the delete, quick 261126-udx; the suggestions, quick 261126-wzg).
 ///
 /// One dependency, so a test states each outcome and the unimplemented test value reports any call a test did not
 /// expect. `live` builds the requests with their own defaults on the host the caller has selected.
@@ -52,6 +52,11 @@ public struct MyTagsClient: Sendable {
         _ host: GalleryHost,
         _ tagSet: MyTagSet
     ) async throws(AppError) -> MyTagsPage
+    /// The site's suggestions for the tag being typed, as its own tag field asks for them (`TagSuggestRequest`).
+    public var suggestTags: @Sendable (
+        _ host: GalleryHost,
+        _ query: TagSuggestQuery
+    ) async throws(AppError) -> [SiteTagSuggestion]
 }
 
 // MARK: Live
@@ -64,7 +69,8 @@ extension MyTagsClient {
         removeTags: requestRemoveTags,
         updateTagSet: requestUpdateTagSet,
         createTagSet: requestCreateTagSet,
-        deleteTagSet: requestDeleteTagSet
+        deleteTagSet: requestDeleteTagSet,
+        suggestTags: requestSuggestTags
     )
 
     private static func requestMyTags(host: GalleryHost) async throws(AppError) -> MyTagsResponse {
@@ -124,6 +130,13 @@ extension MyTagsClient {
     ) async throws(AppError) -> MyTagsPage {
         try await DeleteMyTagSetRequest(host: host, tagSet: tagSet).response()
     }
+
+    private static func requestSuggestTags(
+        host: GalleryHost,
+        query: TagSuggestQuery
+    ) async throws(AppError) -> [SiteTagSuggestion] {
+        try await TagSuggestRequest(host: host, query: query).response()
+    }
 }
 
 public enum MyTagsClientKey: DependencyKey {
@@ -141,8 +154,8 @@ extension DependencyValues {
 
 // MARK: Test
 extension MyTagsClient {
-    /// Answers the fetch with no tag sets, so no tag carries a symbol and no tag menu item shows, and fails every
-    /// other call as not found, since a page has no empty answer.
+    /// Answers the fetch with no tag sets, so no tag carries a symbol and no tag menu item shows, and the tag
+    /// suggestions with none; fails every other call as not found, since a page has no empty answer.
     public static let noop = Self(
         fetchMyTags: { (_: GalleryHost) async throws(AppError) -> MyTagsResponse in
             MyTagsResponse(myTags: MyTags(tagSets: []), apiuid: 0, apikey: "")
@@ -167,6 +180,9 @@ extension MyTagsClient {
         },
         deleteTagSet: { (_: GalleryHost, _: MyTagSet) async throws(AppError) -> MyTagsPage in
             throw .notFound
+        },
+        suggestTags: { (_: GalleryHost, _: TagSuggestQuery) async throws(AppError) -> [SiteTagSuggestion] in
+            []
         }
     )
 
@@ -194,6 +210,9 @@ extension MyTagsClient {
         ),
         deleteTagSet: IssueReporting.unimplemented(
             "MyTagsClient.deleteTagSet", throwing: AppError.unknown
+        ),
+        suggestTags: IssueReporting.unimplemented(
+            "MyTagsClient.suggestTags", throwing: AppError.unknown
         )
     )
 
@@ -223,6 +242,9 @@ extension MyTagsClient {
                 throw error
             },
             deleteTagSet: { (_: GalleryHost, _: MyTagSet) async throws(AppError) -> MyTagsPage in
+                throw error
+            },
+            suggestTags: { (_: GalleryHost, _: TagSuggestQuery) async throws(AppError) -> [SiteTagSuggestion] in
                 throw error
             }
         )
