@@ -17,7 +17,7 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
 - Task 2 (owner checkpoint) is in progress: round 3 (below) settled the alert, the menus, and how the Search root and
   the freeze check are fixed. The owner gave the go-ahead (「Yes, start」); both fixes landed, tests first
   (`86c47193b` Search root, `4a87dc8b3` freeze check), and the touched states were re-measured (below). Open: the
-  sheet-content design, then the heights.
+  sheet-content design was decided in round 4 (below); open: the go-ahead to build it, then the heights.
 - Task 3 has not started. No provider file, STATE.md or ROADMAP.md was changed for 19-26 yet.
 
 ## Re-measure after the two fixes (2026-11-27)
@@ -53,7 +53,8 @@ and iPad landscape, in `.capture/agent-work/phase19-26/remeasure`: 2,304 lines, 
   `interrupted-pad-landscape-xSmall` (the set-aside partial run), the driver logs, `owner-answers.md` (the same
   answers as below), `site-settings-full` (the 7,600 pt site settings picture shown to the owner), and round 3's
   `recheck-notes.md`, `dnc-probe`, `error-recheck`, `freeze-debug` and `freeze-debug-pad`, the fixes' evidence
-  `search-fix` and `freeze-fix`, the re-measure `remeasure` and `proposal-remeasure.json`.
+  `search-fix` and `freeze-fix`, the re-measure `remeasure` and `proposal-remeasure.json`, and round 4's
+  `sheet-probe`.
 - `.capture/agent-work/baseline2` (4.7 GB): the 19,512-picture baseline the storage projection and 19-12/19-13 use.
 - `.capture/agent-work/baseline1`, `phase19-21` to `phase19-24`, `phase19-31`, `run-44279625701`: earlier plans'
   evidence cited by their records.
@@ -134,10 +135,27 @@ in `.capture/agent-work/phase19-26/recheck-notes.md`, `dnc-probe`, `error-rechec
   moot (screen height).
 - Sheets `app-wide-error-info` and iPad `gallery-detail-sheet` (`did not converge`) fall under the sheet-content design.
 
+Round 4 (2026-11-27), the sheet-content design, after a probe on the iPad (evidence in
+`.capture/agent-work/phase19-26/sheet-probe` and `recheck-notes.md`; the temporary probe test was removed):
+- What the probe showed: the iPad form sheet stays 580 x 660 pt whatever the window's height, so a sheet whose
+  content is taller overflows at every height (`cannot-cover` on 21 iPad sheet states). Setting the presented
+  controller's `preferredContentSize.height` once the presentation has finished resizes it (frame = preferred + 20 pt,
+  clamped by UIKit to the window minus 32 pt above and below), and the measurement then converges.
+- The design put to the owner: after the sheet is up and still, the harness sets the sheet's height; the window's
+  height stays the committed source value and grows only when the content needs more than the screen; the iPhone's
+  sheets already fill the window and are unchanged; a dialog opened over a sheet is opened by the operating step
+  after the sheet is sized; a sheet whose content outgrows the window minus the margins fails the `page-height` check.
+- Sheet height: 「貼合內容（建議）」. The sheet takes its content's height, never less than its own size (a sheet that
+  fits today is unchanged, no blank below). Fitting takes a second pass (the List grew 912 to 935 pt once taller).
+- `reader-settings-sheet`: 「當 sheet，整個內容都拍（建議）」. It leaves the reader's screen-height rule and is captured
+  whole like the other sheets (needs today: iPhone 4,666 pt portrait, 10,201 pt landscape; iPad 9,500 to 14,500 pt).
+- To check while building: `gallery-detail-sheet` is presented by Home's own `HomePaneSheet`, which sets the sheet's
+  `preferredContentSize` from the viewport in the split layout.
+
 ## Open, to put to the owner (Taiwanese Mandarin, AskUserQuestion)
 
-1. The sheet-content design, shown before building.
-2. Approval of the heights to commit (the re-measures are done).
+1. The go-ahead to build the sheet fitting (the owner separates deciding from implementing).
+2. Approval of the heights to commit, after the sheet states are re-measured with the fitting.
 
 ## Task 3 work the answers add (beyond the plan's text)
 
@@ -145,7 +163,7 @@ Amend `19-26-PLAN.md` with the owner's decisions before executing, then: the `vi
 keyboard states' removal (inventory, providers, matrix counts, shard plan, the storage projection); compare mode
 without the `page-height` check (tests for both modes); the page need ignoring a `TextEditor`'s internal content
 height (test first); the freeze check using `readsMatch` (test first) and the re-measure of its states; the
-screen height for the menus and `app-wide-app-alert`; the sheet-content design (owner first); `apply` and `check-sources`; the verification sample and
+screen height for the menus and `app-wide-app-alert`; the sheet fitting (round 4: tests first, then re-measure the 21 iPad sheet states and `reader-settings-sheet` on both devices); `apply` and `check-sources`; the verification sample and
 timing ratio. Outside 19-26, before its re-measure: the Search root padding fix (app source, own commit). Note for later, not
 part of 19-26: the "Excluded Uploaders" editor's code asks for 30% of the container
 height but renders one line tall in the tall window, a possible app layout defect.
