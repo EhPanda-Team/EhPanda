@@ -12,6 +12,9 @@ extension Parser {
     /// `checked=false`, so a substring test would be wrong); its colour and weight are its inputs' values. A refused
     /// form post comes back as the same page with the reason in `#msg`. The inline script's `apiuid` and `apikey` are
     /// the edit API's credentials.
+    /// A control in the tag set form whose `onclick` calls `do_tagset_delete` offers deleting the shown set (U-1 of
+    /// quick 261126-udx), unless it is disabled (U-1a). Which sets the site offers it for is its own rule, unknown
+    /// here, so only the page says it.
     ///
     /// A page without the credentials, the picker, its selected set or the tag list is not a My Tags page, and a row
     /// without its name or weight, or with a colour that is not `#RRGGBB`, fails the page rather than losing the row.
@@ -46,13 +49,16 @@ extension Parser {
 
         let tagSetColor = try siteColor(doc.at_xpath("//input[@id='tagcolor']")?["value"])
         let message = doc.at_xpath("//div[@id='msg']")?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let deleteControl = "//div[@id='tagset_outer']//*[contains(@onclick, 'do_tagset_delete(')][not(@disabled)]"
+        let offersDelete = doc.at_xpath(deleteControl) != nil
         return MyTagsPage(
             tagSet: MyTagSet(
                 id: tagSetID,
                 name: optionText.wholeMatch(of: /(.*) \(\d+\)/).map({ String($0.output.1) }) ?? optionText,
                 isEnabled: doc.at_xpath("//input[@id='tagset_enable']")?["checked"] != nil,
                 color: tagSetColor,
-                tags: tags
+                tags: tags,
+                isDeletable: offersDelete
             ),
             tagSetIDs: picker.xpath(".//option").compactMap({ option in option["value"].flatMap({ Int($0) }) }),
             apiuid: apiuid,

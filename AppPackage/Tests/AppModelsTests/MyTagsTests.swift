@@ -3,7 +3,8 @@ import Foundation
 import Testing
 
 // The My Tags model (port of PR 462 item 10): site colours, the kind, the highlight (design approved 2026-11-22), the
-// cache's selection and updates, and the optional field on the stored user. The tags and sets are invented.
+// cache's selection and updates, a set's delete offer, which is never stored (quick 261126-udx), and the optional
+// field on the stored user. The tags and sets are invented.
 struct MyTagsTests {
     private static let glasses = MyTag(
         id: 101, name: "female:sample glasses", isWatched: true, isHidden: false, color: nil, weight: 10
@@ -112,6 +113,47 @@ struct MyTagsTests {
         let applied = cache.applying(Self.page(made, tagSetIDs: [1, 3, 2, 4]))
 
         #expect(applied == MyTags(tagSets: [first, made, second], selectedTagSetID: 3))
+    }
+
+    // Every page read brings its set's delete offer into the cache, the pages Add Tag and Edit Tag's remove answer with
+    // included, and the sets the page does not show keep theirs (U-1 of quick 261126-udx).
+    @Test
+    func aPagesDeleteOfferReplacesItsSetsAndTheOtherSetsKeepTheirs() {
+        let set1 = MyTagSet(id: 1, name: "Tagset #1", isEnabled: true, color: nil, tags: [])
+        let offered1 = MyTagSet(id: 1, name: "Tagset #1", isEnabled: true, color: nil, tags: [], isDeletable: true)
+        let offered2 = MyTagSet(id: 2, name: "Fixture Picks", isEnabled: false, color: nil, tags: [], isDeletable: true)
+        let filled2 = MyTagSet(id: 2, name: "Fixture Picks", isEnabled: false, color: nil, tags: [Self.artist])
+        let cache = MyTags(tagSets: [set1, offered2], selectedTagSetID: 2)
+
+        let withdrawn = cache.applying(Self.page(filled2, tagSetIDs: [1, 2]))
+        let offeredBoth = cache.applying(Self.page(offered1, tagSetIDs: [1, 2]))
+
+        #expect(withdrawn == MyTags(tagSets: [set1, filled2], selectedTagSetID: 2))
+        #expect(offeredBoth == MyTags(tagSets: [offered1, offered2], selectedTagSetID: 2))
+    }
+
+    // A set's delete offer is never stored (U-1 of quick 261126-udx): the stored set keeps the five fields it always
+    // had, so a cache stored before decodes as it did, and a set read back offers nothing until its page is read.
+    @Test
+    func aSetsDeleteOfferIsNeverStoredAndAStoredSetDecodesWithoutIt() throws {
+        let read = MyTagSet(
+            id: 2, name: "Fixture Picks", isEnabled: false, color: Self.green, tags: [Self.artist], isDeletable: true
+        )
+        let encoded = try JSONEncoder().encode(read)
+        let object = try #require(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        #expect(object.keys.sorted() == ["color", "id", "isEnabled", "name", "tags"])
+
+        let decoded = try JSONDecoder().decode(MyTagSet.self, from: encoded)
+        #expect(!decoded.isDeletable)
+        #expect(
+            decoded == MyTagSet(id: 2, name: "Fixture Picks", isEnabled: false, color: Self.green, tags: [Self.artist])
+        )
+
+        let stored = Data(#"{"id":1,"name":"Tagset #1","isEnabled":true,"tags":[]}"#.utf8)
+        #expect(
+            try JSONDecoder().decode(MyTagSet.self, from: stored)
+                == MyTagSet(id: 1, name: "Tagset #1", isEnabled: true, color: nil, tags: [])
+        )
     }
 
     @Test

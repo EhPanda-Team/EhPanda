@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>E-Hentai Galleries: My Tags</title>
+</head>
+<body>
+<div class="stuffbox" id="outer">
+<script type="text/javascript">
+var api_url = "https://api.e-hentai.org/api.php";
+var apiuid = 1234567;
+var apikey = "0123456789abcdef";
+var tagset_color = "";
+var tagset_name = "Fixture Holds";
+var baseurl = "https://e-hentai.org/mytags";
+var default_color = "000000";
+</script>
+<h1>My Tags</h1>
+<form id="tagset_form" action="" method="post">
+<div id="tagset_outer">
+<div><input type="button" onclick="do_tagset_create()" value="New" /> <input type="button" onclick="do_tagset_rename()" value="Rename" /> <input type="button" onclick="do_tagset_delete()" value="Delete" /></div>
+<div>
+<input type="hidden" id="tagset_action" name="tagset_action" value="" />
+<input type="hidden" id="tagset_name" name="tagset_name" value="" />
+<select onchange="change_tagset(this.value)">
+<option value="1">Tagset #1 (4)</option>
+<option value="2">Fixture Picks (1)</option>
+<option value="3" selected="selected">Fixture Holds (0)</option>
+</select>
+</div>
+<div><label class="lc" title="Flag the tags of this tagset in galleries"><input type="checkbox" name="tagset_enable" id="tagset_enable" onchange="allow_tagsave(-1)" /><span></span> Enable</label></div>
+<div><button id="colorsetter" class="jscolor {onFineChange:'update_tagcolor(-1,this,false)',valueElement:null,value:'000000'}" tabindex="-1"></button></div>
+<div><input type="text" name="tagset_color" id="tagcolor" value="" placeholder="#default" size="7" maxlength="7" autocomplete="off" oninput="update_tagcolor(-1,this,true)" title="Tagset color" /></div>
+<div><input type="button" id="tagsave" onclick="do_tagset_update()" value="Save" disabled="disabled" /></div>
+</div>
+</form>
+<form id="usertag_form" action="" method="post">
+<input type="hidden" id="usertag_action" name="usertag_action" value="" />
+<div id="usertags_outer">
+<div id="usertag_0">
+<div><div class="tagcomplete"><input type="text" id="tagname_new" name="tagname_new" value="" placeholder="Enter a single tag to flag, watch or hide" size="40" maxlength="200" oninput="allow_tagsave(0)" autocomplete="off" /></div></div>
+<div><label class="lc" title="Watched"><input type="checkbox" id="tagwatch_0" name="tagwatch_new" onchange="document.getElementById('taghide_0').checked=false;allow_tagsave(0)" /><span></span> Watched</label></div>
+<div><label class="lc" title="Hidden"><input type="checkbox" id="taghide_0" name="taghide_new" onchange="document.getElementById('tagwatch_0').checked=false;allow_tagsave(0)" /><span></span> Hidden</label></div>
+<div><button id="colorsetter_0" class="jscolor {onFineChange:'update_tagcolor(0,this,false)',valueElement:null,value:'3377FF'}" tabindex="-1"></button></div>
+<div><input type="text" id="tagcolor_0" name="tagcolor_new" class="tagcolor" value="" placeholder="#default" size="7" maxlength="7" autocomplete="off" oninput="update_tagcolor(0,this,true)" title="Tag color" /></div>
+<div><input type="text" id="tagweight_0" name="tagweight_new" value="10" placeholder="10" size="3" maxlength="3" oninput="allow_tagsave(0)" title="Tag weight" /></div>
+<div><input type="submit" id="tagsave_0" value="Add" disabled="disabled" onclick="do_usertags_post('add'); return false" /></div>
+</div>
+</div>
+<div id="usertags_mass">
+<div><select id="usertag_target" name="usertag_target"><option value="0">Delete Selected</option><option value="1">Move to Tagset #1</option><option value="2">Move to Fixture Picks</option></select></div>
+<div><input type="button" value="Apply to Selected" onclick="do_usertags_post('mass')" /></div>
+</div>
+</form>
+</div>
+</body>
+</html>

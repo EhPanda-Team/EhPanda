@@ -7,6 +7,7 @@ import TestingSupport
 
 /// My Tags pages in the site's markup of 2026-11-22 with invented tags and credentials (port of PR 462 item 10). The
 /// inline pages are `MyTagsTagSet1` with one detail changed.
+/// `MyTagsTagSet3` is an empty set whose page offers deleting it (quick 261126-udx).
 struct MyTagsParserTests: TestHelper {
     @Test
     func aPageReadsItsSetTheOtherSetsAndTheCredentials() throws {
@@ -44,6 +45,42 @@ struct MyTagsParserTests: TestHelper {
             ]
         ))
         #expect(page.tagSetIDs == [1, 2])
+    }
+
+    // A control in the tag set form whose `onclick` calls `do_tagset_delete` offers deleting the shown set (U-1 of
+    // quick 261126-udx).
+    @Test
+    func aPageWithTheDeleteControlOffersDeletingItsSet() throws {
+        let page = try Parser.parseMyTags(doc: htmlDocument(filename: .myTagsTagSet3))
+
+        #expect(page == MyTagsPage(
+            tagSet: MyTagSet(id: 3, name: "Fixture Holds", isEnabled: false, color: nil, tags: [], isDeletable: true),
+            tagSetIDs: [1, 2, 3],
+            apiuid: 1234567,
+            apikey: "0123456789abcdef",
+            message: nil
+        ))
+    }
+
+    // Neither page of 2026-11-22 carries the control, and the tags form's Delete Selected is not it.
+    @Test(arguments: [HTMLFilename.myTagsTagSet1, .myTagsTagSet2])
+    func aPageWithoutTheDeleteControlOffersNoDelete(filename: HTMLFilename) throws {
+        let page = try Parser.parseMyTags(doc: htmlDocument(filename: filename))
+
+        #expect(!page.tagSet.isDeletable)
+    }
+
+    // A disabled Delete control offers nothing (U-1a of quick 261126-udx).
+    @Test
+    func aPageWhoseDeleteControlIsDisabledOffersNoDelete() throws {
+        let html = try htmlString(filename: .myTagsTagSet3)
+        let target = #"onclick="do_tagset_delete()" value="Delete" />"#
+        try #require(html.contains(target))
+        let disabled = #"onclick="do_tagset_delete()" value="Delete" disabled="disabled" />"#
+        let document = try Kanna.HTML(html: html.replacing(target, with: disabled), encoding: .utf8)
+        let page = try Parser.parseMyTags(doc: document)
+
+        #expect(!page.tagSet.isDeletable)
     }
 
     // A refused form post answers the same page with the reason at the top of `#outer`.

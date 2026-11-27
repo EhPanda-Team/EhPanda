@@ -113,7 +113,8 @@ public struct MyTagDraft: Equatable, Sendable {
     }
 }
 
-/// One tag set of My Tags: its name, whether it is enabled, its default colour, and its tags in the page's order.
+/// One tag set of My Tags: its name, whether it is enabled, its default colour, its tags in the page's order, and
+/// whether the site offers to delete it.
 public struct MyTagSet: Codable, Equatable, Hashable, Identifiable, Sendable {
     public let id: Int
     public let name: String
@@ -122,13 +123,38 @@ public struct MyTagSet: Codable, Equatable, Hashable, Identifiable, Sendable {
     /// The colour of the set's tags that have none of their own.
     public var color: SiteColor?
     public var tags: [MyTag]
+    /// Whether the set's page, as last read, offers deleting the set (U-1 of quick 261126-udx). Which sets the site
+    /// offers it for is its own rule, unknown here, so only the page says it; every page read brings its word into
+    /// the cache with the rest of the set.
+    ///
+    /// Never stored: `CodingKeys` leaves it out, so a stored set keeps the shape it always had and decodes as before,
+    /// and a set read back from storage offers nothing until a page of it is read again. A stored offer could outlive
+    /// the page that made it.
+    public private(set) var isDeletable = false
 
-    public init(id: Int, name: String, isEnabled: Bool, color: SiteColor?, tags: [MyTag]) {
+    /// The stored fields; `isDeletable` is left out on purpose (see its note).
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case isEnabled
+        case color
+        case tags
+    }
+
+    public init(
+        id: Int,
+        name: String,
+        isEnabled: Bool,
+        color: SiteColor?,
+        tags: [MyTag],
+        isDeletable: Bool = false
+    ) {
         self.id = id
         self.name = name
         self.isEnabled = isEnabled
         self.color = color
         self.tags = tags
+        self.isDeletable = isDeletable
     }
 }
 

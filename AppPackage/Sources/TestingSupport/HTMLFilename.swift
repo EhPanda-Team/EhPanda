@@ -51,4 +51,7 @@ public enum HTMLFilename: String, Sendable {
     // My Tags (synthetic pages in the site's markup of 2026-11-22: invented tags and credentials)
     case myTagsTagSet1 = "MyTagsTagSet1"
     case myTagsTagSet2 = "MyTagsTagSet2"
+    // An empty set whose page offers deleting it (quick 261126-udx). No page with that control has been read, so its
+    // Delete button is drawn after New and Rename in their markup, calling the site's `do_tagset_delete()`.
+    case myTagsTagSet3 = "MyTagsTagSet3"
 }
