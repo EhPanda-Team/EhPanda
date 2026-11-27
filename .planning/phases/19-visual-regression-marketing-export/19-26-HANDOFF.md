@@ -6,8 +6,11 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
 
 ## State
 
-- Branch tip `cd5191b4d` (`docs(19-26): record the measured heights`) plus this file. Nothing is pushed; the branch
-  has no upstream. Every push, PR, merge and hosted run needs the owner's go-ahead in words.
+- Branch tip `cd5191b4d` (`docs(19-26): record the measured heights`) plus this file. The branch was pushed to
+  `origin` by the owner on 2026-11-27 (tip `810de0f82`, no PR); git on this Mac has no stored GitHub credentials, so a
+  later push is the owner's to run. Every push, PR, merge and hosted run needs the owner's go-ahead in words.
+- The branch `fix/snapshot-scenarios` was deleted locally and on `origin` on 2026-11-27, with the owner's go-ahead,
+  after this branch (which holds equivalents of all its changes) was pushed; its stale worktree entry was pruned.
 - Task 1 is done: all measuring runs finished, `propose` returned 0 (118 states proposed, 4,140 finding lines over 54
   states), and `19-26-HEIGHTS.md` holds the runs, the proposal summary, the findings and the storage projection
   (7.877 GB projected against 19-12's 5 GB line; every slice under 1.8 GB).
@@ -18,7 +21,7 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
 
 ## Do not delete (local only, not in git)
 
-- The worktree folder itself, and the branch (unpushed).
+- The worktree folder itself.
 - `.capture/agent-work/phase19-26` (286 MB): the twelve input runs' `heights.jsonl` (`phone-*`, `pad-*`),
   `proposal.json` (Task 3's `apply --proposal` input; the verify command compares a regenerated copy with it),
   `interrupted-pad-landscape-xSmall` (the set-aside partial run), the driver logs, `owner-answers.md` (the same
@@ -28,7 +31,6 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
   evidence cited by their records.
 - The simulators `EhPanda iPhone Air (phase19)` and `EhPanda iPad Pro 11-inch (M5) (phase19)` and the iOS 27.2
   runtime they use (the measurements are 27.2 values, owner decision of 2026-11-25).
-- Do not touch `.capture/agent-work/snapscen` or the branch `fix/snapshot-scenarios`.
 
 ## Owner answers so far (verbatim)
 
