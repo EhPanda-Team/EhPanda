@@ -58,7 +58,15 @@ struct PageHeights { ... }
     at coordinates that moved from run to run), while a reflow moves far more (owner decision 2026-11-27 in 19-26:
     「改用靜止判斷的規則」);
   - pictures above 8192 device pixels in one dimension need the sliced composite. The slices are always the native
-    viewport size: cross-origin reads are not byte-identical at glass rims and SF Symbols.
+    viewport size: cross-origin reads are not byte-identical at glass rims and SF Symbols;
+  - a form sheet that floats in its container (the iPad's, 580 x 660 pt) keeps its own size whatever the window's
+    height, so content taller than it was in no picture at any height. The harness fits every such sheet to its
+    content, never under its own size, through its preferred height, which UIKit keeps within the window less its
+    margins (32 pt above and below): before the operating step, after it, and after the settle, with a second settle
+    when that changed anything. The window's height stays the committed one; content taller than the window allows
+    still fails the check. A sheet that fills the window's height, as on the iPhone, grows with the window already and
+    is left as it is (owner decisions 2026-11-27 in 19-26: 「sheet 的狀況應當測量 sheet 內容」, then 「貼合內容」; the
+    reader's settings sheet is captured whole like the other sheets: 「當 sheet，整個內容都拍」).
 - **Two kinds of step (owner decision 2026-11-23: 「把步驟拆成兩種」, split the steps into two kinds):** a scenario's
   steps are marked by their argument label. A stillness step (`still:`) only lets what `make` built finish and hold it
   still (it stops a spinner or a caret's blink, or waits for a keyboard, an alert or a glass shadow the state itself

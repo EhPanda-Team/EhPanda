@@ -152,7 +152,7 @@ extension HostedHierarchy {
         return PageNeed(points: ceil(((window.bounds.height + largest) * scale).rounded() / scale), scrollView: widest)
     }
 
-    private static func isVisibleAndScrolling(_ scrollView: UIScrollView, in window: UIWindow) -> Bool {
+    static func isVisibleAndScrolling(_ scrollView: UIScrollView, in window: UIWindow) -> Bool {
         guard scrollView.isScrollEnabled else { return false }
         var view: UIView? = scrollView
         while let current = view, current !== window {
@@ -333,7 +333,7 @@ extension HostedWindowCapture {
     /// then each taller height in a fresh hosting of the tall path (`make`, host, `still` at native size, then
     /// ``prepareGrownWindow(_:to:minimumReads:freeze:)`` as the capture does, `interact`, settle). A taller height
     /// needs a fresh hosting because an operating step cannot be undone, and the owner's order grows the window
-    /// before it.
+    /// before it. The floating form sheets are fitted as the capture fits them (``fitSheets(in:)``).
     /// After each settle the need is read (``HostedHierarchy/pageNeed(in:)``), together with the class and height of
     /// the scroll view that sets it and whether that scroll view avoids a keyboard that is up (`keyboardTop`,
     /// ``PageNeed/avoidsKeyboard(topAt:in:)``). Then:
@@ -432,7 +432,7 @@ extension HostedWindowCapture {
     }
 
     /// `controller`, the controllers it holds and what it presents, each followed by its own.
-    private static func controllers(from controller: UIViewController?) -> [UIViewController] {
+    static func controllers(from controller: UIViewController?) -> [UIViewController] {
         guard let controller else { return [] }
         return [controller] + (controller.children + [controller.presentedViewController].compactMap({ $0 }))
             .flatMap(controllers(from:))
@@ -479,7 +479,8 @@ extension HostedWindowCapture {
     }
 
     /// One hosting at `height`: the stillness step at native size, the window grown (above its own height), the
-    /// operating step, the settle, and the read.
+    /// operating step between two fittings of the form sheets, the settle (taken again when the fitting after it
+    /// changed anything), and the read.
     private static func measureHosted(
         window: UIWindow, height: CGFloat, stages: Stages, freezeViewport: @MainActor (Bool) -> Void,
         classifiers: Classifiers
@@ -511,16 +512,26 @@ extension HostedWindowCapture {
             case .geometry: return .failed(tallWindowGeometryReason)
             }
         }
+        if let failed = failure(of: await fitSheets(in: window)) { return failed }
         if let interact = stages.interact {
             do {
                 try await interact(window)
             } catch {
                 return .failed("\(interactionReason):\(stepFailure(error))")
             }
+            if let failed = failure(of: await fitSheets(in: window)) { return failed }
         }
         do {
             guard case .settled = try await settleWindow(window, nativeSize: nativeSize, minimumReads: minimumReads)
             else { return .failed(settleTimeoutReason) }
+            // The fitting after the settle, as the capture's (``fitSheets(in:)``).
+            let fit = await fitSheets(in: window)
+            if let failed = failure(of: fit) { return failed }
+            if fit == .fitted {
+                guard case .settled = try await settleWindow(
+                    window, nativeSize: nativeSize, minimumReads: minimumReads
+                ) else { return .failed(settleTimeoutReason) }
+            }
         } catch {
             return .failed("render-server:\(error)")
         }
@@ -532,6 +543,15 @@ extension HostedWindowCapture {
             points: need.points, scrollViewClass: need.scrollView.map({ String(describing: type(of: $0)) }),
             scrollViewHeight: need.scrollView?.bounds.height ?? 0, avoidsKeyboard: avoids, popoverOutsideScene: outside
         ))
+    }
+
+    /// The hosting a fitting of the form sheets ends: failed when a presentation never finished or the wait for one
+    /// was cancelled, else `nil`.
+    private static func failure(of fit: SheetFit) -> Hosting? {
+        switch fit {
+        case .unchanged, .fitted: nil
+        case .presenting, .cancelled: .failed(presentingReason)
+        }
     }
 
     /// Settles the window as it is: on 1x reads of the window, or, above what the render server draws in one read,

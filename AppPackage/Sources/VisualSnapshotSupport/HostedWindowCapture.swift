@@ -482,7 +482,8 @@ public enum HostedWindowCapture {
     /// The order on the screen-sized path is host, `still`, `interact`, settle, capture, check: the two steps run back
     /// to back, which is the one step of before. On the tall path it is host, `still`, native settle, freeze and
     /// verify, grow (status bar companion, size class pins, resize, one sample, geometry check), `interact`, settle,
-    /// capture, check.
+    /// capture, check. On both, the floating form sheets are fitted to their content (``fitSheets(in:)``) before and
+    /// after `interact` and after the settle, which is taken again when that fitting changed anything.
     ///
     /// `height`, when given, is the coordinate's committed page height (19-19). A height at or under the window's
     /// own takes the screen-sized path; a taller one is taken in the window resized to it (``attemptTall``).
@@ -738,13 +739,27 @@ public enum HostedWindowCapture {
                 reason: settleTimeoutReason)
     }
 
-    /// Runs the user step, settles, captures and compares (or records) the hosted page.
+    /// The attempt a fitting of the form sheets (``fitSheets(in:)``) ends: a timeout, retried like any other, when a
+    /// presentation never finished or the wait for one was cancelled, else `nil`.
+    private static func timeout(of fit: SheetFit) -> Attempt? {
+        switch fit {
+        case .unchanged, .fitted:
+            nil
+        case .presenting, .cancelled:
+            Attempt(status: .timeout, settleSamples: 0, png: nil, difference: nil, reason: presentingReason)
+        }
+    }
+
+    /// Fits the form sheets, runs the user step, fits them again, then settles, fits them once more (settling again
+    /// when that changed anything), captures and compares (or records) the hosted page.
     ///
     /// `viewportSize`, when given, is the window's native size: the window is taller than the render server can draw
-    /// in one read, so the page is settled and captured in reads of that size (``attemptSliced``).
+    /// in one read, so the page is settled and captured in reads of that size (``attemptSliced``). That is only ever
+    /// the tall path, where the native settle has let every sheet finish appearing before the first fitting.
     private static func attemptHosted(
         window: UIWindow, request: Request, viewportSize: CGSize? = nil
     ) async -> Attempt {
+        if let timedOut = timeout(of: await fitSheets(in: window)) { return timedOut }
         if let interact = request.interact {
             do {
                 try await interact(window)
@@ -752,11 +767,19 @@ public enum HostedWindowCapture {
                 return Attempt(status: .error, settleSamples: 0, png: nil, difference: nil,
                                reason: "\(interactionReason):\(stepFailure(error))")
             }
+            if let timedOut = timeout(of: await fitSheets(in: window)) { return timedOut }
         }
         if let viewportSize {
             return await attemptSliced(window: window, request: request, viewportSize: viewportSize)
         }
-        let settledRead = await settleRead(window, minimumReads: request.minimumReads)
+        var settledRead = await settleRead(window, minimumReads: request.minimumReads)
+        if case .settled = settledRead.result {
+            let fit = await fitSheets(in: window)
+            if let timedOut = timeout(of: fit) { return timedOut }
+            if fit == .fitted {
+                settledRead = await settleRead(window, minimumReads: request.minimumReads)
+            }
+        }
         let settled = settledRead.result
         let image = settledRead.image ?? capture(window)
         let png = pngData(image)
