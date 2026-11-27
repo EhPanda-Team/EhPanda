@@ -1128,6 +1128,7 @@ let targets: [PackageDescription.Target] = [
         dependencies: [
             .module(.analyticsClient),
             .module(.appModels),
+            .module(.filtersFeature),
             // For building a GalleriesResult fixture: the success arm of the performed-search
             // signal buckets `response.galleries.count`, and the response type lives there.
             .module(.networkingFeature),

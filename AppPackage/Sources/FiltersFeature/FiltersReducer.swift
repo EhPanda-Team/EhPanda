@@ -133,5 +133,6 @@ public struct FiltersReducer: Sendable {
                 return .none
             }
         }
+        .ifLet(\.$confirmationDialog, action: \.confirmationDialog)
     }
 }
