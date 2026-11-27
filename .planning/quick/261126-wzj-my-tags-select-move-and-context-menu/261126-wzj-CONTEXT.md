@@ -1,8 +1,9 @@
 # Quick 261126-wzj: My Tags context menu, select mode, move and bulk delete
 
 Owner request (2026-11-26): the native My Tags page should replace the site's /mytags page; the owner approved the
-gap designs. This task covers the tags section's gaps. Branch `develop`; it runs after quick 261126-wzf lands (it
-needs that task's per-set tag counts for the Move menu).
+gap designs. This task covers the tags section's gaps. Branch `develop`; it runs after quick 261126-wzf lands and
+builds on it. Owner decision (2026-11-27): the Tag Set picker shows no tag counts, so reading each set's count moved
+here from 261126-wzf (J-0); only the Move menu shows it.
 
 ## The design (owner-approved 2026-11-26)
 
@@ -40,6 +41,10 @@ and a target. Deleting confirms first on the site ("Are you sure you wish to del
   (`trash`) trailing, both disabled with nothing selected; iPad shows the same toolbar at the bottom of the Settings
   sheet. Native APIs only (`List(selection:)`, `EditButton`-style edit mode, `.toolbar(.hidden, for: .tabBar)`,
   `ToolbarItem(placement: .bottomBar)`); no custom bars.
+- **J-0 Tag counts.** Each picker `<option>` reads `Name (N)`; the parser already strips ` (N)` from the name and must
+  keep N. The model carries a per-set tag count without breaking decoding of the persisted `User.myTags` cache
+  (follow 261126-udx's `isDeletable` pattern: in memory only, out of `CodingKeys`). For the shown set the count is
+  its tags' count. Parser tests for counts and model tests for the persistence shape join J-7.
 - **J-3 Move.** Move is a `Menu` with the header `my_tags.move_to` and every other set with its tag count
   (`my_tags.tag_count` / `my_tags.no_tags`); disabled when there is only one set. Choosing a set posts the mass form
   with that target; the loading view shows; on success the page shows the set without the moved tags and select mode
@@ -52,7 +57,7 @@ and a target. Deleting confirms first on the site ("Are you sure you wish to del
   the answer page is taken into the cache. A refusal keeps the selection.
 - **J-6 One request at a time.** While a move or delete is on its way, Move, Delete, Select All and Done are disabled.
 - **J-7 Tests.** Reducer tests for entering and leaving select mode (toolbar and context menu), toggling, select all
-  and deselect all, Move and Delete enabling, move success and failure, delete confirmation, success and failure, the
+  and deselect all, Move and Delete enabling, the Move menu's counts, move success and failure, delete confirmation, success and failure, the
   in-flight guard; request tests for the mass form with several ids and a target; Show Galleries' push.
 
 ## Copy
@@ -77,6 +82,8 @@ and reports. Edit, Done and Cancel reuse their existing keys; `my_tags.move` is 
 | `my_tags.move_to` | Move to Tag Set | In Tag-Set verschieben | 移動先 | 이동할 태그 세트 | 移动到其他标签组 | 移到其他標籤組 |
 | `my_tags.delete_tags.message` | one: Delete {count} tag from “%@”? / other: Delete {count} tags from “%@”? | one: {count} Tag aus dem Tag-Set „%@“ löschen? / other: {count} Tags aus dem Tag-Set „%@“ löschen? | other: タグセット「%@」から{count}個のタグを削除しますか？ | other: ‘%@’ 태그 세트에서 태그 {count}개를 삭제하시겠습니까? | other: 要从标签组“%@”中删除这 {count} 个标签吗？ | other: 要從「%@」刪除 {count} 個標籤嗎？ |
 | `my_tags.delete_tags` | one: Delete Tag / other: Delete {count} Tags | one: {count} Tag löschen / other: {count} Tags löschen | other: {count}個のタグを削除 | other: 태그 {count}개 삭제 | other: 删除 {count} 个标签 | other: 刪除 {count} 個標籤 |
+| `my_tags.no_tags` | No tags | Keine Tags | タグなし | 태그 없음 | 没有标签 | 沒有標籤 |
+| `my_tags.tag_count` | one: {count} tag / other: {count} tags | one: {count} Tag / other: {count} Tags | other: タグ{count}個 | other: 태그 {count}개 | other: {count} 个标签 | other: {count} 個標籤 |
 | `my_tags.move_failed` | Couldn’t Move Tags | Tags nicht verschoben | タグを移動できません | 태그를 이동하지 못함 | 无法移动标签 | 無法移動標籤 |
 | `my_tags.delete_tags_failed` | Couldn’t Delete Tags | Tags nicht gelöscht | タグを削除できません | 태그를 삭제하지 못함 | 无法删除标签 | 無法刪除標籤 |
 | `my_tags.show_galleries` | Show Galleries | Galerien mit diesem Tag anzeigen | このタグのギャラリーを表示 | 이 태그가 붙은 갤러리 보기 | 查看带有此标签的画廊 | 顯示含有此標籤的畫廊 |
