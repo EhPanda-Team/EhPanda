@@ -98,7 +98,9 @@ private final class StatusBarAppearanceController: UIViewController {
     }
 }
 
-/// What a hosted page needs: the window height that covers it, and the scroll view that sets it.
+/// What a hosted page needs: the window height that covers it, and the scroll view that sets it. Main-actor
+/// isolated: it holds a scroll view and reads it, its window and its screen.
+@MainActor
 struct PageNeed {
     /// The window height the page needs, in whole points.
     let points: CGFloat
@@ -440,7 +442,7 @@ extension HostedWindowCapture {
     /// space. The scene's bounds stay at the screen's size while the window is taller (19-30), and UIKit draws an
     /// arrowed popover only within them: a source below them gets no arrow and a popover that is not on its control.
     static func popoverSourceLiesOutsideScene(_ source: CGRect, in window: UIWindow) -> Bool {
-        guard let space = window.windowScene?.coordinateSpace else { return false }
+        guard let space = window.windowScene?.effectiveGeometry.coordinateSpace else { return false }
         return !space.bounds.contains(window.coordinateSpace.convert(source, to: space))
     }
 
