@@ -39,8 +39,9 @@ and iPad landscape, in `.capture/agent-work/phase19-26/remeasure`: 2,304 lines, 
   `quick-search-filters-reset-confirmation` (as in the first accessibility5 run): TCA reports that the binding at
   `FiltersView.swift:38` was set to nil while the store's dialog state stayed set. `FiltersReducer` has no
   `.ifLet(\.$confirmationDialog, action: \.confirmationDialog)` (the only `@Presents` in the sources without one), so
-  dismissing the Reset dialog without choosing leaves its state set. An app defect outside 19-26, raised with the
-  owner.
+  dismissing the Reset dialog without choosing leaves its state set. An app defect outside 19-26; the owner chose to
+  fix it first (「先修這個」): `eb8f4ee04`, tests first (dismissing and confirming both clear the dialog). The 24
+  coordinates stay `cannot-cover:popover`.
 - The worktree's HEAD was found detached twice on 2026-11-27 at the branch tip (cause unknown, nothing lost); each time
   it was re-attached with `git switch claude/phase19-deferred-0c4fb6`. Check `git status -sb` before committing.
 
@@ -137,7 +138,6 @@ in `.capture/agent-work/phase19-26/recheck-notes.md`, `dnc-probe`, `error-rechec
 
 1. The sheet-content design, shown before building.
 2. Approval of the heights to commit (the re-measures are done).
-3. Outside 19-26: whether to fix the Filters Reset dialog's missing `ifLet` (own commit, test first).
 
 ## Task 3 work the answers add (beyond the plan's text)
 
