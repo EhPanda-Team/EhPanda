@@ -5,10 +5,11 @@ import Kanna
 import ParserFeature
 
 // The My Tags reads and writes (port of PR 462 item 10; the site contract read live on 2026-11-22). Every request but
-// the create keeps `fetch`'s default four attempts: the reads are GETs, and a replayed write asks the site for the
-// same end state (an add of a tag the set holds is taken unchanged, a remove of a tag the set no longer holds removes
-// nothing, an edit or a tag set update sets the same values), so a lost response is safe to ask for again. A replayed
-// create would make another set, so `CreateMyTagSetRequest` is put on the wire once (N-4 of quick 261126-pfh).
+// the create and the delete keeps `fetch`'s default four attempts: the reads are GETs, and a replayed write asks the
+// site for the same end state (an add of a tag the set holds is taken unchanged, a remove of a tag the set no longer
+// holds removes nothing, an edit or a tag set update sets the same values), so a lost response is safe to ask for
+// again. A replayed create would make another set (N-4 of quick 261126-pfh), and a replayed delete would find its set
+// gone and come back refused though the delete took (U-5 of quick 261126-udx), so both are put on the wire once.
 
 extension Request {
     /// A My Tags page the site served, or answered a form post with.
@@ -34,6 +35,26 @@ extension Request {
         request.setURLEncodedContentType()
         let (data, _) = try await fetch(request, in: session, attempts: attempts)
         return try myTagsPage(data: data)
+    }
+
+    /// The tag set form's fields in the browser's order, as the site's `do_tagset_post` submits the form: the action,
+    /// the name (the new set's for a create, else the form's empty field), the Enabled box, which sends nothing when
+    /// unchecked, and the colour, empty for none.
+    fileprivate func tagSetFormFields(
+        action: String,
+        name: String,
+        isEnabled: Bool,
+        color: SiteColor?
+    ) -> [URLQueryItem] {
+        var fields = [
+            URLQueryItem(name: "tagset_action", value: action),
+            URLQueryItem(name: "tagset_name", value: name)
+        ]
+        if isEnabled {
+            fields.append(URLQueryItem(name: "tagset_enable", value: "on"))
+        }
+        fields.append(URLQueryItem(name: "tagset_color", value: color?.hex ?? ""))
+        return fields
     }
 }
 
@@ -180,14 +201,7 @@ public struct UpdateMyTagSetRequest: Request {
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> MyTagsPage {
-        var fields = [
-            URLQueryItem(name: "tagset_action", value: "update"),
-            URLQueryItem(name: "tagset_name", value: "")
-        ]
-        if isEnabled {
-            fields.append(URLQueryItem(name: "tagset_enable", value: "on"))
-        }
-        fields.append(URLQueryItem(name: "tagset_color", value: color?.hex ?? ""))
+        let fields = tagSetFormFields(action: "update", name: "", isEnabled: isEnabled, color: color)
         let url = Defaults.URL.myTags(host: host, tagSetID: tagSetID)
         return try await postMyTagsForm(fields, to: url, in: urlSession)
     }
@@ -222,15 +236,42 @@ public struct CreateMyTagSetRequest: Request {
     public let urlSession: URLSession
 
     public func response() async throws(AppError) -> MyTagsPage {
-        var fields = [
-            URLQueryItem(name: "tagset_action", value: "create"),
-            URLQueryItem(name: "tagset_name", value: name)
-        ]
-        if shownTagSet.isEnabled {
-            fields.append(URLQueryItem(name: "tagset_enable", value: "on"))
-        }
-        fields.append(URLQueryItem(name: "tagset_color", value: shownTagSet.color?.hex ?? ""))
+        let fields = tagSetFormFields(
+            action: "create", name: name, isEnabled: shownTagSet.isEnabled, color: shownTagSet.color
+        )
         let url = Defaults.URL.myTags(host: host, tagSetID: shownTagSet.id)
+        return try await postMyTagsForm(fields, to: url, in: urlSession, attempts: 1)
+    }
+}
+
+/// Deletes a tag set through the tag set form's Delete (`tagset_action=delete`), as the site's `do_tagset_delete`
+/// posts it once its confirmation is accepted: the form of the set the page shows, which is the set deleted, to that
+/// set's page, its fields in the browser's order. Those are the form's empty `tagset_name`, as with an update, the
+/// set's Enabled box, which sends nothing when unchecked, and its colour. Answers the page the site returns, which
+/// carries the reason when it refused.
+///
+/// Put on the wire once (U-5 of quick 261126-udx). A delete the site took whose response was lost looks the same here
+/// as one it never received, and posting it again would find the set gone, so the site's answer would read as a
+/// refusal of a delete that took. A lost response shows the failure instead, and the next read of My Tags shows
+/// whether the set is gone.
+public struct DeleteMyTagSetRequest: Request {
+    public init(
+        host: GalleryHost,
+        tagSet: MyTagSet,
+        urlSession: URLSession = .shared
+    ) {
+        self.host = host
+        self.tagSet = tagSet
+        self.urlSession = urlSession
+    }
+    public let host: GalleryHost
+    /// The set to delete, the one the page shows, whose form the delete is posted from.
+    public let tagSet: MyTagSet
+    public let urlSession: URLSession
+
+    public func response() async throws(AppError) -> MyTagsPage {
+        let fields = tagSetFormFields(action: "delete", name: "", isEnabled: tagSet.isEnabled, color: tagSet.color)
+        let url = Defaults.URL.myTags(host: host, tagSetID: tagSet.id)
         return try await postMyTagsForm(fields, to: url, in: urlSession, attempts: 1)
     }
 }

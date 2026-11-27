@@ -53,6 +53,32 @@ struct MyTagsRequestTests: TestHelper {
         expectEquivalentURL(urls.last, set2URL)
     }
 
+    // Each set's page says whether it offers deleting the set, and the fetch keeps each set's word (U-1 of quick
+    // 261126-udx).
+    @Test
+    func theFetchKeepsEachSetsDeleteOffer() async throws {
+        let set1URL = try #require(Self.tagSet1URL)
+        let set2URL = try #require(Self.tagSet2URL)
+        let page1 = try fixture(.myTagsTagSet1)
+        let html2 = try htmlString(filename: .myTagsTagSet2)
+        let rename = #"<input type="button" onclick="do_tagset_rename()" value="Rename" />"#
+        try #require(html2.contains(rename))
+        let delete = #" <input type="button" onclick="do_tagset_delete()" value="Delete" />"#
+        let page2 = Data(html2.replacing(rename, with: rename + delete).utf8)
+        let (session, handle) = makeStubbedSession(script: StubScript([
+            set1URL: [.http(status: 200, data: page1)],
+            set2URL: [.http(status: 200, data: page2)]
+        ]))
+        defer { cleanUp(session: session, handle: handle) }
+
+        let response = try await capture { () async throws(AppError) -> MyTagsResponse in
+            try await MyTagsRequest(host: .ehentai, urlSession: session).response()
+        }
+        .get()
+
+        #expect(response.myTags.tagSets.map(\.isDeletable) == [false, true])
+    }
+
     @Test
     func aTagSetsPageIsReadAtThePickersAddress() async throws {
         let url = try #require(Self.tagSet2URL)
@@ -218,6 +244,53 @@ struct MyTagsRequestTests: TestHelper {
         #expect(handle.attempts(for: url) == 1)
     }
 
+    // The delete posts the set's own form, as a browser does once the site's confirmation is accepted: the empty name,
+    // then an unchecked Enabled box sends no field, and no colour sends the field empty.
+    @Test
+    func aTagSetDeletePostsTheSetsFormInOrder() async throws {
+        let url = try #require(Self.tagSet2URL)
+        let page = try fixture(.myTagsTagSet1)
+        let (session, handle) = makeStubbedSession(script: StubScript([
+            url: [.http(status: 200, data: page), .http(status: 200, data: page)]
+        ]))
+        defer { cleanUp(session: session, handle: handle) }
+        let green = SiteColor(red: 0x22, green: 0xAA, blue: 0x55)
+        let enabled = MyTagSet(id: 2, name: "Fixture Picks", isEnabled: true, color: green, tags: [])
+        let disabled = MyTagSet(id: 2, name: "Fixture Picks", isEnabled: false, color: nil, tags: [])
+
+        let first = try await deleteTagSet(enabled, session: session).get()
+        let second = try await deleteTagSet(disabled, session: session).get()
+
+        #expect(first.tagSet.id == 1)
+        #expect(second.tagSet.id == 1)
+        let requests = handle.receivedRequests
+        #expect(requests.map(\.httpMethod) == ["POST", "POST"])
+        expectEquivalentURL(requests.first?.url, url)
+        #expect(requests.first?.value(forHTTPHeaderField: "Content-Type") == "application/x-www-form-urlencoded")
+        #expect(requests.map({ body(of: $0) }) == [
+            "tagset_action=delete&tagset_name=&tagset_enable=on&tagset_color=%2322AA55",
+            "tagset_action=delete&tagset_name=&tagset_color="
+        ])
+    }
+
+    // A delete the site took whose answer was lost looks like one it never saw, and posting it again would find the
+    // set gone and come back refused though the delete took, so a delete is put on the wire once (U-5).
+    @Test
+    func aTagSetDeleteIsNotRetriedAfterATransportFailure() async throws {
+        let url = try #require(Self.tagSet2URL)
+        let page = try fixture(.myTagsTagSet1)
+        let (session, handle) = makeStubbedSession(script: StubScript([
+            url: [.transportFailure(.networkConnectionLost), .http(status: 200, data: page)]
+        ]))
+        defer { cleanUp(session: session, handle: handle) }
+        let shown = MyTagSet(id: 2, name: "Fixture Picks", isEnabled: false, color: nil, tags: [])
+
+        let result = await deleteTagSet(shown, session: session)
+
+        #expect(result == .failure(.networkingFailed))
+        #expect(handle.attempts(for: url) == 1)
+    }
+
     @Test
     func anEditPostsSetUserTagWithTheTagsStateColourAndWeight() async throws {
         let url = try #require(Self.apiURL)
@@ -325,6 +398,12 @@ struct MyTagsRequestTests: TestHelper {
                 host: .ehentai, name: name, shownTagSet: shownTagSet, urlSession: session
             )
             .response()
+        }
+    }
+
+    private func deleteTagSet(_ tagSet: MyTagSet, session: URLSession) async -> Result<MyTagsPage, AppError> {
+        await capture { () async throws(AppError) -> MyTagsPage in
+            try await DeleteMyTagSetRequest(host: .ehentai, tagSet: tagSet, urlSession: session).response()
         }
     }
 

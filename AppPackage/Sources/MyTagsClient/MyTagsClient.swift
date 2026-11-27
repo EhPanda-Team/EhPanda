@@ -3,7 +3,8 @@ public import ComposableArchitecture
 import NetworkingFeature
 
 /// Every My Tags call a reducer makes: the reads of every tag set or one, the writes of a tag or a tag set, and the
-/// create of a tag set (port of PR 462 item 10; the create, quick 261126-pfh).
+/// create and the delete of a tag set (port of PR 462 item 10; the create, quick 261126-pfh; the delete, quick
+/// 261126-udx).
 ///
 /// One dependency, so a test states each outcome and the unimplemented test value reports any call a test did not
 /// expect. `live` builds the requests with their own defaults on the host the caller has selected.
@@ -45,6 +46,12 @@ public struct MyTagsClient: Sendable {
         _ name: String,
         _ shownTagSet: MyTagSet
     ) async throws(AppError) -> MyTagsPage
+    /// Deletes `tagSet`, the set the page shows, from its own form; answers the page the site returned. Put on the
+    /// wire once (`DeleteMyTagSetRequest`).
+    public var deleteTagSet: @Sendable (
+        _ host: GalleryHost,
+        _ tagSet: MyTagSet
+    ) async throws(AppError) -> MyTagsPage
 }
 
 // MARK: Live
@@ -56,7 +63,8 @@ extension MyTagsClient {
         updateTag: requestUpdateTag,
         removeTags: requestRemoveTags,
         updateTagSet: requestUpdateTagSet,
-        createTagSet: requestCreateTagSet
+        createTagSet: requestCreateTagSet,
+        deleteTagSet: requestDeleteTagSet
     )
 
     private static func requestMyTags(host: GalleryHost) async throws(AppError) -> MyTagsResponse {
@@ -109,6 +117,13 @@ extension MyTagsClient {
     ) async throws(AppError) -> MyTagsPage {
         try await CreateMyTagSetRequest(host: host, name: name, shownTagSet: shownTagSet).response()
     }
+
+    private static func requestDeleteTagSet(
+        host: GalleryHost,
+        tagSet: MyTagSet
+    ) async throws(AppError) -> MyTagsPage {
+        try await DeleteMyTagSetRequest(host: host, tagSet: tagSet).response()
+    }
 }
 
 public enum MyTagsClientKey: DependencyKey {
@@ -149,6 +164,9 @@ extension MyTagsClient {
         },
         createTagSet: { (_: GalleryHost, _: String, _: MyTagSet) async throws(AppError) -> MyTagsPage in
             throw .notFound
+        },
+        deleteTagSet: { (_: GalleryHost, _: MyTagSet) async throws(AppError) -> MyTagsPage in
+            throw .notFound
         }
     )
 
@@ -173,6 +191,9 @@ extension MyTagsClient {
         ),
         createTagSet: IssueReporting.unimplemented(
             "MyTagsClient.createTagSet", throwing: AppError.unknown
+        ),
+        deleteTagSet: IssueReporting.unimplemented(
+            "MyTagsClient.deleteTagSet", throwing: AppError.unknown
         )
     )
 
@@ -199,6 +220,9 @@ extension MyTagsClient {
                 throw error
             },
             createTagSet: { (_: GalleryHost, _: String, _: MyTagSet) async throws(AppError) -> MyTagsPage in
+                throw error
+            },
+            deleteTagSet: { (_: GalleryHost, _: MyTagSet) async throws(AppError) -> MyTagsPage in
                 throw error
             }
         )
