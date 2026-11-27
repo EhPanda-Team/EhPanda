@@ -13,8 +13,8 @@ import SystemNotification
 
 /// The My Tags page (port of PR 462 item 10, design approved 2026-11-22): the tag set (its picker, Enabled and default
 /// colour, New Tag Set, Rename Tag Set, and Delete Tag Set while the site offers it) and its tags, one row each; a row
-/// opens Edit Tag and a trailing swipe removes the tag. Add Tag sits in the toolbar. Signed out it shows Log In;
-/// loading, the loading view; failed, the error with Open in Browser.
+/// opens Edit Tag and a trailing swipe removes the tag. Add Tag sits in the toolbar. Signed out, or once the site
+/// answers as signed out, it shows Log In; loading, the loading view; failed, the error with Open in Browser.
 struct MyTagsView: View {
     @Bindable private var store: StoreOf<MyTagsFeature>
     @SharedReader(.didLogin) private var didLogin: Bool
@@ -41,9 +41,10 @@ struct MyTagsView: View {
             .navigationTitle(.myTags)
     }
 
-    /// The page in its state: Log In signed out, the error with Open in Browser, the set's form, else loading.
+    /// The page in its state: Log In signed out or once the site answers as signed out (W-5 of quick 261126-wzf), the
+    /// error with Open in Browser, the set's form, else loading.
     @ContentBuilder private var content: some View {
-        if !didLogin {
+        if !didLogin || store.isSessionExpired {
             NotLoginView(action: { store.send(.delegate(.pushLogin)) })
         } else if case .failed(let error) = store.loadingState {
             ErrorView(

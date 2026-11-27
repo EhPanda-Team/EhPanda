@@ -30,6 +30,9 @@ public import SwiftUI
 /// Rename Tag Set asks for the new name in an alert that starts with the set's name, then has the site rename the set
 /// from its own form; the picker shows the new name at once, and a refusal or a failure puts the old name back and
 /// shows the alert on the row (quick 261126-wzf).
+///
+/// A read or a write the site answers as signed out shows Log In, as the page does signed out, instead of the error or
+/// an alert; so does Edit Tag's, beneath its sheet. A sign-in then reads every set again (W-5 of quick 261126-wzf).
 @Reducer
 public struct MyTagsFeature: Sendable {
     @Reducer
@@ -130,6 +133,9 @@ public struct MyTagsFeature: Sendable {
         }
         /// The site's page the browser sheet shows; get-only, so the sheet binds through `browserChanged`.
         public var browserURL: URL? { destination?.browser }
+        /// The site answered a read or a write as signed out (W-5 of quick 261126-wzf): the page shows Log In, as it
+        /// does signed out, until a read after a sign-in succeeds, since every read starts by loading.
+        public var isSessionExpired: Bool { loadingState == .failed(.loginRequired) }
     }
 
     public enum Action {
@@ -220,6 +226,7 @@ public struct MyTagsFeature: Sendable {
                 state.$user.withLock({ $0.myTags = response.myTags.selecting($0.myTags?.selectedTagSetID) })
                 return .none
 
+            // A read answered as signed out fails as `loginRequired`, which shows Log In (`isSessionExpired`).
             case .fetchMyTagsDone(.failure(let error)), .fetchTagSetDone(.failure(let error)):
                 state.loadingState = .failed(error)
                 return .none
@@ -260,7 +267,7 @@ public struct MyTagsFeature: Sendable {
                     state.$user.withLock({ $0.myTags = $0.myTags?.updating(confirmed) })
                 }
                 state.confirmedTagSet = nil
-                return presentAlert(&state, source, title: .RLocalizable.myTagsSaveFailed, message: error.alertText)
+                return presentFailure(&state, source, title: .RLocalizable.myTagsSaveFailed, error: error)
 
             case .addTagTapped:
                 guard let tagSet = state.selectedTagSet else { return .none }
@@ -292,9 +299,7 @@ public struct MyTagsFeature: Sendable {
                 return presentAlert(&state, .tag(tagID), title: .RLocalizable.myTagsRemoveFailed, message: message)
 
             case .removeTagDone(let tagID, .failure(let error)):
-                return presentAlert(
-                    &state, .tag(tagID), title: .RLocalizable.myTagsRemoveFailed, message: error.alertText
-                )
+                return presentFailure(&state, .tag(tagID), title: .RLocalizable.myTagsRemoveFailed, error: error)
 
             // The name starts empty each time (N-2); Create waits for one (N-3).
             case .newTagSetTapped:
@@ -369,9 +374,7 @@ public struct MyTagsFeature: Sendable {
 
             case .createTagSetDone(_, .failure(let error)):
                 state.isChangingTagSets = false
-                return presentAlert(
-                    &state, .newTagSet, title: .myTagsCreateTagSetFailed, message: error.alertText
-                )
+                return presentFailure(&state, .newTagSet, title: .myTagsCreateTagSetFailed, error: error)
 
             // The alert names the set it was opened for, the one the page shows, and starts with its name, which
             // Rename waits to see changed (W-1).
@@ -455,7 +458,7 @@ public struct MyTagsFeature: Sendable {
             case .renameTagSetDone(let tagSetID, let oldName, _, .failure(let error)):
                 state.isChangingTagSets = false
                 state.$user.withLock({ $0.myTags = $0.myTags?.renaming(tagSetID, to: oldName) })
-                return presentAlert(&state, .renameTagSet, title: .myTagsRenameFailed, message: error.alertText)
+                return presentFailure(&state, .renameTagSet, title: .myTagsRenameFailed, error: error)
 
             // The confirmation names the set it was opened for, the one the page shows (U-3).
             case .deleteTagSetTapped:
@@ -516,12 +519,15 @@ public struct MyTagsFeature: Sendable {
 
             case .deleteTagSetDone(_, .failure(let error)):
                 state.isChangingTagSets = false
-                return presentAlert(
-                    &state, .deleteTagSet, title: .myTagsDeleteTagSetFailed, message: error.alertText
-                )
+                return presentFailure(&state, .deleteTagSet, title: .myTagsDeleteTagSetFailed, error: error)
 
             case .destination(.presented(.editor(.delegate(.removed)))):
                 state.toast = .success(caption: .RLocalizable.myTagsRemoved)
+                return .none
+
+            // Edit Tag keeps its alert, and the page beneath shows Log In (W-5 of quick 261126-wzf).
+            case .destination(.presented(.editor(.delegate(.signedOut)))):
+                state.loadingState = .failed(.loginRequired)
                 return .none
 
             case .openInBrowserTapped:
@@ -592,6 +598,21 @@ public struct MyTagsFeature: Sendable {
             await send(.updateTagSetDone(source, result))
         }
         .cancellable(id: CancelID.updateTagSet, cancelInFlight: true)
+    }
+
+    /// A write's failure: an answer as signed out shows Log In instead of an alert (W-5 of quick 261126-wzf); any other
+    /// failure shows the alert on the control that sent it.
+    private func presentFailure(
+        _ state: inout State,
+        _ source: AlertSource,
+        title: LocalizedStringResource,
+        error: AppError
+    ) -> Effect<Action> {
+        guard error != .loginRequired else {
+            state.loadingState = .failed(.loginRequired)
+            return .none
+        }
+        return presentAlert(&state, source, title: title, message: error.alertText)
     }
 
     private func presentAlert(

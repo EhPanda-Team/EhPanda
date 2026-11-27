@@ -257,8 +257,13 @@ extension SettingReducer {
                 return .none
 
             // Login is a top-level stack element; it self-dismisses on success while Setting runs
-            // the post-login setup.
+            // the post-login setup. A My Tags page on the stack reads every set again too (W-5 of quick
+            // 261126-wzf): a session the site ended leaves its cookies in place, so the page's own watch for a
+            // sign-in, which waits for them to arrive, never fires.
             case .path(.element(id: _, action: .login(.loginDone))):
+                let myTagsReads = state.path.ids
+                    .filter({ state.path[id: $0]?.is(\.myTags) == true })
+                    .map({ Effect<Action>.send(.path(.element(id: $0, action: .myTags(.fetchMyTags)))) })
                 return .merge(
                     .run(operation: { _ in cookieClient.removeYay() }),
                     .run(operation: { _ in cookieClient.syncExCookies() }),
@@ -267,7 +272,8 @@ extension SettingReducer {
                     .send(.fetchUserInfo),
                     .send(.fetchFavoriteCategories),
                     .send(.fetchMyTags),
-                    .send(.fetchEhProfileIndex)
+                    .send(.fetchEhProfileIndex),
+                    .merge(myTagsReads)
                 )
 
             case .path(.element(id: _, action: .account(.onLogoutConfirmButtonTapped))):
