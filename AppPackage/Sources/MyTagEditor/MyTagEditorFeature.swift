@@ -73,6 +73,10 @@ public struct MyTagEditorFeature: Sendable {
         /// The hex field's text, kept here so confirm can wait while it is not a code (G-2 of quick 261126-wzg).
         public var colorText: String
         public var weight: Int
+        /// The weight field's text. A number typed moves `weight` at once, clamped into the site's range; submit or
+        /// leaving the field writes `weight` back, so an empty or unreadable text returns to it (G-3 of quick
+        /// 261126-wzg).
+        public var weightText: String
         /// The site's last answer for the typed tag, every entry as the site gave it (G-1 of quick 261126-wzg). It
         /// stays while the next answer is on its way, so the rows narrow as the text grows, as the site's list does.
         public var siteSuggestionAnswer: [SiteTagSuggestion] = []
@@ -89,6 +93,7 @@ public struct MyTagEditorFeature: Sendable {
             self.color = nil
             self.colorText = ""
             self.weight = MyTag.defaultWeight
+            self.weightText = String(MyTag.defaultWeight)
         }
 
         /// Edit Tag for `tag` of `tagSet`, saved through the edit API with the page's credentials.
@@ -102,6 +107,7 @@ public struct MyTagEditorFeature: Sendable {
             self.color = tag.color
             self.colorText = tag.color?.hex ?? ""
             self.weight = tag.weight
+            self.weightText = String(tag.weight)
         }
 
         public var isAdding: Bool { mode == .add }
@@ -174,6 +180,7 @@ public struct MyTagEditorFeature: Sendable {
         case removeDone(Result<MyTagsPage, AppError>)
         case suggestDone(Result<[SiteTagSuggestion], AppError>)
         case suggestionChosen(String)
+        case weightFieldCommitted
         case delegate(Delegate)
     }
 
@@ -205,6 +212,22 @@ public struct MyTagEditorFeature: Sendable {
                     await send(.suggestDone(result))
                 }
                 .cancellable(id: CancelID.suggestions, cancelInFlight: true)
+
+            case .binding(\.weightText):
+                // Three characters at most, as the site's field takes; a number moves the Stepper at once, clamped
+                // into the site's range (G-3 of quick 261126-wzg).
+                if state.weightText.count > 3 {
+                    state.weightText = String(state.weightText.prefix(3))
+                }
+                if let typed = Int(state.weightText) {
+                    state.weight = min(max(typed, MyTag.weightRange.lowerBound), MyTag.weightRange.upperBound)
+                }
+                return .none
+
+            case .binding(\.weight):
+                // The field follows the Stepper (G-3 of quick 261126-wzg).
+                state.weightText = String(state.weight)
+                return .none
 
             case .binding, .alert, .delegate:
                 return .none
@@ -309,6 +332,12 @@ public struct MyTagEditorFeature: Sendable {
                 state.name = tag
                 state.siteSuggestionAnswer = []
                 return .cancel(id: CancelID.suggestions)
+
+            case .weightFieldCommitted:
+                // Submit or leaving the weight field shows the weight in force: the typed number clamped, or the last
+                // weight for an empty or unreadable text (G-3 of quick 261126-wzg).
+                state.weightText = String(state.weight)
+                return .none
             }
         }
         .ifLet(\.$alert, action: \.alert)

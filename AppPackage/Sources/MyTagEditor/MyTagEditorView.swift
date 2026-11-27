@@ -11,6 +11,9 @@ import TagTranslationFeature
 public struct MyTagEditorView: View {
     @Bindable private var store: StoreOf<MyTagEditorFeature>
     @SharedReader(.tagTranslator) private var tagTranslator: TagTranslator
+    /// The weight field: 3 em at the body size, scaling with it (G-3 of quick 261126-wzg).
+    @ScaledMetric(relativeTo: .body) private var weightFieldWidth = 48.0
+    @FocusState private var isWeightFieldFocused: Bool
 
     public init(store: StoreOf<MyTagEditorFeature>) {
         self.store = store
@@ -127,12 +130,35 @@ public struct MyTagEditorView: View {
         }
     }
 
+    /// A number field and the Stepper, 12 pt apart at the trailing side, following each other; the Stepper's halves
+    /// stop at the ends of the site's range (G-3 of quick 261126-wzg).
     private var weightSection: some View {
         Section {
-            Stepper(value: $store.weight, in: MyTag.weightRange) {
-                LabeledContent(.myTagsWeight) {
-                    Text(store.weight, format: .number)
-                        .monospacedDigit()
+            LabeledContent(.myTagsWeight) {
+                HStack(spacing: 12) {
+                    TextField(text: $store.weightText, prompt: Text(0, format: .number)) {
+                        Text(.myTagsWeight)
+                    }
+                    .multilineTextAlignment(.trailing)
+                    .monospacedDigit()
+                    .keyboardType(.numbersAndPunctuation)
+                    .autocorrectionDisabled(true)
+                    .submitLabel(.done)
+                    .accessibilityLabel(.myTagsWeight)
+                    .frame(width: weightFieldWidth)
+                    .focused($isWeightFieldFocused)
+                    .onSubmit {
+                        store.send(.weightFieldCommitted)
+                    }
+                    .onChange(of: isWeightFieldFocused) {
+                        guard !isWeightFieldFocused else { return }
+                        store.send(.weightFieldCommitted)
+                    }
+                    Stepper(value: $store.weight, in: MyTag.weightRange) {
+                        Text(.myTagsWeight)
+                    }
+                    .labelsHidden()
+                    .accessibilityValue(store.weight.formatted())
                 }
             }
         } footer: {

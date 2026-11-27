@@ -10,8 +10,8 @@ import Testing
 import TestingSupport
 
 // Add Tag and Edit Tag (port of PR 462 item 10, design approved 2026-11-22): what can be confirmed, the requests, the
-// cache, the alert on the control that failed, and the outcome the host is told; the site's suggestions and the
-// colour code's check (quick 261126-wzg). The tags, sets and suggestions are invented.
+// cache, the alert on the control that failed, and the outcome the host is told; the site's suggestions, the colour
+// code's check and the weight field (quick 261126-wzg). The tags, sets and suggestions are invented.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated.
 @Suite(.isolatedAppStorage)
@@ -79,6 +79,7 @@ struct MyTagEditorTests {
         }
         await store.send(.binding(.set(\.weight, -5))) {
             $0.weight = -5
+            $0.weightText = "-5"
         }
         await store.send(.confirmTapped) {
             $0.running = .confirm
@@ -199,6 +200,7 @@ struct MyTagEditorTests {
 
         await store.send(.binding(.set(\.weight, 99))) {
             $0.weight = 99
+            $0.weightText = "99"
         }
         await store.send(.confirmTapped) {
             $0.running = .confirm
@@ -536,6 +538,78 @@ struct MyTagEditorTests {
             $0.colorText = ""
         }
         #expect(store.state.canConfirm)
+    }
+
+    // The weight field starts at the weight, and the field and the Stepper follow each other (G-3, G-4 of quick
+    // 261126-wzg).
+    @MainActor
+    @Test
+    func theWeightFieldAndTheStepperFollowEachOther() async {
+        #expect(MyTagEditorFeature.State(tagSet: Self.set2).weightText == "10")
+        let store = makeStore(
+            state: {
+                MyTagEditorFeature.State(
+                    editing: Self.artist, tagSet: Self.set1, apiuid: 1234567, apikey: "0123456789abcdef"
+                )
+            }
+        )
+        #expect(store.state.weightText == "10")
+
+        await store.send(.binding(.set(\.weight, 11))) {
+            $0.weight = 11
+            $0.weightText = "11"
+        }
+        await store.send(.binding(.set(\.weightText, "-5"))) {
+            $0.weightText = "-5"
+            $0.weight = -5
+        }
+        await store.send(.weightFieldCommitted)
+    }
+
+    // A typed number moves the Stepper clamped into −99…99 at once; submit or leaving the field writes the clamped
+    // weight back; the field takes three characters at most (G-3, G-4).
+    @MainActor
+    @Test
+    func aTypedWeightIsClampedIntoTheSitesRange() async {
+        let store = makeStore(state: { MyTagEditorFeature.State(tagSet: Self.set2) })
+
+        await store.send(.binding(.set(\.weightText, "150"))) {
+            $0.weightText = "150"
+            $0.weight = 99
+        }
+        await store.send(.weightFieldCommitted) {
+            $0.weightText = "99"
+        }
+        await store.send(.binding(.set(\.weightText, "-123"))) {
+            $0.weightText = "-12"
+            $0.weight = -12
+        }
+        await store.send(.binding(.set(\.weightText, "-100"))) {
+            $0.weightText = "-10"
+            $0.weight = -10
+        }
+        await store.send(.binding(.set(\.weightText, "1234"))) {
+            $0.weightText = "123"
+            $0.weight = 99
+        }
+        await store.send(.weightFieldCommitted) {
+            $0.weightText = "99"
+        }
+    }
+
+    // An empty or unreadable weight leaves the Stepper where it was, and submit or leaving the field returns the text
+    // to it (G-3, G-4).
+    @MainActor
+    @Test(arguments: ["", "-", "1-", "abc"])
+    func anEmptyOrUnreadableWeightReturnsToTheLastOne(text: String) async {
+        let store = makeStore(state: { MyTagEditorFeature.State(tagSet: Self.set2) })
+
+        await store.send(.binding(.set(\.weightText, text))) {
+            $0.weightText = text
+        }
+        await store.send(.weightFieldCommitted) {
+            $0.weightText = "10"
+        }
     }
 
     @MainActor
