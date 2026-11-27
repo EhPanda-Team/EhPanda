@@ -247,6 +247,47 @@
         }
       }
     },
+    "my_tags.hex_invalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein gültiger Farbcode besteht aus sechs Hexadezimalziffern, z. B. #1F3A93."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a color code with six hexadecimal digits, such as #1F3A93."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カラーコードは #1F3A93 のように16進数6桁で入力してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "색상 코드는 #1F3A93처럼 16진수 6자리로 입력하십시오."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "颜色代码应为六位十六进制数字，例如 #1F3A93。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請輸入 6 位數的十六進位色碼，例如 #1F3A93。"
+          }
+        }
+      }
+    },
     "my_tags.hex_prompt" : {
       "extractionState" : "manual",
       "localizations" : {

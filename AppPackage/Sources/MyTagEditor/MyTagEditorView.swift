@@ -94,22 +94,37 @@ public struct MyTagEditorView: View {
 
     private var colorSection: some View {
         Section {
-            HexColorField(.myTagsColor, color: $store.color, well: $store.wellColor, prompt: store.tagSetColor?.hex)
+            HexColorField(
+                .myTagsColor,
+                text: $store.colorText,
+                color: $store.color,
+                well: $store.wellColor,
+                prompt: store.tagSetColor?.hex
+            )
             if store.color != nil {
                 Button(.myTagsUseDefaultColor) {
                     store.color = nil
                 }
             }
         } footer: {
-            Text(colorFooter)
+            colorFooter
         }
     }
 
-    private var colorFooter: LocalizedStringResource {
-        if store.color != nil {
-            return .myTagsColorFooterOwn
+    /// Which colour applies, or, in red while the hex field holds an invalid code, that it does (G-2 of quick
+    /// 261126-wzg).
+    @ViewBuilder private var colorFooter: some View {
+        switch store.colorFooter {
+        case .invalidCode:
+            Text(.myTagsHexInvalid)
+                .foregroundStyle(.red)
+        case .ownColor:
+            Text(.myTagsColorFooterOwn)
+        case .tagSetColor:
+            Text(.myTagsColorFooterTagSet)
+        case .noColor:
+            Text(.myTagsColorFooterNone)
         }
-        return store.tagSetColor == nil ? .myTagsColorFooterNone : .myTagsColorFooterTagSet
     }
 
     private var weightSection: some View {

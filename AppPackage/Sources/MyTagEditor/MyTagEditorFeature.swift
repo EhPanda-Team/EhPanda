@@ -30,6 +30,18 @@ public struct MyTagEditorFeature: Sendable {
         case remove
     }
 
+    /// What the Color section's footer says.
+    public enum ColorFooter: Equatable, Sendable {
+        /// The hex field holds neither nothing nor a code; said in red (G-2 of quick 261126-wzg).
+        case invalidCode
+        /// The tag has a colour of its own.
+        case ownColor
+        /// The tag takes its set's default colour.
+        case tagSetColor
+        /// Neither the tag nor its set has a colour.
+        case noColor
+    }
+
     @CasePathable
     public enum Delegate: Equatable, Sendable {
         case saved
@@ -58,6 +70,8 @@ public struct MyTagEditorFeature: Sendable {
         public var name: String
         public var kind: MyTagKind
         public var color: SiteColor?
+        /// The hex field's text, kept here so confirm can wait while it is not a code (G-2 of quick 261126-wzg).
+        public var colorText: String
         public var weight: Int
         /// The site's last answer for the typed tag, every entry as the site gave it (G-1 of quick 261126-wzg). It
         /// stays while the next answer is on its way, so the rows narrow as the text grows, as the site's list does.
@@ -73,6 +87,7 @@ public struct MyTagEditorFeature: Sendable {
             self.name = name
             self.kind = .flagged
             self.color = nil
+            self.colorText = ""
             self.weight = MyTag.defaultWeight
         }
 
@@ -85,14 +100,16 @@ public struct MyTagEditorFeature: Sendable {
             self.name = tag.name
             self.kind = tag.kind
             self.color = tag.color
+            self.colorText = tag.color?.hex ?? ""
             self.weight = tag.weight
         }
 
         public var isAdding: Bool { mode == .add }
 
-        /// Add: the field holds a tag. Edit: something changed. Neither while a request is on its way.
+        /// Add: the field holds a tag. Edit: something changed. Neither while a request is on its way, nor while the
+        /// hex field holds an invalid code (G-2 of quick 261126-wzg).
         public var canConfirm: Bool {
-            guard running == nil else { return false }
+            guard running == nil, !isColorTextInvalid else { return false }
             switch mode {
             case .add:
                 return !trimmedName.isEmpty
@@ -105,6 +122,23 @@ public struct MyTagEditorFeature: Sendable {
         public var wellColor: Color {
             get { (color ?? tagSetColor)?.color ?? .clear }
             set { color = SiteColor(newValue) }
+        }
+
+        /// Whether the hex field holds neither nothing nor a code (G-2 of quick 261126-wzg).
+        public var isColorTextInvalid: Bool {
+            HexColorField.isInvalidCode(colorText)
+        }
+
+        /// The Color section's footer: while the code is invalid, that it is (G-2 of quick 261126-wzg); else which
+        /// colour applies.
+        public var colorFooter: ColorFooter {
+            if isColorTextInvalid {
+                return .invalidCode
+            }
+            if color != nil {
+                return .ownColor
+            }
+            return tagSetColor == nil ? .noColor : .tagSetColor
         }
 
         /// The site's suggestions under the tag field: the entries of its last answer whose name holds the field's

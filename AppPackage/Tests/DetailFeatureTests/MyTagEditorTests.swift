@@ -10,8 +10,8 @@ import Testing
 import TestingSupport
 
 // Add Tag and Edit Tag (port of PR 462 item 10, design approved 2026-11-22): what can be confirmed, the requests, the
-// cache, the alert on the control that failed, and the outcome the host is told; the site's suggestions (quick
-// 261126-wzg). The tags, sets and suggestions are invented.
+// cache, the alert on the control that failed, and the outcome the host is told; the site's suggestions and the
+// colour code's check (quick 261126-wzg). The tags, sets and suggestions are invented.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated.
 @Suite(.isolatedAppStorage)
@@ -19,6 +19,7 @@ struct MyTagEditorTests {
     private static let refusal = "No matching tag found"
     private static let slate = SiteColor(red: 0xA0, green: 0xB0, blue: 0xC0)
     private static let green = SiteColor(red: 0x22, green: 0xAA, blue: 0x55)
+    private static let navy = SiteColor(red: 0x1F, green: 0x3A, blue: 0x93)
     private static let glasses = MyTag(
         id: 101, name: "female:sample glasses", isWatched: true, isHidden: false, color: nil, weight: 10
     )
@@ -461,12 +462,88 @@ struct MyTagEditorTests {
         #expect(store.state.alert == nil)
     }
 
+    // Empty text, spaces alone, or six hex digits with or without `#` and spaces around them is no invalid code (G-2
+    // of quick 261126-wzg).
+    @Test(arguments: ["", "  ", "#1F3A93", "1f3a93", " #1F3A93 "])
+    func anEmptyTextOrACodeIsNoInvalidCode(text: String) {
+        #expect(!HexColorField.isInvalidCode(text))
+    }
+
+    @Test(arguments: ["#", "#1F3A9", "#1F3A930", "#GGGGGG", "1F 3A93"])
+    func anythingElseIsAnInvalidCode(text: String) {
+        #expect(HexColorField.isInvalidCode(text))
+    }
+
+    // While the hex field holds an invalid code, the Color footer says so and confirm waits; an empty or a valid
+    // text shows the footer of the colour in use and lets confirm go (G-2, G-4).
+    @MainActor
+    @Test
+    func anInvalidCodeTakesTheColorFooterAndHoldsConfirmBack() async {
+        let store = makeStore(state: { MyTagEditorFeature.State(adding: "artist:sample artist", tagSet: Self.set2) })
+        #expect(store.state.colorFooter == .tagSetColor)
+        #expect(store.state.canConfirm)
+
+        await store.send(.binding(.set(\.colorText, "#1F3A9"))) {
+            $0.colorText = "#1F3A9"
+        }
+        #expect(store.state.colorFooter == .invalidCode)
+        #expect(!store.state.canConfirm)
+
+        // The field writes the colour of a valid code itself, as it does in the sheet.
+        await store.send(.binding(.set(\.colorText, "#1F3A93"))) {
+            $0.colorText = "#1F3A93"
+        }
+        await store.send(.binding(.set(\.color, Self.navy))) {
+            $0.color = Self.navy
+        }
+        #expect(store.state.colorFooter == .ownColor)
+        #expect(store.state.canConfirm)
+
+        await store.send(.binding(.set(\.colorText, "  "))) {
+            $0.colorText = "  "
+        }
+        #expect(store.state.colorFooter == .ownColor)
+        #expect(store.state.canConfirm)
+    }
+
+    // An edit waits for a valid code too, whatever else changed; a tag's own colour starts in the field (G-2, G-4).
+    @MainActor
+    @Test
+    func anEditWithAnInvalidCodeCannotBeConfirmed() async {
+        var coloured = Self.glasses
+        coloured.color = Self.slate
+        let store = makeStore(
+            state: {
+                MyTagEditorFeature.State(
+                    editing: coloured, tagSet: Self.set1, apiuid: 1234567, apikey: "0123456789abcdef"
+                )
+            }
+        )
+        #expect(store.state.colorText == "#A0B0C0")
+        #expect(store.state.colorFooter == .ownColor)
+
+        await store.send(.binding(.set(\.kind, .hidden))) {
+            $0.kind = .hidden
+        }
+        #expect(store.state.canConfirm)
+        await store.send(.binding(.set(\.colorText, "zz"))) {
+            $0.colorText = "zz"
+        }
+        #expect(store.state.colorFooter == .invalidCode)
+        #expect(!store.state.canConfirm)
+        await store.send(.confirmTapped)
+        await store.send(.binding(.set(\.colorText, ""))) {
+            $0.colorText = ""
+        }
+        #expect(store.state.canConfirm)
+    }
+
     @MainActor
     private func makeStore(
         state: () -> MyTagEditorFeature.State,
         dismissed: LockIsolated<Int> = LockIsolated(0),
         clock: any Clock<Duration> = TestClock(),
-        client: (inout MyTagsClient) -> Void
+        client: (inout MyTagsClient) -> Void = { _ in }
     ) -> TestStoreOf<MyTagEditorFeature> {
         var myTagsClient = MyTagsClient.unimplemented
         client(&myTagsClient)
