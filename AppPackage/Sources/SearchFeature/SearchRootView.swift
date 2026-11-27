@@ -169,12 +169,14 @@ private struct SuggestionsPanel: View {
         }
         // Keep rows at their intrinsic height before applying the sparse-content viewport floor.
         .fixedSize(horizontal: false, vertical: true)
+        // The padding counts within the floor: outside it, sparse content was always the viewport plus 32 pt and
+        // scrolled by that much (19-26).
+        .padding(.vertical)
         // Keep the panel at least as tall as its scroll viewport when content is sparse.
         .frame(maxWidth: .infinity, minHeight: containerHeight, alignment: .top)
         .animation(listAnimation, value: savedSearches)
         .animation(listAnimation, value: historyGalleries)
         .animation(listAnimation, value: historyKeywords)
-        .padding(.vertical)
     }
 }
 
