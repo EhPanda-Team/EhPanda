@@ -7,7 +7,7 @@ import SFSafeSymbols
 public import SwiftUI
 import TagTranslationFeature
 
-/// Tag suggestions for a `searchSuggestions` closure.
+/// Tag suggestions for a `searchSuggestions` closure, or for one tag typed in a form.
 ///
 /// The system shows suggestions either in a menu attached to the search field or inline with the
 /// content, choosing by the room around the field, so each view reads that placement rather than
@@ -22,17 +22,20 @@ public struct TagSuggestionView: View {
         /// marked (CJK composition) range and move the cursor, and the suggestion rows stay out of the way until
         /// there is something to suggest.
         case multilineField
-        /// One tag in a form (My Tags' Add Tag): the text is never rewritten while typing, and a chosen suggestion
-        /// replaces it with the tag as the site keeps it, `namespace:tag` (design approved 2026-11-22).
-        case tagName
+    }
+
+    /// What the rows complete.
+    private enum Completion {
+        /// A keyword, completed in place; nothing shows while `isEnabled` is off.
+        case keyword(Binding<String>, source: Source, isEnabled: Bool)
+        /// One tag in a form, which the host fills with the `namespace:tag` of the chosen row.
+        case tag(String, siteSuggestions: [SiteTagSuggestion], choose: (String) -> Void)
     }
 
     @Environment(\.searchSuggestionsPlacement) private var searchSuggestionsPlacement
-    @Binding private var keyword: String
+    private let completion: Completion
     private let translations: [String: TagTranslation]
     private let showsImages: Bool
-    private let isEnabled: Bool
-    private let source: Source
 
     @State private var translationHandler = TagTranslationHandler()
 
@@ -40,46 +43,94 @@ public struct TagSuggestionView: View {
         keyword: Binding<String>, translations: [String: TagTranslation], showsImages: Bool, isEnabled: Bool,
         source: Source = .searchField
     ) {
-        _keyword = keyword
+        completion = .keyword(keyword, source: source, isEnabled: isEnabled)
         self.translations = translations
         self.showsImages = showsImages
-        self.isEnabled = isEnabled
-        self.source = source
+    }
+
+    /// One tag typed in a form, My Tags' Add Tag (design approved 2026-11-22; G-1 of quick 261126-wzg): the site's
+    /// suggestions for `tag` first, as the host has them, then the matches in `translations` the site did not
+    /// suggest, every row by its translated name when `translations` has one. Without translations the site's rows
+    /// show alone, by their own names. `tag` is never rewritten while typing, and a chosen row hands `choose` the
+    /// `namespace:tag` it puts in the field: for an alias, its canonical tag.
+    public init(
+        tag: String,
+        siteSuggestions: [SiteTagSuggestion],
+        translations: [String: TagTranslation],
+        showsImages: Bool,
+        choose: @escaping (String) -> Void
+    ) {
+        completion = .tag(tag, siteSuggestions: siteSuggestions, choose: choose)
+        self.translations = translations
+        self.showsImages = showsImages
     }
 
     public var body: some View {
-        if isEnabled {
-            if searchSuggestionsPlacement != .menu, source == .searchField || !translationHandler.suggestions.isEmpty {
-                Text(.matchesCount(count: translationHandler.suggestions.count))
-                    .foregroundStyle(.secondary)
-                    .font(.subheadline)
+        switch completion {
+        case .keyword(let keyword, let source, let isEnabled):
+            if isEnabled {
+                keywordRows(keyword: keyword, source: source)
             }
+        case .tag(let tag, let siteSuggestions, let choose):
+            tagRows(tag: tag, siteSuggestions: siteSuggestions, choose: choose)
+        }
+    }
 
-            let suggestions = translationHandler.suggestions
-            ForEach(suggestions.prefix(min(suggestions.count, 10))) { suggestion in
-                SuggestionCell(
-                    suggestion: suggestion,
-                    showsImages: showsImages,
-                    action: { complete(with: suggestion) }
-                )
-            }
-            .onChange(of: keyword) {
-                switch source {
-                case .searchField:
-                    translationHandler.analyze(text: &keyword, translations: translations)
-                case .multilineField, .tagName:
-                    translationHandler.analyze(readingText: keyword, translations: translations)
-                }
+    @ViewBuilder
+    private func keywordRows(keyword: Binding<String>, source: Source) -> some View {
+        if searchSuggestionsPlacement != .menu, source == .searchField || !translationHandler.suggestions.isEmpty {
+            Text(.matchesCount(count: translationHandler.suggestions.count))
+                .foregroundStyle(.secondary)
+                .font(.subheadline)
+        }
+
+        let suggestions = translationHandler.suggestions
+        ForEach(suggestions.prefix(min(suggestions.count, 10))) { suggestion in
+            SuggestionCell(
+                suggestion: suggestion,
+                alias: nil,
+                showsImages: showsImages,
+                action: { translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword.wrappedValue) }
+            )
+        }
+        .onChange(of: keyword.wrappedValue) {
+            switch source {
+            case .searchField:
+                translationHandler.analyze(text: &keyword.wrappedValue, translations: translations)
+            case .multilineField:
+                translationHandler.analyze(readingText: keyword.wrappedValue, translations: translations)
             }
         }
     }
 
-    private func complete(with suggestion: TagSuggestion) {
-        switch source {
-        case .searchField, .multilineField:
-            translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword)
-        case .tagName:
-            keyword = "\(suggestion.tag.namespace.rawValue):\(suggestion.tag.key)"
+    @ViewBuilder
+    private func tagRows(
+        tag: String,
+        siteSuggestions: [SiteTagSuggestion],
+        choose: @escaping (String) -> Void
+    ) -> some View {
+        let rows = TagNameSuggestion.rows(
+            site: siteSuggestions,
+            translationMatches: translationHandler.suggestions,
+            tag: tag,
+            translations: translations
+        )
+        if searchSuggestionsPlacement != .menu, !rows.isEmpty {
+            Text(.matchesCount(count: rows.count))
+                .foregroundStyle(.secondary)
+                .font(.subheadline)
+        }
+
+        ForEach(rows.prefix(10)) { row in
+            SuggestionCell(
+                suggestion: row.suggestion,
+                alias: row.alias,
+                showsImages: showsImages,
+                action: { choose(row.insertedName) }
+            )
+        }
+        .onChange(of: tag) { _, newTag in
+            translationHandler.analyze(readingText: newTag, translations: translations)
         }
     }
 }
@@ -88,11 +139,15 @@ public struct TagSuggestionView: View {
 private struct SuggestionCell: View {
     @Environment(\.searchSuggestionsPlacement) private var searchSuggestionsPlacement
     private let suggestion: TagSuggestion
+    /// The alias the site found the tag through, as `namespace:tag`, named on a third line (G-1 of quick 261126-wzg).
+    /// Only a form's tag rows have one, and they never show in a search field's menu.
+    private let alias: String?
     private let showsImages: Bool
     private let action: () -> Void
 
-    init(suggestion: TagSuggestion, showsImages: Bool, action: @escaping () -> Void) {
+    init(suggestion: TagSuggestion, alias: String?, showsImages: Bool, action: @escaping () -> Void) {
         self.suggestion = suggestion
+        self.alias = alias
         self.showsImages = showsImages
         self.action = action
     }
@@ -157,6 +212,13 @@ private struct SuggestionCell: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
+
+                        if let alias {
+                            Text(.myTagsAlias(alias))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
                     }
                     .allowsHitTesting(false)
                 }
@@ -171,6 +233,61 @@ private struct SuggestionCell: View {
                     TagTranslationHandler.searchPrefix(of: suggestion.originalKeyword) + suggestion.tag.searchKeyword
                 )
         }
+    }
+}
+
+// MARK: TagNameSuggestion
+/// A row of the suggestions for one tag typed in a form (G-1 of quick 261126-wzg): one of the site's, or a match of
+/// the local translations the site did not list.
+struct TagNameSuggestion: Identifiable {
+    enum RowID: Hashable {
+        /// One of the site's, by the site's id of the suggested tag.
+        case site(Int)
+        /// A translation's match, by its `namespace:tag`.
+        case translation(String)
+    }
+
+    let id: RowID
+    /// What the row shows: the tag it puts in the field, by its translated name when the translations have one, with
+    /// what the field's text matches in it highlighted.
+    let suggestion: TagSuggestion
+    /// The alias the site found the tag through, as `namespace:tag`; nil for a row that is no alias.
+    let alias: String?
+    /// The `namespace:tag` choosing the row puts in the field.
+    let insertedName: String
+
+    /// The site's suggestions in the site's order, then the translation matches in theirs, leaving out a match whose
+    /// tag a site row already puts in the field. The site's rows stay as the site lists them, so an alias row and the
+    /// row of its canonical tag both show, as on the site.
+    static func rows(
+        site: [SiteTagSuggestion],
+        translationMatches: [TagSuggestion],
+        tag: String,
+        translations: [String: TagTranslation]
+    ) -> [TagNameSuggestion] {
+        let query = TagSuggestQuery(tag)
+        let siteRows = site.map { suggestion in
+            let inserted = suggestion.insertedTag
+            let translation = translations[inserted.namespace.rawValue + inserted.name]
+                ?? TagTranslation(namespace: inserted.namespace, key: inserted.name, value: "")
+            return TagNameSuggestion(
+                id: .site(suggestion.id),
+                suggestion: translation.getSuggestion(
+                    keyword: query?.term ?? "",
+                    originalKeyword: tag,
+                    matchesNamespace: query?.text.hasPrefix(inserted.namespace.rawValue + ":") == true
+                ),
+                alias: suggestion.canonical == nil ? nil : suggestion.tag.fullName,
+                insertedName: inserted.fullName
+            )
+        }
+        let siteNames = Set(siteRows.map(\.insertedName))
+        let translationRows = translationMatches.compactMap { match -> TagNameSuggestion? in
+            let name = match.tag.namespace.rawValue + ":" + match.tag.key
+            guard !siteNames.contains(name) else { return nil }
+            return TagNameSuggestion(id: .translation(name), suggestion: match, alias: nil, insertedName: name)
+        }
+        return siteRows + translationRows
     }
 }
 

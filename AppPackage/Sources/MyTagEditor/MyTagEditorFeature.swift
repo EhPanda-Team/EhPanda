@@ -12,6 +12,10 @@ public import SwiftUI
 /// open with the alert on the control that sent it. An add or a remove takes the page the site answered with into
 /// the cached My Tags, and an edit changes the cached tag once the edit API accepts it, so a host only reports the
 /// outcome (`Delegate`). Close discards the changes without asking.
+///
+/// Add Tag lists the site's suggestions for the typed tag, as the site's own tag field does: it asks 200 ms after the
+/// text last changed, a change cancels the question on its way, and nothing is asked while fewer than two characters
+/// follow the namespace; a failed question shows no rows and no alert (G-1 of quick 261126-wzg).
 @Reducer
 public struct MyTagEditorFeature: Sendable {
     public enum Mode: Equatable, Sendable {
@@ -30,6 +34,10 @@ public struct MyTagEditorFeature: Sendable {
     public enum Delegate: Equatable, Sendable {
         case saved
         case removed
+    }
+
+    private enum CancelID {
+        case suggestions
     }
 
     @ObservableState
@@ -51,6 +59,9 @@ public struct MyTagEditorFeature: Sendable {
         public var kind: MyTagKind
         public var color: SiteColor?
         public var weight: Int
+        /// The site's last answer for the typed tag, every entry as the site gave it (G-1 of quick 261126-wzg). It
+        /// stays while the next answer is on its way, so the rows narrow as the text grows, as the site's list does.
+        public var siteSuggestionAnswer: [SiteTagSuggestion] = []
 
         /// Add Tag for `tagSet`: a new tag starts Normal (owner decision, 2026-11-26), without a colour of its own, at
         /// the site's default weight.
@@ -96,6 +107,14 @@ public struct MyTagEditorFeature: Sendable {
             set { color = SiteColor(newValue) }
         }
 
+        /// The site's suggestions under the tag field: the entries of its last answer whose name holds the field's
+        /// query at the start of a word, as the site's list keeps them; none while the query is too short (G-1 of
+        /// quick 261126-wzg).
+        public var siteSuggestions: [SiteTagSuggestion] {
+            guard let query = TagSuggestQuery(name) else { return [] }
+            return siteSuggestionAnswer.filter({ $0.matches(query) })
+        }
+
         var trimmedName: String {
             name.trimmingCharacters(in: .whitespacesAndNewlines)
         }
@@ -119,9 +138,12 @@ public struct MyTagEditorFeature: Sendable {
         case updateDone(MyTag, Result<MyTagEditReply, AppError>)
         case removeTapped
         case removeDone(Result<MyTagsPage, AppError>)
+        case suggestDone(Result<[SiteTagSuggestion], AppError>)
+        case suggestionChosen(String)
         case delegate(Delegate)
     }
 
+    @Dependency(\.continuousClock) private var clock
     @Dependency(\.dismiss) private var dismiss
     @Dependency(\.myTagsClient) private var myTagsClient
 
@@ -132,6 +154,24 @@ public struct MyTagEditorFeature: Sendable {
 
         Reduce { state, action in
             switch action {
+            case .binding(\.name):
+                // The site's tag completer (G-1 of quick 261126-wzg): it asks 200 ms after the text last changed, a
+                // change cancels the question on its way, and a text with fewer than two characters after the
+                // namespace asks nothing and shows no rows.
+                guard let query = TagSuggestQuery(state.name) else {
+                    state.siteSuggestionAnswer = []
+                    return .cancel(id: CancelID.suggestions)
+                }
+                let host = state.setting.galleryHost
+                return .run { send in
+                    try await clock.sleep(for: .milliseconds(200))
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await myTagsClient.suggestTags(host, query)
+                    }
+                    await send(.suggestDone(result))
+                }
+                .cancellable(id: CancelID.suggestions, cancelInFlight: true)
+
             case .binding, .alert, .delegate:
                 return .none
 
@@ -148,12 +188,17 @@ public struct MyTagEditorFeature: Sendable {
                     let draft = MyTagDraft(
                         name: state.trimmedName, kind: state.kind, color: state.color, weight: state.weight
                     )
-                    return .run { send in
-                        let result = await Result.Swift::init { () async throws(AppError) in
-                            try await myTagsClient.addTag(host, draft, tagSetID)
+                    // The field is sent as it is, so its suggestions are no longer wanted (G-1 of quick 261126-wzg).
+                    state.siteSuggestionAnswer = []
+                    return .merge(
+                        .cancel(id: CancelID.suggestions),
+                        .run { send in
+                            let result = await Result.Swift::init { () async throws(AppError) in
+                                try await myTagsClient.addTag(host, draft, tagSetID)
+                            }
+                            await send(.addDone(result))
                         }
-                        await send(.addDone(result))
-                    }
+                    )
 
                 case .edit(let tag, let apiuid, let apikey):
                     let edited = state.edited(tag)
@@ -214,6 +259,22 @@ public struct MyTagEditorFeature: Sendable {
             case .removeDone(.failure(let error)):
                 state.running = nil
                 return presentAlert(&state, .remove, title: .RLocalizable.myTagsRemoveFailed, message: error.alertText)
+
+            case .suggestDone(.success(let suggestions)):
+                state.siteSuggestionAnswer = suggestions
+                return .none
+
+            case .suggestDone(.failure):
+                // A failed question shows no rows and no alert (G-1 of quick 261126-wzg).
+                state.siteSuggestionAnswer = []
+                return .none
+
+            case .suggestionChosen(let tag):
+                // A chosen row fills the field, an alias's canonical tag for an alias; the site's rows go until the
+                // text changes again (G-1 of quick 261126-wzg).
+                state.name = tag
+                state.siteSuggestionAnswer = []
+                return .cancel(id: CancelID.suggestions)
             }
         }
         .ifLet(\.$alert, action: \.alert)

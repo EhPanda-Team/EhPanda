@@ -77,12 +77,14 @@ public struct MyTagEditorView: View {
                 }
             }
             if store.isNameEditable {
+                // The site's suggestions whatever Show Tag Suggestions says; with Translate Tags, the translations'
+                // matches and names too (G-1 of quick 261126-wzg).
                 TagSuggestionView(
-                    keyword: $store.name,
-                    translations: tagTranslator.translations,
+                    tag: store.name,
+                    siteSuggestions: store.siteSuggestions,
+                    translations: store.setting.translateTags ? tagTranslator.translations : [:],
                     showsImages: store.setting.showImagesInTags,
-                    isEnabled: store.setting.showTagsSearchSuggestion,
-                    source: .tagName
+                    choose: { store.send(.suggestionChosen($0)) }
                 )
             }
         } footer: {
