@@ -641,11 +641,12 @@ public enum HostedWindowCapture {
     /// Takes the hosted page in the window resized to the scene's width and the committed height.
     ///
     /// The window is hosted and settled at native size first; the viewport sampling is then frozen and the frozen
-    /// read must be byte for byte the native one, because a view that sized itself from its own viewport would
-    /// otherwise reflow when the window grows. The status bar companion holds the measured status bar state, and the
-    /// window's size classes are pinned to the scene's (a tall phone-landscape window would derive a regular
-    /// vertical class), so the grown window keeps the viewport's top, left and right safe area and its size classes;
-    /// the attempt fails with ``tallWindowGeometryReason`` if it does not. Everything is restored on every exit.
+    /// read must show the same still window as the native one (``freezeAtNativeSize(_:minimumReads:freeze:)``),
+    /// because a view that sized itself from its own viewport would otherwise reflow when the window grows. The status
+    /// bar companion holds the measured status bar state, and the window's size classes are pinned to the scene's (a
+    /// tall phone-landscape window would derive a regular vertical class), so the grown window keeps the viewport's
+    /// top, left and right safe area and its size classes; the attempt fails with ``tallWindowGeometryReason`` if it
+    /// does not. Everything is restored on every exit.
     private static func attemptTall(
         window: UIWindow, request: Request, height: CaptureHeight, nativeFrame: CGRect
     ) async -> Attempt {

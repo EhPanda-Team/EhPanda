@@ -52,6 +52,11 @@ struct PageHeights { ... }
   - phone landscape turns into a regular vertical size class, and `GalleryViewport.isLandscape` flips (pin the
     size classes to the viewport's);
   - views that size themselves from their own measured viewport reflow (the observation-scoped viewport freeze);
+    the frozen read is verified against the native one by the settle's own still-window rule (`readsMatch`: no byte
+    more than one step apart, and no more such bytes than half the comparison's budget), not byte for byte. The
+    byte-identical check of 19-19 failed on rendering rounding alone (one step on a card's 1 pt border, mostly in dark,
+    at coordinates that moved from run to run), while a reflow moves far more (owner decision 2026-11-27 in 19-26:
+    「改用靜止判斷的規則」);
   - pictures above 8192 device pixels in one dimension need the sliced composite. The slices are always the native
     viewport size: cross-origin reads are not byte-identical at glass rims and SF Symbols.
 - **Two kinds of step (owner decision 2026-11-23: 「把步驟拆成兩種」, split the steps into two kinds):** a scenario's

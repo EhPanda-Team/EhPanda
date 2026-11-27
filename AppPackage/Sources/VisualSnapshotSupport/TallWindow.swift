@@ -214,7 +214,8 @@ final class GrownWindow {
 
 /// What hosting a page at native size and freezing its viewport sampling came to.
 enum FrozenRead {
-    /// Native and frozen reads both settled and are byte for byte the same; carries the frozen settle.
+    /// Native and frozen reads both settled and show the same still window (``HostedWindowCapture/readsMatch(_:_:)``);
+    /// carries the frozen settle.
     case matched(SettleResult)
     /// A read never settled.
     case unsettled(SettleResult)
@@ -275,7 +276,10 @@ extension HostedWindowCapture {
     public static let maximumGrowthSteps = 12
 
     /// Settles the hosted page at native size and freezes its viewport sampling, as the tall window's attempt does:
-    /// the frozen read must be byte for byte the native one.
+    /// the frozen read must show the same still window as the native one, by the settle's own rule
+    /// (``readsMatch(_:_:)``). Byte-identical reads failed on rendering rounding alone, one step on a 1 pt border, at
+    /// coordinates that moved from run to run, while a view that reflows from its viewport moves far more (19-26,
+    /// owner decision 2026-11-27, 「改用靜止判斷的規則」).
     static func freezeAtNativeSize(
         _ window: UIWindow, minimumReads: Int, freeze: @MainActor (Bool) -> Void
     ) async -> FrozenRead {
@@ -288,7 +292,8 @@ extension HostedWindowCapture {
         guard case .settled = frozen.result, let frozenImage = frozen.image else {
             return .unsettled(frozen.result)
         }
-        guard let nativeBytes = comparedBytes(nativeImage), nativeBytes == comparedBytes(frozenImage) else {
+        guard let nativeBytes = comparedBytes(nativeImage), let frozenBytes = comparedBytes(frozenImage),
+              readsMatch(nativeBytes, frozenBytes) else {
             return .changed(frozen.result, frozenImage)
         }
         return .matched(frozen.result)
