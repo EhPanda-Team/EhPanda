@@ -86,8 +86,13 @@ final class SheetFitter {
 
     /// Sets `sheet`'s preferred height so its frame takes its content's height, never under its native height;
     /// `false` when its preferred height is that already, or the sheet has no scroll view to read or no native offset.
+    ///
+    /// Both heights are compared in whole device pixels, as UIKit lays the frame out from the preferred height, and the
+    /// preferred height set is that pixel exactly. A difference under a pixel in points can still land the frame a
+    /// pixel off: SwiftUI set the downloads inspector's preferred height to 742.008 pt for 742.5 pt of content, its
+    /// frame took 762 pt for 762.5 pt, and that pixel was `cannot-cover` at every height (19-26).
     private func fit(_ sheet: UIViewController, in window: UIWindow) -> Bool {
-        let pixel = 1 / window.screen.scale
+        let scale = window.screen.scale
         let frame = sheet.view.frame.height
         let preferred = sheet.preferredContentSize
         let id = ObjectIdentifier(sheet)
@@ -97,10 +102,10 @@ final class SheetFitter {
         guard let native = natives[id],
               let overflow = HostedWindowCapture.overflow(of: sheet.view, in: window)
         else { return false }
-        let height = max(native.height, frame + overflow) - native.offset
-        guard abs(height - preferred.height) >= pixel else { return false }
+        let pixels = ((max(native.height, frame + overflow) - native.offset) * scale).rounded()
+        guard pixels != (preferred.height * scale).rounded() else { return false }
         let width = preferred.width > 0 ? preferred.width : sheet.view.frame.width
-        sheet.preferredContentSize = CGSize(width: width, height: height)
+        sheet.preferredContentSize = CGSize(width: width, height: pixels / scale)
         return true
     }
 }

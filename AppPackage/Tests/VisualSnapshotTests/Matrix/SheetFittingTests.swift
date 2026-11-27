@@ -83,6 +83,40 @@ final class SheetFittingTests: XCTestCase {
         XCTAssertEqual(preferredAgain, preferred)
     }
 
+    /// A sheet whose preferred height lands its frame a device pixel under its content is fitted, though that preferred
+    /// height is within a pixel of the fitted one: SwiftUI set the downloads inspector's to 742.008 pt for 742.5 pt of
+    /// content, its frame took 762 pt for 762.5 pt, and that pixel was `cannot-cover` at every height (19-26).
+    @MainActor
+    func testASheetAPixelShortOfItsContentIsFitted() async throws {
+        let window = try Self.formSheetWindow()
+        let pixel = 1 / window.screen.scale
+        let screen = window.bounds.height
+        let hosted = HostedWindowCapture.host(SheetPage(content: 700), in: window, style: .light)
+        let settled = await HostedWindowCapture.settle(window)
+        let sheet = window.rootViewController?.presentedViewController
+        let fitter = SheetFitter()
+        let fitted = await fitter.fit(in: window)
+        let fittedNeed = HostedHierarchy.pageNeed(in: window).points
+        if let sheet {
+            let preferred = sheet.preferredContentSize
+            sheet.preferredContentSize = CGSize(width: preferred.width, height: preferred.height - pixel * 0.98)
+            window.layoutIfNeeded()
+        }
+        let sampled = await HostedWindowCapture.nextSample()
+        let shortNeed = HostedHierarchy.pageNeed(in: window).points
+        let refitted = await fitter.fit(in: window)
+        let refittedNeed = HostedHierarchy.pageNeed(in: window).points
+        await hosted.disposeAfterDismissal()
+        guard case .settled = settled else { return XCTFail("The page never settled") }
+        XCTAssertNotNil(sheet, "No sheet was presented")
+        XCTAssertTrue(sampled)
+        XCTAssertEqual(fitted, .fitted)
+        XCTAssertEqual(fittedNeed, screen)
+        XCTAssertGreaterThan(shortNeed, screen, "The shortened sheet still held its content")
+        XCTAssertEqual(refitted, .fitted)
+        XCTAssertEqual(refittedNeed, screen)
+    }
+
     // MARK: Every sheet
 
     /// The page of a sheet state is the sheet (owner decision 2026-11-27 in 19-26, 「sheet 的狀況應當測量 sheet 內容」): a

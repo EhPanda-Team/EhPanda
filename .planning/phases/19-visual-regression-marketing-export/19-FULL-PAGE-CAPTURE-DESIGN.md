@@ -67,7 +67,10 @@ struct PageHeights { ... }
     still fails the check. A sheet that fills the window's height, as on the iPhone, grows with the window already and
     is left as it is. The preferred height is the content's height less the sheet's native offset (its first frame
     height less SwiftUI's preferred height, 660 and 640 pt), kept per hosting, never the last preferred height plus the
-    overflow, which kept rising while the window held the frame. The page of a sheet state is the sheet, on both
+    overflow, which kept rising while the window held the frame. It is compared and set in whole device pixels, as
+    UIKit lays the frame out: a preferred height under a pixel off can still land the frame a pixel short (the
+    downloads inspector's 742.008 pt for 742.5 pt of content was `cannot-cover` at every height in the CJK locales).
+    The page of a sheet state is the sheet, on both
     devices: the need, the check and the measuring mode read only the front-most sheet and what is presented over it,
     never the page behind it (a 9,257 pt reader behind the reader's settings sheet set the iPad's need at every text
     size) (owner decisions 2026-11-27 in 19-26: 「sheet 的狀況應當測量 sheet 內容」, then 「貼合內容」; the
