@@ -1,5 +1,6 @@
 import AppComponents
 import AppModels
+import AppTools
 import ComposableArchitecture
 import CookieClient
 import MyTagEditor
@@ -108,15 +109,7 @@ struct MyTagsView: View {
             }
             if tagSet.tags.isEmpty {
                 Section {
-                    ContentUnavailableView {
-                        Label(.myTagsEmptyTitle, systemSymbol: .tag)
-                    } description: {
-                        Text(.myTagsEmptyDescription)
-                    } actions: {
-                        Button(.RLocalizable.myTagsAddTag) {
-                            store.send(.addTagTapped)
-                        }
-                    }
+                    emptyTags
                 }
             } else {
                 Section(.tags) {
@@ -149,6 +142,25 @@ struct MyTagsView: View {
         .refreshable {
             await store.send(.refresh).finish()
         }
+    }
+
+    /// A set without tags (design MyTags-States, "Empty"): the unavailable view sits on the page's grouped background
+    /// under the tag set section, not in a row's card, so its row draws no background; its Add Tag is the app's
+    /// unavailable-view button (`NotLoginView`'s gray-tinted glass in its own padding).
+    private var emptyTags: some View {
+        ContentUnavailableView {
+            Label(.myTagsEmptyTitle, systemSymbol: .tag)
+        } description: {
+            Text(.myTagsEmptyDescription)
+        } actions: {
+            Button(.RLocalizable.myTagsAddTag) {
+                store.send(.addTagTapped)
+            }
+            .buttonStyle(.glass(.regular.tint(.init(.systemGray5))))
+            .interactiveHover(.highlight, in: .capsule)
+            .padding()
+        }
+        .listRowBackground(Color.clear)
     }
 
     /// The alert of a failed request, on the control that sent it; every other control's binding is nil.
