@@ -128,18 +128,36 @@ public struct AppAlertTextFieldState: Equatable, Hashable, Sendable {
     /// only refuse would close the alert with nothing done and no word why. Off by default, so an alert that takes
     /// any text keeps every button enabled; the page jump checks its number itself.
     public var requiresText: Bool
+    /// The value the field edits, for an alert that changes one, such as a tag set's name (W-1 of quick 261126-wzf);
+    /// nil for an alert that asks for a value afresh.
+    ///
+    /// The host starts the field with it, unselected, for the user to edit (W-1). The alert holds every button but
+    /// Cancel while the trimmed text is still this value: such a button would change nothing, and the reducer would
+    /// only refuse it, closing the alert with no word why.
+    public var editedValue: String?
 
-    public init(placeholder: TextState, keyboard: Keyboard = .default, requiresText: Bool = false) {
+    public init(
+        placeholder: TextState,
+        keyboard: Keyboard = .default,
+        requiresText: Bool = false,
+        editedValue: String? = nil
+    ) {
         self.placeholder = placeholder
         self.keyboard = keyboard
         self.requiresText = requiresText
+        self.editedValue = editedValue
     }
 
-    /// Whether a button of `role` can be tapped while the field holds `text`: always, unless the field
-    /// `requiresText`, which holds every button but Cancel until `text` holds more than whitespace and newlines.
+    /// Whether a button of `role` can be tapped while the field holds `text`: Cancel always; any other button unless
+    /// the field `requiresText` and `text` holds nothing but whitespace and newlines, or `text`, trimmed of them, is
+    /// still the `editedValue`.
     public func enablesButton(role: ButtonStateRole?, text: String) -> Bool {
-        guard requiresText, role != .cancel else { return true }
-        return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        guard role != .cancel else { return true }
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if requiresText, trimmed.isEmpty {
+            return false
+        }
+        return trimmed != editedValue
     }
 }
 
@@ -248,7 +266,8 @@ extension View {
     /// binding it to `text` and auto-focusing it so the keyboard is up the moment the alert appears —
     /// native `.alert` no longer focuses its first field on its own. `text` lives in the host reducer's
     /// state, e.g. `.appAlert($store.scope(state: \.alert, action: \.alert), text: $store.pageIndex)`.
-    /// A field that ``AppAlertTextFieldState/requiresText`` holds every button but Cancel until `text` has some.
+    /// A field that ``AppAlertTextFieldState/requiresText`` holds every button but Cancel until `text` has some, and
+    /// one with an ``AppAlertTextFieldState/editedValue`` holds them while `text` is still that value.
     @MainActor
     public func appAlert<Action>(
         _ item: Binding<Store<AppAlertState<Action>, Action>?>,

@@ -12,9 +12,9 @@ import SwiftUI
 import SystemNotification
 
 /// The My Tags page (port of PR 462 item 10, design approved 2026-11-22): the tag set (its picker, Enabled and default
-/// colour, New Tag Set, and Delete Tag Set while the site offers it) and its tags, one row each; a row opens Edit Tag
-/// and a trailing swipe removes the tag. Add Tag sits in the toolbar. Signed out it shows Log In; loading, the loading
-/// view; failed, the error with Open in Browser.
+/// colour, New Tag Set, Rename Tag Set, and Delete Tag Set while the site offers it) and its tags, one row each; a row
+/// opens Edit Tag and a trailing swipe removes the tag. Add Tag sits in the toolbar. Signed out it shows Log In;
+/// loading, the loading view; failed, the error with Open in Browser.
 struct MyTagsView: View {
     @Bindable private var store: StoreOf<MyTagsFeature>
     @SharedReader(.didLogin) private var didLogin: Bool
@@ -104,6 +104,16 @@ struct MyTagsView: View {
                     text: $store.newTagSetName.sending(\.newTagSetNameChanged)
                 )
                 .appAlert(alert(for: .newTagSet))
+                Button(.myTagsRenameTagSet) {
+                    store.send(.renameTagSetTapped)
+                }
+                .disabled(store.isChangingTagSets)
+                // On the row that opens them, the rename alert and its failure alert (AGENTS.md dialog placement).
+                .appAlert(
+                    $store.scope(\.$renameTagSetAlert, action: \.renameTagSetAlert),
+                    text: $store.renameTagSetName.sending(\.renameTagSetNameChanged)
+                )
+                .appAlert(alert(for: .renameTagSet))
                 // Shown while the set's page offers deleting it, and kept, disabled, while its own failure alert is up
                 // (U-2a), so a refusal whose answer withdraws the offer is still seen on this row.
                 if store.showsDeleteTagSetRow {

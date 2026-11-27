@@ -26,6 +26,10 @@ public import SwiftUI
 /// Delete Tag Set shows while the shown set's page offers deleting it, and stays, disabled, while its own failure
 /// alert is up. It asks in a confirmation, then has the site delete the set; the page then chooses the site's first
 /// set and shows it, and a refusal or a failure shows the alert on the row (quick 261126-udx).
+///
+/// Rename Tag Set asks for the new name in an alert that starts with the set's name, then has the site rename the set
+/// from its own form; the picker shows the new name at once, and a refusal or a failure puts the old name back and
+/// shows the alert on the row (quick 261126-wzf).
 @Reducer
 public struct MyTagsFeature: Sendable {
     @Reducer
@@ -43,6 +47,8 @@ public struct MyTagsFeature: Sendable {
         case tag(Int)
         /// The New Tag Set row, whose create was refused or failed.
         case newTagSet
+        /// The Rename Tag Set row, whose rename was refused or failed.
+        case renameTagSet
         /// The Delete Tag Set row, whose delete was refused or failed.
         case deleteTagSet
     }
@@ -50,6 +56,12 @@ public struct MyTagsFeature: Sendable {
     /// The New Tag Set alert's action besides Cancel.
     public enum NewTagSetAlert: Equatable, Sendable {
         case create
+    }
+
+    /// The Rename Tag Set alert's action besides Cancel; it names the set it was opened for, as the delete's
+    /// confirmation does (W-1 of quick 261126-wzf).
+    public enum RenameTagSetAlert: Equatable, Sendable {
+        case rename(tagSetID: Int)
     }
 
     /// The Delete Tag Set confirmation's action besides Cancel; it names the set it was opened for (U-3).
@@ -76,6 +88,8 @@ public struct MyTagsFeature: Sendable {
         @Presents public var toast: AppAlertState<Never>?
         /// The alert that names a new tag set (N-2 of quick 261126-pfh).
         @Presents public var newTagSetAlert: AppAlertState<NewTagSetAlert>?
+        /// The alert that renames the shown tag set (W-1 of quick 261126-wzf).
+        @Presents public var renameTagSetAlert: AppAlertState<RenameTagSetAlert>?
         /// The confirmation that deletes the shown tag set (U-3 of quick 261126-udx).
         @Presents public var deleteTagSetDialog: ConfirmationDialogState<DeleteTagSetDialog>?
         public var alertSource: AlertSource?
@@ -87,10 +101,15 @@ public struct MyTagsFeature: Sendable {
         public var confirmedTagSet: MyTagSet?
         /// The name typed into the New Tag Set alert; emptied each time the alert opens.
         public var newTagSetName = ""
-        /// A create or a delete of a tag set is on its way (U-4 of quick 261126-udx): New Tag Set and Delete Tag Set
-        /// are disabled, and another create or delete is refused, until the site answers. One flag serves both: a
-        /// delete answered while a create is on its way would confuse the create's search for its new id, and a
-        /// create answered while a delete is on its way would confuse the delete's check that its set is gone.
+        /// The name typed into the Rename Tag Set alert; the set's own name each time the alert opens (W-1 of quick
+        /// 261126-wzf).
+        public var renameTagSetName = ""
+        /// A create, a rename or a delete of a tag set is on its way (U-4 of quick 261126-udx): New Tag Set, Rename Tag
+        /// Set and Delete Tag Set are disabled, and another create, rename or delete is refused, until the site
+        /// answers, one such request at a time (W-1 of quick 261126-wzf). One flag serves all three: a delete
+        /// answered while a create is on its way would confuse the create's search for its new id, a create answered
+        /// while a delete is on its way would confuse the delete's check that its set is gone, and either answered
+        /// while a rename is on its way could move or take away the set the rename's answer is read for.
         public var isChangingTagSets = false
 
         public init() {}
@@ -118,6 +137,7 @@ public struct MyTagsFeature: Sendable {
         case alert(PresentationAction<Never>)
         case toast(PresentationAction<Never>)
         case newTagSetAlert(PresentationAction<NewTagSetAlert>)
+        case renameTagSetAlert(PresentationAction<RenameTagSetAlert>)
         case deleteTagSetDialog(PresentationAction<DeleteTagSetDialog>)
         case delegate(Delegate)
         /// Sent when the page is presented.
@@ -139,6 +159,9 @@ public struct MyTagsFeature: Sendable {
         case newTagSetTapped
         case newTagSetNameChanged(String)
         case createTagSetDone(knownTagSetIDs: [Int], result: Result<MyTagsPage, AppError>)
+        case renameTagSetTapped
+        case renameTagSetNameChanged(String)
+        case renameTagSetDone(tagSetID: Int, oldName: String, newName: String, result: Result<MyTagsPage, AppError>)
         case deleteTagSetTapped
         case deleteTagSetDone(tagSetID: Int, result: Result<MyTagsPage, AppError>)
         case openInBrowserTapped
@@ -154,7 +177,8 @@ public struct MyTagsFeature: Sendable {
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .alert, .toast, .delegate, .newTagSetAlert(.dismiss), .deleteTagSetDialog(.dismiss):
+            case .alert, .toast, .delegate, .newTagSetAlert(.dismiss), .renameTagSetAlert(.dismiss),
+                 .deleteTagSetDialog(.dismiss):
                 return .none
 
             case .onPresented:
@@ -349,6 +373,90 @@ public struct MyTagsFeature: Sendable {
                     &state, .newTagSet, title: .myTagsCreateTagSetFailed, message: error.alertText
                 )
 
+            // The alert names the set it was opened for, the one the page shows, and starts with its name, which
+            // Rename waits to see changed (W-1).
+            case .renameTagSetTapped:
+                guard let tagSet = state.selectedTagSet else { return .none }
+                state.renameTagSetName = tagSet.name
+                state.renameTagSetAlert = AppAlertState(
+                    title: {
+                        TextState(localized: .myTagsRenameTagSetTitle)
+                    },
+                    textField: AppAlertTextFieldState(
+                        placeholder: TextState(localized: .myTagsNewTagSetName),
+                        requiresText: true,
+                        editedValue: tagSet.name
+                    ),
+                    actions: {
+                        ButtonState(action: .rename(tagSetID: tagSet.id)) {
+                            TextState(localized: .myTagsRename)
+                        }
+                        ButtonState(role: .cancel) {
+                            TextState(localized: .RLocalizable.cancel)
+                        }
+                    },
+                    message: {
+                        TextState(localized: .myTagsRenameTagSetMessage)
+                    }
+                )
+                return .none
+
+            case .renameTagSetNameChanged(let name):
+                state.renameTagSetName = name
+                return .none
+
+            // Only the set the alert names is renamed, while it is still the one shown, to a name neither blank nor its
+            // own, though Rename waits for one (W-1), and not while a create, a rename or a delete is on its way (U-4).
+            // The picker shows the new name at once (W-3); the form is the set's own.
+            case .renameTagSetAlert(.presented(.rename(let tagSetID))):
+                let name = state.renameTagSetName.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !state.isChangingTagSets, let tagSet = state.selectedTagSet, tagSet.id == tagSetID,
+                      !name.isEmpty, name != tagSet.name
+                else { return .none }
+                state.isChangingTagSets = true
+                state.$user.withLock({ $0.myTags = $0.myTags?.renaming(tagSetID, to: name) })
+                let host = state.setting.galleryHost
+                return .run { send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await myTagsClient.renameTagSet(host, name, tagSet)
+                    }
+                    await send(
+                        .renameTagSetDone(tagSetID: tagSetID, oldName: tagSet.name, newName: name, result: result)
+                    )
+                }
+
+            // The answer is taken into the cache, so the picker shows the name the site has (W-3). The rename took
+            // when the page gives no reason and shows the set under its new name; a reason, or another name, fails
+            // it. A page that shows another set says nothing of this one's name, so the old name returns.
+            case .renameTagSetDone(let tagSetID, let oldName, let newName, .success(let page)):
+                state.isChangingTagSets = false
+                take(page, into: &state)
+                guard page.tagSet.id == tagSetID else {
+                    state.$user.withLock({ $0.myTags = $0.myTags?.renaming(tagSetID, to: oldName) })
+                    return presentAlert(
+                        &state,
+                        .renameTagSet,
+                        title: .myTagsRenameFailed,
+                        message: page.message ?? AppError.unknown.alertText
+                    )
+                }
+                if let message = page.message {
+                    return presentAlert(&state, .renameTagSet, title: .myTagsRenameFailed, message: message)
+                }
+                guard page.tagSet.name == newName else {
+                    // Neither the new name nor a reason: as with a create whose answer lists no new set, all the app
+                    // knows is that the site did not do it.
+                    return presentAlert(
+                        &state, .renameTagSet, title: .myTagsRenameFailed, message: AppError.unknown.alertText
+                    )
+                }
+                return .none
+
+            case .renameTagSetDone(let tagSetID, let oldName, _, .failure(let error)):
+                state.isChangingTagSets = false
+                state.$user.withLock({ $0.myTags = $0.myTags?.renaming(tagSetID, to: oldName) })
+                return presentAlert(&state, .renameTagSet, title: .myTagsRenameFailed, message: error.alertText)
+
             // The confirmation names the set it was opened for, the one the page shows (U-3).
             case .deleteTagSetTapped:
                 guard let tagSet = state.selectedTagSet else { return .none }
@@ -435,6 +543,7 @@ public struct MyTagsFeature: Sendable {
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$toast, action: \.toast)
         .ifLet(\.$newTagSetAlert, action: \.newTagSetAlert)
+        .ifLet(\.$renameTagSetAlert, action: \.renameTagSetAlert)
         .ifLet(\.$deleteTagSetDialog, action: \.deleteTagSetDialog)
     }
 
