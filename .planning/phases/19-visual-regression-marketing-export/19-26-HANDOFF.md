@@ -15,8 +15,32 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
   states), and `19-26-HEIGHTS.md` holds the runs, the proposal summary, the findings and the storage projection
   (7.877 GB projected against 19-12's 5 GB line; every slice under 1.8 GB).
 - Task 2 (owner checkpoint) is in progress: round 3 (below) settled the alert, the menus, and how the Search root and
-  the freeze check are fixed. Open: the go-ahead for the queued work, the sheet-content design, then the heights.
-- Task 3 has not started. No provider file, source file, STATE.md or ROADMAP.md was changed for 19-26 yet.
+  the freeze check are fixed. The owner gave the go-ahead (「Yes, start」); both fixes landed, tests first
+  (`86c47193b` Search root, `4a87dc8b3` freeze check), and the touched states were re-measured (below). Open: the
+  sheet-content design, then the heights.
+- Task 3 has not started. No provider file, STATE.md or ROADMAP.md was changed for 19-26 yet.
+
+## Re-measure after the two fixes (2026-11-27)
+
+The sixteen touched states (the Search root's eleven, `app-wide-error-info`, the two archives states,
+`downloads-grid`, `favorites-signed-out`) over all 18 configurations on the iPhone (both orientations), iPad portrait
+and iPad landscape, in `.capture/agent-work/phase19-26/remeasure`: 2,304 lines, no `did not converge`, no `error`.
+- The Search root states, Quick Search on the iPhone and the toasts now measure finite content heights (for example
+  `search-root-empty` on the iPhone portrait 912, 912 and 1,351 pt at xSmall, large and accessibility5).
+- The archives, downloads grid and favorites signed out dark coordinates now measure the same needs as their light
+  twins.
+- Still `cannot-cover`: the confirmation dialogs' own scroll view at accessibility5 (alerts keep the screen height),
+  the iPhone accessibility5 Filters reset dialog (`cannot-cover:popover`), and the iPad sheets (the sheet-content
+  design).
+- A regenerated proposal with these runs last, `proposal-remeasure.json`, proposes 130 states (118 before) with
+  2,684 finding lines (4,140 before). `proposal.json` is unchanged; Task 3's plan amendment names the input it
+  applies, and its verify command's `--runs` must add the three `remeasure/*` runs.
+- The iPhone run ended `TEST FAILED` on the 24 `cannot-cover:popover` coordinates of
+  `quick-search-filters-reset-confirmation` (as in the first accessibility5 run): TCA reports that the binding at
+  `FiltersView.swift:38` was set to nil while the store's dialog state stayed set. `FiltersReducer` has no
+  `.ifLet(\.$confirmationDialog, action: \.confirmationDialog)` (the only `@Presents` in the sources without one), so
+  dismissing the Reset dialog without choosing leaves its state set. An app defect outside 19-26, raised with the
+  owner.
 - The worktree's HEAD was found detached twice on 2026-11-27 at the branch tip (cause unknown, nothing lost); each time
   it was re-attached with `git switch claude/phase19-deferred-0c4fb6`. Check `git status -sb` before committing.
 
@@ -27,7 +51,8 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
   `proposal.json` (Task 3's `apply --proposal` input; the verify command compares a regenerated copy with it),
   `interrupted-pad-landscape-xSmall` (the set-aside partial run), the driver logs, `owner-answers.md` (the same
   answers as below), `site-settings-full` (the 7,600 pt site settings picture shown to the owner), and round 3's
-  `recheck-notes.md`, `dnc-probe`, `error-recheck`, `freeze-debug` and `freeze-debug-pad`.
+  `recheck-notes.md`, `dnc-probe`, `error-recheck`, `freeze-debug` and `freeze-debug-pad`, the fixes' evidence
+  `search-fix` and `freeze-fix`, the re-measure `remeasure` and `proposal-remeasure.json`.
 - `.capture/agent-work/baseline2` (4.7 GB): the 19,512-picture baseline the storage projection and 19-12/19-13 use.
 - `.capture/agent-work/baseline1`, `phase19-21` to `phase19-24`, `phase19-31`, `run-44279625701`: earlier plans'
   evidence cited by their records.
@@ -110,9 +135,9 @@ in `.capture/agent-work/phase19-26/recheck-notes.md`, `dnc-probe`, `error-rechec
 
 ## Open, to put to the owner (Taiwanese Mandarin, AskUserQuestion)
 
-1. The go-ahead to implement the queued work below (the owner separates deciding from implementing).
-2. The sheet-content design, shown before building.
-3. Approval of the heights to commit, after the re-measures.
+1. The sheet-content design, shown before building.
+2. Approval of the heights to commit (the re-measures are done).
+3. Outside 19-26: whether to fix the Filters Reset dialog's missing `ifLet` (own commit, test first).
 
 ## Task 3 work the answers add (beyond the plan's text)
 
