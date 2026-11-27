@@ -14,9 +14,10 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
 - Task 1 is done: all measuring runs finished, `propose` returned 0 (118 states proposed, 4,140 finding lines over 54
   states), and `19-26-HEIGHTS.md` holds the runs, the proposal summary, the findings and the storage projection
   (7.877 GB projected against 19-12's 5 GB line; every slice under 1.8 GB).
-- Task 2 (owner checkpoint) is in progress: the owner has answered most kinds (below); four points are open.
+- Task 2 (owner checkpoint) is in progress: round 3 (below) settled the alert, the menus, and how the Search root and
+  the freeze check are fixed. Open: the go-ahead for the queued work, the sheet-content design, then the heights.
 - Task 3 has not started. No provider file, source file, STATE.md or ROADMAP.md was changed for 19-26 yet.
-- The worktree's HEAD was found detached on 2026-11-27 09:15 +0900 at the branch tip (cause unknown, nothing lost);
+- The worktree's HEAD was found detached twice on 2026-11-27 at the branch tip (cause unknown, nothing lost); each time
   it was re-attached with `git switch claude/phase19-deferred-0c4fb6`. Check `git status -sb` before committing.
 
 ## Do not delete (local only, not in git)
@@ -25,7 +26,8 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
 - `.capture/agent-work/phase19-26` (286 MB): the twelve input runs' `heights.jsonl` (`phone-*`, `pad-*`),
   `proposal.json` (Task 3's `apply --proposal` input; the verify command compares a regenerated copy with it),
   `interrupted-pad-landscape-xSmall` (the set-aside partial run), the driver logs, `owner-answers.md` (the same
-  answers as below), and `site-settings-full` (the 7,600 pt site settings picture shown to the owner).
+  answers as below), `site-settings-full` (the 7,600 pt site settings picture shown to the owner), and round 3's
+  `recheck-notes.md`, `dnc-probe`, `error-recheck`, `freeze-debug` and `freeze-debug-pad`.
 - `.capture/agent-work/baseline2` (4.7 GB): the 19,512-picture baseline the storage projection and 19-12/19-13 use.
 - `.capture/agent-work/baseline1`, `phase19-21` to `phase19-24`, `phase19-31`, `run-44279625701`: earlier plans'
   evidence cited by their records.
@@ -79,25 +81,48 @@ The role of the `page-height` check:
   `19-FULL-PAGE-CAPTURE-DESIGN.md` and D-08 of `19-CONTEXT.md`; any screen-height exemption amends the owner's C4
   verdict ("這個適用於所有頁面") and must quote them.
 
+Round 3 (2026-11-27), after a probe of the `did not converge` kinds and re-measures of the `error` states (evidence
+in `.capture/agent-work/phase19-26/recheck-notes.md`, `dnc-probe`, `error-recheck`, `freeze-debug`, `freeze-debug-pad`):
+- `app-wide-app-alert`: 「當 alert，維持螢幕高（建議）」. Keep it as an alert at the screen height. It fails with
+  `no-keyboard` on every iPad landscape coordinate of the local 27.2 main simulator (portrait clones measure it, and
+  the hosted 27.0 baseline2 holds all 144 pictures): a local environment problem, recorded, not a page defect.
+- Menus (`comments-menu`, `favorites-category-menu`, `toplists-period-menu`,
+  `settings-pages-activity-logs-run-picker`): the menu's own scroll view is sized by UIKit to the window, so the need
+  is always the window plus a constant (+67 pt at large); at accessibility5 the menu scrolls inside itself. After the
+  baseline2 accessibility5 pictures: 「選單可以按你推薦處理」. Keep the screen height; the menu's presence is enough.
+- Search root (`search-root-empty`, `search-root-history`, `search-clear-confirmation`, the six `quick-search-*`
+  states, and the two toasts, all drawn over the Search root): `SearchRootView`'s suggestions panel takes the scroll
+  viewport's height as its `minHeight` (16-25, W-22, `49131e392`), then `.padding(.vertical)` adds 32 pt outside it,
+  so the content is always the viewport plus 32 pt (a 2,500 pt window needs 2,532 pt) and an empty Search page
+  scrolls 32 pt. Asked 「app 的邏輯有問題嗎？」, told yes, the owner chose 「修 App（建議）」: put the padding inside
+  the floor, in its own commit, tests first, checking that W-22's title behaviour holds at every text size; then
+  re-measure the eleven states.
+- `freeze-changed-pixels` (archives, archives insufficient funds, downloads grid, favorites signed out, Quick Search
+  empty): the native and frozen reads differ by rendering rounding only, one step on one channel (65 bytes on a card's
+  1 pt border on the iPhone, one byte on the iPad), mostly in dark, once in light. The settle already counts such
+  reads as the same still window (`readsMatch`); only the freeze check demands byte-identical reads (19-19 truth,
+  design §2). First answer 「先查清楚再定高度」; after the cause: 「改用靜止判斷的規則（建議）」. The freeze check uses
+  `readsMatch`, tests first (one-step noise passes, a reflow fails); amend the 19-19 rule with the owner's words;
+  re-measure these states.
+- The toasts' `settle-timeout:pixels` boxes are the toast itself, over the Search root; the reader states' errors are
+  moot (screen height).
+- Sheets `app-wide-error-info` and iPad `gallery-detail-sheet` (`did not converge`) fall under the sheet-content design.
+
 ## Open, to put to the owner (Taiwanese Mandarin, AskUserQuestion)
 
-1. `app-wide-app-alert` is both an alert and a keyboard state: keep it as an alert at the screen height
-   (recommended) or remove it. Asked once; the owner answered other points instead.
-2. The 17 `did not converge` states (`19-26-HEIGHTS.md` "## Findings"). Site settings showed the measuring can be
-   misled by a view that grows with the window; check each kind first with one picture at a fixed height (temporary
-   `.committed` height in the provider, `run-snapshot-local.sh --mode candidate` for one configuration, then revert),
-   and bring a picture per kind with a recommendation. 19-30-SUMMARY notes constant offsets (+32 pt, +67 pt) for some.
-3. The 10 `error` states (settle timeouts, `freeze-changed-pixels`, iPad landscape `interaction:no-keyboard`): read
-   the logs, sort real defects from measuring flukes, then ask.
-4. Approval of the heights to commit, after 1 to 3 decide which states keep the screen height.
+1. The go-ahead to implement the queued work below (the owner separates deciding from implementing).
+2. The sheet-content design, shown before building.
+3. Approval of the heights to commit, after the re-measures.
 
 ## Task 3 work the answers add (beyond the plan's text)
 
 Amend `19-26-PLAN.md` with the owner's decisions before executing, then: the `viewport` case (plan `<behavior>`); the
 keyboard states' removal (inventory, providers, matrix counts, shard plan, the storage projection); compare mode
 without the `page-height` check (tests for both modes); the page need ignoring a `TextEditor`'s internal content
-height (test first); the sheet-content design (owner first); `apply` and `check-sources`; the verification sample and
-timing ratio. Note for later, not part of 19-26: the "Excluded Uploaders" editor's code asks for 30% of the container
+height (test first); the freeze check using `readsMatch` (test first) and the re-measure of its states; the
+screen height for the menus and `app-wide-app-alert`; the sheet-content design (owner first); `apply` and `check-sources`; the verification sample and
+timing ratio. Outside 19-26, before its re-measure: the Search root padding fix (app source, own commit). Note for later, not
+part of 19-26: the "Excluded Uploaders" editor's code asks for 30% of the container
 height but renders one line tall in the tall window, a possible app layout defect.
 
 ## Re-running a measurement (if ever needed)
