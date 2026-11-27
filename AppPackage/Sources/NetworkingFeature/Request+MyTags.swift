@@ -5,11 +5,13 @@ import Kanna
 import ParserFeature
 
 // The My Tags reads and writes (port of PR 462 item 10; the site contract read live on 2026-11-22). Every request but
-// the create and the delete keeps `fetch`'s default four attempts: the reads are GETs, and a replayed write asks the
-// site for the same end state (an add of a tag the set holds is taken unchanged, a remove of a tag the set no longer
-// holds removes nothing, an edit or a tag set update sets the same values), so a lost response is safe to ask for
-// again. A replayed create would make another set (N-4 of quick 261126-pfh), and a replayed delete would find its set
-// gone and come back refused though the delete took (U-5 of quick 261126-udx), so both are put on the wire once.
+// the create, the rename and the delete keeps `fetch`'s default four attempts: the reads are GETs, and a replayed
+// write asks the site for the same end state (an add of a tag the set holds is taken unchanged, a remove of a tag the
+// set no longer holds removes nothing, an edit or a tag set update sets the same values), so a lost response is safe
+// to ask for again. A replayed create would make another set (N-4 of quick 261126-pfh), a replayed delete would find
+// its set gone and come back refused though the delete took (U-5 of quick 261126-udx), and a replayed rename would
+// ask the site for the name the set already has, whose answer is unknown here (W-2 of quick 261126-wzf), so all
+// three are put on the wire once.
 
 extension Request {
     /// A My Tags page the site served, or answered a form post with.
@@ -38,8 +40,8 @@ extension Request {
     }
 
     /// The tag set form's fields in the browser's order, as the site's `do_tagset_post` submits the form: the action,
-    /// the name (the new set's for a create, else the form's empty field), the Enabled box, which sends nothing when
-    /// unchecked, and the colour, empty for none.
+    /// the name (the new set's for a create, the new one for a rename, else the form's empty field), the Enabled box,
+    /// which sends nothing when unchecked, and the colour, empty for none.
     fileprivate func tagSetFormFields(
         action: String,
         name: String,
@@ -240,6 +242,42 @@ public struct CreateMyTagSetRequest: Request {
             action: "create", name: name, isEnabled: shownTagSet.isEnabled, color: shownTagSet.color
         )
         let url = Defaults.URL.myTags(host: host, tagSetID: shownTagSet.id)
+        return try await postMyTagsForm(fields, to: url, in: urlSession, attempts: 1)
+    }
+}
+
+/// Renames a tag set through the tag set form's Rename (`tagset_action=rename`), as the site's `do_tagset_rename`
+/// posts it once its prompt is answered: the form of the set the page shows, which is the set renamed, to that set's
+/// page, its fields in the browser's order. Those are the new name, the set's Enabled box, which sends nothing when
+/// unchecked, and its colour. Answers the page the site returns, which carries the reason when it refused.
+///
+/// Put on the wire once (W-2 of quick 261126-wzf). A replay asks for the same name, so it cannot rename twice; but a
+/// rename the site took whose response was lost would then ask the site for the name the set already has, and what
+/// the site answers to that is unknown here: a refusal would read as the failure of a rename that took, as a replayed
+/// delete would (U-5 of quick 261126-udx). A lost response shows the failure instead, and the next read of My Tags
+/// shows the name the site has.
+public struct RenameMyTagSetRequest: Request {
+    public init(
+        host: GalleryHost,
+        name: String,
+        tagSet: MyTagSet,
+        urlSession: URLSession = .shared
+    ) {
+        self.host = host
+        self.name = name
+        self.tagSet = tagSet
+        self.urlSession = urlSession
+    }
+    public let host: GalleryHost
+    /// The set's new name; the page sends it trimmed.
+    public let name: String
+    /// The set to rename, the one the page shows, whose form the rename is posted from.
+    public let tagSet: MyTagSet
+    public let urlSession: URLSession
+
+    public func response() async throws(AppError) -> MyTagsPage {
+        let fields = tagSetFormFields(action: "rename", name: name, isEnabled: tagSet.isEnabled, color: tagSet.color)
+        let url = Defaults.URL.myTags(host: host, tagSetID: tagSet.id)
         return try await postMyTagsForm(fields, to: url, in: urlSession, attempts: 1)
     }
 }

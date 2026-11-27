@@ -117,7 +117,8 @@ public struct MyTagDraft: Equatable, Sendable {
 /// whether the site offers to delete it.
 public struct MyTagSet: Codable, Equatable, Hashable, Identifiable, Sendable {
     public let id: Int
-    public let name: String
+    /// Set here only by `MyTags.renaming(_:to:)`, so a rename shows at once (W-3 of quick 261126-wzf).
+    public internal(set) var name: String
     /// Only the tags of an enabled set take effect, on the site and in the app's highlight.
     public var isEnabled: Bool
     /// The colour of the set's tags that have none of their own.
@@ -220,6 +221,18 @@ public struct MyTags: Codable, Equatable, Hashable, Sendable {
     /// The cache with `tagSet` in place of the set of the same id.
     public func updating(_ tagSet: MyTagSet) -> MyTags {
         MyTags(tagSets: tagSets.map({ $0.id == tagSet.id ? tagSet : $0 }), selectedTagSetID: selectedTagSetID)
+    }
+
+    /// The cache with the set `tagSetID` named `name` (W-3 of quick 261126-wzf): the picker shows a rename at once,
+    /// and a rename that failed puts the old name back the same way.
+    public func renaming(_ tagSetID: Int, to name: String) -> MyTags {
+        let tagSets = self.tagSets.map { tagSet in
+            guard tagSet.id == tagSetID else { return tagSet }
+            var renamed = tagSet
+            renamed.name = name
+            return renamed
+        }
+        return MyTags(tagSets: tagSets, selectedTagSetID: selectedTagSetID)
     }
 
     /// The cache with `tag` in place of the tag of the same id in the set `tagSetID`.

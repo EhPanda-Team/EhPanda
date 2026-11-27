@@ -182,6 +182,27 @@ struct MyTagsTests {
         #expect(cache.updating(recoloured) == MyTags(tagSets: [first, recoloured], selectedTagSetID: 2))
     }
 
+    // A rename shows in the cache at once, and a failed one puts the old name back the same way (W-3 of quick
+    // 261126-wzf); the set keeps everything else, the other sets and the choice stay, and an unknown id changes
+    // nothing.
+    @Test
+    func aRenameNamesOneSetAndKeepsTheRest() {
+        let first = MyTagSet(id: 1, name: "Tagset #1", isEnabled: true, color: nil, tags: [Self.glasses])
+        let second = MyTagSet(
+            id: 2, name: "Fixture Picks", isEnabled: false, color: Self.green, tags: [Self.artist], isDeletable: true
+        )
+        let cache = MyTags(tagSets: [first, second], selectedTagSetID: 2)
+
+        let renamed = cache.renaming(2, to: "Fixture Holds")
+
+        let holds = MyTagSet(
+            id: 2, name: "Fixture Holds", isEnabled: false, color: Self.green, tags: [Self.artist], isDeletable: true
+        )
+        #expect(renamed == MyTags(tagSets: [first, holds], selectedTagSetID: 2))
+        #expect(renamed.renaming(2, to: "Fixture Picks") == cache)
+        #expect(cache.renaming(9, to: "Fixture Holds") == cache)
+    }
+
     @Test
     func aGalleryTagIsNamedAsMyTagsTitlesItAndTakesTheCacheElseTheListColour() {
         let content = GalleryTag.Content(
