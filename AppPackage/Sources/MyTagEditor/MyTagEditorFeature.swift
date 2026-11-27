@@ -11,7 +11,8 @@ public import SwiftUI
 /// Confirm sends the change to the site and closes the sheet once the site took it; a refusal or a failure keeps it
 /// open with the alert on the control that sent it. An add or a remove takes the page the site answered with into
 /// the cached My Tags, and an edit changes the cached tag once the edit API accepts it, so a host only reports the
-/// outcome (`Delegate`). Close discards the changes without asking.
+/// outcome (`Delegate`). Close discards the changes without asking. A request answered that the session ended keeps the
+/// sheet open with its alert and tells the host too, whose page shows its signed-out state (W-5 of quick 261126-wzf).
 ///
 /// Add Tag lists the site's suggestions for the typed tag, as the site's own tag field does: it asks 200 ms after the
 /// text last changed, a change cancels the question on its way, and nothing is asked while fewer than two characters
@@ -46,6 +47,9 @@ public struct MyTagEditorFeature: Sendable {
     public enum Delegate: Equatable, Sendable {
         case saved
         case removed
+        /// A request answered that the session is no longer signed in (W-5 of quick 261126-wzf). The sheet stays open
+        /// with the changes and its alert; the host shows its signed-out state beneath it.
+        case signedOut
     }
 
     private enum CancelID {
@@ -277,7 +281,7 @@ public struct MyTagEditorFeature: Sendable {
 
             case .addDone(.failure(let error)):
                 state.running = nil
-                return presentAlert(&state, .confirm, title: .RLocalizable.myTagsSaveFailed, message: error.alertText)
+                return presentFailure(&state, .confirm, title: .RLocalizable.myTagsSaveFailed, error: error)
 
             case .updateDone(let edited, .success(.accepted)):
                 state.running = nil
@@ -291,7 +295,7 @@ public struct MyTagEditorFeature: Sendable {
 
             case .updateDone(_, .failure(let error)):
                 state.running = nil
-                return presentAlert(&state, .confirm, title: .RLocalizable.myTagsSaveFailed, message: error.alertText)
+                return presentFailure(&state, .confirm, title: .RLocalizable.myTagsSaveFailed, error: error)
 
             case .removeTapped:
                 guard case .edit(let tag, _, _) = state.mode, state.running == nil else { return .none }
@@ -315,7 +319,7 @@ public struct MyTagEditorFeature: Sendable {
 
             case .removeDone(.failure(let error)):
                 state.running = nil
-                return presentAlert(&state, .remove, title: .RLocalizable.myTagsRemoveFailed, message: error.alertText)
+                return presentFailure(&state, .remove, title: .RLocalizable.myTagsRemoveFailed, error: error)
 
             case .suggestDone(.success(let suggestions)):
                 state.siteSuggestionAnswer = suggestions
@@ -349,6 +353,19 @@ public struct MyTagEditorFeature: Sendable {
             await send(.delegate(outcome))
             await dismiss()
         }
+    }
+
+    /// A request's failure: the alert on the control that sent it; an ended session also tells the host (W-5 of quick
+    /// 261126-wzf).
+    private func presentFailure(
+        _ state: inout State,
+        _ source: Control,
+        title: LocalizedStringResource,
+        error: AppError
+    ) -> Effect<Action> {
+        let alert = presentAlert(&state, source, title: title, message: error.alertText)
+        guard error == .loginRequired else { return alert }
+        return .merge(alert, .send(.delegate(.signedOut)))
     }
 
     private func presentAlert(

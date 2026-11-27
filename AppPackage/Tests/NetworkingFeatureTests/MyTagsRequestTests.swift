@@ -403,6 +403,42 @@ struct MyTagsRequestTests: TestHelper {
         #expect(result == .failure(.parseFailed))
     }
 
+    // An answer with `login` means the session ended: any value but null, as the site's own script reads it, fails the
+    // edit as `loginRequired` (W-5 of quick 261126-wzf).
+    @Test(arguments: [#"{"login":1}"#, #"{"login":"sample"}"#])
+    func aLoginAnswerFailsTheEditAsLoginRequired(reply: String) async throws {
+        let url = try #require(Self.apiURL)
+        let data = Data(reply.utf8)
+        let (session, handle) = makeStubbedSession(script: StubScript([url: [.http(status: 200, data: data)]]))
+        defer { cleanUp(session: session, handle: handle) }
+        let tag = MyTag(
+            id: 101, name: "female:sample glasses", isWatched: true, isHidden: false, color: nil, weight: 10
+        )
+
+        let result = await capture { () async throws(AppError) -> MyTagEditReply in
+            try await UpdateMyTagRequest(
+                host: .ehentai, apiuid: 1234567, apikey: "0123456789abcdef", tag: tag, urlSession: session
+            )
+            .response()
+        }
+
+        #expect(result == .failure(.loginRequired))
+    }
+
+    // A null `login` is no such answer, as the site's script reads it (W-5 of quick 261126-wzf).
+    @Test
+    func aNullLoginIsNoLoginAnswer() async throws {
+        let url = try #require(Self.apiURL)
+        let reply = Data(#"{"login":null,"tagid":101}"#.utf8)
+        let (session, handle) = makeStubbedSession(script: StubScript([url: [.http(status: 200, data: reply)]]))
+        defer { cleanUp(session: session, handle: handle) }
+        let tag = MyTag(
+            id: 101, name: "female:sample glasses", isWatched: true, isHidden: false, color: nil, weight: 10
+        )
+
+        #expect(try await update(tag, session: session) == .accepted)
+    }
+
     /// The edit API's request body; the credentials are the fixtures' invented ones.
     private struct SetUserTagBody: Decodable, Equatable {
         var method = "setusertag"

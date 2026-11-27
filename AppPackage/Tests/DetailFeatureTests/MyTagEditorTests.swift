@@ -11,7 +11,8 @@ import TestingSupport
 
 // Add Tag and Edit Tag (port of PR 462 item 10, design approved 2026-11-22): what can be confirmed, the requests, the
 // cache, the alert on the control that failed, and the outcome the host is told; the site's suggestions, the colour
-// code's check and the weight field (quick 261126-wzg). The tags, sets and suggestions are invented.
+// code's check and the weight field (quick 261126-wzg); an ended session (quick 261126-wzf). The tags, sets and
+// suggestions are invented.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated.
 @Suite(.isolatedAppStorage)
@@ -272,6 +273,56 @@ struct MyTagEditorTests {
                 title: .RLocalizable.myTagsRemoveFailed, message: AppError.networkingFailed.alertText
             )
         }
+        #expect(dismissed.value == 0)
+    }
+
+    // An edit or a remove answered that the session ended keeps the sheet open with its alert and tells the host, whose
+    // page shows its signed-out state beneath it (W-5 of quick 261126-wzf).
+    @MainActor
+    @Test
+    func anEndedSessionKeepsTheAlertAndTellsTheHost() async {
+        let dismissed = LockIsolated(0)
+        let store = makeStore(
+            state: {
+                MyTagEditorFeature.State(
+                    editing: Self.glasses, tagSet: Self.set1, apiuid: 1234567, apikey: "0123456789abcdef"
+                )
+            },
+            dismissed: dismissed
+        ) {
+            $0.updateTag = { (_: GalleryHost, _: Int, _: String, _: MyTag) async throws(AppError) -> MyTagEditReply in
+                throw .loginRequired
+            }
+            $0.removeTags = { (_: GalleryHost, _: [Int], _: Int) async throws(AppError) -> MyTagsPage in
+                throw .loginRequired
+            }
+        }
+
+        await store.send(.binding(.set(\.weight, 99))) {
+            $0.weight = 99
+            $0.weightText = "99"
+        }
+        await store.send(.confirmTapped) {
+            $0.running = .confirm
+        }
+        await store.receive(\.updateDone) {
+            $0.running = nil
+            $0.alertSource = .confirm
+            $0.alert = .failure(title: .RLocalizable.myTagsSaveFailed, message: AppError.loginRequired.alertText)
+        }
+        await store.receive(\.delegate.signedOut)
+        await store.send(.alert(.dismiss)) {
+            $0.alert = nil
+        }
+        await store.send(.removeTapped) {
+            $0.running = .remove
+        }
+        await store.receive(\.removeDone.failure) {
+            $0.running = nil
+            $0.alertSource = .remove
+            $0.alert = .failure(title: .RLocalizable.myTagsRemoveFailed, message: AppError.loginRequired.alertText)
+        }
+        await store.receive(\.delegate.signedOut)
         #expect(dismissed.value == 0)
     }
 

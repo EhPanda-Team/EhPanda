@@ -317,7 +317,9 @@ public struct DeleteMyTagSetRequest: Request {
 /// Sets a tag's Watched and Hidden state, colour and weight through the site's edit API, `setusertag`.
 ///
 /// The API answers `{"tagid": <id>}` when it took the edit and `{"error": "<reason>", …}` when it refused it. Its
-/// success is no proof the tag exists: an unknown tag id is answered the same way and changes nothing.
+/// success is no proof the tag exists: an unknown tag id is answered the same way and changes nothing. An answer with
+/// `login` means the session is no longer signed in, which the site's page answers by going to its login page; it
+/// fails as `loginRequired` (W-5 of quick 261126-wzf).
 public struct UpdateMyTagRequest: Request {
     public init(
         host: GalleryHost,
@@ -358,6 +360,9 @@ public struct UpdateMyTagRequest: Request {
         do {
             return try parseResponse(data: data) { (body: Data) throws -> MyTagEditReply in
                 let reply = try JSONDecoder().decode(SetUserTagReply.self, from: body)
+                if reply.asksToLogIn {
+                    throw AppError.loginRequired
+                }
                 if let error = reply.error {
                     return .refused(String(error.prefix(200)))
                 }
@@ -370,13 +375,29 @@ public struct UpdateMyTagRequest: Request {
     }
 }
 
-/// The edit API's reply: the tag's id when it took the edit, the reason when it refused it.
+/// The edit API's reply: the tag's id when it took the edit, the reason when it refused it, and whether it asks for a
+/// login (W-5 of quick 261126-wzf).
 private struct SetUserTagReply: Decodable {
     let tagID: Int?
     let error: String?
+    /// The reply carries `login` with any value but null, the test the site's `api_response` makes
+    /// (`void 0 != a.login`) before it goes to the login page.
+    let asksToLogIn: Bool
 
     private enum CodingKeys: String, CodingKey {
         case tagID = "tagid"
         case error
+        case login
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        tagID = try container.decodeIfPresent(Int.self, forKey: .tagID)
+        error = try container.decodeIfPresent(String.self, forKey: .error)
+        if container.contains(.login) {
+            asksToLogIn = try !container.decodeNil(forKey: .login)
+        } else {
+            asksToLogIn = false
+        }
     }
 }
