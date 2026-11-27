@@ -1200,7 +1200,7 @@ See: .planning/PROJECT.md (updated 2026-11-05)
 Phase: 20 (3.0 Distribution: Marketplace Build, Notarization, Listing & Release Checks) — EXECUTING
 Plan: 20-07 (wave 1); 20-06 and 20-08 open
 Status: Executing Phase 20
-Last activity: 2026-11-27 - Completed quick task 261126-wzg: My Tags editor suggestions, colour check and weight field (owner device check pending)
+Last activity: 2026-11-27 - Completed quick task 261126-wzf: My Tags rename and expired session (owner device check pending)
 
 Phase 17 closed with 13/13 in-scope plans, verification passed 8/8, UAT 31/31, security verified and validation
 validated. Phase 18 closed with 12/12 plans and verification passed 10/10 (`18-VERIFICATION.md`); Phase 18.1 closed
@@ -2284,6 +2284,7 @@ None yet.
 | 261126-trf | Passive webtoon detection: more than two thirds of the known pages extremely tall (at least three known) turn the gallery into a webtoon, a recorded "not a webtoon" included; the middle-page fetch stays; owner device check pending | 2026-11-26 | ad9050e94 | [261126-trf-add-passive-webtoon-detection](./quick/261126-trf-add-passive-webtoon-detection/) |
 | 261126-udx | My Tags gains Delete Tag Set: shown while the set's page offers deleting it, confirmed on its row, the site deletes the set and the page shows the site's first listed set; needs the owner's device check | 2026-11-27 | 3e9c18732 | [261126-udx-add-delete-tag-set-to-native-my-tags](./quick/261126-udx-add-delete-tag-set-to-native-my-tags/) |
 | 261126-wzg | The tag editor suggests the site's tags (with their canonical names), flags an invalid colour code under the field, and takes a typed weight beside the Stepper; needs the owner's device check | 2026-11-27 | 4b8fdf6ba | [261126-wzg-my-tags-editor-suggestions-color-weight](./quick/261126-wzg-my-tags-editor-suggestions-color-weight/) |
+| 261126-wzf | My Tags gains Rename Tag Set (the alert opens with the name filled in, not selected; the site renames the set from its own form), and an expired session shows Log In instead of an error, reading every set again after a sign-in; the Tag Set picker shows no counts (owner 2026-11-27); needs the owner's device check | 2026-11-27 | 7f053cc2c | [261126-wzf-my-tags-tag-set-rename-counts-and-sessio](./quick/261126-wzf-my-tags-tag-set-rename-counts-and-sessio/) |
 
 ### Roadmap Evolution
 
