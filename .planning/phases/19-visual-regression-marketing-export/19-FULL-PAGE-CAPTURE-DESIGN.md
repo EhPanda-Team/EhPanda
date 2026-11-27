@@ -65,7 +65,12 @@ struct PageHeights { ... }
     margins (32 pt above and below): before the operating step, after it, and after the settle, with a second settle
     when that changed anything. The window's height stays the committed one; content taller than the window allows
     still fails the check. A sheet that fills the window's height, as on the iPhone, grows with the window already and
-    is left as it is (owner decisions 2026-11-27 in 19-26: 「sheet 的狀況應當測量 sheet 內容」, then 「貼合內容」; the
+    is left as it is. The preferred height is the content's height less the sheet's native offset (its first frame
+    height less SwiftUI's preferred height, 660 and 640 pt), kept per hosting, never the last preferred height plus the
+    overflow, which kept rising while the window held the frame. The page of a sheet state is the sheet, on both
+    devices: the need, the check and the measuring mode read only the front-most sheet and what is presented over it,
+    never the page behind it (a 9,257 pt reader behind the reader's settings sheet set the iPad's need at every text
+    size) (owner decisions 2026-11-27 in 19-26: 「sheet 的狀況應當測量 sheet 內容」, then 「貼合內容」; the
     reader's settings sheet is captured whole like the other sheets: 「當 sheet，整個內容都拍」).
 - **Two kinds of step (owner decision 2026-11-23: 「把步驟拆成兩種」, split the steps into two kinds):** a scenario's
   steps are marked by their argument label. A stillness step (`still:`) only lets what `make` built finish and hold it

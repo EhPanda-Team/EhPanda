@@ -127,7 +127,8 @@ struct PageNeed {
 
 extension HostedHierarchy {
     /// The window height the page needs, in whole points: the window's height plus the largest vertical overflow
-    /// of a scroll view the user could see and scroll.
+    /// of a scroll view in the page (``pageRoots(in:)``: the window, or the front-most sheet) the user could see and
+    /// scroll.
     ///
     /// A scroll view counts when it scrolls, is neither hidden nor (nearly) transparent in itself or any ancestor up
     /// to the window, and its frame in window coordinates meets the window's bounds. Its overflow is its content
@@ -138,7 +139,7 @@ extension HostedHierarchy {
         let scale = window.screen.scale
         var largest: CGFloat = 0
         var widest: UIScrollView?
-        for view in descendants(of: window) {
+        for view in pageRoots(in: window).flatMap({ [$0] + descendants(of: $0) }) {
             guard let scrollView = view as? UIScrollView, isVisibleAndScrolling(scrollView, in: window) else {
                 continue
             }
@@ -150,6 +151,29 @@ extension HostedHierarchy {
             }
         }
         return PageNeed(points: ceil(((window.bounds.height + largest) * scale).rounded() / scale), scrollView: widest)
+    }
+
+    /// The views that hold the page: the window, or, while a sheet is presented, the front-most sheet and what is
+    /// presented over it (owner decision 2026-11-27 in 19-26, 「sheet 的狀況應當測量 sheet 內容」).
+    ///
+    /// The page of a sheet state is its sheet: the page behind it is only its backdrop, so its scroll views set no
+    /// need (a reader of 9,257 pt behind the reader's settings sheet set the iPad's need at every text size, 19-26).
+    /// A sheet is a presented controller whose presentation style is `.formSheet` or `.pageSheet`, whether it floats,
+    /// as on the iPad, or fills the window's height, as on the iPhone. A dialog, popover or alert presented over the
+    /// sheet belongs to the sheet's page; one presented over a page with no sheet belongs to that page, as before.
+    static func pageRoots(in window: UIWindow) -> [UIView] {
+        var chain: [UIViewController] = []
+        var presented = HostedWindowCapture.controllers(from: window.rootViewController)
+            .first(where: { $0.presentedViewController != nil })?.presentedViewController
+        while let current = presented {
+            chain.append(current)
+            presented = current.presentedViewController
+        }
+        guard let sheet = chain.lastIndex(where: { controller in
+            guard let style = controller.presentationController?.presentationStyle else { return false }
+            return style == .formSheet || style == .pageSheet
+        }) else { return [window] }
+        return chain[sheet...].map({ $0.presentationController?.presentedView ?? $0.view })
     }
 
     static func isVisibleAndScrolling(_ scrollView: UIScrollView, in window: UIWindow) -> Bool {
@@ -333,7 +357,7 @@ extension HostedWindowCapture {
     /// then each taller height in a fresh hosting of the tall path (`make`, host, `still` at native size, then
     /// ``prepareGrownWindow(_:to:minimumReads:freeze:)`` as the capture does, `interact`, settle). A taller height
     /// needs a fresh hosting because an operating step cannot be undone, and the owner's order grows the window
-    /// before it. The floating form sheets are fitted as the capture fits them (``fitSheets(in:)``).
+    /// before it. The floating form sheets are fitted as the capture fits them (``SheetFitter``).
     /// After each settle the need is read (``HostedHierarchy/pageNeed(in:)``), together with the class and height of
     /// the scroll view that sets it and whether that scroll view avoids a keyboard that is up (`keyboardTop`,
     /// ``PageNeed/avoidsKeyboard(topAt:in:)``). Then:
@@ -512,20 +536,21 @@ extension HostedWindowCapture {
             case .geometry: return .failed(tallWindowGeometryReason)
             }
         }
-        if let failed = failure(of: await fitSheets(in: window)) { return failed }
+        let fitter = SheetFitter()
+        if let failed = failure(of: await fitter.fit(in: window)) { return failed }
         if let interact = stages.interact {
             do {
                 try await interact(window)
             } catch {
                 return .failed("\(interactionReason):\(stepFailure(error))")
             }
-            if let failed = failure(of: await fitSheets(in: window)) { return failed }
+            if let failed = failure(of: await fitter.fit(in: window)) { return failed }
         }
         do {
             guard case .settled = try await settleWindow(window, nativeSize: nativeSize, minimumReads: minimumReads)
             else { return .failed(settleTimeoutReason) }
-            // The fitting after the settle, as the capture's (``fitSheets(in:)``).
-            let fit = await fitSheets(in: window)
+            // The fitting after the settle, as the capture's (``SheetFitter``).
+            let fit = await fitter.fit(in: window)
             if let failed = failure(of: fit) { return failed }
             if fit == .fitted {
                 guard case .settled = try await settleWindow(

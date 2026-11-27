@@ -739,7 +739,7 @@ public enum HostedWindowCapture {
                 reason: settleTimeoutReason)
     }
 
-    /// The attempt a fitting of the form sheets (``fitSheets(in:)``) ends: a timeout, retried like any other, when a
+    /// The attempt a fitting of the form sheets (``SheetFitter``) ends: a timeout, retried like any other, when a
     /// presentation never finished or the wait for one was cancelled, else `nil`.
     private static func timeout(of fit: SheetFit) -> Attempt? {
         switch fit {
@@ -759,7 +759,8 @@ public enum HostedWindowCapture {
     private static func attemptHosted(
         window: UIWindow, request: Request, viewportSize: CGSize? = nil
     ) async -> Attempt {
-        if let timedOut = timeout(of: await fitSheets(in: window)) { return timedOut }
+        let fitter = SheetFitter()
+        if let timedOut = timeout(of: await fitter.fit(in: window)) { return timedOut }
         if let interact = request.interact {
             do {
                 try await interact(window)
@@ -767,14 +768,14 @@ public enum HostedWindowCapture {
                 return Attempt(status: .error, settleSamples: 0, png: nil, difference: nil,
                                reason: "\(interactionReason):\(stepFailure(error))")
             }
-            if let timedOut = timeout(of: await fitSheets(in: window)) { return timedOut }
+            if let timedOut = timeout(of: await fitter.fit(in: window)) { return timedOut }
         }
         if let viewportSize {
             return await attemptSliced(window: window, request: request, viewportSize: viewportSize)
         }
         var settledRead = await settleRead(window, minimumReads: request.minimumReads)
         if case .settled = settledRead.result {
-            let fit = await fitSheets(in: window)
+            let fit = await fitter.fit(in: window)
             if let timedOut = timeout(of: fit) { return timedOut }
             if fit == .fitted {
                 settledRead = await settleRead(window, minimumReads: request.minimumReads)
