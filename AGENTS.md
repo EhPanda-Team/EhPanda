@@ -1,15 +1,10 @@
 # AGENTS.md
 
-This file gives coding agents a reliable working guide for this repository.
-Only agents running in the AirBuild runtime read the local [AIRBUILD.md](AIRBUILD.md). Agents running in any other runtime, such as Claude Code or Codex, must not read or follow `AIRBUILD.md`, even when their task involves AirBuild.
-Every agent, in any runtime, also reads the local [AGENTS.local.md](AGENTS.local.md) when it exists, before working on this project, and follows it.
+This file gives coding agents a reliable working guide for this repository. Only agents running in the AirBuild runtime read the local [AIRBUILD.md](AIRBUILD.md). Agents running in any other runtime, such as Claude Code or Codex, must not read or follow `AIRBUILD.md`, even when their task involves AirBuild. Every agent, in any runtime, also reads the local [AGENTS.local.md](AGENTS.local.md) when it exists, before working on this project, and follows it.
 
 ## Planning workflow
 
-Follow this repository's existing GSD workflow. Before implementation, read `.planning/STATE.md`,
-`.planning/ROADMAP.md`, the applicable plan and its recorded continuation decisions. Preserve owner
-checkpoints and approval boundaries, and keep relevant planning and verification records current.
-Check related repositories' own instructions separately rather than assuming the same workflow.
+Follow this repository's existing GSD workflow. Before implementation, read `.planning/STATE.md`, `.planning/ROADMAP.md`, the applicable plan and its recorded continuation decisions. Preserve owner checkpoints and approval boundaries, and keep relevant planning and verification records current. Check related repositories' own instructions separately rather than assuming the same workflow.
 
 ## Programming Instructions
 
@@ -35,53 +30,24 @@ So for a per-row destructive action, keep the modifier on the row. Verified on d
 
 ## Test parallelism
 
-Tests run in parallel by default. Isolate mutable dependencies, storage, clocks, network fixtures and
-capture outputs per test instead of serializing suites. Swift Testing runs cases concurrently inside
-its process; XCTest parallel execution uses separate workers. Necessary UIKit `@MainActor` isolation
-does not justify a `.serialized` suite.
+Tests run in parallel by default. Isolate mutable dependencies, storage, clocks, network fixtures and capture outputs per test instead of serializing suites. Swift Testing runs cases concurrently inside its process; XCTest parallel execution uses separate workers. Necessary UIKit `@MainActor` isolation does not justify a `.serialized` suite.
 
-Serialization requires a concrete necessity and explicit owner review and approval. After approval,
-document the reason and owner approval immediately above the narrowest
-`// swiftlint:disable:next no_serialized_test`. No exception is implied by pre-existing serialized
-configuration. Do not use file-wide exclusions, alternative serialization mechanisms, global test-plan
-settings, runner flags or single-worker caps to bypass this policy. A test runner that must control a
-specific simulator or capture session needs its own narrowly scoped, documented owner approval before
-retaining serial execution; unrelated tests must continue to run in parallel.
+Serialization requires a concrete necessity and explicit owner review and approval. After approval, document the reason and owner approval immediately above the narrowest `// swiftlint:disable:next no_serialized_test`. No exception is implied by pre-existing serialized configuration. Do not use file-wide exclusions, alternative serialization mechanisms, global test-plan settings, runner flags or single-worker caps to bypass this policy. A test runner that must control a specific simulator or capture session needs its own narrowly scoped, documented owner approval before retaining serial execution; unrelated tests must continue to run in parallel.
 
 ## iOS simulators
 
 - Create an iOS simulator when a task needs one, and delete it once no task needs it any more.
-- Name every simulator you create with the project prefix, for example `EhPanda iPhone Air`. Delete only
-  simulators within this project's scope; never delete a simulator outside it.
+- Name every simulator you create with the project prefix, for example `EhPanda iPhone Air`. Delete only simulators within this project's scope; never delete a simulator outside it.
 
 ## Accessibility navigation and search policy
 
-Use the native iOS 27 navigation title and searchable behavior at every size. Preserve designed
-`.inlineLarge` root titles and verify them independently at standard, AX1, AX3 and AX5 sizes,
-including cold entry and live size changes on iPhone and iPad. Keep sheet-specific title modes and
-search focus, query and orientation behavior intact. Do not reintroduce the removed accessibility
-title or search workarounds, dynamic-type branches, or fallback placement modifiers.
+Use the native iOS 27 navigation title and searchable behavior at every size. Preserve designed `.inlineLarge` root titles and verify them independently at standard, AX1, AX3 and AX5 sizes, including cold entry and live size changes on iPhone and iPad. Keep sheet-specific title modes and search focus, query and orientation behavior intact. Do not reintroduce the removed accessibility title or search workarounds, dynamic-type branches, or fallback placement modifiers.
 
-The owner's 2026-10-28 restoration of the final persistent Library title menu is a scoped exception:
-compact Library roots use the native `.title` toolbar slot and `.inline` mode, with a semantic
-`.title2.bold()` Library label, Favorites/Downloads subtitle and scaled custom circular chevron.
-Keep that menu visible while scrolling through the native navigation-bar minimization policy.
-The owner's final choice is the title menu alone; compact Library has no bottom-right source switch.
-Expanded sidebar roots and unrelated pages retain their existing title modes; do not introduce a
-custom navigation bar, custom tab bar or text-size-dependent title fallback.
+The owner's 2026-10-28 restoration of the final persistent Library title menu is a scoped exception: compact Library roots use the native `.title` toolbar slot and `.inline` mode, with a semantic `.title2.bold()` Library label, Favorites/Downloads subtitle and scaled custom circular chevron. Keep that menu visible while scrolling through the native navigation-bar minimization policy. The owner's final choice is the title menu alone; compact Library has no bottom-right source switch. Expanded sidebar roots and unrelated pages retain their existing title modes; do not introduce a custom navigation bar, custom tab bar or text-size-dependent title fallback.
 
 ## Scroll-edge policy
 
-Every app-owned page carries `.scrollEdgeEffectStyle(.soft, for: .top)` at its effective scroll
-hierarchy, including separately presented sheets, covers, forms, lists, scroll views, text editors
-and non-scrolling states. Owned UIKit scroll hosts use their equivalent native top-edge property.
-The modifier is attached to the page content root or the exact ancestor recorded in the page
-inventory; it must not depend on propagation across a presentation boundary. Non-scrolling states
-still carry the policy and naturally show no visible edge effect. Keep system-owned scrolling, such
-as `UIActivityViewController` internals, untouched while applying the presentation-root policy.
-The migration coverage is recorded in
-`.planning/quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/SCROLL-EDGE-INVENTORY.md`.
-When adding a page, include its native scroll host and any separate presentation root in this policy.
+Every app-owned page carries `.scrollEdgeEffectStyle(.soft, for: .top)` at its effective scroll hierarchy, including separately presented sheets, covers, forms, lists, scroll views, text editors and non-scrolling states. Owned UIKit scroll hosts use their equivalent native top-edge property. The modifier is attached to the page content root or the exact ancestor recorded in the page inventory; it must not depend on propagation across a presentation boundary. Non-scrolling states still carry the policy and naturally show no visible edge effect. Keep system-owned scrolling, such as `UIActivityViewController` internals, untouched while applying the presentation-root policy. The migration coverage is recorded in `.planning/quick/260921-f5u-migrate-to-ios-27-and-ipados-27-with-mod/SCROLL-EDGE-INVENTORY.md`. When adding a page, include its native scroll host and any separate presentation root in this policy.
 
 ## Project structure
 
