@@ -22,6 +22,10 @@ public import SwiftUI
 /// New Tag Set asks for a name in an alert, then has the site create the set from the form of the set shown; the
 /// page then chooses the new set and reads it, and a refusal or a failure shows the alert on the row (quick
 /// 261126-pfh).
+///
+/// Delete Tag Set shows while the shown set's page offers deleting it, and stays, disabled, while its own failure
+/// alert is up. It asks in a confirmation, then has the site delete the set; the page then chooses the site's first
+/// set and shows it, and a refusal or a failure shows the alert on the row (quick 261126-udx).
 @Reducer
 public struct MyTagsFeature: Sendable {
     @Reducer
@@ -39,11 +43,18 @@ public struct MyTagsFeature: Sendable {
         case tag(Int)
         /// The New Tag Set row, whose create was refused or failed.
         case newTagSet
+        /// The Delete Tag Set row, whose delete was refused or failed.
+        case deleteTagSet
     }
 
     /// The New Tag Set alert's action besides Cancel.
     public enum NewTagSetAlert: Equatable, Sendable {
         case create
+    }
+
+    /// The Delete Tag Set confirmation's action besides Cancel; it names the set it was opened for (U-3).
+    public enum DeleteTagSetDialog: Equatable, Sendable {
+        case delete(tagSetID: Int)
     }
 
     public enum Delegate: Equatable, Sendable {
@@ -65,6 +76,8 @@ public struct MyTagsFeature: Sendable {
         @Presents public var toast: AppAlertState<Never>?
         /// The alert that names a new tag set (N-2 of quick 261126-pfh).
         @Presents public var newTagSetAlert: AppAlertState<NewTagSetAlert>?
+        /// The confirmation that deletes the shown tag set (U-3 of quick 261126-udx).
+        @Presents public var deleteTagSetDialog: ConfirmationDialogState<DeleteTagSetDialog>?
         public var alertSource: AlertSource?
         public var loadingState: LoadingState = .idle
         /// The edit API's credentials of the last page read; in memory only.
@@ -74,9 +87,11 @@ public struct MyTagsFeature: Sendable {
         public var confirmedTagSet: MyTagSet?
         /// The name typed into the New Tag Set alert; emptied each time the alert opens.
         public var newTagSetName = ""
-        /// A create is on its way: the New Tag Set row is disabled, and another create is refused, until the site
-        /// answers.
-        public var isCreatingTagSet = false
+        /// A create or a delete of a tag set is on its way (U-4 of quick 261126-udx): New Tag Set and Delete Tag Set
+        /// are disabled, and another create or delete is refused, until the site answers. One flag serves both: a
+        /// delete answered while a create is on its way would confuse the create's search for its new id, and a
+        /// create answered while a delete is on its way would confuse the delete's check that its set is gone.
+        public var isChangingTagSets = false
 
         public init() {}
 
@@ -85,6 +100,15 @@ public struct MyTagsFeature: Sendable {
         public var isTagSetEnabled: Bool { selectedTagSet?.isEnabled ?? false }
         public var tagSetColor: SiteColor? { selectedTagSet?.color }
         public var tagSetWellColor: Color { selectedTagSet?.color?.color ?? .clear }
+        /// Whether the shown set's page offers deleting it (U-1 of quick 261126-udx), which Delete Tag Set needs to be
+        /// shown and enabled; a set read back from storage, with no page of it read since, offers nothing.
+        public var canDeleteTagSet: Bool { selectedTagSet?.isDeletable ?? false }
+        /// Delete Tag Set shows while the shown set is offered, and also while its own failure alert is up (U-2a of
+        /// quick 261126-udx): the alert is anchored on the row, so an answer that withdraws the offer must not take
+        /// the row, and the refusal with it, away before the alert is dismissed. Shown that way it is disabled.
+        public var showsDeleteTagSetRow: Bool {
+            canDeleteTagSet || (alertSource == .deleteTagSet && alert != nil)
+        }
         /// The site's page the browser sheet shows; get-only, so the sheet binds through `browserChanged`.
         public var browserURL: URL? { destination?.browser }
     }
@@ -94,6 +118,7 @@ public struct MyTagsFeature: Sendable {
         case alert(PresentationAction<Never>)
         case toast(PresentationAction<Never>)
         case newTagSetAlert(PresentationAction<NewTagSetAlert>)
+        case deleteTagSetDialog(PresentationAction<DeleteTagSetDialog>)
         case delegate(Delegate)
         /// Sent when the page is presented.
         case onPresented
@@ -114,6 +139,8 @@ public struct MyTagsFeature: Sendable {
         case newTagSetTapped
         case newTagSetNameChanged(String)
         case createTagSetDone(knownTagSetIDs: [Int], result: Result<MyTagsPage, AppError>)
+        case deleteTagSetTapped
+        case deleteTagSetDone(tagSetID: Int, result: Result<MyTagsPage, AppError>)
         case openInBrowserTapped
         case browserChanged(URL?)
     }
@@ -127,7 +154,7 @@ public struct MyTagsFeature: Sendable {
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .alert, .toast, .delegate, .newTagSetAlert(.dismiss):
+            case .alert, .toast, .delegate, .newTagSetAlert(.dismiss), .deleteTagSetDialog(.dismiss):
                 return .none
 
             case .onPresented:
@@ -274,14 +301,15 @@ public struct MyTagsFeature: Sendable {
                 state.newTagSetName = name
                 return .none
 
-            // A blank name is refused here too, though Create waits for one (N-3), and so is a second create while
-            // one is on its way: a create is not safe to send twice (`CreateMyTagSetRequest`). The sets the cache
-            // has now are the ones the site's answer is read against (N-5).
+            // A blank name is refused here too, though Create waits for one (N-3), and so is a create while a create
+            // or a delete is on its way (U-4 of quick 261126-udx): a create is not safe to send twice
+            // (`CreateMyTagSetRequest`). The sets the cache has now are the ones the site's answer is read against
+            // (N-5).
             case .newTagSetAlert(.presented(.create)):
                 let name = state.newTagSetName.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !name.isEmpty, !state.isCreatingTagSet, let shownTagSet = state.selectedTagSet
+                guard !name.isEmpty, !state.isChangingTagSets, let shownTagSet = state.selectedTagSet
                 else { return .none }
-                state.isCreatingTagSet = true
+                state.isChangingTagSets = true
                 let knownTagSetIDs = state.user.myTags?.tagSets.map(\.id) ?? []
                 let host = state.setting.galleryHost
                 return .run { send in
@@ -297,7 +325,7 @@ public struct MyTagsFeature: Sendable {
             // A reason on the page, or no new id, fails the create. More than one new id means a set was also made
             // elsewhere meanwhile: none is chosen, and every set is read again so each shows with its name.
             case .createTagSetDone(let knownTagSetIDs, .success(let page)):
-                state.isCreatingTagSet = false
+                state.isChangingTagSets = false
                 take(page, into: &state)
                 if let message = page.message {
                     return presentAlert(&state, .newTagSet, title: .myTagsCreateTagSetFailed, message: message)
@@ -316,9 +344,72 @@ public struct MyTagsFeature: Sendable {
                 return fetchTagSet(newTagSetID, host: state.setting.galleryHost)
 
             case .createTagSetDone(_, .failure(let error)):
-                state.isCreatingTagSet = false
+                state.isChangingTagSets = false
                 return presentAlert(
                     &state, .newTagSet, title: .myTagsCreateTagSetFailed, message: error.alertText
+                )
+
+            // The confirmation names the set it was opened for, the one the page shows (U-3).
+            case .deleteTagSetTapped:
+                guard let tagSet = state.selectedTagSet else { return .none }
+                state.deleteTagSetDialog = ConfirmationDialogState(titleVisibility: .hidden) {
+                    TextState(localized: .RLocalizable.delete)
+                } actions: {
+                    ButtonState(role: .destructive, action: .delete(tagSetID: tagSet.id)) {
+                        TextState(localized: .RLocalizable.delete)
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState(localized: .RLocalizable.cancel)
+                    }
+                } message: {
+                    TextState(localized: .myTagsDeleteTagSetMessage)
+                }
+                return .none
+
+            // Only the set the confirmation names is deleted, while it is still the one shown and its page still
+            // offers it, and not while a create or a delete is on its way (U-4). The form is the shown set's own.
+            case .deleteTagSetDialog(.presented(.delete(let tagSetID))):
+                guard !state.isChangingTagSets, let tagSet = state.selectedTagSet,
+                      tagSet.id == tagSetID, tagSet.isDeletable
+                else { return .none }
+                state.isChangingTagSets = true
+                let host = state.setting.galleryHost
+                return .run { send in
+                    let result = await Result.Swift::init { () async throws(AppError) in
+                        try await myTagsClient.deleteTagSet(host, tagSet)
+                    }
+                    await send(.deleteTagSetDone(tagSetID: tagSetID, result: result))
+                }
+
+            // The answer is taken into the cache, so a set the site dropped leaves the picker (U-6). The delete took
+            // when the page gives no reason and its picker no longer lists the set: the page then chooses the site's
+            // first set, kept with the cache as a choice in the picker is, and shows it, from the answer when that is
+            // the set it shows, else through a read with the loading view. A reason, or the set still listed, fails
+            // the delete and keeps the choice.
+            case .deleteTagSetDone(let tagSetID, .success(let page)):
+                state.isChangingTagSets = false
+                take(page, into: &state)
+                if let message = page.message {
+                    return presentAlert(&state, .deleteTagSet, title: .myTagsDeleteTagSetFailed, message: message)
+                }
+                guard !page.tagSetIDs.contains(tagSetID) else {
+                    // Neither gone nor a reason: as with a create whose answer lists no new set, all the app knows
+                    // is that the site did not do it.
+                    return presentAlert(
+                        &state, .deleteTagSet, title: .myTagsDeleteTagSetFailed, message: AppError.unknown.alertText
+                    )
+                }
+                // The picker always lists the page's own set, so the fallback names the set the answer shows.
+                let firstTagSetID = page.tagSetIDs.first ?? page.tagSet.id
+                state.$user.withLock({ $0.myTags = $0.myTags?.selecting(firstTagSetID) })
+                guard firstTagSetID != page.tagSet.id else { return .none }
+                state.loadingState = .loading
+                return fetchTagSet(firstTagSetID, host: state.setting.galleryHost)
+
+            case .deleteTagSetDone(_, .failure(let error)):
+                state.isChangingTagSets = false
+                return presentAlert(
+                    &state, .deleteTagSet, title: .myTagsDeleteTagSetFailed, message: error.alertText
                 )
 
             case .destination(.presented(.editor(.delegate(.removed)))):
@@ -344,6 +435,7 @@ public struct MyTagsFeature: Sendable {
         .ifLet(\.$alert, action: \.alert)
         .ifLet(\.$toast, action: \.toast)
         .ifLet(\.$newTagSetAlert, action: \.newTagSetAlert)
+        .ifLet(\.$deleteTagSetDialog, action: \.deleteTagSetDialog)
     }
 
     /// Reads the set `tagSetID`'s page on `host`, in place of any read still on its way. It takes the id rather than

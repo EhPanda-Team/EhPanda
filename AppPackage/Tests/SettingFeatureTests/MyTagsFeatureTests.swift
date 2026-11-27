@@ -13,14 +13,16 @@ import Testing
 import TestingSupport
 
 // The My Tags page (port of PR 462 item 10, design approved 2026-11-22): reading, choosing a tag set, its Enabled flag
-// and default colour, Add Tag and Edit Tag, removing, New Tag Set (quick 261126-pfh), the site's page as the fallback,
-// and the Account row that opens it. The tags, sets and credentials are invented.
+// and default colour, Add Tag and Edit Tag, removing, New Tag Set (quick 261126-pfh), Delete Tag Set (quick
+// 261126-udx), the site's page as the fallback, and the Account row that opens it. The tags, sets and credentials are
+// invented.
 //
 // @MainActor sits on members, never on this type: TCA's `TestStore.init` and `.state` are main-actor-isolated.
 @Suite(.isolatedAppStorage)
 struct MyTagsFeatureTests {
     private static let refusal = "No matching tag found"
     private static let createRefusal = "Sample refusal from the site"
+    private static let deleteRefusal = "Sample delete refusal from the site"
     private static let green = SiteColor(red: 0x22, green: 0xAA, blue: 0x55)
     private static let slate = SiteColor(red: 0xA0, green: 0xB0, blue: 0xC0)
     private static let glasses = MyTag(
@@ -29,6 +31,9 @@ struct MyTagsFeatureTests {
     private static let set1 = MyTagSet(id: 1, name: "Tagset #1", isEnabled: true, color: nil, tags: [glasses])
     private static let set2 = MyTagSet(id: 2, name: "Fixture Picks", isEnabled: false, color: green, tags: [])
     private static let set3 = MyTagSet(id: 3, name: "Fixture Holds", isEnabled: false, color: nil, tags: [])
+    private static let offeredSet2 = MyTagSet(
+        id: 2, name: "Fixture Picks", isEnabled: false, color: green, tags: [], isDeletable: true
+    )
     private static let response = MyTagsResponse(
         myTags: MyTags(tagSets: [set1, set2]), apiuid: 1234567, apikey: "0123456789abcdef"
     )
@@ -372,7 +377,7 @@ struct MyTagsFeatureTests {
 
         await create("  Fixture Holds \n", in: store)
         await store.receive(\.createTagSetDone) {
-            $0.isCreatingTagSet = false
+            $0.isChangingTagSets = false
             $0.apiuid = 1234567
             $0.apikey = "0123456789abcdef"
             $0.loadingState = .loading
@@ -398,7 +403,7 @@ struct MyTagsFeatureTests {
 
         await create("Fixture Holds", in: store)
         await store.receive(\.createTagSetDone) {
-            $0.isCreatingTagSet = false
+            $0.isChangingTagSets = false
             $0.apiuid = 1234567
             $0.apikey = "0123456789abcdef"
             $0.alertSource = .newTagSet
@@ -418,7 +423,7 @@ struct MyTagsFeatureTests {
 
         await create("Fixture Holds", in: store)
         await store.receive(\.createTagSetDone) {
-            $0.isCreatingTagSet = false
+            $0.isChangingTagSets = false
             $0.apiuid = 1234567
             $0.apikey = "0123456789abcdef"
             $0.alertSource = .newTagSet
@@ -438,7 +443,7 @@ struct MyTagsFeatureTests {
 
         await create("Fixture Holds", in: store)
         await store.receive(\.createTagSetDone) {
-            $0.isCreatingTagSet = false
+            $0.isChangingTagSets = false
             $0.alertSource = .newTagSet
             $0.alert = .failure(title: .myTagsCreateTagSetFailed, message: AppError.networkingFailed.alertText)
         }
@@ -465,7 +470,7 @@ struct MyTagsFeatureTests {
 
         await create("Fixture Holds", in: store)
         await store.receive(\.createTagSetDone) {
-            $0.isCreatingTagSet = false
+            $0.isChangingTagSets = false
             $0.apiuid = 1234567
             $0.apikey = "0123456789abcdef"
         }
@@ -502,7 +507,7 @@ struct MyTagsFeatureTests {
     @MainActor
     @Test
     func aSecondCreateWhileOneIsOnItsWaySendsNothing() async {
-        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.set2]), isCreatingTagSet: true)
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.set2]), isChangingTagSets: true)
 
         await store.send(.newTagSetTapped) {
             $0.newTagSetAlert = Self.newTagSetAlert
@@ -515,12 +520,223 @@ struct MyTagsFeatureTests {
         }
     }
 
+    // The row follows the shown set's page (U-1): none for set 2 as the cache holds it, with no page of it read; then
+    // the row for its page that offers deleting it; then none for set 1, whose page does not.
+    @MainActor
+    @Test
+    func theDeleteRowShowsOnlyWhileTheShownSetsPageOffersIt() async {
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.set2], selectedTagSetID: 2)) {
+            $0.fetchTagSet = { (_: GalleryHost, tagSetID: Int) async throws(AppError) in
+                Self.page(tagSetID == 2 ? Self.offeredSet2 : Self.set1)
+            }
+        }
+        store.exhaustivity = .off
+        #expect(!store.state.canDeleteTagSet)
+
+        await store.send(.refresh)
+        await store.receive(\.fetchTagSetDone.success)
+        #expect(store.state.canDeleteTagSet)
+
+        await store.send(.tagSetSelected(1))
+        await store.receive(\.fetchTagSetDone.success)
+        #expect(!store.state.canDeleteTagSet)
+    }
+
+    @MainActor
+    @Test
+    func theDeleteRowOpensTheConfirmationAndCancelSendsNothing() async {
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.offeredSet2], selectedTagSetID: 2))
+
+        await store.send(.deleteTagSetTapped) {
+            $0.deleteTagSetDialog = Self.deleteTagSetDialog(for: 2)
+        }
+        await store.send(.deleteTagSetDialog(.dismiss)) {
+            $0.deleteTagSetDialog = nil
+        }
+    }
+
+    @MainActor
+    @Test
+    func aConfirmedDeleteChoosesTheFirstSetTheAnswerShows() async {
+        let calls = LockIsolated<[String]>([])
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.offeredSet2], selectedTagSetID: 2)) {
+            $0.deleteTagSet = { (host: GalleryHost, tagSet: MyTagSet) async throws(AppError) in
+                calls.withValue({ $0.append("delete \(host.rawValue) \(tagSet.id)") })
+                return Self.page(Self.set1, tagSetIDs: [1])
+            }
+        }
+
+        await confirmDelete(of: 2, in: store)
+        await store.receive(\.deleteTagSetDone) {
+            $0.isChangingTagSets = false
+            $0.apiuid = 1234567
+            $0.apikey = "0123456789abcdef"
+            $0.$user.withLock({ $0.myTags = MyTags(tagSets: [Self.set1], selectedTagSetID: 1) })
+        }
+        #expect(!store.state.canDeleteTagSet)
+        #expect(calls.value == ["delete E-Hentai 2"])
+    }
+
+    @MainActor
+    @Test
+    func aConfirmedDeleteReadsTheFirstSetWhenTheAnswerShowsAnother() async {
+        let calls = LockIsolated<[String]>([])
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.offeredSet2, Self.set3], selectedTagSetID: 2)) {
+            $0.deleteTagSet = { (host: GalleryHost, tagSet: MyTagSet) async throws(AppError) in
+                calls.withValue({ $0.append("delete \(host.rawValue) \(tagSet.id)") })
+                return Self.page(Self.set3, tagSetIDs: [1, 3])
+            }
+            $0.fetchTagSet = { (host: GalleryHost, tagSetID: Int) async throws(AppError) in
+                calls.withValue({ $0.append("read \(host.rawValue) \(tagSetID)") })
+                return Self.page(Self.set1, tagSetIDs: [1, 3])
+            }
+        }
+        // The cache is a shared reference, so a step's closure would already see the later read's answer; the cache
+        // is checked at the end, as the presenting test does.
+        store.exhaustivity = .off
+
+        await confirmDelete(of: 2, in: store)
+        await store.receive(\.deleteTagSetDone) {
+            $0.isChangingTagSets = false
+            $0.apiuid = 1234567
+            $0.apikey = "0123456789abcdef"
+            $0.loadingState = .loading
+        }
+        await store.receive(\.fetchTagSetDone.success) {
+            $0.loadingState = .idle
+        }
+        #expect(store.state.user.myTags == MyTags(tagSets: [Self.set1, Self.set3], selectedTagSetID: 1))
+        #expect(calls.value == ["delete E-Hentai 2", "read E-Hentai 1"])
+    }
+
+    @MainActor
+    @Test
+    func aRefusedDeleteShowsTheSitesReasonOnTheRowAndKeepsTheSet() async {
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.offeredSet2], selectedTagSetID: 2)) {
+            $0.deleteTagSet = { (_: GalleryHost, _: MyTagSet) async throws(AppError) in
+                Self.page(Self.offeredSet2, message: Self.deleteRefusal)
+            }
+        }
+
+        await confirmDelete(of: 2, in: store)
+        await store.receive(\.deleteTagSetDone) {
+            $0.isChangingTagSets = false
+            $0.apiuid = 1234567
+            $0.apikey = "0123456789abcdef"
+            $0.alertSource = .deleteTagSet
+            $0.alert = .failure(title: .myTagsDeleteTagSetFailed, message: Self.deleteRefusal)
+        }
+        #expect(store.state.user.myTags == MyTags(tagSets: [Self.set1, Self.offeredSet2], selectedTagSetID: 2))
+        #expect(store.state.canDeleteTagSet)
+        #expect(store.state.showsDeleteTagSetRow)
+    }
+
+    // A refusal whose answer no longer offers deleting the set still shows on the row (U-2a): the row stays, disabled
+    // as the set is no longer offered, until its alert is dismissed, and then follows the offer again.
+    @MainActor
+    @Test
+    func aRefusalThatWithdrawsTheOfferKeepsTheRowUntilItsAlertIsDismissed() async {
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.offeredSet2], selectedTagSetID: 2)) {
+            $0.deleteTagSet = { (_: GalleryHost, _: MyTagSet) async throws(AppError) in
+                Self.page(Self.set2, message: Self.deleteRefusal)
+            }
+        }
+
+        await confirmDelete(of: 2, in: store)
+        await store.receive(\.deleteTagSetDone) {
+            $0.isChangingTagSets = false
+            $0.apiuid = 1234567
+            $0.apikey = "0123456789abcdef"
+            $0.$user.withLock({ $0.myTags = MyTags(tagSets: [Self.set1, Self.set2], selectedTagSetID: 2) })
+            $0.alertSource = .deleteTagSet
+            $0.alert = .failure(title: .myTagsDeleteTagSetFailed, message: Self.deleteRefusal)
+        }
+        #expect(!store.state.canDeleteTagSet)
+        #expect(store.state.showsDeleteTagSetRow)
+
+        await store.send(.alert(.dismiss)) {
+            $0.alert = nil
+        }
+        #expect(!store.state.showsDeleteTagSetRow)
+    }
+
+    @MainActor
+    @Test
+    func aDeleteWhoseAnswerStillListsTheSetShowsTheUnknownError() async {
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.offeredSet2], selectedTagSetID: 2)) {
+            $0.deleteTagSet = { (_: GalleryHost, _: MyTagSet) async throws(AppError) in
+                Self.page(Self.set1)
+            }
+        }
+
+        await confirmDelete(of: 2, in: store)
+        await store.receive(\.deleteTagSetDone) {
+            $0.isChangingTagSets = false
+            $0.apiuid = 1234567
+            $0.apikey = "0123456789abcdef"
+            $0.alertSource = .deleteTagSet
+            $0.alert = .failure(title: .myTagsDeleteTagSetFailed, message: AppError.unknown.alertText)
+        }
+        #expect(store.state.user.myTags?.selectedTagSetID == 2)
+    }
+
+    @MainActor
+    @Test
+    func aFailedDeleteShowsTheErrorOnTheRowAndKeepsTheSet() async {
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.offeredSet2], selectedTagSetID: 2)) {
+            $0.deleteTagSet = { (_: GalleryHost, _: MyTagSet) async throws(AppError) -> MyTagsPage in
+                throw .networkingFailed
+            }
+        }
+
+        await confirmDelete(of: 2, in: store)
+        await store.receive(\.deleteTagSetDone) {
+            $0.isChangingTagSets = false
+            $0.alertSource = .deleteTagSet
+            $0.alert = .failure(title: .myTagsDeleteTagSetFailed, message: AppError.networkingFailed.alertText)
+        }
+        #expect(store.state.user.myTags?.selectedTagSetID == 2)
+    }
+
+    // One flag holds both rows while a create or a delete is on its way (U-4); a create and a delete both raise it
+    // (`create(_:in:)`, `confirmDelete(of:in:)`), and `aSecondCreateWhileOneIsOnItsWaySendsNothing` is the create's
+    // side.
+    @MainActor
+    @Test
+    func aDeleteWhileACreateOrADeleteIsOnItsWaySendsNothing() async {
+        let store = makeStore(
+            myTags: MyTags(tagSets: [Self.set1, Self.offeredSet2], selectedTagSetID: 2), isChangingTagSets: true
+        )
+
+        await store.send(.deleteTagSetTapped) {
+            $0.deleteTagSetDialog = Self.deleteTagSetDialog(for: 2)
+        }
+        await store.send(.deleteTagSetDialog(.presented(.delete(tagSetID: 2)))) {
+            $0.deleteTagSetDialog = nil
+        }
+    }
+
+    // The confirmation names its set (U-3): a set no longer shown, or one whose page does not offer deleting it, is
+    // not deleted.
+    @MainActor
+    @Test(arguments: zip([2, 1], [1, 1]))
+    func aDeleteOfASetNotShownOrNotOfferedSendsNothing(shownTagSetID: Int, confirmedTagSetID: Int) async {
+        let store = makeStore(myTags: MyTags(tagSets: [Self.set1, Self.offeredSet2], selectedTagSetID: shownTagSetID))
+
+        await store.send(.deleteTagSetTapped) {
+            $0.deleteTagSetDialog = Self.deleteTagSetDialog(for: shownTagSetID)
+        }
+        await store.send(.deleteTagSetDialog(.presented(.delete(tagSetID: confirmedTagSetID)))) {
+            $0.deleteTagSetDialog = nil
+        }
+    }
+
     @MainActor
     private func makeStore(
         myTags: MyTags?,
         signedIn: Bool = true,
         credentials: Bool = false,
-        isCreatingTagSet: Bool = false,
+        isChangingTagSets: Bool = false,
         clock: any Clock<Duration> = TestClock(),
         client: (inout MyTagsClient) -> Void = { _ in }
     ) -> TestStoreOf<MyTagsFeature> {
@@ -532,7 +748,7 @@ struct MyTagsFeatureTests {
             state.apiuid = 1234567
             state.apikey = "0123456789abcdef"
         }
-        state.isCreatingTagSet = isCreatingTagSet
+        state.isChangingTagSets = isChangingTagSets
         return TestStore(initialState: state, reducer: MyTagsFeature.init) {
             $0.continuousClock = clock
             $0.cookieClient = signedIn ? .previewLoggedIn : .noop
@@ -551,7 +767,7 @@ struct MyTagsFeatureTests {
         }
         await store.send(.newTagSetAlert(.presented(.create))) {
             $0.newTagSetAlert = nil
-            $0.isCreatingTagSet = true
+            $0.isChangingTagSets = true
         }
     }
 
@@ -577,6 +793,36 @@ struct MyTagsFeatureTests {
                 TextState(localized: .myTagsNewTagSetMessage)
             }
         )
+    }
+
+    /// Taps Delete Tag Set on the shown set `tagSetID` and confirms, asserting each step; the set's page offers it.
+    @MainActor
+    private func confirmDelete(of tagSetID: Int, in store: TestStoreOf<MyTagsFeature>) async {
+        await store.send(.deleteTagSetTapped) {
+            $0.deleteTagSetDialog = Self.deleteTagSetDialog(for: tagSetID)
+        }
+        await store.send(.deleteTagSetDialog(.presented(.delete(tagSetID: tagSetID)))) {
+            $0.deleteTagSetDialog = nil
+            $0.isChangingTagSets = true
+        }
+    }
+
+    /// The Delete Tag Set confirmation as U-3 specifies it, opened for the set `tagSetID`.
+    private static func deleteTagSetDialog(
+        for tagSetID: Int
+    ) -> ConfirmationDialogState<MyTagsFeature.DeleteTagSetDialog> {
+        ConfirmationDialogState(titleVisibility: .hidden) {
+            TextState(localized: .RLocalizable.delete)
+        } actions: {
+            ButtonState(role: .destructive, action: .delete(tagSetID: tagSetID)) {
+                TextState(localized: .RLocalizable.delete)
+            }
+            ButtonState(role: .cancel) {
+                TextState(localized: .RLocalizable.cancel)
+            }
+        } message: {
+            TextState(localized: .myTagsDeleteTagSetMessage)
+        }
     }
 
     private static func page(_ tagSet: MyTagSet, tagSetIDs: [Int] = [1, 2], message: String? = nil) -> MyTagsPage {
