@@ -15,7 +15,9 @@ enum FolderManagerViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "detail-pages-folder-delete-confirmation",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: .init(
                     make: { try GalleryScenarios.folderManager(confirmingDelete: true) }, prepare: artwork,
                     interact: RevealStep.reveal(.label(LibraryFixtures.downloadFolders.dropFirst().first ?? ""))

@@ -27,11 +27,17 @@ step whose diff is reviewed before it is committed.
   named state (`--only`, default every scenario of the proposal) and, where a file commits heights, `import
   CoreGraphics`. It refuses, writing nothing, a scenario whose twelve values are not all in the proposal, or a value
   that is not a whole number or is under the device height. A scenario whose twelve values are all the device height is
-  written as `.screen`. Running it twice changes nothing more.
+  written as `.screen`. Running it twice changes nothing more. It refuses a state declared `.viewport(reason:)`: the
+  owner exempted it from the full-page rule, and only the owner's decision changes it.
 - `check-sources`: fails on a value under the device height, a non-integer, a literal that is not the canonical layout
-  (`.screen` where all twelve values are the device height), a duplicate ID, or an ID set unlike `scenarios.json`.
-- `export`: writes the committed heights as `{scenario: {family: {orientation: {size: points}}}}` with `.screen`
-  resolved to the device heights, the file `snapshot_precheck.py --heights` reads.
+  (`.screen` where all twelve values are the device height), a `.viewport` state without its reason, a duplicate ID, or
+  an ID set unlike `scenarios.json`.
+- `export`: writes the committed heights as `{scenario: {family: {orientation: {size: points}}}}` with `.screen` and
+  `.viewport` resolved to the device heights, the file `snapshot_precheck.py --heights` reads.
+
+A `.viewport(reason:)` state is taken at the device height without the `page-height` check (19-26): the owner kept its
+pictures at the screen height, and `reason` holds their decision, quoted and dated. Its canonical layout is
+`heights: .viewport(`, then `reason: "<the decision>"` indented one level more, then `),`.
 """
 
 import argparse
@@ -53,6 +59,7 @@ UNFINISHED = ('cannot-cover', 'did-not-converge', 'error')
 IMPORT = re.compile(r'^(?:public |internal |package |@testable )*import (\w+)\s*$')
 STATE_ID = re.compile(r'^(\s*)id: "([^"]+)",$')
 VALUE = re.compile(r'\b(xSmall|large|accessibility5): ([^,)\s]+)')
+REASON = re.compile(r'^(\s*)reason: "((?:[^"\\]|\\.)*)"$')
 
 
 @dataclass(frozen=True)
@@ -172,10 +179,28 @@ def render(values, env, indent):
     return lines
 
 
+def viewport_reason(block, lines):
+    """The reason of a state declared `.viewport(reason:)`, as written; `None` for any other declaration."""
+    text = lines[block.start:block.end]
+    if not text or not text[0].startswith(f'{block.indent}heights: .viewport('):
+        return None
+    reason = REASON.match(text[1]) if len(text) == 3 else None
+    return reason.group(2) if reason else ''
+
+
 def parse(block, lines, env):
     """`(values, problems)` of a state's `heights:` argument; `values` is `None` when it cannot be read."""
     text = lines[block.start:block.end]
     if text == [f'{block.indent}heights: .screen,']:
+        return device_values(env), []
+    if text and text[0].startswith(f'{block.indent}heights: .viewport('):
+        reason = REASON.match(text[1]) if len(text) == 3 else None
+        canonical = (text[0] == f'{block.indent}heights: .viewport(' and reason is not None
+                     and reason.group(1) == f'{block.indent}    ' and text[2] == f'{block.indent}),')
+        if not canonical:
+            return None, [f'{block.identifier}: the heights literal is not the canonical layout']
+        if not reason.group(2).strip():
+            return device_values(env), [f'{block.identifier}: a viewport state needs its reason']
         return device_values(env), []
     entries = VALUE.findall('\n'.join(text))
     if len(entries) != len(FAMILIES) * len(ORIENTATIONS) * len(SIZES):
@@ -204,7 +229,7 @@ def provider_files(directory):
 
 
 def read_sources(directory, env):
-    """`({id: (path, values)}, problems)` of every state in the provider files."""
+    """`({id: (path, values, viewport reason or None)}, problems)` of every state in the provider files."""
     pins = device_heights(env)
     states, problems = {}, []
     for path in provider_files(directory):
@@ -221,7 +246,7 @@ def read_sources(directory, env):
                         if value < pins[(family, orientation)]:
                             problems.append(f'{block.identifier}: {family} {orientation} {size} is {value}, under the '
                                             f'device height {pins[(family, orientation)]}')
-            states[block.identifier] = (path, values)
+            states[block.identifier] = (path, values, viewport_reason(block, lines))
     return states, problems
 
 
@@ -267,6 +292,9 @@ def apply(proposal, only, directory, document, env):
     for name in names:
         if name not in states:
             problems.append(f'{name}: in no provider file')
+            continue
+        if states[name][2] is not None:
+            problems.append(f'{name}: a viewport state keeps the screen height; only the owner changes it')
             continue
         values = heights.get(name)
         if values is None:

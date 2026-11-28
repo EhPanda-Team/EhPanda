@@ -6,22 +6,30 @@ enum ReadingViewSnapshot: SnapshotProvider {
         return [
             SnapshotState(
                 id: "reader-vertical",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」"
+                ),
                 factory: .init(make: { try GalleryScenarios.reader(.vertical) }, prepare: pages)
             ),
             SnapshotState(
                 id: "reader-horizontal",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」"
+                ),
                 factory: .init(make: { try GalleryScenarios.reader(.horizontal) }, prepare: pages)
             ),
             SnapshotState(
                 id: "reader-two-page-spread",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」"
+                ),
                 factory: .init(make: { try GalleryScenarios.reader(.spread) }, prepare: pages)
             ),
             SnapshotState(
                 id: "reader-controls",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」"
+                ),
                 factory: .init(
                     make: { try GalleryScenarios.reader(.controls) }, prepare: pages,
                     still: SettingsScenarios.waitForGlassShadow
@@ -29,7 +37,9 @@ enum ReadingViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "reader-slider-scrub",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」"
+                ),
                 factory: .init(
                     make: { try GalleryScenarios.reader(.scrub) }, prepare: pages,
                     still: SettingsScenarios.waitForGlassShadow
@@ -37,12 +47,16 @@ enum ReadingViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "reader-page-failed",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」"
+                ),
                 factory: .init(make: { try GalleryScenarios.reader(.pageFailed) }, prepare: pages)
             ),
             SnapshotState(
                 id: "reader-loading",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」"
+                ),
                 factory: .init(
                     make: { try GalleryScenarios.reader(.loading) }, prepare: pages,
                     still: GalleryScenarios.holdStill
@@ -50,7 +64,9 @@ enum ReadingViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "reader-live-text",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」"
+                ),
                 factory: .init(
                     make: { try GalleryScenarios.reader(.liveText) }, prepare: GalleryScenarios.prepareLiveText
                 )

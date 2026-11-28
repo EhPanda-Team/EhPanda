@@ -34,7 +34,9 @@ enum FavoritesViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "favorites-category-menu",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27, menus at the screen height: 「選單可以按你推薦處理」"
+                ),
                 factory: ScenarioFactory(
                     make: { LibraryScenarios.favorites(.loaded(.row)) }, prepare: artwork,
                     interact: LibraryScenarios.openCategoryMenu

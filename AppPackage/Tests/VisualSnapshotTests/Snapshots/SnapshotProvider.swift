@@ -32,6 +32,16 @@ enum PageHeights: Equatable {
     /// A height that covers the whole page, one value per family, orientation and text size, the tallest of the six
     /// languages (design section 3).
     case committed(iphone: Orientations, ipad: Orientations)
+    /// The pinned device's own height, for a page the owner exempted from the full-page rule (19-26): its pictures are
+    /// taken as the screen shows it, and the `page-height` check skips it. `reason` is the owner's decision, quoted
+    /// and dated; there is no exemption without it.
+    case viewport(reason: String)
+
+    /// Whether the `page-height` check holds the scenario's pictures to these heights: every case but
+    /// ``viewport(reason:)``.
+    var isChecked: Bool {
+        if case .viewport = self { false } else { true }
+    }
 
     /// A family's heights in each orientation.
     struct Orientations: Equatable {
@@ -48,7 +58,7 @@ enum PageHeights: Equatable {
 
     /// The window height of one coordinate. `family` is `iphone` or `ipad`, `orientation` `portrait` or `landscape`,
     /// and `size` `xSmall`, `large` or `accessibility5`, as the matrix names them; `screenHeight` is what `.screen`
-    /// stands for.
+    /// and `.viewport` stand for.
     func points(family: String, orientation: String, size: String, screenHeight: CGFloat) -> CGFloat {
         guard case .committed(let iphone, let ipad) = self else { return screenHeight }
         let orientations: Orientations

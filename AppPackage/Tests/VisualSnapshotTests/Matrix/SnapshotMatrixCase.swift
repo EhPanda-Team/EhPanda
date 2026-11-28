@@ -275,6 +275,20 @@ class SnapshotMatrixCase: XCTestCase {
         GalleryScenarios.keyboardIsUp(over: window) ? KeyboardWatch.frame.minY : nil
     }
 
+    /// The height a coordinate's capture is taken at and checked against, `points` its committed window height; `nil`
+    /// for a ``PageHeights/viewport(reason:)`` state, which the owner exempted from the full-page rule (19-26): its
+    /// picture is taken at the screen height without the `page-height` check. The tall window freezes `sampling`.
+    @MainActor
+    static func captureHeight(
+        _ heights: PageHeights, points: CGFloat, sampling: VisibleViewportSampling
+    ) -> CaptureHeight? {
+        guard heights.isChecked else { return nil }
+        return CaptureHeight(
+            points: points, freezeViewport: { sampling.isFrozen = $0 }, keyboardTop: Self.keyboardTop(over:),
+            popoverSource: HostedWindowCapture.presentedPopoverSource(in:)
+        )
+    }
+
     @MainActor
     private func captureCoordinate(
         _ coordinate: SnapshotCoordinate, factory: ScenarioFactory, context: CaptureContext
@@ -306,10 +320,7 @@ class SnapshotMatrixCase: XCTestCase {
                 },
                 window: window, style: style, reference: reference, mode: mode, still: factory.still,
                 interact: factory.interact, minimumReads: factory.minimumReads,
-                height: CaptureHeight(
-                    points: committed, freezeViewport: { sampling.isFrozen = $0 }, keyboardTop: Self.keyboardTop(over:),
-                    popoverSource: HostedWindowCapture.presentedPopoverSource(in:)
-                )
+                height: Self.captureHeight(context.heights, points: committed, sampling: sampling)
             )
         }
         let digest = outcome.png.map({ SHA256.hash(data: $0).map({ String(format: "%02x", $0) }).joined() })

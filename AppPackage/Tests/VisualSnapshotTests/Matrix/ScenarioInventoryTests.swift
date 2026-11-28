@@ -51,6 +51,17 @@ final class ScenarioInventoryTests: XCTestCase {
         }
     }
 
+    /// A state kept at the screen height without the `page-height` check carries the owner's decision as its reason
+    /// (19-26): an exemption from the full-page rule exists only by the owner's words.
+    @MainActor
+    func testEveryViewportStateGivesItsReason() {
+        for state in ScenarioCatalog.states {
+            guard case .viewport(let reason) = state.heights else { continue }
+            let blank = reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            XCTAssertFalse(blank, "\(state.id): a viewport state without its reason")
+        }
+    }
+
     /// The fixture export takes only the inventory's scenarios with a public fixture (Phase 17's reader).
     @MainActor
     func testFixtureExportTakesTheInventorysFixtureScenarios() throws {

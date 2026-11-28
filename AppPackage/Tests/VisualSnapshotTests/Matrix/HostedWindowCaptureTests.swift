@@ -1,3 +1,4 @@
+import AppComponents
 import AppFeature
 import CryptoKit
 import Foundation
@@ -325,6 +326,28 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertEqual(recorded.status, .recorded, recorded.reason ?? "")
         XCTAssertEqual(try Self.pixelHeight(recorded.png), need)
         XCTAssertEqual(window.frame, native)
+    }
+
+    /// A `.viewport` state (19-26) is taken at the screen height without the `page-height` check: the matrix gives its
+    /// capture no height to check, and a page that needs more than the screen is recorded at the screen height. Every
+    /// other state is checked against its committed height.
+    @MainActor
+    func testAViewportStateIsTakenAtTheScreenHeightWithoutTheCheck() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let screen = window.bounds.height
+        let sampling = VisibleViewportSampling()
+        let exempt = PageHeights.viewport(reason: "The owner kept the screen height.")
+        XCTAssertNil(SnapshotMatrixCase.captureHeight(exempt, points: screen, sampling: sampling))
+        XCTAssertEqual(SnapshotMatrixCase.captureHeight(.screen, points: screen, sampling: sampling)?.points, screen)
+        XCTAssertEqual(
+            exempt.points(family: "iphone", orientation: "portrait", size: "large", screenHeight: screen), screen
+        )
+        let outcome = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.scrolling(screen * 2)) }, window: window, style: .light, reference: nil,
+            mode: .candidate, height: SnapshotMatrixCase.captureHeight(exempt, points: screen, sampling: sampling)
+        )
+        XCTAssertEqual(outcome.status, .recorded, outcome.reason ?? "")
+        XCTAssertEqual(try Self.pixelHeight(outcome.png), Int(screen))
     }
 
     /// A height equal to the window's own is today's path: the same bytes as a call without a height.

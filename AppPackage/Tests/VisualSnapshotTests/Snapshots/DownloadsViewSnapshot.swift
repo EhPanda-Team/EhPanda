@@ -37,7 +37,9 @@ enum DownloadsViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "downloads-delete-confirmation",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: ScenarioFactory(
                     make: { LibraryScenarios.downloads(completed, mode: .row, confirming: .delete) }, prepare: artwork,
                     interact: LibraryScenarios.tapHeldRow
@@ -45,7 +47,9 @@ enum DownloadsViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "downloads-move-confirmation",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: ScenarioFactory(
                     make: { LibraryScenarios.downloads(completed, mode: .row, confirming: .move) }, prepare: artwork,
                     interact: LibraryScenarios.tapHeldRow

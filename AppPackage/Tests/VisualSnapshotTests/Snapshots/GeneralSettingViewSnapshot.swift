@@ -32,7 +32,9 @@ enum GeneralSettingViewSnapshot: SnapshotProvider {
             // sat at three heights (run 43451019962): it is placed again until it stays.
             SnapshotState(
                 id: "settings-pages-general-cache-confirmation",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: .init(
                     make: { SettingsScenarios.general(level: .basic, action: .clearImageCacheButtonTapped) },
                     interact: RevealStep.reveal(.label(String(localized: .clearImageCache)), holdingPlacement: true)
@@ -40,7 +42,9 @@ enum GeneralSettingViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "settings-pages-general-translations-confirmation",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: .init(
                     make: { SettingsScenarios.general(level: .basic, action: .removeCustomTranslationsButtonTapped) },
                     interact: RevealStep.reveal(

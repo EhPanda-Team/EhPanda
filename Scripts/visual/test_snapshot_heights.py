@@ -58,6 +58,13 @@ def committed(per_device):
                 ),'''
 
 
+def viewport(reason):
+    """The canonical `heights:` argument of a state the owner exempted from the full-page rule."""
+    return f'''heights: .viewport(
+                    reason: "{reason}"
+                ),'''
+
+
 class HeightsTestCase(unittest.TestCase):
     def setUp(self):
         directory = tempfile.TemporaryDirectory()
@@ -220,6 +227,18 @@ class ApplyTests(HeightsTestCase):
         with self.assertRaises(ValueError):
             snapshot_heights.apply(fractional, ['alpha'], self.sources, self.document, self.env)
 
+    def test_a_viewport_state_is_never_overwritten(self):
+        self.write('AlphaViewSnapshot.swift', provider(state('alpha', viewport('The owner: keep the screen.')),
+                                                       state('beta')))
+        before = self.read('AlphaViewSnapshot.swift')
+        for only in (['alpha'], []):
+            with self.subTest(only=only), self.assertRaises(ValueError) as refused:
+                snapshot_heights.apply(self.proposal(), only, self.sources, self.document, self.env)
+            self.assertIn('alpha: a viewport state keeps the screen height', str(refused.exception))
+        self.assertEqual(self.read('AlphaViewSnapshot.swift'), before)
+        snapshot_heights.apply(self.proposal(beta=1500), ['beta'], self.sources, self.document, self.env)
+        self.assertIn(viewport('The owner: keep the screen.'), self.read('AlphaViewSnapshot.swift'))
+
     def test_an_id_in_no_provider_file_is_refused(self):
         self.write('AlphaViewSnapshot.swift', provider(state('alpha')))
         with self.assertRaises(ValueError):
@@ -261,6 +280,25 @@ class CheckSourcesTests(HeightsTestCase):
                 self.assertTrue(any('alpha: the heights literal is not the canonical layout' in item
                                     for item in self.problems()), self.problems())
 
+    def test_a_viewport_state_with_its_reason_passes(self):
+        self.write('AlphaViewSnapshot.swift', provider(state('alpha', viewport('19-26, 2026-11-27: 「維持螢幕高」')),
+                                                       state('beta')))
+        self.assertEqual(self.problems(), [])
+
+    def test_a_viewport_state_without_its_reason_fails(self):
+        for name, text in (('an empty reason', viewport('')), ('a blank reason', viewport('   '))):
+            with self.subTest(name):
+                self.write('AlphaViewSnapshot.swift', provider(state('alpha', text), state('beta')))
+                self.assertIn('alpha: a viewport state needs its reason', self.problems())
+
+    def test_a_viewport_literal_that_is_not_the_canonical_layout_fails(self):
+        for name, text in (('one line', 'heights: .viewport(reason: "The owner."),'),
+                           ('a reason that is not a literal', viewport('x').replace('"x"', 'reason'))):
+            with self.subTest(name):
+                self.write('AlphaViewSnapshot.swift', provider(state('alpha', text), state('beta')))
+                self.assertTrue(any('alpha: the heights literal is not the canonical layout' in item
+                                    for item in self.problems()), self.problems())
+
     def test_a_duplicate_id_fails(self):
         self.write('AlphaViewSnapshot.swift', provider(state('alpha'), state('beta')))
         self.write('BetaViewSnapshot.swift', provider(state('beta')))
@@ -289,6 +327,14 @@ class ExportTests(HeightsTestCase):
         self.assertEqual(exported['alpha']['iphone']['portrait'], {'xSmall': 912, 'large': 912, 'accessibility5': 1000})
         self.assertEqual(exported['alpha']['iphone']['landscape'], {'xSmall': 420, 'large': 633, 'accessibility5': 850})
         self.assertEqual(exported['beta']['ipad']['landscape'], dict.fromkeys(snapshot_heights.SIZES, 834))
+
+    def test_a_viewport_state_resolves_to_the_device_heights(self):
+        self.write('AlphaViewSnapshot.swift', provider(state('alpha', viewport('The owner.')), state('beta')))
+        exported = snapshot_heights.export(self.sources, self.document, self.env)
+        for family in snapshot_heights.FAMILIES:
+            for orientation in snapshot_heights.ORIENTATIONS:
+                self.assertEqual(exported['alpha'][family][orientation],
+                                 dict.fromkeys(snapshot_heights.SIZES, DEVICE[(family, orientation)]))
 
     def test_sources_that_fail_the_checks_are_not_exported(self):
         self.write('AlphaViewSnapshot.swift', provider(state('alpha')))

@@ -18,7 +18,9 @@ enum SearchRootViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "search-clear-confirmation",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: .init(
                     make: { LibraryScenarios.searchRoot(history: true) }, prepare: artwork,
                     interact: { window in

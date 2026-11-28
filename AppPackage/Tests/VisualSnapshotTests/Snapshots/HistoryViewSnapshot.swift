@@ -25,7 +25,9 @@ enum HistoryViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "history-clear-confirmation",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: .init(
                     make: { BrowsingScenarios.history(.row) }, prepare: artwork,
                     interact: { window in

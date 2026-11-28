@@ -482,7 +482,7 @@ public enum HostedWindowCapture {
     /// The order on the screen-sized path is host, `still`, `interact`, settle, capture, check: the two steps run back
     /// to back, which is the one step of before. On the tall path it is host, `still`, native settle, freeze and
     /// verify, grow (status bar companion, size class pins, resize, one sample, geometry check), `interact`, settle,
-    /// capture, check. On both, the floating form sheets are fitted to their content (``fitSheets(in:)``) before and
+    /// capture, check. On both, the floating form sheets are fitted to their content (``SheetFitter``) before and
     /// after `interact` and after the settle, which is taken again when that fitting changed anything.
     ///
     /// `height`, when given, is the coordinate's committed page height (19-19). A height at or under the window's

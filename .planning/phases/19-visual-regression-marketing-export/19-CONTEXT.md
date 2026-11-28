@@ -129,6 +129,26 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
     The popover proof after the conversion (19-30-STAGES `## Popover proof after the conversion`): the cache confirmation's
     arrow points at the Clear Image Cache row in portrait (939 pt, light and dark), and in landscape (884 pt) the check
     ends `page-height: needs 884 pt, committed 884 pt, cannot-cover:popover`, the popover drawn without an arrow.
+  - *Amended 2026-11-28 (19-26 Task 2, the owner's decisions, an amendment of C4 「這個適用於所有頁面」):* 29 states
+    keep the device height and the `page-height` check skips them, declared `heights: .viewport(reason:)` with the
+    owner's words as the reason. The reader's eight (`reader-controls`, `reader-horizontal`, `reader-live-text`,
+    `reader-loading`, `reader-page-failed`, `reader-slider-scrub`, `reader-two-page-spread`, `reader-vertical`):
+    「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」. The seventeen alerts and confirmation dialogs
+    (`app-wide-app-alert`, `comments-block-confirmation`, `comments-posting-warning`,
+    `detail-pages-folder-delete-confirmation`, `downloads-delete-confirmation`, `downloads-move-confirmation`,
+    `gallery-detail-delete-download-confirmation`, `gallery-detail-retry-confirmation`, `history-clear-confirmation`,
+    `quick-search-delete-confirmation`, `quick-search-filters-reset-confirmation`, `report-form-error-alert`,
+    `search-clear-confirmation`, `settings-account-logout-confirmation`, `settings-pages-general-cache-confirmation`,
+    `settings-pages-general-translations-confirmation`, `settings-pages-site-settings-confirmation`):
+    「alert 組件不需要測量，所以只確認到存在 alert 就足夠」, for the popover ones also 「第四類已經拍到 popover 存在，為什麼還要拉高？」,
+    and for `app-wide-app-alert` 「當 alert，維持螢幕高（建議）」. The four menus (`comments-menu`,
+    `favorites-category-menu`, `toplists-period-menu`, `settings-pages-activity-logs-run-picker`):
+    「選單可以按你推薦處理」, the recommendation being the screen height, the menu's presence being enough. The four
+    keyboard states (`search-typing-suggestions`, `front-page-search`, `comments-post-empty`, `comments-post-filled`)
+    leave the matrix: 「第三類拍不到鍵盤的話可以不拍這個狀態」. A sheet state's page is its sheet, fitted to its content
+    on the iPad: 「sheet 的狀況應當測量 sheet 內容」, 「貼合內容（建議）」, and `reader-settings-sheet` is taken whole
+    like the other sheets: 「當 sheet，整個內容都拍（建議）」. Every other state, the first-launch covers among them,
+    keeps C4 and takes its measured height.
 - **D-09: spike findings** (25 cases × 3 scales, one record and three compare runs, iPhone Air simulator):
   - Path B renders Liquid Glass (`.glass`, `.glassProminent`), materials, menus, alerts, sheets, confirmation
     dialogs and the soft scroll edge, which package-only tests could not. The glass backdrop blur is weaker than on

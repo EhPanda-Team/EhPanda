@@ -46,6 +46,15 @@ struct PageHeights { ... }
 - After rotation, the hosted key window is resized to the scene's width and the committed height for that
   coordinate. A page shorter than the screen keeps the screen height (the minimum is the device height).
 - Pages that never scroll (reader, alerts, full-screen states) declare `.screen`.
+- **Exemptions from C4 (owner decisions in 19-26 Task 2, amended 2026-11-28):** a state the owner keeps at the screen
+  height declares `heights: .viewport(reason: "<the owner's words, dated>")`: it is taken at the device height and
+  the `page-height` check skips it, and `snapshot_heights.py` never overwrites it. 29 states, each group with the
+  owner's words: the reader's eight (「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」); the seventeen
+  alerts and confirmation dialogs (「alert 組件不需要測量，所以只確認到存在 alert 就足夠」; the popover ones also
+  「第四類已經拍到 popover 存在，為什麼還要拉高？」; `app-wide-app-alert` 「當 alert，維持螢幕高（建議）」); the four menus
+  (「選單可以按你推薦處理」, the screen height, the menu's presence being enough). The states are listed in
+  19-CONTEXT D-08 and in 19-26-HEIGHTS.md "## Owner decisions". The four keyboard states leave the matrix
+  (「第三類拍不到鍵盤的話可以不拍這個狀態」). Every other state keeps C4.
 - A window taller than the screen has known side effects, all measured in Phase 17, with remedies already in
   `VisualSnapshotSupport` (`FullContentHost`, `RenderServerCapture`):
   - the status bar comes back (companion window that mirrors `isStatusBarHidden`);

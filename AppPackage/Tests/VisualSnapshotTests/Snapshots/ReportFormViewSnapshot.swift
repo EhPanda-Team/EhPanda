@@ -39,7 +39,9 @@ enum ReportFormViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "report-form-error-alert",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: .init(
                     make: { try GalleryScenarios.reportForm(.errorAlert) },
                     interact: GalleryScenarios.presentHeldReportFailure

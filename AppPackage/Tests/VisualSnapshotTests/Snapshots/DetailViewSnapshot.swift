@@ -54,7 +54,9 @@ enum DetailViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "gallery-detail-delete-download-confirmation",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: .init(
                     make: { try LibraryScenarios.detail(.deleteDownloadConfirmation) }, prepare: artwork,
                     interact: RevealStep.reveal(.label(String(localized: .accessibilityDownloaded)))
@@ -62,7 +64,9 @@ enum DetailViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "gallery-detail-retry-confirmation",
-                heights: .screen,
+                heights: .viewport(
+                    reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"
+                ),
                 factory: .init(
                     make: { try LibraryScenarios.detail(.retryConfirmation) }, prepare: artwork,
                     interact: RevealStep.reveal(.label(String(localized: .accessibilityRetry)))
