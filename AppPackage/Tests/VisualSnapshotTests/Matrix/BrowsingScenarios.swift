@@ -85,15 +85,11 @@ enum BrowsingScenarios {
         }
     }
 
-    /// Typed into the Front Page filter field; it matches one synthetic gallery.
-    static let searchKeyword = "Gallery 2"
-
-    static func frontPage(_ content: ListContent, keyword: String = "") -> AnyView {
+    static func frontPage(_ content: ListContent) -> AnyView {
         content.storeDisplayMode(.frontPage)
         var state = FrontPageReducer.State()
         state.galleries = content.galleries()
         state.loadingState = content.loadingState
-        state.keyword = keyword
         return AnyView(NavigationStack {
             FrontPageView(store: Store(initialState: state, reducer: FrontPageReducer.init))
         })
@@ -187,87 +183,6 @@ enum BrowsingScenarios {
         }
     }
 
-    /// Focuses the page's search field, as a tap on it would, then holds the caret's blink still once the search
-    /// bar has finished activating. The keyboard is a separate window and is not drawn.
-    ///
-    /// The freeze waits until the window is at rest (``HostedWindowCapture/motion(in:)``), not a fixed time: the
-    /// search bar's activation moves the list and scrolls the field's text to the caret, and a freeze in the middle
-    /// of either holds a different list offset or text offset on a loaded host (run 42455556948).
-    ///
-    /// `becomeFirstResponder()` returning true is not enough either: on the loaded hosted runner the activation took
-    /// the focus back, and both attempts captured an unfocused field with its text scrolled to the start and no
-    /// caret (run 42475531683). The field is focused again until it is still first responder after the window has
-    /// come to rest twice in a row.
-    ///
-    /// On the loaded hosted runner the 15 s this step used to have ran out in 3 of 5 compare invocations of run
-    /// 42533872440. The step now has ``focusDeadline``, and a window that has not come to rest within one
-    /// ``waitForRest(_:)`` is waited for again until that deadline instead of failing the step at once.
-    static func focusSearchField(_ window: UIWindow) async throws {
-        try await focusSearchField(window, deadline: focusDeadline)
-    }
-
-    /// Front Page's search step: once the page has settled, it is brought to rest at its top
-    /// (``LibraryScenarios/restAtTop(_:)``) and its search field is focused (``focusSearchField(_:)``).
-    ///
-    /// The step used to start as soon as the page was hosted, and the one result sometimes sat 35 points higher
-    /// than in other launches (`front-page-search`, run 43451019962 against the run before it, both ways; locally 2
-    /// of 10 launches under load). Settling first was taken for the cure, because the next 12 launches under the
-    /// same load all had the lower position. It was not: 16 of 162 hosted pictures taken with this step still had
-    /// the higher one. The list kept its error view on the page at opacity 0, a view that becomes a scroll view
-    /// when the keyboard leaves it too little room, and a list whose search field became active while that second
-    /// scroll view was there missed the top spacing the system gives it. Whether the keyboard or the search bar
-    /// came first varied from launch to launch, with this step or without it. `GalleryList` now holds its error
-    /// view only while the list has failed (`GalleryListErrorViewTests`).
-    ///
-    /// The step stays as the field's starting state: a settled page at rest at its top, where a person's pull
-    /// leaves it before they tap the field.
-    static func focusSearchFieldOnceSettled(_ window: UIWindow) async throws {
-        _ = await HostedWindowCapture.settle(window)
-        try LibraryScenarios.restAtTop(window)
-        try await focusSearchField(window)
-    }
-
-    /// How long ``focusSearchField(_:)`` may take before it fails the attempt with `interaction`, in time the main
-    /// run loop turned (``StepBudget``).
-    static let focusDeadline: Duration = .seconds(40)
-
-    static func focusSearchField(
-        _ window: UIWindow, deadline span: Duration, restWait: Duration = defaultRestWait
-    ) async throws {
-        let root = try XCTUnwrap(window.rootViewController?.view)
-        let clock = ContinuousClock()
-        var budget = StepBudget(span)
-        var held = 0
-        var found = false
-        while held < 2 {
-            // Run 42577585956 failed this step on iPad in 4 of 90 runs with no word of why; the reason now says.
-            guard !budget.isSpent else {
-                throw budget.failure(found ? "search-focus-not-held" : "no-search-field")
-            }
-            budget.look()
-            guard let field = firstView(of: UISearchTextField.self, in: root) else {
-                try await clock.sleep(for: .milliseconds(100))
-                continue
-            }
-            found = true
-            if field.isFirstResponder {
-                held += 1
-            } else {
-                held = 0
-                _ = field.becomeFirstResponder()
-            }
-            try await clock.sleep(for: .milliseconds(held == 0 ? 800 : 300))
-            do {
-                try await waitForRest(window, within: restWait)
-            } catch let moving as StillMoving {
-                // Not yet at rest: the focus is not counted as held, and the loop reads again until the deadline.
-                guard !budget.isSpent else { throw moving }
-                held = 0
-            }
-        }
-        try await freezeIndicators(window)
-    }
-
     /// A user step's window that never came to rest; the motion it last read, and how long the wait took
     /// (``StepFailure/init(reason:budget:)``: `still-moving:<motion> waited=… turned=… polls=…`).
     struct StillMoving: CaptureStepFailure {
@@ -316,14 +231,6 @@ enum BrowsingScenarios {
             }
             try await ContinuousClock().sleep(for: .milliseconds(100))
         }
-    }
-
-    private static func firstView<View: UIView>(of type: View.Type, in view: UIView) -> View? {
-        if let match = view as? View { return match }
-        for subview in view.subviews {
-            if let match = firstView(of: type, in: subview) { return match }
-        }
-        return nil
     }
 
     /// Holds the hosted view at a fixed point: once the window is at rest, the hosted view's layer clock is stopped

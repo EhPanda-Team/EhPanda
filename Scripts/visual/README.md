@@ -46,7 +46,7 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
 
 - **Inventory.** `AppPackage/Tests/VisualSnapshotTests/Resources/scenarios.json` (schema 2) lists every scenario and
   its not-applicable rules, each with a reason. `python3 Scripts/visual/snapshot_matrix.py --totals` prints the
-  current totals: 138 scenarios, 19,872 coordinates, 360 not applicable (five by-design rules, 72 each), 19,512
+  current totals: 134 scenarios, 19,296 coordinates, 360 not applicable (five by-design rules, 72 each), 18,936
   expected pictures. `ScenarioInventoryTests` fails on any inventory ID without a factory.
   What a process cannot draw is listed under `notCaptured`: the keyboard, live web content, the share sheet and the
   file importer.

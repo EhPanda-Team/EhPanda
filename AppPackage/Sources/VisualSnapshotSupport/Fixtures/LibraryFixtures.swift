@@ -1,6 +1,6 @@
 import Foundation
 
-/// Synthetic words for the 19-06 scenarios: search history, saved searches and tag suggestions. Every string is
+/// Synthetic words for the 19-06 scenarios: search history, saved searches and tag translations. Every string is
 /// invented for the public baselines (D-06); none is a real search, tag or gallery title.
 public enum LibraryFixtures {
     /// Recent searches, oldest first, as the search history stores them.
@@ -16,9 +16,7 @@ public enum LibraryFixtures {
     /// The search the results pages show.
     public static let resultsKeyword = "visual fixture"
 
-    /// The word typed into Search for the suggestions state, and the translations it matches. Keys differ in
-    /// length, so each suggestion's weight differs and the order is fixed.
-    public static let typedTag = "visual"
+    /// The custom tag translations General settings holds in its remove-translations state.
     public static let tagTranslations: [TagTranslationFixture] = [
         .init(namespace: "other", key: "visual", value: "Visual"),
         .init(namespace: "other", key: "visual tag", value: "Visual Tag"),

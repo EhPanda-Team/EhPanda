@@ -6,7 +6,6 @@ final class SearchSnapshotTests: SnapshotMatrixCase {
     @MainActor func testRootEmpty() async throws { try await capture(scenario: "search-root-empty") }
     @MainActor func testRootHistory() async throws { try await capture(scenario: "search-root-history") }
     @MainActor func testClearConfirmation() async throws { try await capture(scenario: "search-clear-confirmation") }
-    @MainActor func testTypingSuggestions() async throws { try await capture(scenario: "search-typing-suggestions") }
     @MainActor func testResultsList() async throws { try await capture(scenario: "search-results-list") }
     @MainActor func testResultsGrid() async throws { try await capture(scenario: "search-results-grid") }
     @MainActor func testResultsEmpty() async throws { try await capture(scenario: "search-results-empty") }

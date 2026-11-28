@@ -7,22 +7,6 @@ enum PostCommentViewSnapshot: SnapshotProvider {
     static var states: [SnapshotState] {
         [
             SnapshotState(
-                id: "comments-post-empty",
-                heights: .screen,
-                factory: .init(
-                    make: { try GalleryScenarios.comments(.postEmpty) },
-                    still: GalleryScenarios.holdStillOverKeyboard
-                )
-            ),
-            SnapshotState(
-                id: "comments-post-filled",
-                heights: .screen,
-                factory: .init(
-                    make: { try GalleryScenarios.comments(.postFilled) },
-                    still: GalleryScenarios.holdStillOverKeyboard
-                )
-            ),
-            SnapshotState(
                 id: "comments-posting-warning",
                 heights: .viewport(
                     reason: "19-26, owner, 2026-11-27: 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」"

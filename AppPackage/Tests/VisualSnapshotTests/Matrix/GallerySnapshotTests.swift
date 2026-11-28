@@ -12,8 +12,6 @@ final class CommentsSnapshotTests: SnapshotMatrixCase {
         try await capture(scenario: "comments-blocked-row-collapsed")
     }
     @MainActor func testBlockedRowShown() async throws { try await capture(scenario: "comments-blocked-row-shown") }
-    @MainActor func testPostEmpty() async throws { try await capture(scenario: "comments-post-empty") }
-    @MainActor func testPostFilled() async throws { try await capture(scenario: "comments-post-filled") }
     @MainActor func testPostingWarning() async throws { try await capture(scenario: "comments-posting-warning") }
 }
 

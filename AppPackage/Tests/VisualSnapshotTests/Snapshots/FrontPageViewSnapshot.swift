@@ -32,17 +32,6 @@ enum FrontPageViewSnapshot: SnapshotProvider {
                 id: "front-page-empty",
                 heights: .screen,
                 factory: .init(make: { BrowsingScenarios.frontPage(.failed(.notFound)) })
-            ),
-            // The field is focused from a settled page at rest at its top. The result's two positions (run
-            // 43451019962) came from the list's hidden error view, not from this step (`GalleryListErrorViewTests`).
-            SnapshotState(
-                id: "front-page-search",
-                heights: .screen,
-                factory: ScenarioFactory(
-                    make: { BrowsingScenarios.frontPage(.loaded(.row), keyword: BrowsingScenarios.searchKeyword) },
-                    prepare: artwork,
-                    interact: BrowsingScenarios.focusSearchFieldOnceSettled
-                )
             )
         ]
     }

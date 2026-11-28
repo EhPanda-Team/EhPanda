@@ -305,8 +305,8 @@ enum SettingsScenarios {
     /// once in 172 s (`never-announced waited=171.9s polls=1`).
     ///
     /// The scenario's state is the field focused, and the step only waits for the keyboard once the field has taken
-    /// the focus; a field that gives it up again is focused again, as the user's field holds it (the search steps do
-    /// the same, ``BrowsingScenarios/focusSearchField(_:)``). In run 43621303643 two attempts ended `field-unfocused`
+    /// the focus; a field that gives it up again is focused again, as the user's field holds it. In run 43621303643
+    /// two attempts ended `field-unfocused`
     /// while looking at their normal pace, and the field never came back. A field that keeps its focus, as it does
     /// in every local run, is never touched. A failure says how often it was focused again (`refocused=<n>`) and
     /// what the fields did meanwhile (``KeyboardWatch/editing(since:in:)``).

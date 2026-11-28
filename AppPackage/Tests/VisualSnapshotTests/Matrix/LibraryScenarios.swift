@@ -34,15 +34,8 @@ enum LibraryScenarios {
         return UIFont.systemFont(ofSize: size).lineHeight + 10
     }
 
-    /// The first suggestion for ``LibraryFixtures/typedTag``, by its tag with its namespace, which is not translated
-    /// and which no recent search contains. It is the only row on screen at accessibility5 in iPhone landscape.
-    static var firstSuggestion: RevealStep.Target {
-        .label(LibraryFixtures.tagTranslations.first.map({ "\($0.namespace):\($0.key)" }) ?? LibraryFixtures.typedTag)
-    }
-
-    /// The Search tab's root: empty, or with recent searches and recently viewed galleries. With `suggestions`,
-    /// tag suggestions are switched on and the synthetic translations are loaded.
-    static func searchRoot(history: Bool, suggestions: Bool = false) -> AnyView {
+    /// The Search tab's root: empty, or with recent searches and recently viewed galleries.
+    static func searchRoot(history: Bool) -> AnyView {
         var state = SearchRootReducer.State()
         if history {
             let galleries = Array(TracerScenarios.homeGalleries().prefix(4))
@@ -56,12 +49,6 @@ enum LibraryScenarios {
                 }
             }
             state.historyGalleries = galleries
-        }
-        if suggestions {
-            @Shared(.setting) var setting
-            $setting.withLock({ $0.showTagsSearchSuggestion = true })
-            @Shared(.tagTranslator) var tagTranslator
-            $tagTranslator.withLock({ $0 = translator })
         }
         return AnyView(SearchRootView(store: Store(initialState: state, reducer: SearchRootReducer.init)))
     }
@@ -560,92 +547,6 @@ enum LibraryScenarios {
 
     // MARK: User steps
 
-    /// Focuses the search field and types `text`, as a user would; the keyboard is a separate window and is not
-    /// drawn. Once the field has held its focus with `shown` on screen while the window came to rest twice in a row,
-    /// the caret is drawn solid (``BrowsingScenarios/stopCaretBlink(in:)``) and the page is held still; a step that
-    /// has not got there by ``BrowsingScenarios/focusDeadline`` fails, and the capture retries it.
-    ///
-    /// On the hosted runner the field gave its focus back after the typing in run 43451019962 (iPhone de
-    /// accessibility5 portrait dark, ja large portrait light): the search ended, and the picture held the typed word
-    /// over Recent Searches, without the suggestions or a caret. The field is focused again until it holds.
-    ///
-    /// Both waits are counted in time the main run loop turned (``StepBudget``): run 43621303643 failed the step as
-    /// `no-suggestions` on attempts of 40 s and more in pictures that took 60 and 67 s.
-    static func type(_ text: String, in window: UIWindow, until shown: RevealStep.Target) async throws {
-        _ = await HostedWindowCapture.settle(window)
-        let root = try XCTUnwrap(window.rootViewController?.view)
-        let clock = ContinuousClock()
-        KeyboardWatch.start()
-        let mark = KeyboardWatch.mark
-        var focusBudget = StepBudget(BrowsingScenarios.focusDeadline)
-        let fieldBudget = StepBudget(.seconds(3))
-        var typedField: UISearchTextField?
-        while typedField == nil {
-            if let field = firstView(of: UISearchTextField.self, in: root), field.becomeFirstResponder() {
-                // A key at a time: the suggestions list appears with the first character and reads every
-                // later change, as it does under a typing user.
-                for character in text {
-                    field.insertText(String(character))
-                    try await clock.sleep(for: .milliseconds(150))
-                }
-                typedField = field
-                break
-            }
-            guard !fieldBudget.isSpent else { throw AccessibilityActionDriver.Failure.notFound("search field") }
-            try await clock.sleep(for: .milliseconds(100))
-        }
-        let field = try XCTUnwrap(typedField)
-        try await clock.sleep(for: .milliseconds(800))
-        var held = 0
-        while held < 2 {
-            let focused = field.isFirstResponder
-            let showing = RevealStep.element(shown, in: window) != nil
-            let keyboardUp = GalleryScenarios.keyboardIsUp(over: window)
-            guard !focusBudget.isSpent else {
-                let reason: String
-                if !focused {
-                    reason = "search-focus-not-held"
-                } else if !showing {
-                    reason = "no-suggestions"
-                } else {
-                    let state = GalleryScenarios.keyboardState(over: window, focused: true, since: mark.announcements)
-                    reason = "no-keyboard:\(state)" + KeyboardWatch.editing(since: mark, in: window)
-                }
-                throw focusBudget.failure(reason)
-            }
-            focusBudget.look()
-            if focused && showing && keyboardUp {
-                held += 1
-            } else {
-                held = 0
-                if !focused { _ = field.becomeFirstResponder() }
-            }
-            try await clock.sleep(for: .milliseconds(300))
-            try await BrowsingScenarios.waitForRest(window)
-            if !field.isFirstResponder || !GalleryScenarios.keyboardIsUp(over: window) {
-                held = 0
-            }
-        }
-        if let suggestionView = RevealStep.view(of: shown, in: window),
-           let list = enclosingScrollView(of: suggestionView) {
-            // SearchRootView's scroll view stays behind the suggestions overlay; naming the suggestions list as the
-            // page's top content scroll view stops the bar from drawing a scroll-edge hairline in some runs and not in
-            // others (zh-Hans and zh-Hant accessibility5 landscape, runs 44025665174 and 44137794244).
-            list.setContentOffset(CGPoint(x: list.contentOffset.x, y: -list.adjustedContentInset.top), animated: false)
-            for navigation in navigationControllers(in: window.rootViewController) {
-                guard let page = navigation.topViewController else { continue }
-                page.setContentScrollView(list, for: .top)
-                navigation.navigationBar.setNeedsLayout()
-                navigation.view.setNeedsLayout()
-                navigation.view.layoutIfNeeded()
-            }
-        }
-        window.layoutIfNeeded()
-        try await BrowsingScenarios.waitForRest(window)
-        BrowsingScenarios.stopCaretBlink(in: window)
-        try await BrowsingScenarios.freezeIndicators(window)
-    }
-
     /// Waits for a pre-filled search field's clear button to appear and hold its frame (`search-results-*`), so a slow
     /// bar pass neither omits the button nor captures it one pixel to the left.
     static func awaitClearButtonIfNeeded(_ window: UIWindow) async throws {
@@ -680,15 +581,6 @@ enum LibraryScenarios {
         }
         for subview in view.subviews {
             if let match = clearButton(in: subview) { return match }
-        }
-        return nil
-    }
-
-    private static func enclosingScrollView(of view: UIView) -> UIScrollView? {
-        var current: UIView? = view
-        while let candidate = current {
-            if let scrollView = candidate as? UIScrollView { return scrollView }
-            current = candidate.superview
         }
         return nil
     }

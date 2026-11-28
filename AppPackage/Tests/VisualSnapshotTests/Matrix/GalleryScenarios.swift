@@ -19,7 +19,7 @@ enum GalleryScenarios {
     static let galleryURL = URL(string: "https://e-hentai.org/g/1/visualtoken/")
 
     enum CommentsState {
-        case list, blocked, blockedShown, postEmpty, postFilled, postingWarning
+        case list, blocked, blockedShown, postingWarning
     }
 
     /// The synthetic comments on the real `CommentsView` and `CommentsReducer`. A blocked author is matched by member
@@ -42,11 +42,6 @@ enum GalleryScenarios {
             $0.commentFilterTerms = CommentFilterTerms(groups: ["visual": [GalleryFixtures.filteredTerm]])
         }
         switch kind {
-        case .postEmpty:
-            store.send(.presentPostComment(commentID: ""))
-        case .postFilled:
-            store.send(.presentPostComment(commentID: ""))
-            store.send(.binding(.set(\.commentContent, GalleryFixtures.commentDraft)))
         case .postingWarning:
             store.send(.presentPostComment(commentID: ""))
             store.send(.binding(.set(\.commentContent, GalleryFixtures.filteredDraft)))

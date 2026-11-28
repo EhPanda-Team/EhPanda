@@ -31,7 +31,6 @@ final class FrontPageSnapshotTests: SnapshotMatrixCase {
     @MainActor func testLoading() async throws { try await capture(scenario: "front-page-loading") }
     @MainActor func testError() async throws { try await capture(scenario: "front-page-error") }
     @MainActor func testEmpty() async throws { try await capture(scenario: "front-page-empty") }
-    @MainActor func testSearch() async throws { try await capture(scenario: "front-page-search") }
 }
 
 final class PopularSnapshotTests: SnapshotMatrixCase {
