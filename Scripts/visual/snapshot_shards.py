@@ -31,6 +31,9 @@ runner minutes instead of 379 (run 43681082788). So a unit's wall time is its co
 workers divides the cost by its `cloneSpeedup`, except for an iPad landscape unit: clones boot in portrait whatever
 the turned device shows, so that process runs on the turned device alone (19-10-PROOF.md). Shards are balanced and
 estimated on wall time.
+
+`--costs PATH` plans with another cost table, such as 19-27's projection of the cost at full height, into its own
+`--output`; the gate and `--check` read the committed table.
 """
 
 import argparse
@@ -203,6 +206,9 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true', help='exit 1 when the committed plan is stale')
     parser.add_argument('--output', type=Path, default=SHARDS)
+    parser.add_argument('--costs', type=Path, default=COSTS,
+                        help='the cost table to plan with (default: the committed snapshot-cost.json); another '
+                        'table, such as a projection, goes with an --output of its own')
     parser.add_argument('--select', metavar='IDS', help='print the committed plan\'s shard IDs a comma-separated '
                         'selection names (empty: none), exit 1 on an unknown one')
     args = parser.parse_args(argv)
@@ -213,7 +219,7 @@ def main(argv=None):
             print(f'snapshot_shards: {error}', file=sys.stderr)
             return 1
         return 0
-    fresh = compute()
+    fresh = compute(cost_path=args.costs)
     if args.check:
         if not args.output.exists() or args.output.read_text() != fresh:
             print(f'{args.output} is stale; run Scripts/visual/snapshot_shards.py', file=sys.stderr)

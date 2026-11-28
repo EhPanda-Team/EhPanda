@@ -213,6 +213,26 @@ class SnapshotShardsTests(unittest.TestCase):
         path.write_text('{}\n')
         self.assertEqual(snapshot_shards.main(['--check', '--output', str(path)]), 1)
 
+    def test_a_scaled_cost_table_plans_longer_shards_and_check_keeps_the_committed_table(self):
+        # 19-27: the cost at full height is projected by scaling the committed table, planned into a file of its own.
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        scaled = dict(self.costs, source='model', secondsPerPicture={
+            family: {size: seconds * 2 for size, seconds in sizes.items()}
+            for family, sizes in self.costs['secondsPerPicture'].items()
+        })
+        table = Path(directory.name) / 'projected-cost.json'
+        table.write_text(json.dumps(scaled))
+        output = Path(directory.name) / 'projected-shards.json'
+        self.assertEqual(snapshot_shards.main(['--costs', str(table), '--output', str(output)]), 0)
+        projected = json.loads(output.read_text())
+        committed = json.loads(snapshot_shards.compute())
+        self.assertEqual(projected['costSource'], 'model')
+        self.assertGreater(max(shard['estimatedMinutes'] for shard in projected['shards']),
+                           max(shard['estimatedMinutes'] for shard in committed['shards']))
+        self.assertEqual(snapshot_shards.main(['--check']), 0)
+        self.assertEqual(snapshot_shards.main(['--check', '--costs', str(table)]), 1)
+
 
 if __name__ == '__main__':
     unittest.main()
