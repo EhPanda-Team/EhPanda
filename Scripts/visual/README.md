@@ -318,7 +318,8 @@ python3 Scripts/visual/snapshot_report.py --aggregate OUT/aggregate.json --pictu
    one that will compare later), started with the owner's go-ahead by pushing `ci/snapshot-gate` with no
    `fingerprints.json`. Nothing is published; pictures stay as `pictures-*` artifacts for 7 days, so the approval
    follows the run within that window.
-2. **Agent pre-check.** Machine checks on every picture (blank or near-uniform image, missing-image placeholder, size
+2. **Run-to-run variation.** Two candidate runs of one commit must take the same pictures. `assemble` each run into its own set, then `snapshot_variation.py pairs --a SET_A --b SET_B --out PAIRS` (the keys whose digests differ), `compare --pairs PAIRS --out DIR --simulator NAME` (each pair through the matrix's own comparison in `VariationComparisonTests`, with a difference picture per key beyond the tolerance) and `report --a SET_A --b SET_B --pairs PAIRS --outcomes DIR/outcomes.jsonl --out REPORT` (counts per class, the keys beyond the tolerance by scenario, and the flaky keys with `--artifacts-a`/`--artifacts-b`). A `beyond-tolerance` key is a defect, fixed at its cause; nothing loosens the comparison, retries a key or skips a scenario to make two runs agree.
+3. **Agent pre-check.** Machine checks on every picture (blank or near-uniform image, missing-image placeholder, size
    outlier, identical hash between states that must differ, truncation or untranslated text, real-content marker)
    and an agent visual pass over contact sheets. A real UI or scenario defect is fixed and the shards re-recorded
    before approval, never waved through. `snapshot_precheck.py --set SET --sheets DIR` runs the checks and draws
@@ -328,14 +329,14 @@ python3 Scripts/visual/snapshot_report.py --aggregate OUT/aggregate.json --pictu
    With `--heights FILE`, the file `snapshot_heights.py export --out FILE` writes from the committed sources
    (`.screen` resolved to the device heights), it also flags `committed-height`: a picture whose pixel size is not the
    pinned width of its device and orientation by the committed height of its coordinate.
-3. **Owner approval.** The owner reviews and approves the whole set once, against the final UI, in the format he
+4. **Owner approval.** The owner reviews and approves the whole set once, against the final UI, in the format he
    chooses (the planning default is the short packet beside the full report). Silence, a partial answer or the
    approval of a sample is not approval. The approval is recorded with the run ID and the
    fingerprints' digest.
-4. **Push and pin.** After a separate go-ahead for the push series, the approved set is pushed to the snapshot
+5. **Push and pin.** After a separate go-ahead for the push series, the approved set is pushed to the snapshot
    repository and pinned by `fingerprints.json` and `manifest.json`. A compare run on the hosted runner must then
    pass with 0 picture changes, 0 infrastructure errors, 0 drift and 0 baseline mismatches.
-5. **Changing a picture later.** Any intended UI change makes the gate red on the affected coordinates; a new
+6. **Changing a picture later.** Any intended UI change makes the gate red on the affected coordinates; a new
    candidate run, a new pre-check and a new owner approval replace those pictures. Nothing records automatically.
 
 # Daily live check
