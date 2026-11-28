@@ -86,3 +86,42 @@ Either way the committed plan does not stand at full height, and all of these fi
 ### Owner decision (2026-11-28)
 
 Asked in Taiwanese Mandarin, with the four ways on: finding the cause of the fixed cost first, a finer unit, a longer target, or a hosted measurement first. The owner chose 「先查固定成本（建議）」: find, locally, why a page taller than the screen costs about 2 s more a picture, fix it at its cause, then project the cost again, as its own step, with no push and no hosted run in the meantime. The committed plan and cost table stay unchanged until then.
+
+### The fixed cost, measured by stage (2026-11-28)
+
+A scratch copy of `42d55786b` (`$W/probe/src`, never the tracked tree) timed each stage of every attempt into the main-thread watch log, keyed by the picture, and took 19-26's iPhone timing sample again (en-large and ja-accessibility5, 168 keys, all `recorded`; `$W/probe/out-phone`; `$W/cost/stage-breakdown.py`). Its taller pages cost 2.92 times their 19-18 time at the median, as 19-26 measured (2.91), so the timers changed nothing. Median seconds per stage:
+
+| Stage | Screen height (50 keys) | Taller than the screen (118 keys) |
+| --- | ---: | ---: |
+| Settle at native size before the freeze (`freezeAtNativeSize`, first `settleRead`) | | 0.974 |
+| Settle again with the viewport frozen (the freeze check, second `settleRead`) | | 0.870 |
+| Resize and one sample | | 0.119 |
+| The picture's own settle | 0.972 | 1.056 |
+| Slicing above the render limit (mean, the pages that need it) | | 0.474 |
+| Whole picture | 1.11 | 3.79 |
+
+The fixed cost is the two full settles at native size before the window grows: 1.84 s at the median, about half of a tall picture. The picture's own settle costs what a screen-height one does, and the user step, fitting, encoding and disposal add almost nothing. No defect is involved: the first settle makes the page still before its viewport is frozen, and the second shows that freezing changed nothing (19-30's tall path; 19-26's freeze rule, 「改用靜止判斷的規則」).
+
+Projected shard minutes for the largest shard (264 pictures) under each change to those settles (`$W/cost/options.py`; the iPhone measured per key, the iPad modelled with the iPhone's tall ratio and its own share of tall coordinates):
+
+| Tall path | iPhone shard | iPad shard |
+| --- | ---: | ---: |
+| As committed | 35.7 | 34.1 |
+| The freeze check by one read instead of a second settle | 31.3 | 31.3 |
+| No freeze check at all | 30.6 | 30.9 |
+| Neither native settle | 25.4 | 27.6 |
+
+Only a tall path without both native settles brings a shard under 30 minutes, which would need a new way to keep the freeze sound. Removing the freeze check alone does not.
+
+### Owner decision: the target (2026-11-28)
+
+Asked in Taiwanese Mandarin with the measured cause and three ways on (a 40-minute target, a new tall path without the two native settles, a finer unit): the owner chose 「目標改成 40 分鐘（建議）」. The rule the 30 came from stands: the target is the shortest a shard can be, one process. At the committed heights one process is about 36 minutes, so the target is 40; the capture is unchanged, and run A's measurement corrects the table.
+
+Applied (one commit):
+
+- `snapshot_shards.py` `TARGET_MINUTES` 40 on either device, with the owner's words, and its docstring.
+- `snapshot-cost.json` becomes the full-height model of `$W/modelled-cost.json` (`source: model`, `runId` 43681082788 kept for the measured part and the worker count): iPhone 5.529 and iPad 5.184 seconds per picture. A new target alone would not do: on the device-height table two processes estimate about 37 minutes, under 40, so the planner would have joined them into shards of about an hour at full height.
+- `snapshot-shards.json` planned again: still 72 single-process shards with the same runs, iPhone 35.4 to 35.6 estimated minutes (timeout 72), iPad 33.9 to 34.1 (timeout 69), every one within `min(timeoutMinutes - 5, 40)`; the jobs' own limit is 150 minutes.
+- `test_snapshot_shards.py` and `README.md` say the same.
+
+Deviations from the plan, by this decision: the must-have "the committed shard plan is kept only when the projected cost fits ... otherwise the work stops for a hosted measurement before any hosted candidate run" and Task 2's acceptance check that `snapshot-cost.json` and `snapshot-shards.json` are unchanged since `START` no longer hold. The owner chose to run run A on the modelled plan and to correct the table from run A's measurement (`snapshot_measure.py`), not to measure first. Task 2's verify reads its `over` line against a 30-minute bound and the plan's projected table (2.89, 36 shards over); under the owner's target the committed plan has 0 shards over.

@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "source": "measured",
+  "source": "model",
   "runId": "43681082788",
-  "note": "Seconds per picture are an invocation's wall time over its pictures on the shard's one simulator (workers 1: no parallel-testing clones). iPhone: 2.85, the median of the 8 iPhone invocations of gate run 43681082788 (2.39 to 3.57, and 5.62 for the one whose simulator went down and came back). iPad: 3.2, the median of 15 landscape invocations of run 42577585956 (2.5 to 4.3); the 2 portrait invocations of run 43681082788 gave 3.02 and 3.37. One figure per device: the iPad's landscape medians did not differ by text size (xSmall 3.4, large 3.5, AX5 3.1), and 8 iPhone invocations are too few to tell the sizes apart. Until run 43681082788 the gate ran 2 clones: 6.9 s of wall time per iPhone picture and 3.9 per iPad portrait picture in run 42577585956, and 379 runner minutes for the ten shards of run 43670819839 that took 216 on one simulator each. bootFetchMinutes is run 42577585956's median job time outside the invocations (5 to 25; the ten jobs of run 43681082788 had 3.7 to 9.8, median 6.8); invocationMinutes its median setup of a later invocation or pass (0.7 to 4.7).",
+  "note": "The cost at the committed full-page heights (19-27, owner decision 2026-11-28), until a hosted run measures it. Run 43681082788's measured seconds per picture on the shard's one simulator (workers 1; iPhone 2.85, the median of its 8 iPhone invocations; iPad 3.2, the median of 15 landscape invocations of run 42577585956) times the local ratio at the committed heights: on the iPhone a page at the screen height costs 0.99 of its 19-18 time and a taller page 2.91 (19-26's timing sample, 168 keys, iOS 27.2), weighted by the share of coordinates taller than the screen (iPhone 398 of 804, iPad 224 of 804; the iPad's screen-height ratio 1.12, its tall pages at the iPhone's ratio): iPhone 1.94, iPad 1.62. A tall page's extra time is its two settles at native size before the window grows (19-27-VARIATION.md). bootFetchMinutes and invocationMinutes are run 42577585956's medians, unchanged.",
   "secondsPerPicture": {
-    "iphone": {"xSmall": 2.85, "large": 2.85, "accessibility5": 2.85},
-    "ipad": {"xSmall": 3.2, "large": 3.2, "accessibility5": 3.2}
+    "iphone": {"xSmall": 5.529, "large": 5.529, "accessibility5": 5.529},
+    "ipad": {"xSmall": 5.184, "large": 5.184, "accessibility5": 5.184}
   },
   "workers": 1,
   "bootFetchMinutes": 9.0,

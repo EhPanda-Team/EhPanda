@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "costTable": "6d0e5eedf6b73bed0edec5be161e476d060fb4e3cd04a304fa13968243953377",
-  "costSource": "measured",
+  "costTable": "ed5bd3ac4b6459c18189c60a242da71d14887e98a94295b01171edc571328b02",
+  "costSource": "model",
   "workers": 1,
   "targetMinutes": {
-    "iphone": 30.0,
-    "ipad": 30.0
+    "iphone": 40.0,
+    "ipad": 40.0
   },
   "shards": [
     {
@@ -33,9 +33,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s02",
@@ -62,9 +62,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s03",
@@ -91,9 +91,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s04",
@@ -120,9 +120,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s05",
@@ -149,9 +149,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s06",
@@ -178,9 +178,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s07",
@@ -207,9 +207,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s08",
@@ -236,9 +236,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s09",
@@ -265,9 +265,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s10",
@@ -294,9 +294,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s11",
@@ -323,9 +323,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s12",
@@ -352,9 +352,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s13",
@@ -381,9 +381,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s14",
@@ -410,9 +410,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s15",
@@ -439,9 +439,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s16",
@@ -468,9 +468,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s17",
@@ -497,9 +497,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s18",
@@ -526,9 +526,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 752.4,
-      "estimatedMinutes": 23.8,
-      "timeoutMinutes": 48
+      "costSeconds": 1459.7,
+      "estimatedMinutes": 35.6,
+      "timeoutMinutes": 72
     },
     {
       "id": "s19",
@@ -555,9 +555,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s20",
@@ -584,9 +584,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s21",
@@ -613,9 +613,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s22",
@@ -642,9 +642,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s23",
@@ -671,9 +671,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s24",
@@ -700,9 +700,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s25",
@@ -729,9 +729,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s26",
@@ -758,9 +758,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s27",
@@ -787,9 +787,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s28",
@@ -816,9 +816,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s29",
@@ -845,9 +845,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s30",
@@ -874,9 +874,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s31",
@@ -903,9 +903,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s32",
@@ -932,9 +932,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s33",
@@ -961,9 +961,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s34",
@@ -990,9 +990,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s35",
@@ -1019,9 +1019,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s36",
@@ -1048,9 +1048,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 746.7,
-      "estimatedMinutes": 23.7,
-      "timeoutMinutes": 48
+      "costSeconds": 1448.6,
+      "estimatedMinutes": 35.4,
+      "timeoutMinutes": 71
     },
     {
       "id": "s37",
@@ -1077,9 +1077,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s38",
@@ -1106,9 +1106,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s39",
@@ -1135,9 +1135,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s40",
@@ -1164,9 +1164,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s41",
@@ -1193,9 +1193,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s42",
@@ -1222,9 +1222,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s43",
@@ -1251,9 +1251,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s44",
@@ -1280,9 +1280,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s45",
@@ -1309,9 +1309,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s46",
@@ -1338,9 +1338,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s47",
@@ -1367,9 +1367,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s48",
@@ -1396,9 +1396,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s49",
@@ -1425,9 +1425,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s50",
@@ -1454,9 +1454,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s51",
@@ -1483,9 +1483,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s52",
@@ -1512,9 +1512,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s53",
@@ -1541,9 +1541,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s54",
@@ -1570,9 +1570,9 @@
         }
       ],
       "pictures": 264,
-      "costSeconds": 844.8,
-      "estimatedMinutes": 25.4,
-      "timeoutMinutes": 51
+      "costSeconds": 1368.6,
+      "estimatedMinutes": 34.1,
+      "timeoutMinutes": 69
     },
     {
       "id": "s55",
@@ -1599,9 +1599,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s56",
@@ -1628,9 +1628,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s57",
@@ -1657,9 +1657,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s58",
@@ -1686,9 +1686,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s59",
@@ -1715,9 +1715,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s60",
@@ -1744,9 +1744,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s61",
@@ -1773,9 +1773,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s62",
@@ -1802,9 +1802,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s63",
@@ -1831,9 +1831,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s64",
@@ -1860,9 +1860,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s65",
@@ -1889,9 +1889,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s66",
@@ -1918,9 +1918,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s67",
@@ -1947,9 +1947,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s68",
@@ -1976,9 +1976,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s69",
@@ -2005,9 +2005,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s70",
@@ -2034,9 +2034,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s71",
@@ -2063,9 +2063,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     },
     {
       "id": "s72",
@@ -2092,9 +2092,9 @@
         }
       ],
       "pictures": 262,
-      "costSeconds": 838.4,
-      "estimatedMinutes": 25.3,
-      "timeoutMinutes": 51
+      "costSeconds": 1358.2,
+      "estimatedMinutes": 33.9,
+      "timeoutMinutes": 68
     }
   ]
 }

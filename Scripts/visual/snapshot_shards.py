@@ -13,9 +13,14 @@ so the same inventory and cost table always give the same file. Run 42577585956 
 table: its iPhone shards were estimated at 60 minutes and needed 113 to 115 or more, so five of six ran out of time.
 
 The targets are the shortest a shard can be (owner decision: a shorter shard loses less to a cut). Each shard pays
-the table's `bootFetchMinutes` and `invocationMinutes` (11.3 minutes), so a shard is one process on either device:
-about 24 estimated minutes for an iPhone and about 26 for an iPad, and the target 30 only has to admit one (two
-would be 37 to 43). More, shorter shards cost more shard-minutes in total, since each repeats that fixed cost.
+the table's `bootFetchMinutes` and `invocationMinutes` (11.3 minutes), so a shard is one process on either device.
+At the committed full-page heights that is about 36 estimated minutes for an iPhone and about 34 for an iPad, and the
+target 40 only has to admit one (two would be about 60); at the device height it was 24 and 26 under a target of 30.
+More, shorter shards cost more shard-minutes in total, since each repeats that fixed cost.
+
+Until a hosted run measures the full-height cost (`snapshot_measure.py`), the cost table is a model (19-27): run
+43681082788's measured seconds per picture times the ratio the local timing gives at the committed heights, weighted
+by each device's share of coordinates taller than the screen.
 
 A shard runs its units as few `xcodebuild` invocations as it can: one per orientation group, each with every
 configuration of that group (`-only-test-configuration` once per configuration). Each invocation has a fixed cost
@@ -50,8 +55,10 @@ COSTS = ROOT / 'Scripts/visual/snapshot-cost.json'
 SHARDS = ROOT / 'Scripts/visual/snapshot-shards.json'
 TIMEOUT_CAP_MINUTES = 120
 # The estimate a shard of each device may take. A shard the runner cuts is run again from its start, so the target is
-# the shortest the cost table lets a shard be (see the module docstring), not a share of the limit.
-TARGET_MINUTES = {'iphone': 30.0, 'ipad': 30.0}
+# the shortest the cost table lets a shard be (see the module docstring), not a share of the limit. 30 admitted one
+# process at the device height; at the committed full-page heights one process is about 36 minutes, so the target is
+# 40 (owner decision 2026-11-28, 19-27-VARIATION.md, 「目標改成 40 分鐘（建議）」).
+TARGET_MINUTES = {'iphone': 40.0, 'ipad': 40.0}
 
 
 def unit_key(unit):

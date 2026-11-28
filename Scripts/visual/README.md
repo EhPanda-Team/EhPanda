@@ -113,10 +113,13 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
 (run 42577585956) to 27 of up to 84 estimated minutes, and cut again after run 43298876957, where the runner cut 13 of
 those 27 jobs at random times ("The operation was canceled", 18 to 93 minutes in; 3 of their 13 retries went the same
 way): a cut shard is run again from its start, so shards are now as short as the cost table allows. There are **72**:
-36 iPhone shards (one configuration in one orientation, about 24 estimated minutes, step limit 49) and 36 iPad shards
-(one configuration in one orientation, about 26 estimated minutes, step limit 52). The targets are in
-`snapshot_shards.py` (`TARGET_MINUTES`: 30 on either device); a shard cannot be shorter than its fixed cost (11.3
-minutes) plus one process, and more, shorter shards cost more shard-minutes in total. An iPhone shard of one
+36 iPhone shards (one configuration in one orientation, about 36 estimated minutes, step limit 72) and 36 iPad shards
+(one configuration in one orientation, about 34 estimated minutes, step limit 69), at the committed full-page heights.
+The targets are in `snapshot_shards.py` (`TARGET_MINUTES`: 40 on either device, owner decision 2026-11-28, where 30
+admitted one process at the device height); a shard cannot be shorter than its fixed cost (11.3 minutes) plus one
+process, and more, shorter shards cost more shard-minutes in total. Until a hosted run measures the full-height cost,
+`snapshot-cost.json` is a model (`source: model`): run 43681082788's measured seconds per picture scaled by the local
+timing at the committed heights (19-27). An iPhone shard of one
 orientation sets `EHPANDA_SNAPSHOT_ORIENTATIONS` for the matrix process, which turns the iPhone itself; an iPad
 process is turned beforehand. The shard plan is deterministic and balanced by cost:
 `python3 Scripts/visual/snapshot_shards.py --check` fails when it is stale.

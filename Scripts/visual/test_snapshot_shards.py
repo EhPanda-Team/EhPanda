@@ -127,18 +127,19 @@ class SnapshotShardsTests(unittest.TestCase):
         seconds = snapshot_shards.unit_seconds(self.costs_by_unit, costs)
         self.assertEqual(snapshot_shards.split(seconds, costs), {'iphone': 36, 'ipad': 36})
 
-    def test_a_shard_is_one_process_of_under_half_an_hour_and_the_run_has_72_of_them(self):
+    def test_a_shard_is_one_process_within_the_target_and_the_run_has_72_of_them(self):
         # Owner decision: shorter shards lose less to a cut. The fixed cost per shard (9 minutes to boot and fetch,
         # 2.3 per invocation) and one process on one simulator put a shard, one orientation of one configuration, at
-        # about 24 estimated minutes on an iPhone and about 26 on an iPad.
+        # about 36 estimated minutes on an iPhone and about 34 on an iPad at the committed full-page heights, so the
+        # target is 40 (owner decision 2026-11-28, 19-27); two processes would be about 60.
         plan = json.loads(snapshot_shards.compute())
         self.assertEqual(len(plan['shards']), 72)
         for shard in plan['shards']:
             self.assertEqual(len(shard['runs']), 1, shard['id'])
             self.assertEqual(len(shard['invocations']), 1, shard['id'])
             self.assertEqual(len(shard['runs'][0]['orientations']), 1, shard['id'])
-            self.assertLessEqual(shard['estimatedMinutes'], 30, shard['id'])
-        self.assertLessEqual(max(shard['timeoutMinutes'] for shard in plan['shards']), 60)
+            self.assertLessEqual(shard['estimatedMinutes'], 40, shard['id'])
+        self.assertLessEqual(max(shard['timeoutMinutes'] for shard in plan['shards']), 80)
 
     def test_assignment_ignores_input_order(self):
         expected = snapshot_shards.assign(self.costs_by_unit)
@@ -167,10 +168,13 @@ class SnapshotShardsTests(unittest.TestCase):
         self.assertEqual(len(plan['costTable']), 64)
         self.assertEqual(plan['workers'], self.costs['workers'])
 
-    def test_the_cost_table_is_measured_on_the_gate(self):
-        self.assertEqual(self.costs['source'], 'measured')
+    def test_the_cost_table_models_full_height_from_the_gates_measurement(self):
+        # 19-27: run 43681082788's measured seconds scaled to the committed heights, until a hosted run measures them.
+        self.assertEqual(self.costs['source'], 'model')
         self.assertEqual(self.costs['runId'], '43681082788')
         self.assertEqual(self.costs['workers'], 1)
+        self.assertEqual(self.costs['secondsPerPicture']['iphone'], dict.fromkeys(snapshot_matrix.SIZES, 5.529))
+        self.assertEqual(self.costs['secondsPerPicture']['ipad'], dict.fromkeys(snapshot_matrix.SIZES, 5.184))
 
     def test_a_selection_is_validated_against_the_plan_and_kept_in_plan_order(self):
         # A candidate run may be restricted to some shards (the dispatch input `shards`), by the plan's own ids.
