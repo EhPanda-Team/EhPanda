@@ -14,12 +14,13 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
 - Task 1 is done: all measuring runs finished, `propose` returned 0 (118 states proposed, 4,140 finding lines over 54
   states), and `19-26-HEIGHTS.md` holds the runs, the proposal summary, the findings and the storage projection
   (7.877 GB projected against 19-12's 5 GB line; every slice under 1.8 GB).
-- Task 2 (owner checkpoint) is in progress: round 3 (below) settled the alert, the menus, and how the Search root and
+- Task 2 (owner checkpoint) is done: round 5 (2026-11-28), after `heights-for-approval.md` (local), the owner
+  approved `proposal-sheets.json` and the move to Task 3: 「核准，進入 Task 3（建議）」. Before that, round 3 (below) settled the alert, the menus, and how the Search root and
   the freeze check are fixed. The owner gave the go-ahead (「Yes, start」); both fixes landed, tests first
   (`86c47193b` Search root, `4a87dc8b3` freeze check), and the touched states were re-measured (below). The
   sheet-content design was decided in round 4 (below), built on the owner's 「開始實作」 (`063a110d8`, with two fixes
-  `abd193abd` and `4a40eebfb`), and the 30 sheet states re-measured (below). Open: approval of the heights.
-- Since the push: `e42b140c0` to `4a40eebfb` (local only, not pushed).
+  `abd193abd` and `4a40eebfb`), and the 30 sheet states re-measured (below).
+- Since the push: every commit from `e42b140c0` to the branch tip (local only, not pushed).
 - Task 3 has not started. No provider file, STATE.md or ROADMAP.md was changed for 19-26 yet.
 
 ## Re-measure after the two fixes (2026-11-27)
@@ -82,8 +83,8 @@ and iPad landscape, in `.capture/agent-work/phase19-26/remeasure`: 2,304 lines, 
 - The worktree folder itself.
 - `.capture/agent-work/phase19-26` (748 MB): the twelve input runs' `heights.jsonl` (`phone-*`, `pad-*`),
   `proposal.json` (the first proposal, kept for the record), `proposal-sheets.json` (the proposal put to the owner
-  for approval, Task 3's `apply --proposal` input once approved; the verify command compares a regenerated copy with
-  it), the sheet re-measures `remeasure-sheets`, `remeasure-sheets2` and `remeasure-sheets3`, the fitting's evidence
+  for approval and approved, Task 3's `apply --proposal` input; the verify command compares a regenerated copy with
+  it), `heights-for-approval.md` (what the owner saw), the sheet re-measures `remeasure-sheets`, `remeasure-sheets2` and `remeasure-sheets3`, the fitting's evidence
   `sheet-fit`, `sheet-diag`, `sheet-detect` and `inspector-diag`,
   `interrupted-pad-landscape-xSmall` (the set-aside partial run), the driver logs, `owner-answers.md` (the same
   answers as below), `site-settings-full` (the 7,600 pt site settings picture shown to the owner), and round 3's
@@ -189,9 +190,9 @@ Round 4 (2026-11-27), the sheet-content design, after a probe on the iPad (evide
 
 ## Open, to put to the owner (Taiwanese Mandarin, AskUserQuestion)
 
-1. Approval of the heights to commit: `proposal-sheets.json` (132 states), together with the screen-height
-   decisions already made (reader states, alerts and dialogs, menus, `app-wide-app-alert`, popovers) and the
-   keyboard states' removal. The sheet fitting was built on 「開始實作」 and re-measured (above).
+Nothing open. Approved in round 5: `proposal-sheets.json` (132 states), together with the screen-height decisions
+already made (reader states, alerts and dialogs, menus, `app-wide-app-alert`, popovers) and the keyboard states'
+removal. `heights-for-approval.md` (local) is what the owner saw.
 
 ## Task 3 work the answers add (beyond the plan's text)
 
