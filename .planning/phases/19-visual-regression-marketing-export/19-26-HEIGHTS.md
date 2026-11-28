@@ -463,3 +463,59 @@ The states whose proposed heights add the most (projected size minus `baseline2`
 | `analytics-choice-none` | 0.070 |
 | `report-form-loading` | 0.065 |
 | `report-form-sent` | 0.064 |
+
+## Owner decisions
+
+Task 2 ran in five rounds, the last on 2026-11-28, asked in Taiwanese Mandarin; the answers are quoted verbatim. The
+evidence each round saw is in `.capture/agent-work/phase19-26` (local) and in `19-26-HANDOFF.md`.
+
+### The answers
+
+Round 1 (2026-11-27 at the latest), the four kinds of the plan's question:
+- Kind 1 (states design §2 lists as `.screen` that measured taller): 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」
+- Kinds 2 (cannot cover), 3 (keyboard), 4 (popover): 「給我看範例」 (baseline2 pictures were shown).
+
+Round 2 (2026-11-27 at the latest), a message in place of the answers:
+「sheet 的狀況應當測量 sheet 內容
+alert 組件不需要測量，所以只確認到存在 alert 就足夠
+網站設定你沒給我看到高度到極限無法判斷
+
+第三類拍不到鍵盤的話可以不拍這個狀態
+
+第四類已經拍到 popover 存在，為什麼還要拉高？」
+
+Site settings, after a picture at 7,600 pt: 「整頁有拍到那 7,150 不就可以了嗎」
+
+The role of the `page-height` check: 「page height check 應該是用來在制定 baseline 時輔助判斷的工具，而不是 gate 本身。baseline 確定以後就只有在拍攝新 snapshot 時才會用到了」; asked whether compare mode should fail, add a note or not check: 「比對時不判失敗，只記一筆提示（建議）」, superseded by 「snapshot testing 很單純，就是比較 snapshot diffs」, then 「但 baseline 必須覆蓋整頁 這樣才能捕捉到變化」.
+
+Round 3 (2026-11-27), the `did not converge` and `error` kinds:
+- `app-wide-app-alert`: 「當 alert，維持螢幕高（建議）」
+- The menus: 「選單可以按你推薦處理」 (the recommendation: keep the screen height, the menu's presence is enough).
+- The Search root's 32 pt padding outside its floor: 「app 的邏輯有問題嗎？」, then 「修 App（建議）」 (`86c47193b`).
+- The dark-theme `freeze-changed-pixels`: 「先查清楚再定高度」, then 「改用靜止判斷的規則（建議）」 (`4a87dc8b3`).
+- The Filters Reset dialog's state left set on dismissal: 「先修這個」 (`eb8f4ee04`).
+
+Round 4 (2026-11-27), the sheet-content design: sheet height 「貼合內容（建議）」; `reader-settings-sheet` 「當 sheet，整個內容都拍（建議）」;
+the go-ahead 「開始實作」 (`063a110d8`, fixed in `abd193abd` and `4a40eebfb`).
+
+Round 5 (2026-11-28), the heights: after `heights-for-approval.md` (the states added or changed against `proposal.json` and the
+decision behind every empty cell), 「核准，進入 Task 3（建議）」: `proposal-sheets.json` is approved.
+
+### Per state
+
+The owner's C4 verdict ("這個適用於所有頁面") applies the full-page height to every page. The states below that keep
+the screen height amend it, each by the owner's words quoted for its group.
+
+| Decision | States | Owner's words |
+| --- | --- | --- |
+| Screen height, check skipped (reader) | `reader-controls`, `reader-horizontal`, `reader-live-text`, `reader-loading`, `reader-page-failed`, `reader-slider-scrub`, `reader-two-page-spread`, `reader-vertical` | 「對於閱讀器這種一個螢幕高就可以測量完 UI 的頁面，可以維持螢幕高」 |
+| Screen height, check skipped (alerts and confirmation dialogs, including the popover ones) | `app-wide-app-alert`, `comments-block-confirmation`, `comments-posting-warning`, `detail-pages-folder-delete-confirmation`, `downloads-delete-confirmation`, `downloads-move-confirmation`, `gallery-detail-delete-download-confirmation`, `gallery-detail-retry-confirmation`, `history-clear-confirmation`, `quick-search-delete-confirmation`, `quick-search-filters-reset-confirmation`, `report-form-error-alert`, `search-clear-confirmation`, `settings-account-logout-confirmation`, `settings-pages-general-cache-confirmation`, `settings-pages-general-translations-confirmation`, `settings-pages-site-settings-confirmation` | 「alert 組件不需要測量，所以只確認到存在 alert 就足夠」; 「第四類已經拍到 popover 存在，為什麼還要拉高？」; `app-wide-app-alert` 「當 alert，維持螢幕高（建議）」 |
+| Screen height, check skipped (menus) | `comments-menu`, `favorites-category-menu`, `toplists-period-menu`, `settings-pages-activity-logs-run-picker` | 「選單可以按你推薦處理」 |
+| Removed from the matrix (keyboard) | `search-typing-suggestions`, `front-page-search`, `comments-post-empty`, `comments-post-filled` | 「第三類拍不到鍵盤的話可以不拍這個狀態」 |
+| The page's own height, after the need ignores a text view's own content (re-measured in Task 3) | `settings-pages-site-settings`, `settings-account-signed-in`, `report-form-ready`, `report-form-filled`, `report-form-sending` | 「整頁有拍到那 7,150 不就可以了嗎」 |
+| The sheet's content, fitted (re-measured) | the 30 sheet states of `19-26-HANDOFF.md`'s sheet re-measure, except those above | 「sheet 的狀況應當測量 sheet 內容」, 「貼合內容（建議）」, 「當 sheet，整個內容都拍（建議）」 |
+| The proposal | every other state of the inventory | 「核准，進入 Task 3（建議）」 |
+
+The `page-height` check runs only when a baseline or a new snapshot is taken (candidate mode); compare mode compares
+pictures only (the check's role above). The first-launch states (`agewall-*`, `analytics-choice-*`) take their
+measured heights, the default of C4, since no answer exempts them.
