@@ -1,3 +1,4 @@
+import CoreGraphics
 @testable import FiltersFeature
 import Foundation
 
@@ -8,7 +9,16 @@ enum FiltersViewSnapshot: SnapshotProvider {
         [
             SnapshotState(
                 id: "quick-search-filters",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 1154, large: 1244, accessibility5: 3777),
+                        landscape: .init(xSmall: 1026, large: 1072, accessibility5: 2153)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 2864),
+                        landscape: .init(xSmall: 1074, large: 1121, accessibility5: 2864)
+                    )
+                ),
                 factory: .init(make: { LibraryScenarios.filters(confirmingReset: false) })
             ),
             SnapshotState(

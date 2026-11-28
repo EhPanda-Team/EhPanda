@@ -1,4 +1,5 @@
 import AppTools
+import CoreGraphics
 import Foundation
 @testable import SettingFeature
 
@@ -9,7 +10,16 @@ enum AccountSettingViewSnapshot: SnapshotProvider {
         [
             SnapshotState(
                 id: "settings-account-signed-in",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 1005, large: 1048, accessibility5: 2856),
+                        landscape: .init(xSmall: 930, large: 973, accessibility5: 2086)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 2077),
+                        landscape: .init(xSmall: 962, large: 1005, accessibility5: 1954)
+                    )
+                ),
                 factory: .init(
                     cookies: SettingsScenarios.memberCookies,
                     make: { SettingsScenarios.account(confirmingLogout: false) }
@@ -19,7 +29,16 @@ enum AccountSettingViewSnapshot: SnapshotProvider {
             // stepped through first: launches had built different rows below them and drew the page differently.
             SnapshotState(
                 id: "settings-account-invalid-cookies",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 1005, large: 1048, accessibility5: 2610),
+                        landscape: .init(xSmall: 930, large: 973, accessibility5: 1964)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1954),
+                        landscape: .init(xSmall: 962, large: 1005, accessibility5: 1954)
+                    )
+                ),
                 factory: .init(
                     cookies: SettingsScenarios.withheldCookies,
                     make: { SettingsScenarios.account(confirmingLogout: false) },
@@ -28,7 +47,16 @@ enum AccountSettingViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "settings-account-signed-out",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 2144),
+                        landscape: .init(xSmall: 796, large: 816, accessibility5: 1622)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1674),
+                        landscape: .init(xSmall: 834, large: 848, accessibility5: 1674)
+                    )
+                ),
                 factory: .init(signedIn: false, make: { SettingsScenarios.account(confirmingLogout: false) })
             ),
             SnapshotState(

@@ -1,4 +1,5 @@
 import AppModels
+import CoreGraphics
 import Foundation
 import Resources
 
@@ -10,17 +11,44 @@ enum HistoryViewSnapshot: SnapshotProvider {
         return [
             SnapshotState(
                 id: "history-list",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 1238, large: 1252, accessibility5: 4632),
+                        landscape: .init(xSmall: 1128, large: 1131, accessibility5: 2415)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 2456),
+                        landscape: .init(xSmall: 1193, large: 1196, accessibility5: 2132)
+                    )
+                ),
                 factory: .init(make: { BrowsingScenarios.history(.row) }, prepare: artwork)
             ),
             SnapshotState(
                 id: "history-grid",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 1344, large: 1362, accessibility5: 6001),
+                        landscape: .init(xSmall: 835, large: 1026, accessibility5: 8428)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 9014),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 3678)
+                    )
+                ),
                 factory: .init(make: { BrowsingScenarios.history(.grid) }, prepare: artwork)
             ),
             SnapshotState(
                 id: "history-empty",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 1133),
+                        landscape: .init(xSmall: 430, large: 450, accessibility5: 606)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1210),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 834)
+                    )
+                ),
                 factory: .init(make: { BrowsingScenarios.history(nil) })
             ),
             SnapshotState(

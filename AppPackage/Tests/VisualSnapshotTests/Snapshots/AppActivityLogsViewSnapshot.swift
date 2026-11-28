@@ -1,3 +1,5 @@
+import CoreGraphics
+
 /// The snapshot states of `AppActivityLogsView` (19-18).
 enum AppActivityLogsViewSnapshot: SnapshotProvider {
     @MainActor
@@ -5,7 +7,16 @@ enum AppActivityLogsViewSnapshot: SnapshotProvider {
         [
             SnapshotState(
                 id: "settings-pages-activity-logs",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 2301),
+                        landscape: .init(xSmall: 510, large: 526, accessibility5: 1507)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1596),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 1063)
+                    )
+                ),
                 factory: .init(make: { SettingsScenarios.activityLogs(filled: true) })
             ),
             SnapshotState(

@@ -1,4 +1,5 @@
 import AppModels
+import CoreGraphics
 import Foundation
 @testable import SettingFeature
 
@@ -9,21 +10,48 @@ enum GeneralSettingViewSnapshot: SnapshotProvider {
         [
             SnapshotState(
                 id: "settings-pages-general-minimal",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 2892),
+                        landscape: .init(xSmall: 832, large: 871, accessibility5: 1839)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1770),
+                        landscape: .init(xSmall: 834, large: 851, accessibility5: 1646)
+                    )
+                ),
                 factory: .init(
                     make: { SettingsScenarios.general(level: .minimal) }, interact: SettingsScenarios.scrollToBottom
                 )
             ),
             SnapshotState(
                 id: "settings-pages-general-basic",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 939, accessibility5: 3143),
+                        landscape: .init(xSmall: 846, large: 887, accessibility5: 1989)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1920),
+                        landscape: .init(xSmall: 834, large: 863, accessibility5: 1746)
+                    )
+                ),
                 factory: .init(
                     make: { SettingsScenarios.general(level: .basic) }, interact: SettingsScenarios.scrollToBottom
                 )
             ),
             SnapshotState(
                 id: "settings-pages-general-full",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 2892),
+                        landscape: .init(xSmall: 832, large: 871, accessibility5: 1839)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1820),
+                        landscape: .init(xSmall: 834, large: 851, accessibility5: 1646)
+                    )
+                ),
                 factory: .init(
                     make: { SettingsScenarios.general(level: .full) }, interact: SettingsScenarios.scrollToBottom
                 )

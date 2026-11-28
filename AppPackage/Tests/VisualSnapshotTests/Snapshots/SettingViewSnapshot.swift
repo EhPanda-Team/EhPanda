@@ -9,7 +9,7 @@ enum SettingViewSnapshot: SnapshotProvider {
                 id: "settings-root",
                 heights: .committed(
                     iphone: .init(
-                        portrait: .init(xSmall: 912, large: 912, accessibility5: 912),
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 1038),
                         landscape: .init(xSmall: 633, large: 633, accessibility5: 850)
                     ),
                     ipad: .init(

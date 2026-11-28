@@ -1,3 +1,4 @@
+import CoreGraphics
 @testable import DetailFeature
 import Foundation
 import UIKit
@@ -10,12 +11,30 @@ enum DetailViewSnapshot: SnapshotProvider {
         return [
             SnapshotState(
                 id: "gallery-detail-loaded",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 2208),
+                        landscape: .init(xSmall: 629, large: 656, accessibility5: 1668)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1684),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 1611)
+                    )
+                ),
                 factory: .init(make: { try LibraryScenarios.detail(.loaded) }, prepare: artwork)
             ),
             SnapshotState(
                 id: "gallery-detail-loading",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 1567),
+                        landscape: .init(xSmall: 542, large: 562, accessibility5: 1164)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1210),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 1180)
+                    )
+                ),
                 factory: .init(
                     make: { try LibraryScenarios.detail(.loading) }, prepare: artwork,
                     still: BrowsingScenarios.freezeIndicators
@@ -23,7 +42,16 @@ enum DetailViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "gallery-detail-error",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 1567),
+                        landscape: .init(xSmall: 542, large: 562, accessibility5: 1164)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1210),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 1180)
+                    )
+                ),
                 factory: .init(make: { try LibraryScenarios.detail(.error) }, prepare: artwork)
             ),
             // The rating row is below the fold at accessibility5 (run 43403534542), and on an iPhone in landscape
@@ -33,7 +61,16 @@ enum DetailViewSnapshot: SnapshotProvider {
             // landscape stopped at those with the rating out of view (run 43451019962).
             SnapshotState(
                 id: "gallery-detail-rating",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 2319),
+                        landscape: .init(xSmall: 672, large: 705, accessibility5: 1779)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1794),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 1722)
+                    )
+                ),
                 factory: .init(
                     make: { try LibraryScenarios.detail(.rating) }, prepare: artwork,
                     interact: { window in
@@ -46,7 +83,16 @@ enum DetailViewSnapshot: SnapshotProvider {
             // pictures were the same as gallery-detail-loaded's (run 43451019962): the page is scrolled to it.
             SnapshotState(
                 id: "gallery-detail-downloading",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 2208),
+                        landscape: .init(xSmall: 629, large: 656, accessibility5: 1668)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1684),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 1611)
+                    )
+                ),
                 factory: .init(
                     make: { try LibraryScenarios.detail(.downloading) }, prepare: artwork,
                     interact: RevealStep.reveal(.label(String(localized: .accessibilityPauseAction)))

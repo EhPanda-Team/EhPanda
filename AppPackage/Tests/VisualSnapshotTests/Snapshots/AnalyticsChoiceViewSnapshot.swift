@@ -1,4 +1,5 @@
 import AppModels
+import CoreGraphics
 
 /// The snapshot states of `AnalyticsChoiceView` (19-18).
 enum AnalyticsChoiceViewSnapshot: SnapshotProvider {
@@ -18,24 +19,60 @@ enum AnalyticsChoiceViewSnapshot: SnapshotProvider {
         return [
             SnapshotState(
                 id: "analytics-choice-none",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 3631),
+                        landscape: .init(xSmall: 650, large: 747, accessibility5: 2766)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 2806),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 2806)
+                    )
+                ),
                 factory: .init(
                     signedIn: false, make: { BrowsingScenarios.analyticsChoice(nil) }, minimumReads: reads
                 )
             ),
             SnapshotState(
                 id: "analytics-choice-minimal",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 3631),
+                        landscape: .init(xSmall: 650, large: 747, accessibility5: 2766)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 2806),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 2806)
+                    )
+                ),
                 factory: analyticsChoice(.minimal)
             ),
             SnapshotState(
                 id: "analytics-choice-basic",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 3631),
+                        landscape: .init(xSmall: 650, large: 747, accessibility5: 2766)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 2806),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 2806)
+                    )
+                ),
                 factory: analyticsChoice(.basic)
             ),
             SnapshotState(
                 id: "analytics-choice-full",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 3631),
+                        landscape: .init(xSmall: 650, large: 747, accessibility5: 2766)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 2806),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 2806)
+                    )
+                ),
                 factory: analyticsChoice(.full)
             )
         ]

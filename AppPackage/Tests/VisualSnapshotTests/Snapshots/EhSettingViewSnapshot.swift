@@ -1,4 +1,5 @@
 import AppModels
+import CoreGraphics
 import Foundation
 @testable import SettingFeature
 
@@ -9,7 +10,16 @@ enum EhSettingViewSnapshot: SnapshotProvider {
         [
             SnapshotState(
                 id: "settings-pages-site-settings",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 6594, large: 7571, accessibility5: 44243),
+                        landscape: .init(xSmall: 5630, large: 6229, accessibility5: 27167)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 5633, large: 6140, accessibility5: 26602),
+                        landscape: .init(xSmall: 5519, large: 5922, accessibility5: 23075)
+                    )
+                ),
                 factory: .init(make: { SettingsScenarios.siteSettings(.loaded) })
             ),
             SnapshotState(
@@ -24,7 +34,16 @@ enum EhSettingViewSnapshot: SnapshotProvider {
             ),
             SnapshotState(
                 id: "settings-pages-site-settings-error",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 912),
+                        landscape: .init(xSmall: 420, large: 420, accessibility5: 460)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1210),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 834)
+                    )
+                ),
                 factory: .init(make: { SettingsScenarios.siteSettings(.failed) })
             )
         ]

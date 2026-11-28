@@ -1,3 +1,4 @@
+import CoreGraphics
 import VisualSnapshotSupport
 
 /// The snapshot states of `FolderManagerView` (19-18).
@@ -8,7 +9,16 @@ enum FolderManagerViewSnapshot: SnapshotProvider {
         return [
             SnapshotState(
                 id: "detail-pages-folder-manager",
-                heights: .screen,
+                heights: .committed(
+                    iphone: .init(
+                        portrait: .init(xSmall: 912, large: 912, accessibility5: 912),
+                        landscape: .init(xSmall: 420, large: 420, accessibility5: 463)
+                    ),
+                    ipad: .init(
+                        portrait: .init(xSmall: 1210, large: 1210, accessibility5: 1210),
+                        landscape: .init(xSmall: 834, large: 834, accessibility5: 834)
+                    )
+                ),
                 factory: .init(
                     make: { try GalleryScenarios.folderManager(confirmingDelete: false) }, prepare: artwork
                 )
