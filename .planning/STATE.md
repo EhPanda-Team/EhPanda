@@ -473,7 +473,13 @@ Phase 17 was: the executed work is verified and the rest is recorded as deferred
   (`d44cdec70`..`ed91524bb`, record `19-25-C15-PROPOSAL.md`), no source change: the site writes the H@H price
   "1343 GP" and pays a GP shortfall from Credits at the GP Exchange's 24-hour "High" rate, which the app does not
   know, so a GP-only gate would block downloads the site fulfils. Owner decision 「不停用，C15 改為接受」: C15 is
-  accepted, Task 3 not run. Next: 19-26.
+  accepted, Task 3 not run. 19-26 done 2026-11-28 (`7d8c64da9`..`2ab8e0c8a`, records `19-26-HEIGHTS.md` and
+  `19-26-SUMMARY.md`): every state carries its committed heights (98 measured, 7 `.screen`) or the owner's screen
+  height with the owner's words (29 `.viewport(reason:)`: the reader, alerts and dialogs, menus); the four keyboard
+  states left the matrix (134 states, 18,936 pictures); iPad sheets fit their content; the `page-height` check runs
+  in candidate mode only; text views set no page need. The 930-coordinate candidate sample records every one.
+  For 19-27: timing ratio iPhone 2.89, iPad 1.13 (medians, against 19-18's after-sample taken again); storage
+  7.897 GB projected, over 19-12's 5 GB line (owner's choice owed), every slice under 1.8 GB. Next: 19-27.
 
 Phase 20 merged this state from `main` on 2026-11-11 (OQ-F, owner decision) and carries on below.
 
@@ -1326,11 +1332,11 @@ Round-1 state: closed and signed. 38 findings — 32 `re-verified`, 6 `accepted`
 
 D-01 amendment 2 authorizes agent-written fixes; the original owner-only implementation restriction is superseded. All five Dynamic Type lint rules (`no_dynamic_type_size_modifier`, `no_geometry_reader`, `no_fixed_system_font_size`, `accessibility_hardcoded_string`, `no_minimum_scale_factor`) are live at error severity with the tree at 0 for each. A11Y-01 is complete; A11Y-02 (round 2) is open; the phase is not complete. Do not push without the owner.
 
-Progress: [███████████████████░] 329/335 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
+Progress: [███████████████████░] 330/335 plans ([█████████░] 90%), excluding the 11 superseded Phase 17 plans. GSD
 counts 19 of 21 phases complete: Phase 6 is recorded as "Delivered (rescoped)"; Phase 19 is complete with deferred
 items and Phase 20 has not started.
 Phase 17 has 13/13 in-scope plans complete. Phase 18 has 12 of 12 plans complete (18-01 to 18-12). Phase 18.1 has
-5 of 5 plans complete. Phase 19 has 25 of 31 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22, 19-30 on 2026-11-23 and 19-31 on 2026-11-25; 19-18 to 19-25, 19-30 and 19-31 done); Phase 20
+5 of 5 plans complete. Phase 19 has 26 of 31 plans executed (19-12 and 19-13 are deferred, owner decision; 19-18 to 19-29 planned 2026-11-22, 19-30 on 2026-11-23 and 19-31 on 2026-11-25; 19-18 to 19-26, 19-30 and 19-31 done); Phase 20
 has no plans yet. They keep the milestone open.
 18-12's gate passed on `f08a6a781`, and its Task 3 live
 report-page check passed on 2026-11-05 17:51Z, verified by an agent per owner rule (`18-12-SUMMARY.md`).
