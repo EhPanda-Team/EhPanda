@@ -149,6 +149,11 @@ Requirements: VIS-18-01, VIS-19-01; moved from Phase 17: CAP-17-02, CAP-17-03 an
     on the iPad: 「sheet 的狀況應當測量 sheet 內容」, 「貼合內容（建議）」, and `reader-settings-sheet` is taken whole
     like the other sheets: 「當 sheet，整個內容都拍（建議）」. Every other state, the first-launch covers among them,
     keeps C4 and takes its measured height.
+  - *Amended 2026-11-28 (19-26 Task 2, the owner's decisions on the check's role):* the `page-height` check runs only
+    when a baseline or a new snapshot is taken (candidate mode, 19-27 and 19-28's hosted runs A and B among them);
+    compare mode compares the pictures and nothing else: 「page height check 應該是用來在制定 baseline 時輔助判斷的工具，而不是
+    gate 本身。baseline 確定以後就只有在拍攝新 snapshot 時才會用到了」, 「snapshot testing 很單純，就是比較 snapshot diffs」, and
+    「但 baseline 必須覆蓋整頁 這樣才能捕捉到變化」.
 - **D-09: spike findings** (25 cases × 3 scales, one record and three compare runs, iPhone Air simulator):
   - Path B renders Liquid Glass (`.glass`, `.glassProminent`), materials, menus, alerts, sheets, confirmation
     dialogs and the soft scroll edge, which package-only tests could not. The glass backdrop blur is weaker than on

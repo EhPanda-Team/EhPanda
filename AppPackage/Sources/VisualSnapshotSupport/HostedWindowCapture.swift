@@ -487,9 +487,10 @@ public enum HostedWindowCapture {
     ///
     /// `height`, when given, is the coordinate's committed page height (19-19). A height at or under the window's
     /// own takes the screen-sized path; a taller one is taken in the window resized to it (``attemptTall``).
-    /// Either way the page is then checked against the height: a page that needs more fails with
-    /// `page-height: needs <n> pt, committed <m> pt` and keeps its picture. The window is never grown at run time,
-    /// and that failure is never retried. `nil` is the path above without the check.
+    /// Either way, in candidate mode, the page is then checked against the height: a page that needs more fails with
+    /// `page-height: needs <n> pt, committed <m> pt` and keeps its picture. Compare mode compares the pictures only
+    /// (``checked(_:window:height:tall:mode:)``). The window is never grown at run time, and that failure is never
+    /// retried. `nil` is the path above without the check.
     public static func captureAndCompare(
         make: () throws -> AnyView, window: UIWindow, style: UIUserInterfaceStyle, reference: URL?,
         mode: SnapshotMode, still: (@MainActor (UIWindow) async throws -> Void)? = nil,
@@ -634,7 +635,7 @@ public enum HostedWindowCapture {
         let nativeFrame = window.frame
         guard height.points > nativeFrame.height else {
             let attempt = await attemptHosted(window: window, request: request)
-            return checked(attempt, window: window, height: height, tall: false)
+            return checked(attempt, window: window, height: height, tall: false, mode: request.mode)
         }
         return await attemptTall(window: window, request: request, height: height, nativeFrame: nativeFrame)
     }
@@ -677,7 +678,7 @@ public enum HostedWindowCapture {
         let attempt = await attemptHosted(
             window: window, request: request, viewportSize: sliced ? nativeFrame.size : nil
         )
-        return checked(attempt, window: window, height: height, tall: true)
+        return checked(attempt, window: window, height: height, tall: true, mode: request.mode)
     }
 
     /// The check, never an adjustment: a page whose scroll content needs more than the committed height fails with
@@ -692,9 +693,16 @@ public enum HostedWindowCapture {
     /// scene's bounds (``popoverSourceLiesOutsideScene(_:in:)``) fails the check whatever the need, and the reason
     /// ends `, cannot-cover:popover`, after `, cannot-cover:keyboard` where both hold. At or under the window's own
     /// height nothing about popovers changes.
+    ///
+    /// The check runs only when a picture is taken for approval (`mode` `.candidate`): it helps decide a baseline and
+    /// is no gate of the comparison, so compare mode compares the pictures and nothing else (owner decisions in
+    /// 19-26: 「page height check 應該是用來在制定 baseline 時輔助判斷的工具，而不是 gate 本身」, 「snapshot testing 很單純，
+    /// 就是比較 snapshot diffs」). A page that outgrows its committed height changes its picture, which the comparison
+    /// sees.
     private static func checked(
-        _ attempt: Attempt, window: UIWindow, height: CaptureHeight, tall: Bool
+        _ attempt: Attempt, window: UIWindow, height: CaptureHeight, tall: Bool, mode: SnapshotMode
     ) -> Attempt {
+        guard mode == .candidate else { return attempt }
         switch attempt.status {
         case .recorded, .passed, .changed, .missingBaseline:
             let need = HostedHierarchy.pageNeed(in: window)

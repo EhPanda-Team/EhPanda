@@ -68,16 +68,16 @@ swift-snapshot-testing's `.image` strategy. Content is the synthetic public fixt
   `scenarios.json` agree. Nothing here reaches Release.
 - **Tall window and check.** After the turn, each picture is taken in the key window resized to the scene's width and
   the committed height of its coordinate (`PageHeights`: one value per device, orientation and text size, the tallest
-  of the six languages and both themes; `.screen` keeps the device height for a page that never scrolls or fits). The
+  of the six languages and both themes; `.screen` keeps the device height for a page that never scrolls or fits; `.viewport(reason:)` keeps it, without the `page-height` check, for a page the owner exempted from the full-page rule, with their words as the reason). The
   height is fixed in the source and never measured or changed during a run. The window keeps the viewport's status
   bar (a companion window), safe area and size classes, and the viewport sampling is frozen and verified against the
-  native read; a picture above 8191 device pixels is composed from native-size reads. A page whose scroll content
+  native read; a picture above 8191 device pixels is composed from native-size reads. In candidate mode a page whose scroll content
   needs more fails as `page-height: needs <n> pt, committed <m> pt` and keeps its picture, and that failure is not
   retried; when the scroll view that sets the need avoids a keyboard that is up, the reason ends `, cannot-cover:keyboard`
   (a classification: no height covers such a page, and the picture is kept); when a popover's source lies outside the
   scene's bounds (which stay at the screen's size while the window is taller, so UIKit draws no arrow for it), the
   reason ends `, cannot-cover:popover` (`page-height: needs <n> pt, committed <m> pt, cannot-cover:popover`, also when
-  the need is not above the committed height), after `, cannot-cover:keyboard` where both hold. A page shorter than the
+  the need is not above the committed height), after `, cannot-cover:keyboard` where both hold. Compare mode compares the pictures only and runs no `page-height` check (owner decision in 19-26: the check helps decide a baseline and is no gate). A page shorter than the
   screen keeps the screen height. The order of a tall picture is: host, `still` (at screen size), native settle, freeze and verify, grow,
   `interact` (in the grown window, so a popover anchors on its control), settle, capture, check. On the screen-sized
   path `still` and `interact` run back to back, still first.

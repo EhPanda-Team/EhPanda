@@ -114,7 +114,11 @@ struct PageHeights { ... }
   `, cannot-cover:popover` when both hold); 19-26 decides those pages one by one (「標出來，19-26 逐頁決定」).
 - **Check, never adjust:** after the settle, if the page's scroll content (with its insets) is taller than the
   committed height, the coordinate fails with `page-height: needs <n> pt, committed <m> pt`. Nothing grows the window
-  at run time.
+  at run time. The check runs only when a baseline or a new snapshot is taken (candidate mode); compare mode compares
+  the pictures and nothing else (owner decisions in 19-26 Task 2: 「page height check 應該是用來在制定 baseline 時輔助判斷的工具，
+  而不是 gate 本身。baseline 確定以後就只有在拍攝新 snapshot 時才會用到了」, then 「snapshot testing 很單純，就是比較 snapshot
+  diffs」 and 「但 baseline 必須覆蓋整頁 這樣才能捕捉到變化」). Every approved baseline covers its whole page, so a page
+  that outgrows it changes its picture, which the comparison sees.
 
 ## 3. Filling in the heights
 

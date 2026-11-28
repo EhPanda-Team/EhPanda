@@ -328,6 +328,31 @@ final class HostedWindowCaptureTests: XCTestCase {
         XCTAssertEqual(window.frame, native)
     }
 
+    /// Compare mode compares pictures only (owner decision in 19-26: 「snapshot testing 很單純，就是比較 snapshot
+    /// diffs」): a page that needs more than its committed height is compared like any other, and passes against its
+    /// own picture at that height, while candidate mode fails it with the height it needs.
+    @MainActor
+    func testCompareModeComparesAPageThatOutgrowsItsHeightWithoutTheCheck() async throws {
+        let window = try XCTUnwrap(HostedWindowCapture.keyWindow())
+        let committed = window.bounds.height + 88
+        let content = committed + 500
+        let candidate = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.scrolling(content)) }, window: window, style: .light, reference: nil,
+            mode: .candidate, height: Self.height(committed)
+        )
+        XCTAssertEqual(candidate.status, .error)
+        XCTAssertEqual(candidate.reason?.hasPrefix("page-height: needs "), true, candidate.reason ?? "")
+        let directory = try Self.temporaryDirectory()
+        let reference = directory.appending(path: "outgrown.png")
+        try XCTUnwrap(candidate.png).write(to: reference)
+        let compared = await HostedWindowCapture.captureAndCompare(
+            make: { AnyView(Self.scrolling(content)) }, window: window, style: .light, reference: reference,
+            mode: .compare, height: Self.height(committed)
+        )
+        XCTAssertEqual(compared.status, .passed, compared.reason ?? "")
+        XCTAssertNil(compared.reason)
+    }
+
     /// A `.viewport` state (19-26) is taken at the screen height without the `page-height` check: the matrix gives its
     /// capture no height to check, and a page that needs more than the screen is recorded at the screen height. Every
     /// other state is checked against its committed height.
