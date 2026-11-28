@@ -6,7 +6,7 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
 
 ## State
 
-- Branch tip `cd5191b4d` (`docs(19-26): record the measured heights`) plus this file. The branch was pushed to
+- Branch tip: the commit that records 19-26 (after `2ab8e0c8a`, `feat(19-26): commit the measured page heights`). The branch was pushed to
   `origin` by the owner on 2026-11-27 (tip `810de0f82`, no PR); git on this Mac has no stored GitHub credentials, so a
   later push is the owner's to run. Every push, PR, merge and hosted run needs the owner's go-ahead in words.
 - The branch `fix/snapshot-scenarios` was deleted locally and on `origin` on 2026-11-27, with the owner's go-ahead,
@@ -20,8 +20,11 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
   (`86c47193b` Search root, `4a87dc8b3` freeze check), and the touched states were re-measured (below). The
   sheet-content design was decided in round 4 (below), built on the owner's 「開始實作」 (`063a110d8`, with two fixes
   `abd193abd` and `4a40eebfb`), and the 30 sheet states re-measured (below).
-- Since the push: every commit from `e42b140c0` to the branch tip (local only, not pushed).
-- Task 3 has not started. No provider file, STATE.md or ROADMAP.md was changed for 19-26 yet.
+- `origin` holds the branch up to `4a40eebfb`; every commit after it (from `a0fe026f6`) is local only, not pushed.
+- Task 3 is done (2026-11-28, `5244df187` to `2ab8e0c8a`): 98 committed, 7 `.screen`, 29 `.viewport(reason:)`, the
+  four keyboard states removed; the verification sample records all 930 coordinates and the plan's verify command
+  passes. `19-26-SUMMARY.md` and `19-26-HEIGHTS.md` "## Applied heights (Task 3)" hold the results; STATE.md and
+  ROADMAP.md record 19-26. Next: 19-27, whose push and hosted run A need the owner's go-ahead.
 
 ## Re-measure after the two fixes (2026-11-27)
 
@@ -90,7 +93,10 @@ and iPad landscape, in `.capture/agent-work/phase19-26/remeasure`: 2,304 lines, 
   answers as below), `site-settings-full` (the 7,600 pt site settings picture shown to the owner), and round 3's
   `recheck-notes.md`, `dnc-probe`, `error-recheck`, `freeze-debug` and `freeze-debug-pad`, the fixes' evidence
   `search-fix` and `freeze-fix`, the re-measure `remeasure` and `proposal-remeasure.json`, and round 4's
-  `sheet-probe`.
+  `sheet-probe`. Task 3's: `remeasure-textview`, `proposal-final.json` (applied) with
+  `inventory-before-keyboard-removal.json` and `propose-final.log`, `heights-export.json`,
+  `storage_projection_final.py`, `verify-phone`, `verify-pad`, `ref-19-18` (19-18's tree and its after-sample taken
+  again, the timing reference), `timing_ratio.py`, `task3` (the gates) and `inventory.xcresult`.
 - `.capture/agent-work/baseline2` (4.7 GB): the 19,512-picture baseline the storage projection and 19-12/19-13 use.
 - `.capture/agent-work/baseline1`, `phase19-21` to `phase19-24`, `phase19-31`, `run-44279625701`: earlier plans'
   evidence cited by their records.

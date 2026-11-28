@@ -2,7 +2,8 @@
 
 This is the record of plan 19-26. Task 1 measured the whole matrix and wrote the proposal and the findings below;
 the owner's answers (Task 2, `## Owner decisions`) and the applied counts, the verification sample and the timing
-ratio (Task 3) are added to this file by those tasks. Task 1 changed no provider file: no height is committed yet.
+ratio (Task 3) are added to this file by those tasks. Task 1 changed no provider file; Task 3 committed the heights
+(`2ab8e0c8a`, `## Applied heights (Task 3)`).
 
 The measuring mode takes no picture (`19-20-PROBES.md`): every run below holds one line per coordinate in its
 `heights.jsonl`, and no picture of any state was taken at its measured height. Wherever a picture is asked for, the
@@ -414,6 +415,9 @@ unless the owner decides otherwise).
 
 ## Storage projection
 
+This is Task 1's projection, from `proposal.json`; the projection recomputed for the committed heights is in
+`## Applied heights (Task 3)`, "Storage projection, recomputed".
+
 Method (plan 19-26, Task 1): for each of the 19,512 keys, the size of its `baseline2` file
 (`.capture/agent-work/baseline2/set`, 19,512 pictures at the device height) times the committed height over the
 device height of its family and orientation, summed. The committed height of a key is the proposal's value for its
@@ -519,3 +523,133 @@ the screen height amend it, each by the owner's words quoted for its group.
 The `page-height` check runs only when a baseline or a new snapshot is taken (candidate mode); compare mode compares
 pictures only (the check's role above). The first-launch states (`agewall-*`, `analytics-choice-*`) take their
 measured heights, the default of C4, since no answer exempts them.
+
+## Applied heights (Task 3)
+
+Task 3 ran on 2026-11-28 in eight steps, one commit each: the `viewport` case (`ce64f786a`), compare mode without
+the check (`0a22617eb`), the four keyboard states removed (`2a220c751`), the text-view need (`c382434e9`), and the
+heights (`2ab8e0c8a`). Every gate between them passed VisualSnapshotTests in FeatureTests on both phase simulators
+with no warning.
+
+### The text-view re-measure
+
+The five states whose need a text view's own content had set were measured again over all 18 configurations, both
+themes, both devices and both orientations (720 lines in `$W/remeasure-textview`), after `c382434e9`. Every line is
+`measured`: no `cannot-cover:TextEditorTextView` or `VerticalTextView` is left. The tallest of the six languages
+(xSmall / large / accessibility5, points):
+
+| State | iPhone portrait | iPhone landscape | iPad portrait | iPad landscape |
+| --- | --- | --- | --- | --- |
+| `report-form-ready` | 912 / 940 / 3,582 | 682 / 722 / 2,017 | 1,210 / 1,210 / 2,578 | 834 / 834 / 2,578 |
+| `report-form-filled` | 987 / 1,092 / 4,626 | 780 / 842 / 2,649 | 1,210 / 1,210 / 3,348 | 843 / 953 / 3,348 |
+| `report-form-sending` | 987 / 1,092 / 4,688 | 780 / 842 / 2,649 | 1,210 / 1,210 / 3,348 | 844 / 953 / 3,348 |
+| `settings-account-signed-in` | 1,005 / 1,048 / 2,856 | 930 / 973 / 2,086 | 1,210 / 1,210 / 2,077 | 962 / 1,005 / 1,954 |
+| `settings-pages-site-settings` | 6,594 / 7,571 / 44,243 | 5,630 / 6,229 / 27,167 | 5,633 / 6,140 / 26,602 | 5,519 / 5,922 / 23,075 |
+
+Site settings at large on iPhone portrait: en 7,187, ja 7,105, zh-Hant 6,650, ko 6,750, zh-Hans 6,594 and de 7,571 pt,
+the page the owner's 「整頁有拍到那 7,150 不就可以了嗎」 asked for; the 23 pt the empty "Excluded Uploaders" editor added
+is gone.
+
+### The final proposal and the apply
+
+Where the runs differ from the plan's steps 5 and 6:
+- The iPhone runs are `remeasure-textview/phone-portrait` and `phone-landscape` (one orientation per invocation), in
+  place of the plan's one `remeasure-textview/phone`; they are listed in that place, portrait first.
+- `propose` refuses runs that hold a state the inventory no longer has, and the earlier runs hold the four keyboard
+  states. The proposal was therefore made against the inventory as it stood before their removal
+  (`$W/inventory-before-keyboard-removal.json`, `git show 2a220c751^:` of `scenarios.json`, which differs from the
+  current one by exactly those four lines), and `apply --only` names none of them:
+
+```
+python3 Scripts/visual/snapshot_heights.py --inventory "$W/inventory-before-keyboard-removal.json" propose \
+    --runs phone-* pad-* remeasure/phone remeasure/pad-portrait remeasure/pad-landscape \
+    remeasure-sheets2/pad-portrait remeasure-sheets2/pad-landscape remeasure-sheets2/phone \
+    remeasure-sheets3/pad-portrait remeasure-sheets3/pad-portrait-rest remeasure-sheets3/pad-landscape \
+    remeasure-textview/phone-portrait remeasure-textview/phone-landscape remeasure-textview/pad-portrait \
+    remeasure-textview/pad-landscape --out proposal-final.json
+```
+
+`proposal-final.json`: 136 of 138 states proposed (none for `search-typing-suggestions`, removed, and
+`settings-pages-site-settings-confirmation`, `viewport`), 1,121 finding lines, every one in a `viewport` or removed
+state. Each of the 105 states that are neither has all twelve values and no finding.
+
+Applied (`apply --only` the 105 states, `settings-root` among them, whose 19-19 tracer value at iPhone portrait
+accessibility5 went from 912 to 1,038 pt), 43 provider files; `check-sources` reads back 134 states:
+
+| Heights | States |
+| --- | ---: |
+| `.committed(...)` | 98 |
+| `.screen` (every value the device height: `blocked-users-empty`, `front-page-loading`, `popular-loading`, `report-form-loading`, `settings-pages-activity-logs-empty`, `settings-pages-laboratory`, `watched-signed-out`) | 7 |
+| `.viewport(reason:)` | 29 |
+| Inventory | 134 |
+
+The four keyboard states left the inventory (138 states before `2a220c751`).
+
+### The verification sample
+
+Candidate mode at `2ab8e0c8a`, the 19-18 `SAMPLE` and the ten C-item classes, no `--workers`: iPhone at
+`en-large,ja-accessibility5,en-xSmall,de-large,ko-accessibility5,de-accessibility5` (`$W/verify-phone`, 744 lines) and
+iPad portrait at `en-large,de-large,de-accessibility5` (`$W/verify-pad`, 186 lines). All 930 are `recorded`: no
+`page-height` error, no other reason.
+
+### The timing ratio
+
+19-18's after-sample (`$MAIN/.capture/agent-work/phase19-18/after-*`) is gone: the main checkout's `.capture` was
+wiped on 2026-11-24 and no record kept its per-picture seconds. It was therefore taken again from 19-18's own tree:
+`git archive 0d24cc3e4` (the commit of `19-18-MOVE-PROOF.md`, whose after-sample it was) into `$W/ref-19-18/src`,
+with the two commands of `19-18-MOVE-PROOF.md` "## Commands", on the same phase simulators (iOS 27.2, where 19-18's ran
+on 27.0), into `$W/ref-19-18/after-phone` (168 keys) and `after-pad` (42 keys), every key `recorded`, as 19-18's. The
+ratio thus covers the committed heights and every harness change since 19-18 (the tall window, the two step stages,
+the sheet fitting), on one Mac and one runtime.
+
+Over the keys both hold (`$W/timing_ratio.py`), seconds per picture:
+
+| Device | Keys | Median, committed heights | Median, 19-18 | Ratio of medians | Ratio of sums |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| iPhone | 168 | 3.241 | 1.123 | 2.89 | 2.34 |
+| iPad | 42 | 1.426 | 1.260 | 1.13 | 1.20 |
+
+### Storage projection, recomputed
+
+Task 1's method, with the committed heights (`snapshot_heights.py export`, `$W/heights-export.json`; a `viewport`
+state exports the device height) in place of the proposal's, and the four removed states' 576 pictures left out
+(`$W/storage_projection_final.py`):
+
+- `baseline2`: 4.937 GB, 19,512 pictures; the 18,936 kept pictures 4.842 GB at the device height.
+- Projected: **7.897 GB** (7.355 GiB), a factor of 1.63 over the kept pictures: 2.897 GB over 19-12's 5 GB line, so
+  19-12 Task 3's storage choice comes back to the owner with this size.
+- By family: iPhone 1.565 GB to 3.078 GB, iPad 3.278 GB to 4.819 GB.
+- Every slice stays under the 1.8 GB line; the largest is `ipad/de` at 0.830 GB.
+
+| Slice | Pictures | baseline2 (GB) | Projected (GB) | Factor | Under 1.8 GB |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `iphone/en` | 1,578 | 0.260 | 0.512 | 1.97 | yes |
+| `iphone/de` | 1,578 | 0.275 | 0.535 | 1.95 | yes |
+| `iphone/ja` | 1,578 | 0.268 | 0.526 | 1.96 | yes |
+| `iphone/ko` | 1,578 | 0.249 | 0.488 | 1.96 | yes |
+| `iphone/zh-Hans` | 1,578 | 0.255 | 0.506 | 1.98 | yes |
+| `iphone/zh-Hant` | 1,578 | 0.258 | 0.512 | 1.98 | yes |
+| `ipad/en` | 1,578 | 0.551 | 0.809 | 1.47 | yes |
+| `ipad/de` | 1,578 | 0.566 | 0.830 | 1.47 | yes |
+| `ipad/ja` | 1,578 | 0.558 | 0.822 | 1.47 | yes |
+| `ipad/ko` | 1,578 | 0.529 | 0.773 | 1.46 | yes |
+| `ipad/zh-Hans` | 1,578 | 0.534 | 0.788 | 1.48 | yes |
+| `ipad/zh-Hant` | 1,578 | 0.540 | 0.797 | 1.48 | yes |
+| all 12 | 18,936 | 4.842 | 7.897 | 1.63 | |
+
+The states whose committed heights add the most:
+
+| State | Added (GB) |
+| --- | ---: |
+| `settings-pages-site-settings` | 0.391 |
+| `favorites-grid` | 0.162 |
+| `downloads-grid` | 0.156 |
+| `report-form-sending` | 0.097 |
+| `report-form-filled` | 0.085 |
+| `downloads-list` | 0.082 |
+| `downloads-active-failed` | 0.082 |
+| `favorites-list` | 0.080 |
+| `analytics-choice-minimal` | 0.079 |
+| `analytics-choice-basic` | 0.078 |
+| `analytics-choice-none` | 0.070 |
+| `report-form-ready` | 0.063 |
