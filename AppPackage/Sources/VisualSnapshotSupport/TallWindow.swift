@@ -127,11 +127,9 @@ struct PageNeed {
 
 extension HostedHierarchy {
     /// The window height the page needs, in whole points: the window's height plus the largest vertical overflow
-    /// of a scroll view in the page (``pageRoots(in:)``: the window, or the front-most sheet) the user could see and
-    /// scroll.
+    /// of a scroll view in the page (``pageRoots(in:)``: the window, or the front-most sheet) that scrolls the page.
     ///
-    /// A scroll view counts when it scrolls, is neither hidden nor (nearly) transparent in itself or any ancestor up
-    /// to the window, and its frame in window coordinates meets the window's bounds. Its overflow is its content
+    /// A scroll view counts when it scrolls the page (``scrollsThePage(_:in:)``). Its overflow is its content
     /// with the adjusted insets above and below, less its own height, and it counts only from one device pixel on.
     /// The sum is read in device pixels before it is rounded up, so that a page whose layout lands exactly on a
     /// whole point is not pushed to the next one by floating-point noise.
@@ -140,9 +138,7 @@ extension HostedHierarchy {
         var largest: CGFloat = 0
         var widest: UIScrollView?
         for view in pageRoots(in: window).flatMap({ [$0] + descendants(of: $0) }) {
-            guard let scrollView = view as? UIScrollView, isVisibleAndScrolling(scrollView, in: window) else {
-                continue
-            }
+            guard let scrollView = view as? UIScrollView, scrollsThePage(scrollView, in: window) else { continue }
             let insets = scrollView.adjustedContentInset
             let overflow = scrollView.contentSize.height + insets.top + insets.bottom - scrollView.bounds.height
             if overflow >= 1 / scale, overflow > largest {
@@ -174,6 +170,18 @@ extension HostedHierarchy {
             return style == .formSheet || style == .pageSheet
         }) else { return [window] }
         return chain[sheet...].map({ $0.presentationController?.presentedView ?? $0.view })
+    }
+
+    /// Whether `scrollView` scrolls the page: it scrolls, is neither hidden nor (nearly) transparent in itself or any
+    /// ancestor up to the window, its frame in window coordinates meets the window's bounds, and it is no text view.
+    ///
+    /// A text view (`UITextView` and its subclasses, which SwiftUI's `TextEditor` and vertical `TextField` are hosted
+    /// in) scrolls its own text inside the field, and its content height follows its text and the field's width, not
+    /// the page: the page around it is what a picture must cover (owner decision in 19-26, 「整頁有拍到那 7,150 不就可以了
+    /// 嗎」). Counting one held site settings' empty "Excluded Uploaders" editor at the window plus 23 pt at every
+    /// height, `cannot-cover:TextEditorTextView` (19-26).
+    static func scrollsThePage(_ scrollView: UIScrollView, in window: UIWindow) -> Bool {
+        !(scrollView is UITextView) && isVisibleAndScrolling(scrollView, in: window)
     }
 
     static func isVisibleAndScrolling(_ scrollView: UIScrollView, in window: UIWindow) -> Bool {

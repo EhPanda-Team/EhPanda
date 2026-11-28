@@ -118,7 +118,11 @@ struct PageHeights { ... }
   the pictures and nothing else (owner decisions in 19-26 Task 2: 「page height check 應該是用來在制定 baseline 時輔助判斷的工具，
   而不是 gate 本身。baseline 確定以後就只有在拍攝新 snapshot 時才會用到了」, then 「snapshot testing 很單純，就是比較 snapshot
   diffs」 and 「但 baseline 必須覆蓋整頁 這樣才能捕捉到變化」). Every approved baseline covers its whole page, so a page
-  that outgrows it changes its picture, which the comparison sees.
+  that outgrows it changes its picture, which the comparison sees. A text view's own scrolling (`UITextView` and
+  its subclasses: SwiftUI's `TextEditor` and vertical `TextField`) is the field's, not the page's, and sets no need:
+  its content follows its text and the field's width (the empty "Excluded Uploaders" editor of site settings needed
+  the window plus 23 pt at every height). The page around the field is what the picture covers (owner, 19-26:
+  「整頁有拍到那 7,150 不就可以了嗎」).
 
 ## 3. Filling in the heights
 

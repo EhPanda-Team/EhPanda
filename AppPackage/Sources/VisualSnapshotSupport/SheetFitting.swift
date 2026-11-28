@@ -33,7 +33,7 @@ extension HostedWindowCapture {
 /// content is left as it is. UIKit keeps the sheet within the window, less its margins (32 pt above and below on the
 /// iPad), so content taller than that still overflows, and the check and the measuring mode see it as they see any
 /// page: the window's height stays the committed one, never adjusted. A sheet's content height is its frame plus the
-/// largest overflow of a scroll view in it the user could see and scroll, as the page's need reads it
+/// largest overflow of a scroll view in it that scrolls the page, as the page's need reads it
 /// (``HostedHierarchy/pageNeed(in:)``); that sum is the same whatever frame the window lets the sheet have. Only a
 /// form sheet that floats in its container is fitted: a sheet that fills the window's height, as every sheet on the
 /// iPhone does, grows with the window already.
@@ -111,12 +111,12 @@ final class SheetFitter {
 }
 
 extension HostedWindowCapture {
-    /// The largest vertical overflow, signed, of a scroll view in `view` the user could see and scroll, or `nil`
-    /// without one.
+    /// The largest vertical overflow, signed, of a scroll view in `view` that scrolls the page
+    /// (``HostedHierarchy/scrollsThePage(_:in:)``), or `nil` without one.
     fileprivate static func overflow(of view: UIView, in window: UIWindow) -> CGFloat? {
         ([view] + HostedHierarchy.descendants(of: view))
             .compactMap({ $0 as? UIScrollView })
-            .filter({ HostedHierarchy.isVisibleAndScrolling($0, in: window) })
+            .filter({ HostedHierarchy.scrollsThePage($0, in: window) })
             .map({ scrollView in
                 let insets = scrollView.adjustedContentInset
                 return scrollView.contentSize.height + insets.top + insets.bottom - scrollView.bounds.height
