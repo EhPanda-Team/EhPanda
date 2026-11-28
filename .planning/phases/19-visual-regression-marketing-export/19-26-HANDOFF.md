@@ -1,4 +1,4 @@
-# 19-26 Handoff (2026-11-27)
+# 19-26 Handoff (2026-11-28)
 
 Where plan 19-26 stands, for the session that continues it. The continuation runs on the same Mac, in the same
 worktree (`.claude/worktrees/phase19-deferred-0c4fb6` of the main checkout, branch `claude/phase19-deferred-0c4fb6`).
@@ -16,8 +16,10 @@ Read `AGENTS.md`, `.planning/STATE.md`, `19-26-PLAN.md` and `19-26-HEIGHTS.md` f
   (7.877 GB projected against 19-12's 5 GB line; every slice under 1.8 GB).
 - Task 2 (owner checkpoint) is in progress: round 3 (below) settled the alert, the menus, and how the Search root and
   the freeze check are fixed. The owner gave the go-ahead (「Yes, start」); both fixes landed, tests first
-  (`86c47193b` Search root, `4a87dc8b3` freeze check), and the touched states were re-measured (below). Open: the
-  sheet-content design was decided in round 4 (below); open: the go-ahead to build it, then the heights.
+  (`86c47193b` Search root, `4a87dc8b3` freeze check), and the touched states were re-measured (below). The
+  sheet-content design was decided in round 4 (below), built on the owner's 「開始實作」 (`063a110d8`, with two fixes
+  `abd193abd` and `4a40eebfb`), and the 30 sheet states re-measured (below). Open: approval of the heights.
+- Since the push: `e42b140c0` to `4a40eebfb` (local only, not pushed).
 - Task 3 has not started. No provider file, STATE.md or ROADMAP.md was changed for 19-26 yet.
 
 ## Re-measure after the two fixes (2026-11-27)
@@ -45,11 +47,44 @@ and iPad landscape, in `.capture/agent-work/phase19-26/remeasure`: 2,304 lines, 
 - The worktree's HEAD was found detached twice on 2026-11-27 at the branch tip (cause unknown, nothing lost); each time
   it was re-attached with `git switch claude/phase19-deferred-0c4fb6`. Check `git status -sb` before committing.
 
+## Sheet fitting and the sheet re-measure (2026-11-27 to 11-28)
+
+- `063a110d8` fits every floating form sheet (the iPad's) to its content through its preferred height, before the
+  operating step, after it and after the settle, in the capture and the measuring mode (`SheetFitter`).
+- Two defects found by the first re-measure (`remeasure-sheets/`, superseded), fixed in `abd193abd`, tests first:
+  the preferred height compounded (the last preferred height plus the overflow, up to 23,111 pt for 1,841 pt of
+  content, and negative once SwiftUI put its own back); it is now the content less the sheet's native offset. And the
+  page behind a sheet set the need (a 9,257 pt reader behind `reader-settings-sheet`); the page of a sheet state is
+  now the front-most sheet and what is presented over it, on both devices (owner: 「sheet 的狀況應當測量 sheet 內容」).
+- A third, found by the full re-measure (`remeasure-sheets2/`), fixed in `4a40eebfb`, test first:
+  `downloads-inspector` and `-error`, iPad landscape large, the four CJK locales, were `cannot-cover` at 836 pt.
+  SwiftUI set the sheet's preferred height to 742.008 pt for 742.5 pt of content, under the fitter's one-pixel
+  threshold in points, and UIKit laid the frame out a pixel short (762 pt for 762.5 pt; dump in `inspector-diag/`).
+  The fitter now compares and sets the height in whole device pixels.
+- Re-measure of the 30 sheet states over all 18 configurations: the iPhone (both orientations) in
+  `remeasure-sheets2/phone`, the iPad after `4a40eebfb` in `remeasure-sheets3/` (`pad-portrait` lost six
+  configurations to a wipe of `/private/tmp` and DerivedData mid-run, re-run as `pad-portrait-rest`). 0
+  `did-not-converge`, 0 `error`. Against `remeasure-sheets2`'s iPad lines only the inspector's 16 lines changed (now
+  834 pt) and `report-form-error-alert` moved by 1 to 2 pt both ways (its `VerticalTextView`, the TextEditor fix).
+- What is left `cannot-cover` in the sheet states is decided already: the alerts and confirmation dialogs' own
+  scroll view at accessibility5 (screen height), the Filters reset dialog's popover at accessibility5, the report
+  form's `VerticalTextView` (Task 3's TextEditor fix), and the keyboard state `comments-post-filled` (removed).
+- `reader-settings-sheet` now follows its own content: iPhone portrait 918/960/3,277, landscape 797/835/2,052, iPad
+  portrait 1,210/1,210/2,735, landscape 856/898/2,735 (xSmall/large/accessibility5).
+- `proposal-sheets.json`: `propose --runs phone-* pad-* remeasure/phone remeasure/pad-portrait remeasure/pad-landscape
+  remeasure-sheets2/pad-portrait remeasure-sheets2/pad-landscape remeasure-sheets2/phone remeasure-sheets3/pad-portrait
+  remeasure-sheets3/pad-portrait-rest remeasure-sheets3/pad-landscape` (later lines replace earlier), 132 states
+  proposed, 1,621 finding lines (2,684 in `proposal-remeasure.json`). Task 3's verify `--runs` must list the same runs
+  in the same order.
+
 ## Do not delete (local only, not in git)
 
 - The worktree folder itself.
-- `.capture/agent-work/phase19-26` (286 MB): the twelve input runs' `heights.jsonl` (`phone-*`, `pad-*`),
-  `proposal.json` (Task 3's `apply --proposal` input; the verify command compares a regenerated copy with it),
+- `.capture/agent-work/phase19-26` (748 MB): the twelve input runs' `heights.jsonl` (`phone-*`, `pad-*`),
+  `proposal.json` (the first proposal, kept for the record), `proposal-sheets.json` (the proposal put to the owner
+  for approval, Task 3's `apply --proposal` input once approved; the verify command compares a regenerated copy with
+  it), the sheet re-measures `remeasure-sheets`, `remeasure-sheets2` and `remeasure-sheets3`, the fitting's evidence
+  `sheet-fit`, `sheet-diag`, `sheet-detect` and `inspector-diag`,
   `interrupted-pad-landscape-xSmall` (the set-aside partial run), the driver logs, `owner-answers.md` (the same
   answers as below), `site-settings-full` (the 7,600 pt site settings picture shown to the owner), and round 3's
   `recheck-notes.md`, `dnc-probe`, `error-recheck`, `freeze-debug` and `freeze-debug-pad`, the fixes' evidence
@@ -154,17 +189,20 @@ Round 4 (2026-11-27), the sheet-content design, after a probe on the iPad (evide
 
 ## Open, to put to the owner (Taiwanese Mandarin, AskUserQuestion)
 
-1. The go-ahead to build the sheet fitting (the owner separates deciding from implementing).
-2. Approval of the heights to commit, after the sheet states are re-measured with the fitting.
+1. Approval of the heights to commit: `proposal-sheets.json` (132 states), together with the screen-height
+   decisions already made (reader states, alerts and dialogs, menus, `app-wide-app-alert`, popovers) and the
+   keyboard states' removal. The sheet fitting was built on 「開始實作」 and re-measured (above).
 
 ## Task 3 work the answers add (beyond the plan's text)
 
 Amend `19-26-PLAN.md` with the owner's decisions before executing, then: the `viewport` case (plan `<behavior>`); the
 keyboard states' removal (inventory, providers, matrix counts, shard plan, the storage projection); compare mode
 without the `page-height` check (tests for both modes); the page need ignoring a `TextEditor`'s internal content
-height (test first); the freeze check using `readsMatch` (test first) and the re-measure of its states; the
-screen height for the menus and `app-wide-app-alert`; the sheet fitting (round 4: tests first, then re-measure the 21 iPad sheet states and `reader-settings-sheet` on both devices); `apply` and `check-sources`; the verification sample and
-timing ratio. Outside 19-26, before its re-measure: the Search root padding fix (app source, own commit). Note for later, not
+height (test first) and the re-measure of the states it touches (site settings, the report form, settings account);
+the screen height for the menus and `app-wide-app-alert`; `apply` and `check-sources`; the verification sample and
+timing ratio. Done already, each tests first: the freeze check using `readsMatch` (`4a87dc8b3`), the sheet fitting
+(`063a110d8`, `abd193abd`, `4a40eebfb`) and their re-measures; outside 19-26, the Search root padding fix
+(`86c47193b`) and the Filters Reset dialog fix (`eb8f4ee04`). Note for later, not
 part of 19-26: the "Excluded Uploaders" editor's code asks for 30% of the container
 height but renders one line tall in the tall window, a possible app layout defect.
 
