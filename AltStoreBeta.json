@@ -124,13 +124,13 @@
       "versions": [
         {
           "version": "3.1.0",
-          "buildVersion": "166",
+          "buildVersion": "167",
           "marketingVersion": "3.1.0",
-          "date": "2026-11-26T11:00:41Z",
+          "date": "2026-11-28T10:43:04Z",
           "localizedDescription": "EhPanda 3.1.0 beta includes the following improvements.\n\nTags you keep in My Tags are marked in every list and on gallery pages. Add or remove a tag from its menu, and manage your tag sets in Settings.\n\nWebtoons can always be read vertically. Turn it on in Reading settings, and EhPanda switches when a gallery's pages are tall.\n\nWaiting downloads are listed in the order they will run, and each gallery's menu can download it now, next or at another place in the queue.\n\nThe Read button shows the page you will resume at and how far you've read. Lists mark the galleries you've favorited and strike through the date of an expunged gallery. Each E-Hentai setting saves on its own, the Sort Order menu in Favorites shows the order in use, and editing a comment keeps its formatting.\n\nSave a search keyword as a saved search, and get tag suggestions in the saved search editor. Crash reports are sent, with personal details removed, so crashes can be fixed. Plus pointer hover effects on iPad and many fixes.",
           "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/3.1.0/EhPanda-Beta.ipa",
-          "size": 20848432,
-          "sha256": "f8a37c05aeaa2536f866cd200b84e9088479c0fe9ac79ea1a3de8104b2efd04c",
+          "size": 20904104,
+          "sha256": "30a5de0c98f58347103fb7643c6388eae59ef49d083f89f142f9c09e86c740f8",
           "minOSVersion": "27.0"
         }
       ]
